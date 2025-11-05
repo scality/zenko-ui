@@ -1,55 +1,60 @@
-import {
-  extractPemParts,
-  parseCertificateFromPEM,
-  ParsedCertificate,
-} from '@scality/certchain';
+import { extractPemParts, parseCertificateFromPEM } from '@scality/certchain';
 import { useState, useEffect, useMemo } from 'react';
 import { useK8sSecretQueries } from '../queries';
+import { ParsedCertificatesBundleWithIndex } from './Truststore';
 
 export type ZenkoCRCertificateBundle = {
   'ca.crt'?: string;
   secretName?: string;
   secretAttributes?: string;
 };
+
+export type ZenkoCRCertificateBundleWithIndex = ZenkoCRCertificateBundle & {
+  index: number;
+};
 export type SecretCertificate = {
   secretName: string;
   secretAttributes: string;
-};
-
-export type CertificateWithPEM = ParsedCertificate & {
-  originalPEM: string;
+  index: number;
 };
 
 const extractCertificateBundles = (
-  certificateBundles: ZenkoCRCertificateBundle[],
+  certificateBundles: ZenkoCRCertificateBundleWithIndex[],
 ) => {
   return certificateBundles
     .filter((certificateBundle) => certificateBundle['ca.crt'])
     .map((certificateBundle) => {
-      return extractPemParts(certificateBundle['ca.crt']);
+      return {
+        pemParts: extractPemParts(certificateBundle['ca.crt']),
+        index: certificateBundle.index,
+      };
     });
 };
 
 const extractSecretCertificates = (
-  extraCACerts: ZenkoCRCertificateBundle[],
-): SecretCertificate[] => {
+  extraCACerts: ZenkoCRCertificateBundleWithIndex[],
+): (SecretCertificate & { index: number })[] => {
   return extraCACerts
     .filter((extraCACert) => extraCACert['secretName'])
     .map((extraCACert) => {
       return {
         secretName: extraCACert['secretName'],
         secretAttributes: extraCACert['secretAttributes'] ?? 'ca.crt',
+        index: extraCACert.index,
       };
     });
 };
 
 const parseCertificateBundles = async (
-  extractedCertificateBundles: { pem: string }[][],
-): Promise<CertificateWithPEM[][]> => {
+  extractedCertificateBundles: {
+    pemParts: { pem: string }[];
+    index: number;
+  }[],
+): Promise<ParsedCertificatesBundleWithIndex[]> => {
   return await Promise.all(
     extractedCertificateBundles.map(async (extractedCertificateBundle) => {
-      return await Promise.all(
-        extractedCertificateBundle.map(async (pemPart) => {
+      const parsedCertificates = await Promise.all(
+        extractedCertificateBundle.pemParts.map(async (pemPart) => {
           const parsed = await parseCertificateFromPEM(pemPart.pem);
           return {
             ...parsed,
@@ -57,14 +62,18 @@ const parseCertificateBundles = async (
           };
         }),
       );
+      return {
+        parsedCertificates,
+        index: extractedCertificateBundle.index,
+      };
     }),
   );
 };
 
 export const useParseBundleCertificates = (
-  certificateBundles: ZenkoCRCertificateBundle[],
+  certificateBundles: ZenkoCRCertificateBundleWithIndex[],
 ) => {
-  const [data, setData] = useState<CertificateWithPEM[][]>([]);
+  const [data, setData] = useState<ParsedCertificatesBundleWithIndex[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -95,10 +104,13 @@ export const useParseBundleCertificates = (
 };
 
 export const useParseSecretCertificates = (
-  extraCACerts: ZenkoCRCertificateBundle[],
-): { parsedSecretCertificates: CertificateWithPEM[][]; isLoading: boolean } => {
+  extraCACerts: ZenkoCRCertificateBundleWithIndex[],
+): {
+  parsedSecretCertificates: ParsedCertificatesBundleWithIndex[];
+  isLoading: boolean;
+} => {
   const [parsedSecretCertificates, setParsedCertificates] = useState<
-    CertificateWithPEM[][]
+    ParsedCertificatesBundleWithIndex[]
   >([]);
 
   const extractedSecretCertificates = useMemo(
@@ -136,9 +148,9 @@ export const useParseSecretCertificates = (
         }
 
         const parsed = await Promise.all(
-          secretsData.map(async (secretData, index) => {
+          secretsData.map(async (secretData, dataIndex) => {
             const attributeName =
-              extractedSecretCertificates[index].secretAttributes;
+              extractedSecretCertificates[dataIndex].secretAttributes;
 
             const certificateBase64 = secretData?.data?.[attributeName];
             if (!certificateBase64) {
@@ -151,7 +163,7 @@ export const useParseSecretCertificates = (
             const certificatePEM = atob(certificateBase64);
             // Extract PEM parts to handle certificate bundles
             const pemParts = extractPemParts(certificatePEM);
-            return await Promise.all(
+            const parsedCerts = await Promise.all(
               pemParts.map(async (pemPart) => {
                 const parsed = await parseCertificateFromPEM(pemPart.pem);
                 return {
@@ -160,6 +172,10 @@ export const useParseSecretCertificates = (
                 };
               }),
             );
+            return {
+              parsedCertificates: parsedCerts,
+              index: extractedSecretCertificates[dataIndex].index ?? 0,
+            };
           }),
         );
         setParsedCertificates(parsed);

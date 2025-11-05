@@ -23,27 +23,41 @@ import { getZenkoCRQuery } from '../queries';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import CertificateDetails from './CertificateDetails';
 import {
-  CertificateWithPEM,
   useParseBundleCertificates,
   useParseSecretCertificates,
   ZenkoCRCertificateBundle,
+  ZenkoCRCertificateBundleWithIndex,
 } from './hooks';
 import { formatExpiryDate } from './utils';
+import { ParsedCertificate } from '@scality/certchain';
+
+export type CertificateWithPEM = ParsedCertificate & {
+  originalPEM: string;
+};
+
+// the index is used to track the order in Zenko CR
+export type ParsedCertificatesBundleWithIndex = {
+  parsedCertificates: CertificateWithPEM[];
+  index: number;
+};
 
 const formatCertificateDataForTable = (
-  parsedCertificates: CertificateWithPEM[][],
+  parsedCertificates: ParsedCertificatesBundleWithIndex[],
 ) => {
   const formattedCertificateData: CertificateData[] = parsedCertificates.map(
-    (certificateBundle) => {
+    (certificateBundle: ParsedCertificatesBundleWithIndex) => {
       const data: CertificateData = {
+        index: certificateBundle.index,
         metadata: [],
         expireOn: [],
-        certificates: certificateBundle,
+        certificates: certificateBundle.parsedCertificates,
       };
-      certificateBundle.forEach((certificate) => {
-        data.metadata.push(certificate.commonName);
-        data.expireOn.push(certificate.expiresOn);
-      });
+      certificateBundle.parsedCertificates.forEach(
+        (certificate: ParsedCertificate) => {
+          data.metadata.push(certificate.commonName);
+          data.expireOn.push(certificate.expiresOn);
+        },
+      );
       return data;
     },
   );
@@ -134,7 +148,7 @@ const Truststore = () => {
       (
         cert: ZenkoCRCertificateBundle,
         index: number,
-      ): ZenkoCRCertificateBundle & { index: number } => ({
+      ): ZenkoCRCertificateBundleWithIndex => ({
         ...cert,
         index,
       }),
