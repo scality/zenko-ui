@@ -7,11 +7,13 @@ import {
 } from '../hooks';
 import type { ParsedCertificate } from '@scality/certchain';
 
-// Mock @scality/certchain module
-jest.mock('@scality/certchain');
-
-// Import mocked functions after mocking
 import { parseCertificateFromPEM, extractPemParts } from '@scality/certchain';
+import { useK8sSecretQueries } from '../../queries';
+
+jest.mock('@scality/certchain');
+jest.mock('../../queries', () => ({
+  useK8sSecretQueries: jest.fn(),
+}));
 
 const mockParseCertificateFromPEM =
   parseCertificateFromPEM as jest.MockedFunction<
@@ -19,6 +21,9 @@ const mockParseCertificateFromPEM =
   >;
 const mockExtractPemParts = extractPemParts as jest.MockedFunction<
   typeof extractPemParts
+>;
+const mockUseK8sSecretQueries = useK8sSecretQueries as jest.MockedFunction<
+  typeof useK8sSecretQueries
 >;
 
 const mockCertificate1: ParsedCertificate = {
@@ -241,4 +246,659 @@ describe('useParseBundleCertificates', () => {
   });
 });
 
-describe('useParseSecretCertificates', () => {});
+describe('useParseSecretCertificates', () => {
+  it('should return empty array when extraCACerts is empty', () => {
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'loading',
+      data: undefined,
+      error: null,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+      isIdle: false,
+      isFetching: false,
+      isFetched: false,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    const { result } = renderHook(() => useParseSecretCertificates([]));
+
+    expect(result.current.parsedSecretCertificates).toEqual([]);
+    expect(result.current.isLoading).toBe(true);
+  });
+
+  it('should parse a single secret certificate successfully', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret',
+        secretAttributes: 'ca.crt',
+      },
+    ];
+
+    // Base64 encoded PEM certificate
+    const certificatePEM =
+      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: [
+        {
+          data: {
+            'ca.crt': base64Cert,
+          },
+        },
+      ],
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    mockExtractPemParts.mockReturnValue([
+      {
+        pem: certificatePEM,
+        base64Cert: 'MockCert1',
+      },
+    ]);
+    mockParseCertificateFromPEM.mockResolvedValue(mockCertificate1);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([
+        [mockCertificate1],
+      ]);
+    });
+
+    expect(result.current.isLoading).toBe(false);
+    expect(mockExtractPemParts).toHaveBeenCalledWith(certificatePEM);
+    expect(mockParseCertificateFromPEM).toHaveBeenCalledWith(certificatePEM);
+  });
+
+  it('should parse multiple secret certificates successfully', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret-1',
+        secretAttributes: 'ca.crt',
+      },
+      {
+        secretName: 'test-secret-2',
+        secretAttributes: 'tls.crt',
+      },
+    ];
+
+    const certificatePEM1 =
+      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+    const certificatePEM2 =
+      '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
+    const base64Cert1 = Buffer.from(certificatePEM1).toString('base64');
+    const base64Cert2 = Buffer.from(certificatePEM2).toString('base64');
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: [
+        {
+          data: {
+            'ca.crt': base64Cert1,
+          },
+        },
+        {
+          data: {
+            'tls.crt': base64Cert2,
+          },
+        },
+      ],
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    mockExtractPemParts
+      .mockReturnValueOnce([
+        {
+          pem: certificatePEM1,
+          base64Cert: 'MockCert1',
+        },
+      ])
+      .mockReturnValueOnce([
+        {
+          pem: certificatePEM2,
+          base64Cert: 'MockCert2',
+        },
+      ]);
+
+    mockParseCertificateFromPEM
+      .mockResolvedValueOnce(mockCertificate1)
+      .mockResolvedValueOnce(mockCertificate2);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([
+        [mockCertificate1],
+        [mockCertificate2],
+      ]);
+    });
+
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('should use default secretAttributes (ca.crt) when not specified', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret',
+        // secretAttributes not specified
+      },
+    ];
+
+    const certificatePEM =
+      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: [
+        {
+          data: {
+            'ca.crt': base64Cert, // Should use default 'ca.crt'
+          },
+        },
+      ],
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    mockExtractPemParts.mockReturnValue([
+      {
+        pem: certificatePEM,
+        base64Cert: 'MockCert1',
+      },
+    ]);
+    mockParseCertificateFromPEM.mockResolvedValue(mockCertificate1);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([
+        [mockCertificate1],
+      ]);
+    });
+
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('should parse a secret with multiple certificates (certificate chain)', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret-chain',
+        secretAttributes: 'ca.crt',
+      },
+    ];
+
+    const certificatePEM =
+      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----\n' +
+      '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
+    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: [
+        {
+          data: {
+            'ca.crt': base64Cert,
+          },
+        },
+      ],
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    // extractPemParts returns 2 certificates from 1 bundle
+    mockExtractPemParts.mockReturnValue([
+      {
+        pem: '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+        base64Cert: 'MockCert1',
+      },
+      {
+        pem: '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----',
+        base64Cert: 'MockCert2',
+      },
+    ]);
+
+    mockParseCertificateFromPEM
+      .mockResolvedValueOnce(mockCertificate1)
+      .mockResolvedValueOnce(mockCertificate2);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([
+        [mockCertificate1, mockCertificate2],
+      ]);
+    });
+
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('should handle query loading state', () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret',
+        secretAttributes: 'ca.crt',
+      },
+    ];
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'loading',
+      data: undefined,
+      error: null,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+      isIdle: false,
+      isFetching: true,
+      isFetched: false,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.parsedSecretCertificates).toEqual([]);
+  });
+
+  it('should handle query error state', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret',
+        secretAttributes: 'ca.crt',
+      },
+    ];
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'error',
+      data: undefined,
+      error: new Error('Failed to fetch secret'),
+      isLoading: false,
+      isError: true,
+      isSuccess: false,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([]);
+    });
+
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('should handle missing certificate in secret data', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret',
+        secretAttributes: 'ca.crt',
+      },
+    ];
+
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: [
+        {
+          data: {
+            // Missing 'ca.crt' field
+            'other-field': 'some-value',
+          },
+        },
+      ],
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([]);
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error parsing secret certificates:',
+      expect.any(Error),
+    );
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should handle null or undefined secret data', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret',
+        secretAttributes: 'ca.crt',
+      },
+    ];
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: null,
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([]);
+    });
+
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('should handle certificate parsing errors', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        secretName: 'test-secret',
+        secretAttributes: 'ca.crt',
+      },
+    ];
+
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    const certificatePEM =
+      '-----BEGIN CERTIFICATE-----\nInvalidCert\n-----END CERTIFICATE-----';
+    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: [
+        {
+          data: {
+            'ca.crt': base64Cert,
+          },
+        },
+      ],
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    mockExtractPemParts.mockReturnValue([
+      {
+        pem: certificatePEM,
+        base64Cert: 'InvalidCert',
+      },
+    ]);
+    mockParseCertificateFromPEM.mockRejectedValue(
+      new Error('Invalid certificate format'),
+    );
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([]);
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error parsing secret certificates:',
+      expect.any(Error),
+    );
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should filter out bundles without secretName', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        'ca.crt':
+          '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+        // No secretName - should be filtered out
+      },
+      {
+        secretName: 'test-secret',
+        secretAttributes: 'ca.crt',
+      },
+    ];
+
+    const certificatePEM =
+      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: [
+        {
+          data: {
+            'ca.crt': base64Cert,
+          },
+        },
+      ],
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    mockExtractPemParts.mockReturnValue([
+      {
+        pem: certificatePEM,
+        base64Cert: 'MockCert1',
+      },
+    ]);
+    mockParseCertificateFromPEM.mockResolvedValue(mockCertificate1);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([
+        [mockCertificate1],
+      ]);
+    });
+
+    // Should only call useK8sSecretQueries with the one valid secret
+    expect(mockUseK8sSecretQueries).toHaveBeenCalledWith(['test-secret']);
+  });
+
+  it('should handle mixed bundle and secret certificates', async () => {
+    const extraCACerts: ZenkoCRCertificateBundle[] = [
+      {
+        'ca.crt':
+          '-----BEGIN CERTIFICATE-----\nBundleCert\n-----END CERTIFICATE-----',
+        // This is a bundle certificate, not a secret
+      },
+      {
+        secretName: 'test-secret-1',
+        secretAttributes: 'ca.crt',
+      },
+      {
+        secretName: 'test-secret-2',
+        secretAttributes: 'tls.crt',
+      },
+    ];
+
+    const certificatePEM1 =
+      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+    const certificatePEM2 =
+      '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
+    const base64Cert1 = Buffer.from(certificatePEM1).toString('base64');
+    const base64Cert2 = Buffer.from(certificatePEM2).toString('base64');
+
+    mockUseK8sSecretQueries.mockReturnValue({
+      status: 'success',
+      data: [
+        {
+          data: {
+            'ca.crt': base64Cert1,
+          },
+        },
+        {
+          data: {
+            'tls.crt': base64Cert2,
+          },
+        },
+      ],
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+      isIdle: false,
+      isFetching: false,
+      isFetched: true,
+      isStale: false,
+      isPlaceholderData: false,
+      isPreviousData: false,
+      refetch: jest.fn(),
+      remove: jest.fn(),
+    } as any);
+
+    mockExtractPemParts
+      .mockReturnValueOnce([
+        {
+          pem: certificatePEM1,
+          base64Cert: 'MockCert1',
+        },
+      ])
+      .mockReturnValueOnce([
+        {
+          pem: certificatePEM2,
+          base64Cert: 'MockCert2',
+        },
+      ]);
+
+    mockParseCertificateFromPEM
+      .mockResolvedValueOnce(mockCertificate1)
+      .mockResolvedValueOnce(mockCertificate2);
+
+    const { result } = renderHook(() =>
+      useParseSecretCertificates(extraCACerts),
+    );
+
+    await waitFor(() => {
+      expect(result.current.parsedSecretCertificates).toEqual([
+        [mockCertificate1],
+        [mockCertificate2],
+      ]);
+    });
+
+    // Should only extract and query the secret certificates, not the bundle
+    expect(mockUseK8sSecretQueries).toHaveBeenCalledWith([
+      'test-secret-1',
+      'test-secret-2',
+    ]);
+  });
+});

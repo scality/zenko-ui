@@ -111,18 +111,13 @@ export const useParseSecretCertificates = (
   useEffect(() => {
     if (isLoading) return;
 
-    if (extractedSecretCertificates.length === 0) {
-      setParsedCertificates([]);
-      return;
-    }
-
-    if (hasErrors) {
+    if (extractedSecretCertificates.length === 0 || hasErrors) {
       setParsedCertificates([]);
       return;
     }
 
     // Retrieve and parse certificates
-    const parseSecrets = async () => {
+    (async () => {
       try {
         // secretQueries.data is an array of secret data objects
         const secretsData = secretQueries.data;
@@ -158,9 +153,7 @@ export const useParseSecretCertificates = (
         console.error('Error parsing secret certificates:', err);
         setParsedCertificates([]);
       }
-    };
-
-    parseSecrets();
+    })();
   }, [isLoading, hasErrors, extractedSecretCertificates, secretQueries.data]);
 
   return {
