@@ -27,6 +27,7 @@ import {
   useParseBundleCertificates,
   useParseSecretCertificates,
 } from './hooks';
+import { formatExpiryDate } from './utils';
 
 const formatCertificateDataForTable = (
   parsedCertificates: ParsedCertificate[][],
@@ -213,10 +214,26 @@ const Truststore = () => {
                 return a.getTime() - b.getTime();
               })[0]
             : value[0];
-        return <Text>{new Date(closestExpireDate).toLocaleDateString()}</Text>;
+        const { shortFormatWithPrefix, status } =
+          formatExpiryDate(closestExpireDate);
+        return (
+          <Stack
+            direction="horizontal"
+            style={{ alignItems: 'center', justifyContent: 'flex-end' }}
+          >
+            {status === 'warning' ? (
+              <Icon name="Warning" />
+            ) : status === 'critical' ? (
+              <Icon name="Critical" />
+            ) : null}
+
+            <Text>{shortFormatWithPrefix}</Text>
+          </Stack>
+        );
       },
     },
     {
+      Header: '',
       id: 'actions',
       cellStyle: { flex: 0.75 },
       Cell: ({ row }: { row: Row<CertificateData> }) => {

@@ -5,6 +5,7 @@ import { ParsedCertificate } from '@scality/certchain';
 import styled from 'styled-components';
 import { Box, CopyButton } from '@scality/core-ui/dist/next';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { formatExpiryDate } from './utils';
 
 const CertificateViewFieldWrapper = styled.div`
   width: 12rem;
@@ -55,7 +56,11 @@ const CertificateDetailRow = ({
 
     // Handle Date objects
     if (value instanceof Date) {
-      displayValue = value.toLocaleDateString();
+      if (label === 'Expires On') {
+        displayValue = formatExpiryDate(value).shortFormatWithPrefix;
+      } else {
+        displayValue = formatExpiryDate(value).shortFormat;
+      }
       content = <ConstrainedText text={displayValue} />;
     }
     // Handle arrays
