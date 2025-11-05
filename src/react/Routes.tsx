@@ -487,27 +487,14 @@ function InternalRoutes() {
           doesRouteMatch('/accounts/:accountName/data/workflows/*'),
       },
 
-      ...(isStorageManager
-        ? [
-            {
-              label: 'Locations',
-              icon: <Icon name="Location" />,
-              onClick: () => {
-                navigate('/locations');
-              },
-              active: doesRouteMatch('/locations'),
-            },
-
-            {
-              label: 'Data Services',
-              icon: <Icon name="Cubes" />,
-              onClick: () => {
-                navigate('/dataservices');
-              },
-              active: doesRouteMatch('/dataservices'),
-            },
-          ]
-        : []),
+      isStorageManager && {
+        label: 'Locations',
+        icon: <Icon name="Location" />,
+        onClick: () => {
+          navigate('/locations');
+        },
+        active: doesRouteMatch('/locations'),
+      },
       //TODO: Put Truststore behind a feature flag for the moment until it is fully ready.
       ...(isPlatformAdmin && features.includes('Truststore')
         ? [
@@ -521,6 +508,14 @@ function InternalRoutes() {
             },
           ]
         : []),
+      isStorageManager && {
+        label: 'Data Services',
+        icon: <Icon name="Cubes" />,
+        onClick: () => {
+          navigate('/dataservices');
+        },
+        active: doesRouteMatch('/dataservices'),
+      },
     ],
   };
 
