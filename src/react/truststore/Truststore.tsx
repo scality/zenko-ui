@@ -80,6 +80,7 @@ const Truststore = () => {
     data: zenkoCR,
     status: zenkoCRStatus,
     isLoading: isLoadingZenkoCR,
+    isError: isErrorZenkoCR,
   } = useQuery(getZenkoCRQuery());
   const toggleTLSVerificationMutationOptions: MutationOptions<
     { skipTLSVerify: boolean },
@@ -102,6 +103,7 @@ const Truststore = () => {
       });
     },
   };
+
   const {
     mutate: toggleTLSVerificationMutation,
     isLoading: isLoadingToggleTLSVerification,
@@ -129,6 +131,27 @@ const Truststore = () => {
   const toggleTLSVerification = (skipTLSVerify: boolean) => {
     toggleTLSVerificationMutation({ skipTLSVerify });
   };
+
+  const status = useMemo(() => {
+    if (isLoadingZenkoCR || isParsingCertificates) {
+      return 'loading';
+    }
+    if (isErrorZenkoCR) {
+      return 'error';
+    }
+    if (zenkoCRStatus === 'success' && parsedExtraCACerts) {
+      return 'success';
+    }
+    return 'idle';
+  }, [
+    isLoadingZenkoCR,
+    isParsingCertificates,
+    isErrorZenkoCR,
+    zenkoCRStatus,
+    parsedExtraCACerts,
+  ]);
+
+  /* --------------------------------- COLUMNS -------------------------------- */
   const columns: CoreUIColumn<CertificateData>[] = [
     {
       Header: 'Name',
@@ -203,6 +226,7 @@ const Truststore = () => {
       },
     },
   ];
+
   return (
     <AppContainer>
       <AppContainer.OverallSummary>
@@ -239,7 +263,7 @@ const Truststore = () => {
         <Box width="100%">
           <Table
             columns={columns}
-            status={zenkoCRStatus}
+            status={status}
             data={formattedCertificateDataForTable}
             entityName={{
               en: { singular: 'certificate', plural: 'certificates' },
