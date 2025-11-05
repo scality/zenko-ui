@@ -138,7 +138,11 @@ const Truststore = () => {
   };
 
   const status = useMemo(() => {
-    if (isLoadingZenkoCR || isParsingCertificates) {
+    if (
+      isLoadingZenkoCR ||
+      isParsingCertificates ||
+      isParsingSecretCertificates
+    ) {
       return 'loading';
     }
     if (isErrorZenkoCR) {
@@ -151,6 +155,7 @@ const Truststore = () => {
   }, [
     isLoadingZenkoCR,
     isParsingCertificates,
+    isParsingSecretCertificates,
     isErrorZenkoCR,
     zenkoCRStatus,
     parsedExtraCACerts,
