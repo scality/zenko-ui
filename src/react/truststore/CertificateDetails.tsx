@@ -1,12 +1,16 @@
-import { Modal, Stack, Text } from '@scality/core-ui';
+import { ConstrainedText, Modal, Stack, Text } from '@scality/core-ui';
 import React from 'react';
 import { ModalBody } from '../ui-elements/Modal';
 import { ParsedCertificate } from '@scality/certchain';
 import styled from 'styled-components';
+import { Box, CopyButton } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 
 const CertificateViewFieldWrapper = styled.div`
   width: 12rem;
 `;
+const MAX_CONTENT_WIDTH = '24rem';
+
 const CertificateViewField = ({ children, ...rest }) => {
   return (
     <CertificateViewFieldWrapper {...rest}>
@@ -16,8 +20,7 @@ const CertificateViewField = ({ children, ...rest }) => {
 };
 const Row = ({ children }) => {
   return (
-    //@ts-expect-error - alignItems is missing in coreUI type
-    <Stack role="row" alignItems="baseline">
+    <Stack role="row" style={{ alignItems: 'baseline' }}>
       {children}
     </Stack>
   );
@@ -26,50 +29,68 @@ const Row = ({ children }) => {
 type CertificateDetailRowProps = {
   label: string;
   value: string | string[] | Date | null | undefined;
+  copyable?: boolean;
+};
+const NotSetItem = () => {
+  return (
+    <div role="cell">
+      <Text isGentleEmphazed>Not set</Text>
+    </div>
+  );
 };
 
-const CertificateDetailRow = ({ label, value }: CertificateDetailRowProps) => {
+const CertificateDetailRow = ({
+  label,
+  value,
+  copyable = false,
+}: CertificateDetailRowProps) => {
   const renderValue = () => {
     // Handle null/undefined
     if (!value) {
-      return (
-        <div role="cell">
-          <Text isGentleEmphazed>Not set</Text>
-        </div>
-      );
+      return <NotSetItem />;
     }
+
+    let displayValue: string;
+    let content: React.ReactNode;
 
     // Handle Date objects
     if (value instanceof Date) {
-      return <div role="cell">{value.toLocaleDateString()}</div>;
+      displayValue = value.toLocaleDateString();
+      content = <ConstrainedText text={displayValue} />;
     }
-
     // Handle arrays
-    if (Array.isArray(value)) {
+    else if (Array.isArray(value)) {
       if (value.length === 0) {
-        return (
-          <div role="cell">
-            <Text isGentleEmphazed>Not set</Text>
-          </div>
-        );
+        return <NotSetItem />;
       }
-      return (
-        <Stack direction="vertical" gap="r4" role="cell">
+      displayValue = value.join(', ');
+      content = (
+        <Stack direction="vertical" gap="r4">
           {value.map((item, idx) => (
-            <div key={idx}>
-              {item && item.length ? (
-                item
-              ) : (
-                <Text isGentleEmphazed>Not set</Text>
-              )}
-            </div>
+            <ConstrainedText
+              key={idx}
+              text={item && item.length ? item : <NotSetItem />}
+            />
           ))}
         </Stack>
       );
     }
-
     // Handle single string
-    return <div role="cell">{value}</div>;
+    else {
+      displayValue = value;
+      content = <ConstrainedText text={value} />;
+    }
+
+    return (
+      <Stack
+        direction="horizontal"
+        gap="r8"
+        style={{ maxWidth: MAX_CONTENT_WIDTH, flex: 1 }}
+      >
+        <div style={{ flex: 1, minWidth: 0 }}>{content}</div>
+        {copyable && <CopyButton textToCopy={displayValue} />}
+      </Stack>
+    );
   };
 
   return (
@@ -79,6 +100,39 @@ const CertificateDetailRow = ({ label, value }: CertificateDetailRowProps) => {
     </Row>
   );
 };
+const certificatePropertiesWithLabels = [
+  {
+    label: 'Name',
+    property: 'name',
+  },
+  { label: 'Authority', property: 'authority' },
+  {
+    label: 'Common Name',
+    property: 'commonName',
+  },
+  {
+    label: 'Organization',
+    property: 'organizations',
+  },
+  {
+    label: 'Issued On',
+    property: 'issuedOn',
+  },
+  {
+    label: 'Expires On',
+    property: 'expiresOn',
+  },
+  {
+    label: 'Certificate',
+    property: 'certificateHash',
+    copyable: true,
+  },
+  {
+    label: 'Public Key',
+    property: 'publicKey',
+    copyable: true,
+  },
+];
 
 const CertificateDetails = ({
   selectedCertificate,
@@ -92,11 +146,20 @@ const CertificateDetails = ({
   return (
     <Modal
       close={handleClose}
-      footer={<></>}
+      footer={
+        <Box display="flex" justifyContent="flex-end">
+          <Button
+            label="Close"
+            onClick={handleClose}
+            variant="secondary"
+            style={{ minWidth: '80px' }}
+          />
+        </Box>
+      }
       isOpen={isModalOpen}
       title="Certificate Details"
     >
-      <ModalBody style={{ maxHeight: '36rem' }}>
+      <ModalBody style={{ maxHeight: '32rem' }}>
         <Stack direction="vertical" gap="r16" withSeparators>
           {selectedCertificate.map((certificate, index) => (
             <Stack
@@ -106,7 +169,7 @@ const CertificateDetails = ({
             >
               <Text
                 isEmphazed
-                color="textSecondary"
+                color="textPrimary"
                 style={{
                   textAlign: 'center',
                   paddingBottom: '1rem',
@@ -118,55 +181,14 @@ const CertificateDetails = ({
                   ? ' (Root certificate)'
                   : ''}
               </Text>
-              <CertificateDetailRow label="Name" value={certificate.name} />
-              <CertificateDetailRow
-                label="Authority"
-                value={certificate.authority}
-              />
-              <CertificateDetailRow
-                label="Expires on"
-                value={certificate.expiresOn}
-              />
-              <CertificateDetailRow
-                label="Altname(s)"
-                value={certificate.altNames}
-              />
-              <CertificateDetailRow
-                label="Common Name (CN)"
-                value={certificate.commonName}
-              />
-              <CertificateDetailRow
-                label="Organization (O)"
-                value={certificate.organizations}
-              />
-              <CertificateDetailRow
-                label="Org unit (OU)"
-                value={certificate.organizationalUnits}
-              />
-              <CertificateDetailRow
-                label="Locality (L)"
-                value={certificate.localities}
-              />
-              <CertificateDetailRow
-                label="Countries (C)"
-                value={certificate.countries}
-              />
-              <CertificateDetailRow
-                label="State (ST)"
-                value={certificate.provinces}
-              />
-              <CertificateDetailRow
-                label="Street Address (STREET)"
-                value={certificate.streetAddresses}
-              />
-              <CertificateDetailRow
-                label="Postal Code (PC)"
-                value={certificate.postalCodes}
-              />
-              <CertificateDetailRow
-                label="Serial Number (SN)"
-                value={certificate.serialNumber}
-              />
+              {certificatePropertiesWithLabels.map((property) => (
+                <CertificateDetailRow
+                  key={property.property + index}
+                  label={property.label}
+                  copyable={property.copyable}
+                  value={certificate[property.property]}
+                />
+              ))}
             </Stack>
           ))}
         </Stack>
