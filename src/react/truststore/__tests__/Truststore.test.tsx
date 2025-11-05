@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import Truststore from '../Truststore';
+import Truststore, { CertificateWithPEM } from '../Truststore';
 import {
   NewWrapper,
   mockOffsetSize,
@@ -11,10 +11,7 @@ import {
 import {
   useParseBundleCertificates,
   useParseSecretCertificates,
-  CertificateWithPEM,
 } from '../hooks';
-import { ParsedCertificate } from '@scality/certchain';
-import { debug } from 'jest-preview';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -78,6 +75,10 @@ describe('Truststore', () => {
     publicKey:
       '-----BEGIN PUBLIC KEY-----\nMockPublicKey1\n-----END PUBLIC KEY-----',
     originalPEM: MOCK_PEM_CERT,
+    rsaPublicKey: {
+      modulus: 'mockModulus1',
+      exponent: '01 00 01',
+    },
   };
 
   // Mock Zenko CR data with certificates
@@ -212,7 +213,9 @@ describe('Truststore', () => {
   it('should open certificate details modal when View Details is clicked', async () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [[mockCertificate1]],
+      parsedCertificates: [
+        { parsedCertificates: [mockCertificate1], index: 0 },
+      ],
       isLoading: false,
     });
     mockUseParseSecretCertificates.mockReturnValue({
@@ -227,7 +230,7 @@ describe('Truststore', () => {
         screen.queryByText(/Loading certificates/i),
       ).not.toBeInTheDocument();
     });
-    debug();
+
     await waitFor(() => {
       expect(selectors.viewDetailsButton()).toBeInTheDocument();
     });
@@ -243,7 +246,9 @@ describe('Truststore', () => {
   it('should close certificate details modal when modal is closed', async () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [[mockCertificate1]],
+      parsedCertificates: [
+        { parsedCertificates: [mockCertificate1], index: 0 },
+      ],
       isLoading: false,
     });
     mockUseParseSecretCertificates.mockReturnValue({
@@ -283,7 +288,9 @@ describe('Truststore', () => {
     };
 
     mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [[mockCertificate1, mockCertificate2]],
+      parsedCertificates: [
+        { parsedCertificates: [mockCertificate1, mockCertificate2], index: 0 },
+      ],
       isLoading: false,
     });
     mockUseParseSecretCertificates.mockReturnValue({
@@ -314,7 +321,9 @@ describe('Truststore', () => {
     };
 
     mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [[mockCertificate1, mockCertificate2]],
+      parsedCertificates: [
+        { parsedCertificates: [mockCertificate1, mockCertificate2], index: 0 },
+      ],
       isLoading: false,
     });
     mockUseParseSecretCertificates.mockReturnValue({
@@ -416,7 +425,9 @@ describe('Truststore', () => {
     it('should return table data when Zenko CR and certificates are loaded successfully', async () => {
       //S
       mockUseParseBundleCertificates.mockReturnValue({
-        parsedCertificates: [[mockCertificate1]],
+        parsedCertificates: [
+          { parsedCertificates: [mockCertificate1], index: 0 },
+        ],
         isLoading: false,
       });
       mockUseParseSecretCertificates.mockReturnValue({
@@ -433,7 +444,7 @@ describe('Truststore', () => {
           screen.queryByText(/Loading certificates/i),
         ).not.toBeInTheDocument();
       });
-      debug();
+
       // Component should render with data in table
       expect(screen.getByText(mockCertificate1.commonName)).toBeInTheDocument();
       expect(screen.getByText(/- 2026-10-05/i)).toBeInTheDocument();

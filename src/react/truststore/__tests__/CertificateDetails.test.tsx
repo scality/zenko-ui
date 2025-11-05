@@ -22,6 +22,10 @@ describe('CertificateDetails', () => {
     serialNumber: '1234567890',
     certificateHash: 'abc123',
     publicKey: '-----BEGIN PUBLIC KEY-----\ntest\n-----END PUBLIC KEY-----',
+    rsaPublicKey: {
+      modulus: '1234567890',
+      exponent: '01 00 01',
+    },
   };
 
   const mockRootCertificate: ParsedCertificate = {

@@ -2,8 +2,8 @@ import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
 import {
   useParseBundleCertificates,
-  ZenkoCRCertificateBundle,
   useParseSecretCertificates,
+  ZenkoCRCertificateBundleWithIndex,
 } from '../hooks';
 import type { ParsedCertificate } from '@scality/certchain';
 
@@ -44,6 +44,10 @@ const mockCertificate1: ParsedCertificate = {
   certificateHash: '123456',
   publicKey:
     '-----BEGIN PUBLIC KEY-----\nMockPublicKey1\n-----END PUBLIC KEY----- ',
+  rsaPublicKey: {
+    modulus: 'mockModulus1',
+    exponent: '01 00 01',
+  },
 };
 
 const mockCertificate2: ParsedCertificate = {
@@ -64,6 +68,10 @@ const mockCertificate2: ParsedCertificate = {
   certificateHash: '123456',
   publicKey:
     '-----BEGIN PUBLIC KEY-----\nMockPublicKey2\n-----END PUBLIC KEY----- ',
+  rsaPublicKey: {
+    modulus: 'mockModulus2',
+    exponent: '01 00 01',
+  },
 };
 
 // Common PEM certificate strings used across tests
@@ -91,9 +99,10 @@ describe('useParseBundleCertificates', () => {
   it('should parse a single certificate bundle successfully', async () => {
     const mockCertificateBundle = {
       'ca.crt': MOCK_PEM_CERT_1,
+      index: 0,
     };
 
-    const certificateBundles: ZenkoCRCertificateBundle[] = [
+    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [
       mockCertificateBundle,
     ];
 
@@ -117,7 +126,12 @@ describe('useParseBundleCertificates', () => {
     });
 
     expect(result.current.parsedCertificates).toEqual([
-      [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
+      {
+        parsedCertificates: [
+          { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+        ],
+        index: 0,
+      },
     ]);
     expect(mockExtractPemParts).toHaveBeenCalledWith(
       mockCertificateBundle['ca.crt'],
@@ -128,12 +142,14 @@ describe('useParseBundleCertificates', () => {
   it('should parse multiple certificate bundles successfully', async () => {
     const mockCertificateBundle1 = {
       'ca.crt': MOCK_PEM_CERT_1,
+      index: 0,
     };
     const mockCertificateBundle2 = {
       'ca.crt': MOCK_PEM_CERT_2,
+      index: 1,
     };
 
-    const certificateBundles: ZenkoCRCertificateBundle[] = [
+    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [
       mockCertificateBundle1,
       mockCertificateBundle2,
     ];
@@ -166,17 +182,28 @@ describe('useParseBundleCertificates', () => {
     });
 
     expect(result.current.parsedCertificates).toEqual([
-      [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
-      [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
+      {
+        parsedCertificates: [
+          { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+        ],
+        index: 0,
+      },
+      {
+        parsedCertificates: [
+          { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
+        ],
+        index: 1,
+      },
     ]);
   });
 
   it('should parse a bundle with multiple certificates (certificate chain)', async () => {
     const mockCertificateBundle = {
       'ca.crt': `${MOCK_PEM_CERT_1}\n${MOCK_PEM_CERT_2}`,
+      index: 0,
     };
 
-    const certificateBundles: ZenkoCRCertificateBundle[] = [
+    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [
       mockCertificateBundle,
     ];
 
@@ -205,23 +232,27 @@ describe('useParseBundleCertificates', () => {
     });
 
     expect(result.current.parsedCertificates).toEqual([
-      [
-        { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-        { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
-      ],
+      {
+        parsedCertificates: [
+          { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+          { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
+        ],
+        index: 0,
+      },
     ]);
   });
 
   it('should handle parsing errors', async () => {
     const mockCertificateBundle = {
       'ca.crt': MOCK_PEM_INVALID,
+      index: 0,
     };
 
     const consoleErrorSpy = jest
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    const certificateBundles: ZenkoCRCertificateBundle[] = [
+    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [
       mockCertificateBundle,
     ];
 
@@ -280,10 +311,11 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should parse a single secret certificate successfully', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
         secretAttributes: 'ca.crt',
+        index: 0,
       },
     ];
 
@@ -327,7 +359,12 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
+        {
+          parsedCertificates: [
+            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+          ],
+          index: 0,
+        },
       ]);
     });
 
@@ -337,14 +374,16 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should parse multiple secret certificates successfully', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret-1',
         secretAttributes: 'ca.crt',
+        index: 0,
       },
       {
         secretName: 'test-secret-2',
         secretAttributes: 'tls.crt',
+        index: 1,
       },
     ];
 
@@ -403,8 +442,18 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
-        [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
+        {
+          parsedCertificates: [
+            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+          ],
+          index: 0,
+        },
+        {
+          parsedCertificates: [
+            { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
+          ],
+          index: 1,
+        },
       ]);
     });
 
@@ -412,10 +461,11 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should use default secretAttributes (ca.crt) when not specified', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
         // secretAttributes not specified
+        index: 0,
       },
     ];
 
@@ -458,7 +508,12 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
+        {
+          parsedCertificates: [
+            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+          ],
+          index: 0,
+        },
       ]);
     });
 
@@ -466,10 +521,11 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should parse a secret with multiple certificates (certificate chain)', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret-chain',
         secretAttributes: 'ca.crt',
+        index: 0,
       },
     ];
 
@@ -521,10 +577,13 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [
-          { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-          { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
-        ],
+        {
+          parsedCertificates: [
+            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+            { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
+          ],
+          index: 0,
+        },
       ]);
     });
 
@@ -532,10 +591,11 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should handle query loading state', () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
         secretAttributes: 'ca.crt',
+        index: 0,
       },
     ];
 
@@ -565,10 +625,11 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should handle query error state', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
         secretAttributes: 'ca.crt',
+        index: 0,
       },
     ];
 
@@ -601,10 +662,11 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should handle missing certificate in secret data', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
         secretAttributes: 'ca.crt',
+        index: 0,
       },
     ];
 
@@ -653,10 +715,11 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should handle null or undefined secret data', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
         secretAttributes: 'ca.crt',
+        index: 0,
       },
     ];
 
@@ -689,10 +752,11 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should handle certificate parsing errors', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
         secretAttributes: 'ca.crt',
+        index: 0,
       },
     ];
 
@@ -752,14 +816,16 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should filter out bundles without secretName', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         'ca.crt': MOCK_PEM_CERT_1,
         // No secretName - should be filtered out
+        index: 0,
       },
       {
         secretName: 'test-secret',
         secretAttributes: 'ca.crt',
+        index: 1,
       },
     ];
 
@@ -802,7 +868,12 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
+        {
+          parsedCertificates: [
+            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+          ],
+          index: 1,
+        },
       ]);
     });
 
@@ -811,18 +882,21 @@ describe('useParseSecretCertificates', () => {
   });
 
   it('should handle mixed bundle and secret certificates', async () => {
-    const extraCACerts: ZenkoCRCertificateBundle[] = [
+    const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         'ca.crt': MOCK_PEM_BUNDLE_CERT,
         // This is a bundle certificate, not a secret
+        index: 0,
       },
       {
         secretName: 'test-secret-1',
         secretAttributes: 'ca.crt',
+        index: 1,
       },
       {
         secretName: 'test-secret-2',
         secretAttributes: 'tls.crt',
+        index: 2,
       },
     ];
 
@@ -881,8 +955,18 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
-        [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
+        {
+          parsedCertificates: [
+            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+          ],
+          index: 1,
+        },
+        {
+          parsedCertificates: [
+            { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
+          ],
+          index: 2,
+        },
       ]);
     });
 
