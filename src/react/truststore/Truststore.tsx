@@ -26,6 +26,7 @@ import {
   CertificateWithPEM,
   useParseBundleCertificates,
   useParseSecretCertificates,
+  ZenkoCRCertificateBundle,
 } from './hooks';
 import { formatExpiryDate } from './utils';
 
@@ -51,6 +52,7 @@ const formatCertificateDataForTable = (
 };
 
 type CertificateData = {
+  index: number;
   metadata: string[];
   expireOn: Date[];
   certificates: CertificateWithPEM[];
@@ -127,7 +129,17 @@ const Truststore = () => {
   }, [zenkoCR]);
 
   const extraCACerts = useMemo(() => {
-    return zenkoCR?.spec?.egress?.extraCACerts ?? [];
+    // Add index to the extraCACerts to track the order of the ca/secret certificates
+    const extraCACertsWithIndex = zenkoCR?.spec?.egress?.extraCACerts.map(
+      (
+        cert: ZenkoCRCertificateBundle,
+        index: number,
+      ): ZenkoCRCertificateBundle & { index: number } => ({
+        ...cert,
+        index,
+      }),
+    );
+    return extraCACertsWithIndex ?? [];
   }, [zenkoCR]);
 
   const {
@@ -325,7 +337,7 @@ const Truststore = () => {
             <Table.SingleSelectableContent
               rowHeight="h40"
               separationLineVariant="backgroundLevel2"
-            ></Table.SingleSelectableContent>
+            />
           </Table>
         </Box>
       </AppContainer.MainContent>
