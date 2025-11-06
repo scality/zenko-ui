@@ -582,10 +582,7 @@ describe('Truststore', () => {
       // Mock server to return error
       server.use(
         rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-          return res(
-            ctx.status(500),
-            ctx.json({ error: 'Internal server error' }),
-          );
+          return res(ctx.status(500));
         }),
       );
       //E
@@ -601,9 +598,15 @@ describe('Truststore', () => {
         expect(selectors.deleteConfirmationModal()).toBeInTheDocument();
       });
 
+      // Click on confirm delete button
       await userEvent.click(selectors.deleteConfirmationDeleteButton());
 
       //V
+      // Modal should close
+      await waitFor(() => {
+        expect(selectors.deleteConfirmationQuery()).not.toBeInTheDocument();
+      });
+
       // Error toast should appear
       await waitFor(() => {
         expect(

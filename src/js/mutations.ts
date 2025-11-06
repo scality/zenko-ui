@@ -395,15 +395,13 @@ const usePatchZenkoConfigurationMutation = <T>(
           authorization: `Bearer ${await getToken()}`,
         },
         body: getJsonPatch(args),
-      }).then(async (res) => {
-        const response = await res.json();
-        if (response.status === 'Success') {
-          return response;
+      }).then(async (res: Response) => {
+        if (!res.ok) {
+          throw new Error(
+            `Failed to patch Zenko configuration: ${res.status} ${res.statusText}`,
+          );
         }
-        if (response.status === 'Failure') {
-          throw new Error(response.message);
-        }
-        return response;
+        return await res.json();
       });
 
       let resourceSynchronized = false;

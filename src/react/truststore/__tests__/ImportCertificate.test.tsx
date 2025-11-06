@@ -211,7 +211,7 @@ describe('ImportCertificate', () => {
     // Mock failed PATCH request
     server.use(
       rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-        return res(ctx.json({ status: 'Failure', message: 'Import failed' }));
+        return res(ctx.status(500));
       }),
     );
 
@@ -270,7 +270,7 @@ describe('ImportCertificate', () => {
       rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
         patchBody = req.body;
         localPatchCount++;
-        return res(ctx.json({ status: 'Success' }));
+        return res(ctx.status(200));
       }),
     );
 

@@ -898,11 +898,11 @@ describe('mutations', () => {
     it('should successfully patch Zenko configuration with polling', async () => {
       mockFetch
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () => Promise.resolve({ status: 'Success' }),
         })
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () =>
             Promise.resolve({
               metadata: { generation: 5 },
@@ -958,7 +958,7 @@ describe('mutations', () => {
 
     it('should handle API errors', async () => {
       mockFetch.mockResolvedValueOnce({
-        status: 400,
+        ok: false,
         json: () =>
           Promise.resolve({
             status: 'Failure',
@@ -996,11 +996,11 @@ describe('mutations', () => {
 
       mockFetch
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () => Promise.resolve({ status: 'Success' }),
         })
         .mockResolvedValue({
-          status: 200,
+          ok: true,
           json: () =>
             Promise.resolve({
               metadata: { generation: 6 },
@@ -1037,11 +1037,11 @@ describe('mutations', () => {
     it('should generate correct patch for enabling SOS API', async () => {
       mockFetch
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () => Promise.resolve({ status: 'Success' }),
         })
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () =>
             Promise.resolve({
               metadata: { generation: 1 },
@@ -1077,11 +1077,11 @@ describe('mutations', () => {
     it('should generate append patch when hasExtraCACerts is true', async () => {
       mockFetch
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () => Promise.resolve({ status: 'Success' }),
         })
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () =>
             Promise.resolve({
               metadata: { generation: 1 },
@@ -1120,11 +1120,11 @@ describe('mutations', () => {
     it('should generate initialize patch when hasExtraCACerts is false', async () => {
       mockFetch
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () => Promise.resolve({ status: 'Success' }),
         })
         .mockResolvedValueOnce({
-          status: 200,
+          ok: true,
           json: () =>
             Promise.resolve({
               metadata: { generation: 1 },
