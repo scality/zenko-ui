@@ -6,7 +6,7 @@ import { ParsedCertificatesBundleWithIndex } from './Truststore';
 export type ZenkoCRCertificateBundle = {
   'ca.crt'?: string;
   secretName?: string;
-  secretAttributes?: string;
+  secretAttributeName?: string;
 };
 
 export type ZenkoCRCertificateBundleWithIndex = ZenkoCRCertificateBundle & {
@@ -39,7 +39,7 @@ const extractSecretCertificates = (
     .map((extraCACert) => {
       return {
         secretName: extraCACert['secretName'],
-        secretAttributes: extraCACert['secretAttributes'] ?? 'ca.crt',
+        secretAttributes: extraCACert['secretAttributeName'] ?? 'ca.crt',
         index: extraCACert.index,
       };
     });

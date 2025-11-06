@@ -314,7 +314,7 @@ describe('useParseSecretCertificates', () => {
     const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 0,
       },
     ];
@@ -377,12 +377,12 @@ describe('useParseSecretCertificates', () => {
     const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret-1',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 0,
       },
       {
         secretName: 'test-secret-2',
-        secretAttributes: 'tls.crt',
+        secretAttributeName: 'tls.crt',
         index: 1,
       },
     ];
@@ -524,7 +524,7 @@ describe('useParseSecretCertificates', () => {
     const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret-chain',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 0,
       },
     ];
@@ -594,7 +594,7 @@ describe('useParseSecretCertificates', () => {
     const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 0,
       },
     ];
@@ -628,7 +628,7 @@ describe('useParseSecretCertificates', () => {
     const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 0,
       },
     ];
@@ -665,7 +665,7 @@ describe('useParseSecretCertificates', () => {
     const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 0,
       },
     ];
@@ -718,7 +718,7 @@ describe('useParseSecretCertificates', () => {
     const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 0,
       },
     ];
@@ -755,7 +755,7 @@ describe('useParseSecretCertificates', () => {
     const extraCACerts: ZenkoCRCertificateBundleWithIndex[] = [
       {
         secretName: 'test-secret',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 0,
       },
     ];
@@ -824,7 +824,7 @@ describe('useParseSecretCertificates', () => {
       },
       {
         secretName: 'test-secret',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 1,
       },
     ];
@@ -890,12 +890,12 @@ describe('useParseSecretCertificates', () => {
       },
       {
         secretName: 'test-secret-1',
-        secretAttributes: 'ca.crt',
+        secretAttributeName: 'ca.crt',
         index: 1,
       },
       {
         secretName: 'test-secret-2',
-        secretAttributes: 'tls.crt',
+        secretAttributeName: 'tls.crt',
         index: 2,
       },
     ];
