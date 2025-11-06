@@ -66,6 +66,16 @@ const mockCertificate2: ParsedCertificate = {
     '-----BEGIN PUBLIC KEY-----\nMockPublicKey2\n-----END PUBLIC KEY----- ',
 };
 
+// Common PEM certificate strings used across tests
+const MOCK_PEM_CERT_1 =
+  '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+const MOCK_PEM_CERT_2 =
+  '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
+const MOCK_PEM_INVALID =
+  '-----BEGIN CERTIFICATE-----\nInvalidCert\n-----END CERTIFICATE-----';
+const MOCK_PEM_BUNDLE_CERT =
+  '-----BEGIN CERTIFICATE-----\nBundleCert\n-----END CERTIFICATE-----';
+
 describe('useParseBundleCertificates', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -80,8 +90,7 @@ describe('useParseBundleCertificates', () => {
 
   it('should parse a single certificate bundle successfully', async () => {
     const mockCertificateBundle = {
-      'ca.crt':
-        '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+      'ca.crt': MOCK_PEM_CERT_1,
     };
 
     const certificateBundles: ZenkoCRCertificateBundle[] = [
@@ -90,7 +99,7 @@ describe('useParseBundleCertificates', () => {
 
     mockExtractPemParts.mockReturnValue([
       {
-        pem: '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+        pem: MOCK_PEM_CERT_1,
         base64Cert: 'MockCert1',
       },
     ]);
@@ -107,23 +116,21 @@ describe('useParseBundleCertificates', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.parsedCertificates).toEqual([[mockCertificate1]]);
+    expect(result.current.parsedCertificates).toEqual([
+      [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
+    ]);
     expect(mockExtractPemParts).toHaveBeenCalledWith(
       mockCertificateBundle['ca.crt'],
     );
-    expect(mockParseCertificateFromPEM).toHaveBeenCalledWith(
-      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
-    );
+    expect(mockParseCertificateFromPEM).toHaveBeenCalledWith(MOCK_PEM_CERT_1);
   });
 
   it('should parse multiple certificate bundles successfully', async () => {
     const mockCertificateBundle1 = {
-      'ca.crt':
-        '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+      'ca.crt': MOCK_PEM_CERT_1,
     };
     const mockCertificateBundle2 = {
-      'ca.crt':
-        '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----',
+      'ca.crt': MOCK_PEM_CERT_2,
     };
 
     const certificateBundles: ZenkoCRCertificateBundle[] = [
@@ -135,13 +142,13 @@ describe('useParseBundleCertificates', () => {
     mockExtractPemParts
       .mockReturnValueOnce([
         {
-          pem: '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+          pem: MOCK_PEM_CERT_1,
           base64Cert: 'MockCert1',
         },
       ])
       .mockReturnValueOnce([
         {
-          pem: '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----',
+          pem: MOCK_PEM_CERT_2,
           base64Cert: 'MockCert2',
         },
       ]);
@@ -159,15 +166,14 @@ describe('useParseBundleCertificates', () => {
     });
 
     expect(result.current.parsedCertificates).toEqual([
-      [mockCertificate1],
-      [mockCertificate2],
+      [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
+      [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
     ]);
   });
 
   it('should parse a bundle with multiple certificates (certificate chain)', async () => {
     const mockCertificateBundle = {
-      'ca.crt':
-        '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----',
+      'ca.crt': `${MOCK_PEM_CERT_1}\n${MOCK_PEM_CERT_2}`,
     };
 
     const certificateBundles: ZenkoCRCertificateBundle[] = [
@@ -177,11 +183,11 @@ describe('useParseBundleCertificates', () => {
     // Setup mocks - extractPemParts returns 2 certificates from 1 bundle
     mockExtractPemParts.mockReturnValue([
       {
-        pem: '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+        pem: MOCK_PEM_CERT_1,
         base64Cert: 'MockCert1',
       },
       {
-        pem: '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----',
+        pem: MOCK_PEM_CERT_2,
         base64Cert: 'MockCert2',
       },
     ]);
@@ -199,14 +205,16 @@ describe('useParseBundleCertificates', () => {
     });
 
     expect(result.current.parsedCertificates).toEqual([
-      [mockCertificate1, mockCertificate2],
+      [
+        { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+        { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
+      ],
     ]);
   });
 
   it('should handle parsing errors', async () => {
     const mockCertificateBundle = {
-      'ca.crt':
-        '-----BEGIN CERTIFICATE-----\nInvalidCert\n-----END CERTIFICATE-----',
+      'ca.crt': MOCK_PEM_INVALID,
     };
 
     const consoleErrorSpy = jest
@@ -220,7 +228,7 @@ describe('useParseBundleCertificates', () => {
     // Setup mocks to throw error
     mockExtractPemParts.mockReturnValue([
       {
-        pem: '-----BEGIN CERTIFICATE-----\nInvalidCert\n-----END CERTIFICATE-----',
+        pem: MOCK_PEM_INVALID,
         base64Cert: 'InvalidCert',
       },
     ]);
@@ -280,9 +288,7 @@ describe('useParseSecretCertificates', () => {
     ];
 
     // Base64 encoded PEM certificate
-    const certificatePEM =
-      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
-    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+    const base64Cert = Buffer.from(MOCK_PEM_CERT_1).toString('base64');
 
     mockUseK8sSecretQueries.mockReturnValue({
       status: 'success',
@@ -309,7 +315,7 @@ describe('useParseSecretCertificates', () => {
 
     mockExtractPemParts.mockReturnValue([
       {
-        pem: certificatePEM,
+        pem: MOCK_PEM_CERT_1,
         base64Cert: 'MockCert1',
       },
     ]);
@@ -321,13 +327,13 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [mockCertificate1],
+        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
       ]);
     });
 
     expect(result.current.isLoading).toBe(false);
-    expect(mockExtractPemParts).toHaveBeenCalledWith(certificatePEM);
-    expect(mockParseCertificateFromPEM).toHaveBeenCalledWith(certificatePEM);
+    expect(mockExtractPemParts).toHaveBeenCalledWith(MOCK_PEM_CERT_1);
+    expect(mockParseCertificateFromPEM).toHaveBeenCalledWith(MOCK_PEM_CERT_1);
   });
 
   it('should parse multiple secret certificates successfully', async () => {
@@ -342,12 +348,8 @@ describe('useParseSecretCertificates', () => {
       },
     ];
 
-    const certificatePEM1 =
-      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
-    const certificatePEM2 =
-      '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
-    const base64Cert1 = Buffer.from(certificatePEM1).toString('base64');
-    const base64Cert2 = Buffer.from(certificatePEM2).toString('base64');
+    const base64Cert1 = Buffer.from(MOCK_PEM_CERT_1).toString('base64');
+    const base64Cert2 = Buffer.from(MOCK_PEM_CERT_2).toString('base64');
 
     mockUseK8sSecretQueries.mockReturnValue({
       status: 'success',
@@ -380,13 +382,13 @@ describe('useParseSecretCertificates', () => {
     mockExtractPemParts
       .mockReturnValueOnce([
         {
-          pem: certificatePEM1,
+          pem: MOCK_PEM_CERT_1,
           base64Cert: 'MockCert1',
         },
       ])
       .mockReturnValueOnce([
         {
-          pem: certificatePEM2,
+          pem: MOCK_PEM_CERT_2,
           base64Cert: 'MockCert2',
         },
       ]);
@@ -401,8 +403,8 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [mockCertificate1],
-        [mockCertificate2],
+        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
+        [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
       ]);
     });
 
@@ -417,9 +419,7 @@ describe('useParseSecretCertificates', () => {
       },
     ];
 
-    const certificatePEM =
-      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
-    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+    const base64Cert = Buffer.from(MOCK_PEM_CERT_1).toString('base64');
 
     mockUseK8sSecretQueries.mockReturnValue({
       status: 'success',
@@ -446,7 +446,7 @@ describe('useParseSecretCertificates', () => {
 
     mockExtractPemParts.mockReturnValue([
       {
-        pem: certificatePEM,
+        pem: MOCK_PEM_CERT_1,
         base64Cert: 'MockCert1',
       },
     ]);
@@ -458,7 +458,7 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [mockCertificate1],
+        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
       ]);
     });
 
@@ -473,9 +473,7 @@ describe('useParseSecretCertificates', () => {
       },
     ];
 
-    const certificatePEM =
-      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----\n' +
-      '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
+    const certificatePEM = `${MOCK_PEM_CERT_1}\n${MOCK_PEM_CERT_2}`;
     const base64Cert = Buffer.from(certificatePEM).toString('base64');
 
     mockUseK8sSecretQueries.mockReturnValue({
@@ -504,11 +502,11 @@ describe('useParseSecretCertificates', () => {
     // extractPemParts returns 2 certificates from 1 bundle
     mockExtractPemParts.mockReturnValue([
       {
-        pem: '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+        pem: MOCK_PEM_CERT_1,
         base64Cert: 'MockCert1',
       },
       {
-        pem: '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----',
+        pem: MOCK_PEM_CERT_2,
         base64Cert: 'MockCert2',
       },
     ]);
@@ -523,7 +521,10 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [mockCertificate1, mockCertificate2],
+        [
+          { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
+          { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
+        ],
       ]);
     });
 
@@ -699,9 +700,7 @@ describe('useParseSecretCertificates', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    const certificatePEM =
-      '-----BEGIN CERTIFICATE-----\nInvalidCert\n-----END CERTIFICATE-----';
-    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+    const base64Cert = Buffer.from(MOCK_PEM_INVALID).toString('base64');
 
     mockUseK8sSecretQueries.mockReturnValue({
       status: 'success',
@@ -728,7 +727,7 @@ describe('useParseSecretCertificates', () => {
 
     mockExtractPemParts.mockReturnValue([
       {
-        pem: certificatePEM,
+        pem: MOCK_PEM_INVALID,
         base64Cert: 'InvalidCert',
       },
     ]);
@@ -755,8 +754,7 @@ describe('useParseSecretCertificates', () => {
   it('should filter out bundles without secretName', async () => {
     const extraCACerts: ZenkoCRCertificateBundle[] = [
       {
-        'ca.crt':
-          '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----',
+        'ca.crt': MOCK_PEM_CERT_1,
         // No secretName - should be filtered out
       },
       {
@@ -765,9 +763,7 @@ describe('useParseSecretCertificates', () => {
       },
     ];
 
-    const certificatePEM =
-      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
-    const base64Cert = Buffer.from(certificatePEM).toString('base64');
+    const base64Cert = Buffer.from(MOCK_PEM_CERT_1).toString('base64');
 
     mockUseK8sSecretQueries.mockReturnValue({
       status: 'success',
@@ -794,7 +790,7 @@ describe('useParseSecretCertificates', () => {
 
     mockExtractPemParts.mockReturnValue([
       {
-        pem: certificatePEM,
+        pem: MOCK_PEM_CERT_1,
         base64Cert: 'MockCert1',
       },
     ]);
@@ -806,7 +802,7 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [mockCertificate1],
+        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
       ]);
     });
 
@@ -817,8 +813,7 @@ describe('useParseSecretCertificates', () => {
   it('should handle mixed bundle and secret certificates', async () => {
     const extraCACerts: ZenkoCRCertificateBundle[] = [
       {
-        'ca.crt':
-          '-----BEGIN CERTIFICATE-----\nBundleCert\n-----END CERTIFICATE-----',
+        'ca.crt': MOCK_PEM_BUNDLE_CERT,
         // This is a bundle certificate, not a secret
       },
       {
@@ -831,12 +826,8 @@ describe('useParseSecretCertificates', () => {
       },
     ];
 
-    const certificatePEM1 =
-      '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
-    const certificatePEM2 =
-      '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
-    const base64Cert1 = Buffer.from(certificatePEM1).toString('base64');
-    const base64Cert2 = Buffer.from(certificatePEM2).toString('base64');
+    const base64Cert1 = Buffer.from(MOCK_PEM_CERT_1).toString('base64');
+    const base64Cert2 = Buffer.from(MOCK_PEM_CERT_2).toString('base64');
 
     mockUseK8sSecretQueries.mockReturnValue({
       status: 'success',
@@ -869,13 +860,13 @@ describe('useParseSecretCertificates', () => {
     mockExtractPemParts
       .mockReturnValueOnce([
         {
-          pem: certificatePEM1,
+          pem: MOCK_PEM_CERT_1,
           base64Cert: 'MockCert1',
         },
       ])
       .mockReturnValueOnce([
         {
-          pem: certificatePEM2,
+          pem: MOCK_PEM_CERT_2,
           base64Cert: 'MockCert2',
         },
       ]);
@@ -890,8 +881,8 @@ describe('useParseSecretCertificates', () => {
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
-        [mockCertificate1],
-        [mockCertificate2],
+        [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
+        [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
       ]);
     });
 
