@@ -1,6 +1,8 @@
 /* eslint-disable */
+import { JAGUAR_S3_LOCATION_KEY } from '../../../../types/config';
+import { InstanceStateSnapshot } from '../../../../types/stats';
 import {
-  checkBox,
+  NewWrapper,
   reduxMountAct,
   updateInputText,
 } from '../../../utils/testUtil';
@@ -102,5 +104,54 @@ describe('class <LocationDetailsAwsCustom />', () => {
     updateInputText(container, 'bucketName', 'bn');
     updateInputText(container, 'endpoint', 'https://ep');
     expect(location).toEqual(refLocation);
+  });
+  it('should display truststore link for non-Ring S3 Reseller locations', async () => {
+    const component = await reduxMountAct(
+      <LocationDetailsAwsCustom
+        {...props}
+        locationType="location-scality-artesca-s3-v1"
+        capabilities={
+          {
+            capabilities: {
+              locationTypeS3Custom: true,
+            },
+          } as Pick<InstanceStateSnapshot, 'capabilities'>
+        }
+      />,
+      {
+        wrapper: NewWrapper(),
+      },
+    );
+
+    expect(
+      component.getByText(/when using an https endpoint/i),
+    ).toBeInTheDocument();
+
+    const truststoreLink = component.getByRole('link', {
+      name: /open trust store/i,
+    });
+    expect(truststoreLink).toHaveAttribute('href', '/data/truststore');
+    expect(truststoreLink).toHaveAttribute('target', '_blank');
+  });
+  it('should not display truststore link for Ring S3 Reseller locations', async () => {
+    const component = await reduxMountAct(
+      <LocationDetailsAwsCustom
+        {...props}
+        locationType={JAGUAR_S3_LOCATION_KEY}
+        capabilities={
+          {
+            capabilities: {
+              locationTypeS3Custom: true,
+            },
+          } as Pick<InstanceStateSnapshot, 'capabilities'>
+        }
+      />,
+      {
+        wrapper: NewWrapper(),
+      },
+    );
+    expect(
+      component.queryByText(/when using an https endpoint/i),
+    ).not.toBeInTheDocument();
   });
 });
