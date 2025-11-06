@@ -341,6 +341,8 @@ const Truststore = () => {
             <Button
               label="Delete"
               variant="danger"
+              icon={<Icon name="Delete" />}
+              aria-label="Delete Certificate"
               onClick={() => handleDeleteClick(row.original)}
             />
           </Stack>
@@ -379,7 +381,7 @@ const Truststore = () => {
           approve={handleDeleteApprove}
           cancel={handleDeleteCancel}
           isLoading={isLoadingDeleteCertificate}
-          titleText={`Remove ${
+          titleText={`Delete ${
             certificateToDelete?.metadata &&
             certificateToDelete.metadata.length > 0
               ? ` "${certificateToDelete.metadata.join(' → ')}"`

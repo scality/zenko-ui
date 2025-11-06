@@ -49,13 +49,23 @@ describe('Truststore', () => {
     expireOnColumn: () => screen.getByText('Expire On'),
     viewDetailsButton: () =>
       screen.getByRole('button', { name: /View Details/i }),
-    deleteButton: () => screen.getByRole('button', { name: /Delete/i }),
+    deleteButtons: () =>
+      screen.getAllByRole('button', { name: /Delete Certificate/i }),
+    deleteButton: () =>
+      screen.getByRole('button', { name: /Delete Certificate/i }),
+    deleteConfirmationModal: () =>
+      screen.getByText(/Delete.*from the truststore\?/i),
+    deleteConfirmationDeleteButton: () =>
+      screen.getByRole('button', { name: 'Delete' }),
+    deletingButton: () => screen.getByRole('button', { name: 'Deleting...' }),
+    deleteCancelButton: () => screen.getByRole('button', { name: /Cancel/i }),
+    deleteConfirmationQuery: () =>
+      screen.queryByText(/Remove.*from the truststore\?/i),
   };
 
   const MOCK_PEM_CERT =
     '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
 
-  const now = new Date();
   const mockCertificate1: CertificateWithPEM = {
     name: 'Test Certificate 1',
     authority: 'Test Authority 1',
@@ -123,7 +133,7 @@ describe('Truststore', () => {
     });
 
     server.listen({ onUnhandledRequest: 'warn' });
-    mockOffsetSize(200, 200);
+    mockOffsetSize(200, 800);
   });
 
   afterEach(() => {
@@ -444,12 +454,162 @@ describe('Truststore', () => {
           screen.queryByText(/Loading certificates/i),
         ).not.toBeInTheDocument();
       });
-
       // Component should render with data in table
       expect(screen.getByText(mockCertificate1.commonName)).toBeInTheDocument();
       expect(screen.getByText(/- 2026-10-05/i)).toBeInTheDocument();
       expect(selectors.viewDetailsButton()).toBeInTheDocument();
       expect(selectors.deleteButton()).toBeInTheDocument();
+    });
+  });
+
+  describe('delete confirmation modal', () => {
+    it('should close delete confirmation modal when cancel button is clicked', async () => {
+      //S
+      mockUseParseBundleCertificates.mockReturnValue({
+        parsedCertificates: [
+          { parsedCertificates: [mockCertificate1], index: 0 },
+        ],
+        isLoading: false,
+      });
+      mockUseParseSecretCertificates.mockReturnValue({
+        parsedSecretCertificates: [],
+        isLoading: false,
+      });
+      //E
+      render(<Truststore />, { wrapper: NewWrapper() });
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/loading certificates.../i),
+        ).not.toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(selectors.deleteButton()).toBeInTheDocument();
+      });
+
+      await userEvent.click(selectors.deleteButton());
+
+      await waitFor(() => {
+        expect(selectors.deleteConfirmationModal()).toBeInTheDocument();
+      });
+
+      await userEvent.click(selectors.deleteCancelButton());
+
+      //V
+      await waitFor(() => {
+        expect(selectors.deleteConfirmationQuery()).not.toBeInTheDocument();
+      });
+    });
+
+    it('should delete certificate and close modal when delete button is clicked', async () => {
+      //S
+      mockUseParseBundleCertificates.mockReturnValue({
+        parsedCertificates: [
+          { parsedCertificates: [mockCertificate1], index: 0 },
+        ],
+        isLoading: false,
+      });
+      mockUseParseSecretCertificates.mockReturnValue({
+        parsedSecretCertificates: [],
+        isLoading: false,
+      });
+
+      // Track the PATCH request
+      let patchRequestBody: any = null;
+      server.use(
+        rest.patch(ZENKO_CR_URL, async (req, res, ctx) => {
+          patchRequestBody = req.body;
+          return res(ctx.json({ status: 'Success' }));
+        }),
+      );
+      //E
+      render(<Truststore />, { wrapper: NewWrapper() });
+
+      await waitFor(() => {
+        expect(selectors.deleteButton()).toBeInTheDocument();
+      });
+
+      await userEvent.click(selectors.deleteButton());
+
+      await waitFor(() => {
+        expect(selectors.deleteConfirmationModal()).toBeInTheDocument();
+      });
+
+      await userEvent.click(selectors.deleteConfirmationDeleteButton());
+
+      // The delete button should be disabled during deletion and replaced by `deleting...`
+      await waitFor(() => {
+        expect(selectors.deletingButton()).toBeInTheDocument();
+        expect(selectors.deletingButton()).toBeDisabled();
+      });
+
+      //V
+      // Modal should close
+      await waitFor(() => {
+        expect(selectors.deleteConfirmationQuery()).not.toBeInTheDocument();
+      });
+
+      // Success toast should appear
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Certificate deleted successfully/i),
+        ).toBeInTheDocument();
+      });
+
+      // Verify the correct PATCH request was made
+      expect(patchRequestBody).toEqual([
+        {
+          op: 'remove',
+          path: '/spec/egress/extraCACerts/0',
+        },
+      ]);
+    });
+
+    it('should display error toast when delete fails', async () => {
+      //S
+      mockUseParseBundleCertificates.mockReturnValue({
+        parsedCertificates: [
+          { parsedCertificates: [mockCertificate1], index: 0 },
+        ],
+        isLoading: false,
+      });
+      mockUseParseSecretCertificates.mockReturnValue({
+        parsedSecretCertificates: [],
+        isLoading: false,
+      });
+
+      // Mock server to return error
+      server.use(
+        rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
+          return res(
+            ctx.status(500),
+            ctx.json({ error: 'Internal server error' }),
+          );
+        }),
+      );
+      //E
+      render(<Truststore />, { wrapper: NewWrapper() });
+
+      await waitFor(() => {
+        expect(selectors.deleteButton()).toBeInTheDocument();
+      });
+
+      await userEvent.click(selectors.deleteButton());
+
+      await waitFor(() => {
+        expect(selectors.deleteConfirmationModal()).toBeInTheDocument();
+      });
+
+      await userEvent.click(selectors.deleteConfirmationDeleteButton());
+
+      //V
+      // Error toast should appear
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Failed to delete certificate/i),
+        ).toBeInTheDocument();
+      });
     });
   });
 });
