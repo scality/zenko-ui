@@ -1,4 +1,3 @@
-import { ParsedCertificate } from '@scality/certchain';
 import {
   AppContainer,
   Icon,
@@ -24,13 +23,14 @@ import { getZenkoCRQuery } from '../queries';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import CertificateDetails from './CertificateDetails';
 import {
+  CertificateWithPEM,
   useParseBundleCertificates,
   useParseSecretCertificates,
 } from './hooks';
 import { formatExpiryDate } from './utils';
 
 const formatCertificateDataForTable = (
-  parsedCertificates: ParsedCertificate[][],
+  parsedCertificates: CertificateWithPEM[][],
 ) => {
   const formattedCertificateData: CertificateData[] = parsedCertificates.map(
     (certificateBundle) => {
@@ -53,7 +53,7 @@ const formatCertificateDataForTable = (
 type CertificateData = {
   metadata: string[];
   expireOn: Date[];
-  certificates: ParsedCertificate[];
+  certificates: CertificateWithPEM[];
 };
 
 const skipTLSVerificationTooltipMessage = (
@@ -86,7 +86,7 @@ const Truststore = () => {
   const [isCertificateDetailsModalOpen, setIsCertificateDetailsModalOpen] =
     useState(false);
   const [selectedCertificate, setSelectedCertificate] = useState<
-    ParsedCertificate[] | null
+    CertificateWithPEM[] | null
   >(null);
   const navigate = useBasenameRelativeNavigate();
   const {

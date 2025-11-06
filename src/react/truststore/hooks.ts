@@ -16,6 +16,10 @@ export type SecretCertificate = {
   secretAttributes: string;
 };
 
+export type CertificateWithPEM = ParsedCertificate & {
+  originalPEM: string;
+};
+
 const extractCertificateBundles = (
   certificateBundles: ZenkoCRCertificateBundle[],
 ) => {
@@ -41,12 +45,16 @@ const extractSecretCertificates = (
 
 const parseCertificateBundles = async (
   extractedCertificateBundles: { pem: string }[][],
-) => {
+): Promise<CertificateWithPEM[][]> => {
   return await Promise.all(
     extractedCertificateBundles.map(async (extractedCertificateBundle) => {
       return await Promise.all(
         extractedCertificateBundle.map(async (pemPart) => {
-          return await parseCertificateFromPEM(pemPart.pem);
+          const parsed = await parseCertificateFromPEM(pemPart.pem);
+          return {
+            ...parsed,
+            originalPEM: pemPart.pem,
+          };
         }),
       );
     }),
@@ -56,7 +64,7 @@ const parseCertificateBundles = async (
 export const useParseBundleCertificates = (
   certificateBundles: ZenkoCRCertificateBundle[],
 ) => {
-  const [data, setData] = useState<ParsedCertificate[][]>([]);
+  const [data, setData] = useState<CertificateWithPEM[][]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -88,9 +96,9 @@ export const useParseBundleCertificates = (
 
 export const useParseSecretCertificates = (
   extraCACerts: ZenkoCRCertificateBundle[],
-): { parsedSecretCertificates: ParsedCertificate[][]; isLoading: boolean } => {
+): { parsedSecretCertificates: CertificateWithPEM[][]; isLoading: boolean } => {
   const [parsedSecretCertificates, setParsedCertificates] = useState<
-    ParsedCertificate[][]
+    CertificateWithPEM[][]
   >([]);
 
   const extractedSecretCertificates = useMemo(
@@ -144,7 +152,13 @@ export const useParseSecretCertificates = (
             // Extract PEM parts to handle certificate bundles
             const pemParts = extractPemParts(certificatePEM);
             return await Promise.all(
-              pemParts.map((pemPart) => parseCertificateFromPEM(pemPart.pem)),
+              pemParts.map(async (pemPart) => {
+                const parsed = await parseCertificateFromPEM(pemPart.pem);
+                return {
+                  ...parsed,
+                  originalPEM: pemPart.pem,
+                };
+              }),
             );
           }),
         );

@@ -51,6 +51,11 @@ describe('CertificateDetails', () => {
       screen.getByText('TEST CERTIFICATE COMMON NAME'),
     ).toBeInTheDocument();
     expect(screen.getByText('Test CA')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: /Download TEST CERTIFICATE NAME certificate/i,
+      }),
+    ).toBeInTheDocument();
   });
 
   it('should not render modal when closed', () => {
