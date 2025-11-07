@@ -41,7 +41,7 @@ const DeleteConfirmation = ({
               className="delete-confirmation-delete-button"
               variant="danger"
               onClick={() => approve()}
-              icon={(isLoading || loading) && <Loader size="larger" />}
+              isLoading={isLoading}
               label={isLoading ? 'Deleting...' : 'Delete'}
             />
           </Stack>
