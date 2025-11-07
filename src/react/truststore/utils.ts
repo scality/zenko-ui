@@ -1,4 +1,5 @@
 import { getDateDaysDiff } from '@scality/core-ui';
+import { ParsedCertificate } from '@scality/certchain';
 
 export function formatExpiryDate(expiresOn: Date): {
   shortFormat: string;
@@ -59,4 +60,29 @@ export function formatExpiryDate(expiresOn: Date): {
     longFormatWithPrefix: `${prefix}${longFormat}`,
     status,
   };
+}
+
+export function downloadCertificate(
+  certificate: ParsedCertificate & { originalPEM?: string },
+): void {
+  if (!certificate.originalPEM) {
+    console.error('Original PEM not available for download');
+    return;
+  }
+
+  const filename = `${
+    certificate.commonName || certificate.name || 'certificate'
+  }.pem`;
+  const blob = new Blob([certificate.originalPEM], {
+    type: 'application/x-pem-file',
+  });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

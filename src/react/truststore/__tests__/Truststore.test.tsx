@@ -11,6 +11,7 @@ import {
 import {
   useParseBundleCertificates,
   useParseSecretCertificates,
+  CertificateWithPEM,
 } from '../hooks';
 import { ParsedCertificate } from '@scality/certchain';
 import { debug } from 'jest-preview';
@@ -53,8 +54,12 @@ describe('Truststore', () => {
       screen.getByRole('button', { name: /View Details/i }),
     deleteButton: () => screen.getByRole('button', { name: /Delete/i }),
   };
+
+  const MOCK_PEM_CERT =
+    '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+
   const now = new Date();
-  const mockCertificate1: ParsedCertificate = {
+  const mockCertificate1: CertificateWithPEM = {
     name: 'Test Certificate 1',
     authority: 'Test Authority 1',
     expiresOn: new Date('2026-10-05T00:00:00Z'),
@@ -72,6 +77,7 @@ describe('Truststore', () => {
     certificateHash: 'abc123',
     publicKey:
       '-----BEGIN PUBLIC KEY-----\nMockPublicKey1\n-----END PUBLIC KEY-----',
+    originalPEM: MOCK_PEM_CERT,
   };
 
   // Mock Zenko CR data with certificates
@@ -267,12 +273,13 @@ describe('Truststore', () => {
 
   it('should display earliest expiration date when multiple certificates in chain', async () => {
     //S
-    const mockCertificate2: ParsedCertificate = {
+    const mockCertificate2: CertificateWithPEM = {
       ...mockCertificate1,
       name: 'Root CA',
       authority: 'Root CA',
       expiresOn: new Date(2035, 10, 6), // Later than mockCertificate1
       commonName: 'root.example.com',
+      originalPEM: MOCK_PEM_CERT,
     };
 
     mockUseParseBundleCertificates.mockReturnValue({
@@ -298,11 +305,12 @@ describe('Truststore', () => {
 
   it('should display certificate common names with chevron separators', async () => {
     //S
-    const mockCertificate2: ParsedCertificate = {
+    const mockCertificate2: CertificateWithPEM = {
       ...mockCertificate1,
       name: 'Intermediate CA',
       authority: 'Root CA',
       commonName: 'intermediate.example.com',
+      originalPEM: MOCK_PEM_CERT,
     };
 
     mockUseParseBundleCertificates.mockReturnValue({

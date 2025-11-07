@@ -1,11 +1,11 @@
-import { ConstrainedText, Modal, Stack, Text } from '@scality/core-ui';
+import { ConstrainedText, Icon, Modal, Stack, Text } from '@scality/core-ui';
 import React from 'react';
 import { ModalBody } from '../ui-elements/Modal';
 import { ParsedCertificate } from '@scality/certchain';
 import styled from 'styled-components';
 import { Box, CopyButton } from '@scality/core-ui/dist/next';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { formatExpiryDate } from './utils';
+import { downloadCertificate, formatExpiryDate } from './utils';
 
 const CertificateViewFieldWrapper = styled.div`
   width: 12rem;
@@ -172,20 +172,40 @@ const CertificateDetails = ({
               gap="r16"
               key={`${certificate.name}-${index}`}
             >
-              <Text
-                isEmphazed
-                color="textPrimary"
+              <Box
                 style={{
-                  textAlign: 'center',
-                  paddingBottom: '1rem',
+                  marginBottom: '0.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '2rem',
+                  position: 'relative',
                 }}
               >
-                {`${certificate.name}`}
-                {selectedCertificate.length > 1 &&
-                selectedCertificate.length === index + 1
-                  ? ' (Root certificate)'
-                  : ''}
-              </Text>
+                <Box position="absolute" style={{ top: 0, right: 0 }}>
+                  <Button
+                    icon={<Icon name="Download" />}
+                    variant="secondary"
+                    onClick={() => downloadCertificate(certificate)}
+                    tooltip={{
+                      overlay: `Download ${certificate.name} certificate`,
+                    }}
+                  />
+                </Box>
+                <Text
+                  isEmphazed
+                  color="textPrimary"
+                  style={{
+                    textAlign: 'center',
+                  }}
+                >
+                  {`${certificate.name}`}
+                  {selectedCertificate.length > 1 &&
+                  selectedCertificate.length === index + 1
+                    ? ' (Root certificate)'
+                    : ''}
+                </Text>
+              </Box>
               {certificatePropertiesWithLabels.map((property) => (
                 <CertificateDetailRow
                   key={property.property + index}
