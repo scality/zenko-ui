@@ -381,12 +381,26 @@ const Truststore = () => {
           approve={handleDeleteApprove}
           cancel={handleDeleteCancel}
           isLoading={isLoadingDeleteCertificate}
-          titleText={`Delete ${
-            certificateToDelete?.metadata &&
-            certificateToDelete.metadata.length > 0
-              ? ` "${certificateToDelete.metadata.join(' → ')}"`
-              : ''
-          } from the truststore?`}
+          titleText={
+            <>
+              Delete{' '}
+              {certificateToDelete?.metadata &&
+              certificateToDelete.metadata.length > 0
+                ? certificateToDelete.metadata.map((name, index) => (
+                    <span key={name}>
+                      {name}
+                      {index < certificateToDelete.metadata.length - 1 && (
+                        <>
+                          {' '}
+                          <Icon name="Chevron-right" size="sm" />{' '}
+                        </>
+                      )}
+                    </span>
+                  ))
+                : ''}{' '}
+              from the truststore?
+            </>
+          }
         />
         <CertificateDetails
           selectedCertificate={selectedCertificate ?? []}

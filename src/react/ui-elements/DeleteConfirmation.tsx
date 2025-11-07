@@ -9,7 +9,7 @@ type Props = {
   cancel: () => void;
   show: boolean;
   isLoading?: boolean;
-  titleText: string;
+  titleText: React.ReactNode;
 };
 
 const DeleteConfirmation = ({
