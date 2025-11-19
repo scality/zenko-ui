@@ -495,19 +495,14 @@ function InternalRoutes() {
         },
         active: doesRouteMatch('/locations'),
       },
-      //TODO: Put Truststore behind a feature flag for the moment until it is fully ready.
-      ...(isPlatformAdmin && features.includes('Truststore')
-        ? [
-            {
-              label: 'Truststore',
-              icon: <Icon name="ID-card" />,
-              onClick: () => {
-                navigate('/truststore');
-              },
-              active: doesRouteMatch('/truststore'),
-            },
-          ]
-        : []),
+      isPlatformAdmin && {
+        label: 'Truststore',
+        icon: <Icon name="ID-card" />,
+        onClick: () => {
+          navigate('/truststore');
+        },
+        active: doesRouteMatch('/truststore'),
+      },
       isStorageManager && {
         label: 'Data Services',
         icon: <Icon name="Cubes" />,

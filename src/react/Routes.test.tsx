@@ -164,10 +164,10 @@ describe('Routes component', () => {
         },
         getToken: () => Promise.resolve(FAKE_TOKEN),
       });
-      // TODO: To remove it when removing the feature flag
+
       mockUseConfig.mockReturnValue({
         basePath: '/data',
-        features: ['Truststore'],
+        features: [],
         zenkoEndpoint: '/zenko/s3',
         iamEndpoint: '/zenko/iam',
         stsEndpoint: '/zenko/sts',
