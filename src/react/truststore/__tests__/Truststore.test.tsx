@@ -12,6 +12,7 @@ import {
   useParseBundleCertificates,
   useParseSecretCertificates,
 } from '../hooks';
+import { debug } from 'jest-preview';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -46,7 +47,7 @@ describe('Truststore', () => {
     importButton: () =>
       screen.getByRole('button', { name: /Import Certificate/i }),
     nameColumn: () => screen.getByText('Name'),
-    expireOnColumn: () => screen.getByText('Expire On'),
+    expireOnColumn: () => screen.getByText('Expires On'),
     viewDetailsButton: () =>
       screen.getByRole('button', { name: /View Details/i }),
     deleteButtons: () =>
@@ -160,7 +161,7 @@ describe('Truststore', () => {
     //V
     /********** Page title and toggle: ************/
     expect(selectors.pageTitle()).toBeInTheDocument();
-    expect(screen.getByText('Skip TLS Verification')).toBeInTheDocument();
+    expect(screen.getByText('TLS Verification')).toBeInTheDocument();
     expect(selectors.toggle()).toBeInTheDocument();
 
     /********** Action button: ************/
@@ -171,7 +172,60 @@ describe('Truststore', () => {
     expect(selectors.expireOnColumn()).toBeInTheDocument();
   });
 
-  it('should update toggle label during TLS verification mutation', async () => {
+  it('should display "Skipped" toggle label and banner when TLS verification is skipped', async () => {
+    //S
+    mockUseParseBundleCertificates.mockReturnValue({
+      parsedCertificates: [],
+      isLoading: false,
+    });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
+      isLoading: false,
+    });
+    server.use(
+      rest.get(ZENKO_CR_URL, async (req, res, ctx) => {
+        return res(
+          ctx.json({
+            ...mockZenkoCRWithCerts,
+            spec: {
+              ...mockZenkoCRWithCerts.spec,
+              egress: {
+                ...mockZenkoCRWithCerts.spec.egress,
+                skipTLSVerify: true,
+              },
+            },
+          }),
+        );
+      }),
+    );
+    //E
+    render(<Truststore />, { wrapper: NewWrapper() });
+    //V
+
+    await waitFor(() => {
+      expect(screen.getByText(/^Skipped$/i)).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText(/Imported certificates listed below are ignored/i),
+    ).toBeInTheDocument();
+  });
+  it('should display "Active" toggle label when TLS verification is active', async () => {
+    //S
+    mockUseParseBundleCertificates.mockReturnValue({
+      parsedCertificates: [],
+      isLoading: false,
+    });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
+      isLoading: false,
+    });
+
+    //E
+    render(<Truststore />, { wrapper: NewWrapper() });
+    //V
+    expect(screen.getByText(/Active/i)).toBeInTheDocument();
+  });
+  it('should render "Updating..." toggle label during TLS verification mutation', async () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({
       parsedCertificates: [],
@@ -194,30 +248,21 @@ describe('Truststore', () => {
 
     // Wait for initial render
     await waitFor(() => {
-      expect(screen.getByText('Skip TLS Verification')).toBeInTheDocument();
+      expect(screen.getByText('TLS Verification')).toBeInTheDocument();
     });
     //V
     /********** Initial state: ************/
 
     expect(selectors.toggle()).toBeInTheDocument();
+    expect(screen.getByText(/Active/i)).toBeInTheDocument();
 
     /********** Click toggle: ************/
     await userEvent.click(selectors.toggle());
 
     /********** Loading state during mutation: ************/
     await waitFor(() => {
-      expect(
-        screen.getByText('Updating TLS Verification...'),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Updating.../i)).toBeInTheDocument();
     });
-
-    /********** Label returns to normal after success: ************/
-    await waitFor(
-      () => {
-        expect(selectors.toggle()).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
   });
 
   it('should open certificate details modal when View Details is clicked', async () => {
