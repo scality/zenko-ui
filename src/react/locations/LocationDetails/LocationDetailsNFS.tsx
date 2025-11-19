@@ -3,6 +3,7 @@ import React from 'react';
 import { LocationDetailsFormProps } from '.';
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 type State = {
   protocol: 'tcp' | 'udp';
   version: 'v3' | 'v4';
@@ -155,7 +156,7 @@ export default class LocationDetailsNFS extends React.Component<
   render() {
     const { editingExisting } = this.props;
     return (
-      <FormSection>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="nfs-protocol"
           label="NFS Protocol"

@@ -2,6 +2,7 @@ import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 type State = {
   bucketMatch: boolean;
@@ -58,7 +59,7 @@ export default class LocationDetailsGcp extends React.Component<
 
   render() {
     return (
-      <FormSection>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="accessKey"
           label="GCP Access Key"
@@ -117,7 +118,7 @@ export default class LocationDetailsGcp extends React.Component<
 
         <FormGroup
           id="mpuBucketName"
-          label="Target Bucket for Multi-part Uploads"
+          label="Target Bucket for Multi&#8209;part Uploads"
           required
           labelHelpTooltip="A secondary Google Cloud Storage bucket required for handling
             multi-part uploads on GCP using AWS MPU initiate/complete/abort

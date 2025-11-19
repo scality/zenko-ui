@@ -46,6 +46,8 @@ const StyledForm = styled(Form)`
   height: calc(100vh - 48px);
 `;
 
+export const LOCATION_EDITOR_FORCED_LABEL_WIDTH = 280;
+
 const StyledSelect = styled(Select)`
   .sc-select__option--is-disabled > * {
     font-style: italic !important;
@@ -344,7 +346,10 @@ function LocationEditor() {
             : `${locations.length} of 10 locations have been created on this instance. You are approaching the platform limit.`}
         </Banner>
       )}
-      <FormSection title={{ name: 'General' }} forceLabelWidth={180}>
+      <FormSection
+        title={{ name: 'General' }}
+        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
+      >
         <FormGroup
           id="name"
           content={

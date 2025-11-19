@@ -9,6 +9,7 @@ import {
   FormSection,
 } from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from './LocationEditor';
 
 const isTransientEnabled = (locationType: LocationName) => {
   const transientLocationsType = [
@@ -36,7 +37,10 @@ function LocationOptions(props: Props) {
 
   return (
     hasFields && (
-      <FormSection title={{ name: 'Advanced Options' }}>
+      <FormSection
+        title={{ name: 'Advanced Options' }}
+        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
+      >
         {showTransientOption && (
           <FormGroup
             label="Is transient ?"

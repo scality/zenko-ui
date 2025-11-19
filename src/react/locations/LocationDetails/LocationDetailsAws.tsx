@@ -6,6 +6,7 @@ import {
 } from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 type State = {
   serverSideEncryption: boolean;
@@ -64,7 +65,7 @@ export default class LocationDetailsAws extends React.Component<
   render() {
     return (
       <>
-        <FormSection>
+        <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
           <FormGroup
             label="AWS Access Key"
             id="accessKey"
@@ -122,7 +123,7 @@ export default class LocationDetailsAws extends React.Component<
             }
           />
         </FormSection>
-        <FormSection>
+        <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
           <FormGroup
             label=""
             id="bucketMatch"

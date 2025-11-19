@@ -2,6 +2,7 @@ import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 type FieldNames = 'endpoint' | 'stsEndpoint' | 'accessKey' | 'secretKey';
 
@@ -203,7 +204,7 @@ function LocationDetailsCRR({
   };
 
   return (
-    <FormSection forceLabelWidth={143}>
+    <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
       {fieldConfigs.map((field) => (
         <FormGroup
           key={field.name}
