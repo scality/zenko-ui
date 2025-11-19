@@ -1,4 +1,12 @@
-import { ConstrainedText, Icon, Modal, Stack, Text } from '@scality/core-ui';
+import {
+  ConstrainedText,
+  Icon,
+  Modal,
+  spacing,
+  Stack,
+  Text,
+  Wrap,
+} from '@scality/core-ui';
 import React from 'react';
 import { ModalBody } from '../ui-elements/Modal';
 import { ParsedCertificate } from '@scality/certchain';
@@ -107,14 +115,10 @@ const CertificateDetailRow = ({
 };
 const certificatePropertiesWithLabels = [
   {
-    label: 'Name',
-    property: 'name',
-  },
-  { label: 'Authority', property: 'authority' },
-  {
     label: 'Common Name',
     property: 'commonName',
   },
+  { label: 'Authority', property: 'authority' },
   {
     label: 'Organization',
     property: 'organizations',
@@ -156,7 +160,7 @@ const CertificateDetails = ({
           <Button
             label="Close"
             onClick={handleClose}
-            variant="secondary"
+            variant="primary"
             style={{ minWidth: '80px' }}
           />
         </Box>
@@ -165,47 +169,41 @@ const CertificateDetails = ({
       title="Certificate Details"
     >
       <ModalBody style={{ maxHeight: '24rem' }}>
-        <Stack direction="vertical" gap="r16" withSeparators>
+        <Stack direction="vertical" gap="r32" withSeparators>
           {selectedCertificate.map((certificate, index) => (
             <Stack
               direction="vertical"
               gap="r16"
               key={`${certificate.name}-${index}`}
             >
-              <Box
+              <Wrap
                 style={{
-                  marginBottom: '0.5rem',
-                  display: 'flex',
+                  marginBottom: spacing.r8,
                   alignItems: 'center',
-                  justifyContent: 'center',
                   height: '2rem',
-                  position: 'relative',
                 }}
               >
-                <Box position="absolute" style={{ top: 0, right: 0 }}>
-                  <Button
-                    icon={<Icon name="Download" />}
-                    variant="secondary"
-                    onClick={() => downloadCertificate(certificate)}
-                    tooltip={{
-                      overlay: `Download ${certificate.name} certificate`,
-                    }}
+                <Box maxWidth="28rem">
+                  <ConstrainedText
+                    text={
+                      <Text isEmphazed color="textPrimary">
+                        {`${certificate.commonName}`}
+                        {selectedCertificate.length > 1 &&
+                        selectedCertificate.length === index + 1
+                          ? ' (Root certificate)'
+                          : ''}
+                      </Text>
+                    }
                   />
                 </Box>
-                <Text
-                  isEmphazed
-                  color="textPrimary"
-                  style={{
-                    textAlign: 'center',
-                  }}
-                >
-                  {`${certificate.name}`}
-                  {selectedCertificate.length > 1 &&
-                  selectedCertificate.length === index + 1
-                    ? ' (Root certificate)'
-                    : ''}
-                </Text>
-              </Box>
+                <Button
+                  icon={<Icon name="Download" />}
+                  variant="secondary"
+                  label="Download"
+                  aria-label={`Download ${certificate.commonName} certificate`}
+                  onClick={() => downloadCertificate(certificate)}
+                />
+              </Wrap>
               {certificatePropertiesWithLabels.map((property) => (
                 <CertificateDetailRow
                   key={property.property + index}
