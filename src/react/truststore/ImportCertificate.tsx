@@ -86,6 +86,7 @@ const ImportCertificate = () => {
     <FormProvider {...formMethods}>
       <Form
         onSubmit={handleSubmit(onSubmit)}
+        requireMode="all"
         layout={{ kind: 'page', title: 'Import a new Certificate' }}
         rightActions={
           <Stack gap="r16">
