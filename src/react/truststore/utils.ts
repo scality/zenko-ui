@@ -1,6 +1,10 @@
 import { getDateDaysDiff } from '@scality/core-ui';
 import { ParsedCertificate } from '@scality/certchain';
 
+const formatNumberToInternationalString = (number: number): string => {
+  return Intl.NumberFormat('fr-FR').format(number);
+};
+
 export function formatExpiryDate(expiresOn: Date): {
   shortFormat: string;
   shortFormatWithPrefix: string;
@@ -10,7 +14,8 @@ export function formatExpiryDate(expiresOn: Date): {
 } {
   const now = new Date();
   const diffInDays = getDateDaysDiff(now, expiresOn, 'days');
-
+  const diffInDaysInternationalString =
+    formatNumberToInternationalString(diffInDays);
   const shortFormat = Intl.DateTimeFormat('fr-CA', {
     year: 'numeric',
     month: '2-digit',
@@ -31,13 +36,13 @@ export function formatExpiryDate(expiresOn: Date): {
   let status: 'healthy' | 'warning' | 'critical';
 
   if (diffInDays > 14) {
-    prefix = `In ${diffInDays} days - `;
+    prefix = `In ${diffInDaysInternationalString} days - `;
     status = 'healthy';
   } else if (diffInDays > 1) {
-    prefix = `In ${diffInDays} days - `;
+    prefix = `In ${diffInDaysInternationalString} days - `;
     status = 'warning';
   } else if (diffInDays === 1) {
-    prefix = `In ${diffInDays} day - `;
+    prefix = `In ${diffInDaysInternationalString} day - `;
     status = 'warning';
   } else if (diffInDays === 0) {
     prefix =
@@ -49,7 +54,9 @@ export function formatExpiryDate(expiresOn: Date): {
   } else {
     // diffInDays < -1
     const absoluteDiff = Math.abs(diffInDays);
-    prefix = `Expired ${absoluteDiff} days ago - `;
+    prefix = `Expired ${formatNumberToInternationalString(
+      absoluteDiff,
+    )} days ago - `;
     status = 'critical';
   }
 

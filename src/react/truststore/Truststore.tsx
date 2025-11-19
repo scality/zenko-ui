@@ -1,5 +1,7 @@
 import {
   AppContainer,
+  Banner,
+  ConstrainedText,
   Icon,
   IconHelp,
   Loader,
@@ -53,13 +55,13 @@ const formatCertificateDataForTable = (
       const data: CertificateData = {
         index: certificateBundle.index,
         metadata: [],
-        expireOn: [],
+        expiresOn: [],
         certificates: certificateBundle.parsedCertificates,
       };
       certificateBundle.parsedCertificates.forEach(
         (certificate: ParsedCertificate) => {
           data.metadata.push(certificate.commonName);
-          data.expireOn.push(certificate.expiresOn);
+          data.expiresOn.push(certificate.expiresOn);
         },
       );
       return data;
@@ -72,7 +74,7 @@ const formatCertificateDataForTable = (
 type CertificateData = {
   index: number;
   metadata: string[];
-  expireOn: Date[];
+  expiresOn: Date[];
   certificates: CertificateWithPEM[];
 };
 
@@ -121,6 +123,7 @@ const Truststore = () => {
     isLoading: isLoadingZenkoCR,
     isError: isErrorZenkoCR,
   } = useQuery(getZenkoCRQuery());
+
   const toggleTLSVerificationMutationOptions: MutationOptions<
     { skipTLSVerify: boolean },
     ApiError,
@@ -179,8 +182,8 @@ const Truststore = () => {
     deleteCertificateMutationOptions,
   );
 
-  const isSkippingTLSVerification = useMemo(() => {
-    return zenkoCR?.spec?.egress?.skipTLSVerify ?? false;
+  const isTLSVerificationActive = useMemo(() => {
+    return !zenkoCR?.spec?.egress?.skipTLSVerify;
   }, [zenkoCR]);
 
   const extraCACerts = useMemo(() => {
@@ -267,32 +270,29 @@ const Truststore = () => {
       cellStyle: { flex: 1 },
       Cell: ({ value }: { value: string[] }) => {
         return (
-          <Stack gap="r8">
-            {value.map((v, index) => {
-              return (
-                <Stack
-                  key={v}
-                  direction="horizontal"
-                  gap="r8"
-                  style={{ alignItems: 'center' }}
-                >
-                  <Text>{v}</Text>
-                  {index < value.length - 1 && (
-                    <Icon name="Chevron-right" size="sm" />
-                  )}
-                </Stack>
-              );
-            })}
-          </Stack>
+          <ConstrainedText
+            lineClamp={1}
+            text={value.map((v, index) => (
+              <Text key={v}>
+                {v}
+                {index < value.length - 1 && (
+                  <Text>
+                    {' '}
+                    <Icon name="Chevron-right" size="sm" />{' '}
+                  </Text>
+                )}
+              </Text>
+            ))}
+          />
         );
       },
     },
     {
-      Header: 'Expire On',
-      accessor: 'expireOn',
+      Header: 'Expires On',
+      accessor: 'expiresOn',
       cellStyle: {
         textAlign: 'right',
-        flex: 1,
+        flex: 0.5,
         paddingRight: spacing.f36,
       },
       Cell: ({ value }: { value: Date[] }) => {
@@ -323,7 +323,7 @@ const Truststore = () => {
     {
       Header: '',
       id: 'actions',
-      cellStyle: { flex: 0.75 },
+      cellStyle: { flex: 0.5 },
       Cell: ({ row }: { row: Row<CertificateData> }) => {
         return (
           <Stack
@@ -359,19 +359,32 @@ const Truststore = () => {
             <Icon name="ID-card" size="2x" withWrapper />
             <Text variant="Larger">Truststore</Text>
           </Stack>
-          <Stack gap="r8">
-            <Toggle
-              label={
-                isLoadingToggleTLSVerification
-                  ? 'Updating TLS Verification...'
-                  : 'Skip TLS Verification'
-              }
-              toggle={isSkippingTLSVerification}
-              onChange={(e) => toggleTLSVerification(e.currentTarget.checked)}
-              disabled={isLoadingZenkoCR || isLoadingToggleTLSVerification}
-            />
-            {isLoadingToggleTLSVerification && <Loader size="base" />}
-            <IconHelp tooltipMessage={skipTLSVerificationTooltipMessage} />
+          <Stack direction="vertical" gap="r8">
+            <Stack
+              direction="horizontal"
+              gap="r4"
+              style={{ marginRight: spacing.r16 }}
+            >
+              <Text>TLS Verification</Text>
+              <IconHelp tooltipMessage={skipTLSVerificationTooltipMessage} />
+            </Stack>
+            <Stack gap="r8">
+              <Toggle
+                label={
+                  isLoadingToggleTLSVerification
+                    ? 'Updating...'
+                    : isTLSVerificationActive
+                    ? 'Active'
+                    : 'Skipped'
+                }
+                toggle={isTLSVerificationActive}
+                onChange={(e) => {
+                  toggleTLSVerification(!e.currentTarget.checked);
+                }}
+                disabled={isLoadingZenkoCR || isLoadingToggleTLSVerification}
+              />
+              {isLoadingToggleTLSVerification && <Loader size="base" />}
+            </Stack>
           </Stack>
         </Wrap>
       </AppContainer.OverallSummary>
@@ -382,24 +395,24 @@ const Truststore = () => {
           cancel={handleDeleteCancel}
           isLoading={isLoadingDeleteCertificate}
           titleText={
-            <>
-              Delete{' '}
+            <Stack direction="vertical">
+              <Text>
+                Are you sure you want to delete this certificate from the
+                truststore?
+              </Text>
+
               {certificateToDelete?.metadata &&
               certificateToDelete.metadata.length > 0
                 ? certificateToDelete.metadata.map((name, index) => (
-                    <span key={name}>
-                      {name}
+                    <Stack gap="r4" key={name + index}>
+                      <Text isEmphazed>{name}</Text>
                       {index < certificateToDelete.metadata.length - 1 && (
-                        <>
-                          {' '}
-                          <Icon name="Chevron-right" size="sm" />{' '}
-                        </>
+                        <Icon name="Chevron-right" size="sm" />
                       )}
-                    </span>
+                    </Stack>
                   ))
-                : ''}{' '}
-              from the truststore?
-            </>
+                : ''}
+            </Stack>
           }
         />
         <CertificateDetails
@@ -422,8 +435,19 @@ const Truststore = () => {
           >
             <TableHeaderWrapper
               search={
-                isSkippingTLSVerification &&
-                'Imported certificates are ignored when Skip TLS Verification is enabled.'
+                !isTLSVerificationActive && (
+                  <Banner
+                    variant="warning"
+                    icon={
+                      <Icon color="statusWarning" name="Exclamation-circle" />
+                    }
+                  >
+                    <Text>
+                      Imported certificates listed below are ignored when{' '}
+                      <Text isEmphazed>TLS Verification</Text> is skipped.
+                    </Text>
+                  </Banner>
+                )
               }
               actions={
                 <Button

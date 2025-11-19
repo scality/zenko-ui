@@ -15,6 +15,7 @@ import {
   LocationAzureAuth,
 } from '../../../js/managementClient/api';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 type State = {
   endpoint: string;
@@ -193,7 +194,7 @@ const LocationDetailsAzureArchive = ({
 
   return (
     <>
-      <FormSection forceLabelWidth={210}>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="temperature"
           label="Temperature"
@@ -235,7 +236,10 @@ const LocationDetailsAzureArchive = ({
           }
         />
       </FormSection>
-      <FormSection title={{ name: 'Queue' }} forceLabelWidth={210}>
+      <FormSection
+        title={{ name: 'Queue' }}
+        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
+      >
         <FormGroup
           id="queue.type"
           label="Queue type"
@@ -410,7 +414,10 @@ const LocationDetailsAzureArchive = ({
           <></>
         )}
       </FormSection>
-      <FormSection title={{ name: 'Authentication' }} forceLabelWidth={210}>
+      <FormSection
+        title={{ name: 'Authentication' }}
+        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
+      >
         <FormGroup
           id="auth"
           label="Authentication type"

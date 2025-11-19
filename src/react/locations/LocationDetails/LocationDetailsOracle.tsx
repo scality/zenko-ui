@@ -6,6 +6,7 @@ import {
   FormSection,
 } from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 type State = {
   bucketMatch: boolean;
@@ -85,7 +86,7 @@ export default function LocationDetailsOracle({
 
   return (
     <>
-      <FormSection>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="namespace"
           label="Namespace"
@@ -176,7 +177,7 @@ export default function LocationDetailsOracle({
           helpErrorPosition="bottom"
         />
       </FormSection>
-      <FormSection>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           label=""
           direction="vertical"

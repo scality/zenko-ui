@@ -3,6 +3,7 @@ import { LocationDetails } from '../../../types/config';
 import React from 'react';
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 type Props = {
   details: LocationDetails;
   onChange: (details: LocationDetails) => void;
@@ -80,7 +81,7 @@ export default class LocationDetailsSproxyd extends React.Component<
 
   render() {
     return (
-      <FormSection>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <InputList
           id="bootstrapList"
           required

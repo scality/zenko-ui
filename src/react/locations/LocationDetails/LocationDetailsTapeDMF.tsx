@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
 import InputList from '../../ui-elements/InputList';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 type State = {
   endpoint: string;
@@ -44,7 +45,7 @@ export default function LocationDetailsTapeDMF({
 
   return (
     <>
-      <FormSection forceLabelWidth={175}>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="temperature"
           label="Temperature"
@@ -76,7 +77,7 @@ export default function LocationDetailsTapeDMF({
           helpTooltip:
             "repoId and namespace id identify where objects on the Tape come from.\n\nReview your Cold storage service provider's documentation to have more details.",
         }}
-        forceLabelWidth={175}
+        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
       >
         <InputList
           id="repoids"
@@ -111,7 +112,7 @@ export default function LocationDetailsTapeDMF({
           helpTooltip:
             'This location type requires credentials.\n\nIt is a best practice to enter credentials specifically generated for this access, with only the privileges needed to perform the desired tasks.',
         }}
-        forceLabelWidth={175}
+        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
       >
         <FormGroup
           id="username"

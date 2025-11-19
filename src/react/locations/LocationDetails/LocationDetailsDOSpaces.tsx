@@ -2,6 +2,7 @@ import React from 'react';
 import { LocationDetailsFormProps } from '.';
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 type State = {
   bucketMatch: boolean;
   accessKey: string;
@@ -58,7 +59,7 @@ export default class LocationDetailsDOSpaces extends React.Component<
 
   render() {
     return (
-      <FormSection>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="accessKey"
           label="Spaces Access Key"

@@ -3,6 +3,7 @@ import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 type FieldNames = 'endpoint' | 'repoId' | 'username' | 'password';
 export interface TapeMiriaDetails {
@@ -183,7 +184,7 @@ export default function LocationDetailsTapeMiria({
   };
 
   return (
-    <FormSection forceLabelWidth={175}>
+    <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
       <FormGroup
         id="temperature"
         label="Temperature"

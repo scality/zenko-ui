@@ -2,6 +2,7 @@ import React from 'react';
 import { LocationDetailsFormProps } from '.';
 import InputList from '../../ui-elements/InputList';
 import { FormSection } from '@scality/core-ui';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 type State = {
   bootstrapList: Array<string>;
@@ -42,7 +43,7 @@ export default class LocationDetailsHyperdriveV2 extends React.Component<
 
   render() {
     return (
-      <FormSection>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <InputList
           id="bootstrapList"
           required

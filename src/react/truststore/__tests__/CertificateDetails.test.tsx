@@ -6,7 +6,7 @@ import { NewWrapper } from '../../utils/testUtil';
 const now = new Date();
 describe('CertificateDetails', () => {
   const mockCertificate: ParsedCertificate = {
-    name: 'TEST CERTIFICATE NAME',
+    name: 'TEST CERTIFICATE COMMON NAME',
     authority: 'Test CA',
     commonName: 'TEST CERTIFICATE COMMON NAME',
     expiresOn: new Date('2026-10-05T00:00:00Z'),
@@ -30,7 +30,7 @@ describe('CertificateDetails', () => {
 
   const mockRootCertificate: ParsedCertificate = {
     ...mockCertificate,
-    name: 'Root CA',
+    commonName: 'Root CA',
     authority: 'Root CA',
   };
 
@@ -51,13 +51,12 @@ describe('CertificateDetails', () => {
     );
 
     expect(screen.getByText('Certificate Details')).toBeInTheDocument();
-    expect(
-      screen.getByText('TEST CERTIFICATE COMMON NAME'),
-    ).toBeInTheDocument();
+    // Title + Name field value
+    expect(screen.getAllByText('TEST CERTIFICATE COMMON NAME')).toHaveLength(2);
     expect(screen.getByText('Test CA')).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
-        name: /Download TEST CERTIFICATE NAME certificate/i,
+        name: /Download TEST CERTIFICATE COMMON NAME certificate/i,
       }),
     ).toBeInTheDocument();
   });
@@ -86,7 +85,6 @@ describe('CertificateDetails', () => {
     );
 
     // Check labels
-    expect(screen.getByText('Name')).toBeInTheDocument();
     expect(screen.getByText('Authority')).toBeInTheDocument();
     expect(screen.getByText('Common Name')).toBeInTheDocument();
     expect(screen.getByText('Organization')).toBeInTheDocument();
@@ -96,11 +94,10 @@ describe('CertificateDetails', () => {
     expect(screen.getByText('Public Key')).toBeInTheDocument();
 
     // Check values
-    expect(screen.getAllByText('TEST CERTIFICATE NAME').length).toEqual(2); // Name field value + Title field value
+    expect(screen.getAllByText('TEST CERTIFICATE COMMON NAME').length).toEqual(
+      2,
+    ); // Name field value + Title field value
     expect(screen.getByText('Test CA')).toBeInTheDocument();
-    expect(
-      screen.getByText('TEST CERTIFICATE COMMON NAME'),
-    ).toBeInTheDocument();
     expect(screen.getByText('Test Org')).toBeInTheDocument();
   });
 
@@ -144,7 +141,7 @@ describe('CertificateDetails', () => {
   it('should render multiple certificates in chain', () => {
     const intermediateCert: ParsedCertificate = {
       ...mockCertificate,
-      name: 'Intermediate CA',
+      commonName: 'Intermediate CA',
       authority: 'Root CA',
     };
 

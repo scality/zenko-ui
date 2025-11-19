@@ -24,7 +24,9 @@ import {
 } from '../../../types/config';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { checkIsRingS3Reseller } from '../utils';
-import { Icon, Link, Stack, Text } from '@scality/core-ui';
+import { InfoMessage, Text } from '@scality/core-ui';
+import { Box } from '@scality/core-ui/dist/next';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 
 const computeInitialEndpoint = (locationType: LocationTypeKey) => {
   if (locationType === JAGUAR_S3_LOCATION_KEY) {
@@ -93,7 +95,7 @@ export default function LocationDetailsAwsCustom({
 
   return (
     <>
-      <FormSection forceLabelWidth={180}>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="accessKey"
           content={
@@ -173,25 +175,29 @@ export default function LocationDetailsAwsCustom({
         buckets will have a path-style access."
               helpErrorPosition="bottom"
             />
-
-            <Stack
-              direction="vertical"
-              style={{ width: 'calc(20.5rem + 2rem + 180px)' }}
-            >
-              <Text color="textPrimary">
-                When using an HTTPS endpoint, you must add the certificate
-                provided by its TLS provider to the truststore. You can check if
-                the certificate is already present in the truststore by clicking
-                the button below, and add it if it is missing.
-              </Text>
-              <Link
-                href="/data/truststore"
-                target="_blank"
-                style={{ alignSelf: 'flex-end' }}
+            {formState.endpoint.startsWith('https') && (
+              <Box
+                style={{
+                  // Label width + padding + Input width
+                  width: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH}px)`,
+                }}
               >
-                Open trust store <Icon name="External-link" />
-              </Link>
-            </Stack>
+                <InfoMessage
+                  title="Certificate for HTTPS Endpoint"
+                  content={
+                    <Text>
+                      When using an HTTPS endpoint, you must add the endpoint's
+                      SSL/TLS certificate to the truststore for secure
+                      communication. You can check the certificates already
+                      present by opening the truststore, and import the
+                      endpoint's certificate if it is missing.
+                    </Text>
+                  }
+                  link={'/data/truststore'}
+                  linkText="Open truststore"
+                />
+              </Box>
+            )}
           </>
         ) : (
           <></>

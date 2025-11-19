@@ -1,4 +1,5 @@
 /* eslint-disable */
+import userEvent from '@testing-library/user-event';
 import { JAGUAR_S3_LOCATION_KEY } from '../../../../types/config';
 import { InstanceStateSnapshot } from '../../../../types/stats';
 import {
@@ -7,6 +8,7 @@ import {
   updateInputText,
 } from '../../../utils/testUtil';
 import LocationDetailsAwsCustom from '../LocationDetailsAwsCustom';
+import { debug } from 'jest-preview';
 
 const props = {
   details: {},
@@ -105,11 +107,14 @@ describe('class <LocationDetailsAwsCustom />', () => {
     updateInputText(container, 'endpoint', 'https://ep');
     expect(location).toEqual(refLocation);
   });
-  it('should display truststore link for non-Ring S3 Reseller locations', async () => {
+  it('should display truststore link for non-Ring S3 Reseller locations and an HTTPS endpoint', async () => {
     const component = await reduxMountAct(
       <LocationDetailsAwsCustom
         {...props}
         locationType="location-scality-artesca-s3-v1"
+        details={{
+          endpoint: 'https://ep',
+        }}
         capabilities={
           {
             capabilities: {
@@ -124,11 +129,11 @@ describe('class <LocationDetailsAwsCustom />', () => {
     );
 
     expect(
-      component.getByText(/when using an https endpoint/i),
+      component.getByText(/Certificate for HTTPS Endpoint/i),
     ).toBeInTheDocument();
 
     const truststoreLink = component.getByRole('link', {
-      name: /open trust store/i,
+      name: /open truststore/i,
     });
     expect(truststoreLink).toHaveAttribute('href', '/data/truststore');
     expect(truststoreLink).toHaveAttribute('target', '_blank');

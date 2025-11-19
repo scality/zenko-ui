@@ -8,6 +8,7 @@ import {
   LocationAzureSharedAccessSignature,
   LocationAzureSharedKey,
 } from '../../../js/managementClient/api';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 type State = {
   bucketMatch: boolean;
   accessKey?: string;
@@ -137,7 +138,7 @@ export default class LocationDetailsAzure extends React.Component<
 
   render() {
     return (
-      <FormSection forceLabelWidth={220}>
+      <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           label="Blob endpoint"
           id="endpoint"
