@@ -45,13 +45,17 @@ const ImportCertificate = () => {
     getZenkoCRQuery(),
   );
 
+  const hasEgress = useMemo(() => {
+    return !!zenkoCR?.spec?.egress;
+  }, [zenkoCR]);
+
   const hasExtraCACerts = useMemo(
     () => !!zenkoCR?.spec?.egress?.extraCACerts,
     [zenkoCR],
   );
 
   const addCertificateToZenkoConfigurationMutation =
-    useAddCertificateToZenkoConfigurationMutation(hasExtraCACerts);
+    useAddCertificateToZenkoConfigurationMutation(hasEgress, hasExtraCACerts);
 
   const onSubmit = (data: { certificate: string }) => {
     addCertificateToZenkoConfigurationMutation.mutate(

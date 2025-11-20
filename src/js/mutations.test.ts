@@ -1097,7 +1097,7 @@ describe('mutations', () => {
         });
 
       const { result } = renderHook(
-        () => useAddCertificateToZenkoConfigurationMutation(true),
+        () => useAddCertificateToZenkoConfigurationMutation(true, true),
         {
           wrapper: NewWrapper(),
         },
@@ -1140,7 +1140,7 @@ describe('mutations', () => {
         });
 
       const { result } = renderHook(
-        () => useAddCertificateToZenkoConfigurationMutation(false),
+        () => useAddCertificateToZenkoConfigurationMutation(true, false),
         {
           wrapper: NewWrapper(),
         },
@@ -1157,6 +1157,48 @@ describe('mutations', () => {
           op: 'add',
           path: '/spec/egress/extraCACerts',
           value: [{ 'ca.crt': 'test-cert-content' }],
+        },
+      ]);
+    });
+
+    it('should generate add patch when hasEgress is false', async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ status: 'Success' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation: 1 },
+              status: {
+                observedGeneration: 1,
+                conditions: [
+                  { type: 'Available', status: 'True' },
+                  { type: 'DeploymentInProgress', status: 'False' },
+                ],
+              },
+            }),
+        });
+      const { result } = renderHook(
+        () => useAddCertificateToZenkoConfigurationMutation(false, false),
+        {
+          wrapper: NewWrapper(),
+        },
+      );
+
+      await act(async () => {
+        await result.current.mutateAsync({ certificate: 'test-cert-content' });
+      });
+
+      // Verify it calls usePatchZenkoConfigurationMutation with add patch
+      const [, options] = mockFetch.mock.calls[0];
+      expect(JSON.parse(options.body)).toEqual([
+        {
+          op: 'add',
+          path: '/spec/egress',
+          value: { extraCACerts: [{ 'ca.crt': 'test-cert-content' }] },
         },
       ]);
     });
