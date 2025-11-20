@@ -469,10 +469,13 @@ const useEnableSOSAPIMutation = () => {
   );
 };
 
-const useAddCertificateToZenkoConfigurationMutation = (
-  hasEgress: boolean,
-  hasExtraCACerts: boolean,
-) => {
+const useAddCertificateToZenkoConfigurationMutation = ({
+  hasEgress,
+  hasExtraCACerts,
+}: {
+  hasEgress: boolean;
+  hasExtraCACerts: boolean;
+}) => {
   return usePatchZenkoConfigurationMutation((args: { certificate: string }) => {
     const patch = !hasEgress
       ? [

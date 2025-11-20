@@ -1097,7 +1097,11 @@ describe('mutations', () => {
         });
 
       const { result } = renderHook(
-        () => useAddCertificateToZenkoConfigurationMutation(true, true),
+        () =>
+          useAddCertificateToZenkoConfigurationMutation({
+            hasEgress: true,
+            hasExtraCACerts: true,
+          }),
         {
           wrapper: NewWrapper(),
         },
@@ -1140,7 +1144,11 @@ describe('mutations', () => {
         });
 
       const { result } = renderHook(
-        () => useAddCertificateToZenkoConfigurationMutation(true, false),
+        () =>
+          useAddCertificateToZenkoConfigurationMutation({
+            hasEgress: true,
+            hasExtraCACerts: false,
+          }),
         {
           wrapper: NewWrapper(),
         },
@@ -1182,7 +1190,11 @@ describe('mutations', () => {
             }),
         });
       const { result } = renderHook(
-        () => useAddCertificateToZenkoConfigurationMutation(false, false),
+        () =>
+          useAddCertificateToZenkoConfigurationMutation({
+            hasEgress: false,
+            hasExtraCACerts: false,
+          }),
         {
           wrapper: NewWrapper(),
         },

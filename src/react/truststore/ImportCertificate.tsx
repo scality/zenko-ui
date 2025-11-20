@@ -55,7 +55,10 @@ const ImportCertificate = () => {
   );
 
   const addCertificateToZenkoConfigurationMutation =
-    useAddCertificateToZenkoConfigurationMutation(hasEgress, hasExtraCACerts);
+    useAddCertificateToZenkoConfigurationMutation({
+      hasEgress,
+      hasExtraCACerts,
+    });
 
   const onSubmit = (data: { certificate: string }) => {
     addCertificateToZenkoConfigurationMutation.mutate(
