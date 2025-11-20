@@ -1,6 +1,6 @@
 import { Icon } from '@scality/core-ui';
 import { useEffect, useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
@@ -18,6 +18,7 @@ export const DeleteEndpoint = ({
   hostname: string;
   disabled: boolean;
 }) => {
+  const queryClient = useQueryClient();
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -48,6 +49,7 @@ export const DeleteEndpoint = ({
         deleteEndpointMutation.mutate(undefined, {
           onSuccess: () => {
             waitForRunningConfigurationVersionToBeUpdated();
+            queryClient.invalidateQueries({ queryKey: ['configOverlay'] });
           },
         });
       },
