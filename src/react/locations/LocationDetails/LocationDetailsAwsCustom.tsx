@@ -134,25 +134,32 @@ export default function LocationDetailsAwsCustom({
           }
         />
 
-        <FormGroup
-          id="bucketName"
-          label="Target Bucket Name"
-          help="The Target Bucket on your location needs to have Versioning enabled."
-          required
-          content={
-            <Input
-              name="bucketName"
-              id="bucketName"
-              type="text"
-              placeholder="bucket-name"
-              value={formState.bucketName}
-              onChange={onFormItemChange}
-              autoComplete="off"
-              disabled={editingExisting}
-            />
-          }
-          helpErrorPosition="bottom"
-        />
+        <Box
+          // Box to force the width of helper text
+          style={{
+            maxWidth: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH}px)`,
+          }}
+        >
+          <FormGroup
+            id="bucketName"
+            label="Target Bucket Name"
+            help="The Target Bucket on your location needs to have Versioning enabled."
+            required
+            content={
+              <Input
+                name="bucketName"
+                id="bucketName"
+                type="text"
+                placeholder="bucket-name"
+                value={formState.bucketName}
+                onChange={onFormItemChange}
+                autoComplete="off"
+                disabled={editingExisting}
+              />
+            }
+            helpErrorPosition="bottom"
+          />
+        </Box>
 
         {!isRingS3Reseller ? (
           <>
