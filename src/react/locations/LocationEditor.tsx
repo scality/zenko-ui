@@ -365,6 +365,7 @@ function LocationEditor() {
             />
           }
           required
+          helpErrorPosition="bottom"
           labelHelpTooltip={
             <>
               Location name that will be used in ARTESCA Data Services. It is
@@ -386,6 +387,7 @@ function LocationEditor() {
             </>
           }
           required
+          helpErrorPosition="bottom"
           label="Location Type"
           content={
             <StyledSelect
