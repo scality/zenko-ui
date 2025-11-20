@@ -265,6 +265,72 @@ describe('Truststore', () => {
     });
   });
 
+  it('should handle TLS verification toggle when no egress entry exists', async () => {
+    // Mock Zenko CR data without egress entry
+    const mockZenkoCRWithoutEgress = {
+      metadata: {
+        generation: 1,
+      },
+      spec: {
+        // No egress entry
+      },
+      status: {
+        observedGeneration: 1,
+        conditions: [
+          { type: 'Available', status: 'True' },
+          { type: 'DeploymentInProgress', status: 'False' },
+        ],
+      },
+    };
+
+    let patchBody: any;
+    server.use(
+      rest.get(ZENKO_CR_URL, (req, res, ctx) => {
+        return res(ctx.json(mockZenkoCRWithoutEgress));
+      }),
+      rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
+        patchBody = req.body;
+        return res(ctx.json({ status: 'Success' }));
+      }),
+    );
+
+    mockUseParseBundleCertificates.mockReturnValue({
+      parsedCertificates: [],
+      isLoading: false,
+    });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
+      isLoading: false,
+    });
+
+    render(<Truststore />, { wrapper: NewWrapper() });
+
+    // Wait for initial render
+    await waitFor(() => {
+      expect(screen.getByText('TLS Verification')).toBeInTheDocument();
+    });
+
+    // Toggle should show "Active" initially (no egress means skipTLSVerify is undefined, so TLS verification is active by default)
+    expect(selectors.toggle()).toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument();
+
+    // Click toggle to disable TLS verification (which will set skipTLSVerify to true)
+    await userEvent.click(selectors.toggle());
+
+    await waitFor(() => {
+      expect(patchBody).toBeDefined();
+    });
+
+    // Verify patch creates egress entry with skipTLSVerify
+    expect(patchBody).toEqual([
+      {
+        op: 'add',
+        path: '/spec/egress',
+        value: { skipTLSVerify: true },
+      },
+    ]);
+  });
+
   it('should open certificate details modal when View Details is clicked', async () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({

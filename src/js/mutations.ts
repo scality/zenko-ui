@@ -494,6 +494,7 @@ const useAddCertificateToZenkoConfigurationMutation = (
 };
 
 const useToggleTLSVerificationMutation = (
+  hasEgress: boolean,
   options?: MutationOptions<
     { skipTLSVerify: boolean },
     ApiError,
@@ -501,13 +502,23 @@ const useToggleTLSVerificationMutation = (
   >,
 ) => {
   const patch = (args: { skipTLSVerify: boolean }) => {
-    return JSON.stringify([
-      {
-        op: 'replace',
-        path: '/spec/egress/skipTLSVerify',
-        value: args.skipTLSVerify,
-      },
-    ]);
+    const patchOp = hasEgress
+      ? [
+          {
+            op: 'replace',
+            path: '/spec/egress/skipTLSVerify',
+            value: args.skipTLSVerify,
+          },
+        ]
+      : [
+          {
+            op: 'add',
+            path: '/spec/egress',
+            value: { skipTLSVerify: args.skipTLSVerify },
+          },
+        ];
+
+    return JSON.stringify(patchOp);
   };
 
   return usePatchZenkoConfigurationMutation(patch, options);

@@ -23,6 +23,7 @@ import {
   useCreateOrAddBucketToPolicyMutation,
   useAddCertificateToZenkoConfigurationMutation,
   usePatchZenkoConfigurationMutation,
+  useToggleTLSVerificationMutation,
 } from './mutations';
 
 //Subject Under Testing
@@ -1156,6 +1157,132 @@ describe('mutations', () => {
           op: 'add',
           path: '/spec/egress/extraCACerts',
           value: [{ 'ca.crt': 'test-cert-content' }],
+        },
+      ]);
+    });
+  });
+
+  describe('useToggleTLSVerificationMutation', () => {
+    let mockFetch;
+    let originalFetch;
+
+    beforeEach(() => {
+      originalFetch = global.fetch;
+      mockFetch = jest.fn();
+      global.fetch = mockFetch;
+
+      jest
+        .spyOn(require('@scality/module-federation'), 'useShellHooks')
+        .mockImplementation(() => ({
+          useAuth: () => ({
+            getToken: jest.fn().mockResolvedValue('test-token'),
+          }),
+          useConfigRetriever: () => ({
+            retrieveConfiguration: jest.fn().mockReturnValue({
+              spec: {
+                selfConfiguration: {
+                  url: 'https://test-url',
+                },
+              },
+            }),
+          }),
+        }));
+
+      jest
+        .spyOn(
+          require('../react/next-architecture/ui/ConfigProvider'),
+          'useDeployedMetalk8sInstances',
+        )
+        .mockImplementation(() => [{ name: 'test-instance' }]);
+    });
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+      jest.restoreAllMocks();
+    });
+
+    it('should generate replace patch when hasEgress is true', async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ status: 'Success' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation: 1 },
+              status: {
+                observedGeneration: 1,
+                conditions: [
+                  { type: 'Available', status: 'True' },
+                  { type: 'DeploymentInProgress', status: 'False' },
+                ],
+              },
+            }),
+        });
+
+      const { result } = renderHook(
+        () => useToggleTLSVerificationMutation(true),
+        {
+          wrapper: NewWrapper(),
+        },
+      );
+
+      await act(async () => {
+        await result.current.mutateAsync({ skipTLSVerify: true });
+      });
+
+      // Verify it calls usePatchZenkoConfigurationMutation with replace patch
+      const [, options] = mockFetch.mock.calls[0];
+      expect(JSON.parse(options.body)).toEqual([
+        {
+          op: 'replace',
+          path: '/spec/egress/skipTLSVerify',
+          value: true,
+        },
+      ]);
+    });
+
+    it('should generate add patch when hasEgress is false', async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ status: 'Success' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation: 1 },
+              status: {
+                observedGeneration: 1,
+                conditions: [
+                  { type: 'Available', status: 'True' },
+                  { type: 'DeploymentInProgress', status: 'False' },
+                ],
+              },
+            }),
+        });
+
+      const { result } = renderHook(
+        () => useToggleTLSVerificationMutation(false),
+        {
+          wrapper: NewWrapper(),
+        },
+      );
+
+      await act(async () => {
+        await result.current.mutateAsync({ skipTLSVerify: false });
+      });
+
+      // Verify it calls usePatchZenkoConfigurationMutation with add patch to create egress
+      const [, options] = mockFetch.mock.calls[0];
+      expect(JSON.parse(options.body)).toEqual([
+        {
+          op: 'add',
+          path: '/spec/egress',
+          value: { skipTLSVerify: false },
         },
       ]);
     });

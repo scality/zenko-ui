@@ -124,6 +124,10 @@ const Truststore = () => {
     isError: isErrorZenkoCR,
   } = useQuery(getZenkoCRQuery());
 
+  const hasEgress = useMemo(() => {
+    return !!zenkoCR?.spec?.egress;
+  }, [zenkoCR]);
+
   const toggleTLSVerificationMutationOptions: MutationOptions<
     { skipTLSVerify: boolean },
     ApiError,
@@ -149,7 +153,10 @@ const Truststore = () => {
   const {
     mutate: toggleTLSVerificationMutation,
     isLoading: isLoadingToggleTLSVerification,
-  } = useToggleTLSVerificationMutation(toggleTLSVerificationMutationOptions);
+  } = useToggleTLSVerificationMutation(
+    hasEgress,
+    toggleTLSVerificationMutationOptions,
+  );
 
   const deleteCertificateMutationOptions: MutationOptions<
     { certificateIndex: number },
@@ -188,7 +195,7 @@ const Truststore = () => {
 
   const extraCACerts = useMemo(() => {
     // Add index to the extraCACerts to track the order of the ca/secret certificates
-    const extraCACertsWithIndex = zenkoCR?.spec?.egress?.extraCACerts.map(
+    const extraCACertsWithIndex = zenkoCR?.spec?.egress?.extraCACerts?.map(
       (
         cert: ZenkoCRCertificateBundle,
         index: number,
