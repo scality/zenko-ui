@@ -382,7 +382,11 @@ describe('ImportCertificate', () => {
 
     await waitFor(() => {
       expect(selectors.importButton()).toBeDisabled();
-      expect(screen.getByText(/Invalid certificate./i)).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Invalid certificate. The certificate should be a valid PEM x509 file/i,
+        ),
+      ).toBeInTheDocument();
     });
   });
 });
