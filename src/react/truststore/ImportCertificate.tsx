@@ -40,7 +40,7 @@ const ImportCertificate = () => {
     register,
     formState: { isValid, errors },
   } = formMethods;
-
+  const certificateValue = formMethods.watch('certificate');
   const { data: zenkoCR, isLoading: isLoadingZenkoCR } = useQuery(
     getZenkoCRQuery(),
   );
@@ -127,7 +127,7 @@ const ImportCertificate = () => {
           </Stack>
         }
       >
-        <Stack direction="vertical" gap="r16">
+        <Stack direction="vertical" gap="r16" style={{ width: 'min-content' }}>
           <Stack direction="vertical" gap="r8">
             <Text>
               Choose a file or paste the Certificate chain bundle in order to
@@ -192,7 +192,10 @@ const ImportCertificate = () => {
               })}
               id="Certificate"
               placeholder={CertificatePlaceholder}
-              rows={15}
+              variant="code"
+              width={'68ch'}
+              autoGrow={true}
+              value={certificateValue}
             />
             <Text isEmphazed variant="Smaller" color="statusCritical">
               {errors.certificate?.message}
