@@ -45,6 +45,14 @@ const config: Configuration = {
   module: {
     rules: [
       {
+        test: /\.js$/,
+        include: [/data-browser-library/],
+        resolve: {
+          fullySpecified: false,
+        },
+        type: 'javascript/auto',
+      },
+      {
         test: /\.jsx$/,
         use: {
           loader: 'builtin:swc-loader',
