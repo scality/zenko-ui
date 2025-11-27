@@ -24,9 +24,9 @@ import {
 } from '../../../types/config';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { checkIsRingS3Reseller } from '../utils';
-import { InfoMessage, Text } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
 
 const computeInitialEndpoint = (locationType: LocationTypeKey) => {
   if (locationType === JAGUAR_S3_LOCATION_KEY) {
@@ -182,29 +182,7 @@ export default function LocationDetailsAwsCustom({
         buckets will have a path-style access."
               helpErrorPosition="bottom"
             />
-            {formState.endpoint.startsWith('https') && (
-              <Box
-                style={{
-                  // Label width + padding + Input width
-                  width: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH}px)`,
-                }}
-              >
-                <InfoMessage
-                  title="Certificate for HTTPS Endpoint"
-                  content={
-                    <Text>
-                      When using an HTTPS endpoint, you must add the endpoint's
-                      SSL/TLS certificate to the truststore for secure
-                      communication. You can check the certificates already
-                      present by opening the truststore, and import the
-                      endpoint's certificate if it is missing.
-                    </Text>
-                  }
-                  link={'/data/truststore'}
-                  linkText="Open truststore"
-                />
-              </Box>
-            )}
+            {formState.endpoint.startsWith('https') && <EndpointInfoMessage />}
           </>
         ) : (
           <></>
