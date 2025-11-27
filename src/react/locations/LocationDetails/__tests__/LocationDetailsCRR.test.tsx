@@ -476,6 +476,19 @@ describe('LocationDetailsCRR', () => {
       );
       // This is implementation-specific and might need adjustment based on actual DOM structure
     });
+    it('should show endpoint info message for HTTPS endpoint after endpoint Field', async () => {
+      const component = mountCRRComponent();
+      const { endpointInput } = getFormInputs(component);
+      await userEvent.type(endpointInput, 'https://s3.example.com');
+      expect(component.container.textContent).toContain(
+        "When using an HTTPS endpoint, you must add the endpoint's SSL/TLS certificate to the truststore for secure communication. You can check the certificates already present by opening the truststore, and import the endpoint's certificate if it is missing.",
+      );
+      await userEvent.clear(endpointInput);
+      await userEvent.type(endpointInput, 'http://s3.example.com');
+      expect(component.container.textContent).not.toContain(
+        "When using an HTTPS endpoint, you must add the endpoint's SSL/TLS certificate to the truststore for secure communication. You can check the certificates already present by opening the truststore, and import the endpoint's certificate if it is missing.",
+      );
+    });
   });
 
   describe('Placeholder Text', () => {
