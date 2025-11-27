@@ -17,6 +17,7 @@ import {
   CapacityFormSection,
 } from './ISVCapacityFormSection';
 import { unitChoices } from '../constants';
+import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 
 const MIN_BUCKETS = 1;
 const MAX_BUCKETS = 20;
@@ -90,6 +91,7 @@ interface BucketField {
 interface FormValues {
   buckets: BucketField[];
   bucketNumber?: number;
+  autoCreateRepository?: boolean;
 }
 
 const defaultBucketNameTooltip = (
@@ -112,19 +114,37 @@ const BucketNameFormGroup: React.FC<{
   bucketNamePlaceholder: string;
   bucketNumber: number;
   bucketNameTooltip: React.ReactElement;
+  platform?: string;
 }> = ({
   index,
   errors,
   bucketNamePlaceholder,
   bucketNumber,
   bucketNameTooltip,
+  platform,
 }) => {
-  const { register } = useFormContext<FormValues>();
+  const { register, watch } = useFormContext<FormValues>();
+  const isVeeamVBROnly = useIsVeeamVBROnly();
+
+  // Check if we're in Veeam context with auto-creation enabled
+  const autoCreateRepository = watch('autoCreateRepository');
+  const isVeeamAutoCreation =
+    isVeeamVBROnly && platform === 'veeam-vbr' && autoCreateRepository;
+
+  // Determine the appropriate label
+  const getLabel = () => {
+    if (isVeeamAutoCreation) {
+      return bucketNumber > 1
+        ? `Veeam Repository #${index + 1} Name`
+        : 'Veeam Repository Name';
+    }
+    return bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name';
+  };
 
   return (
     <FormGroup
       id={`bucketName-${index}`}
-      label={bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name'}
+      label={getLabel()}
       required
       labelHelpTooltip={bucketNameTooltip}
       error={(errors?.buckets?.[index]?.name?.message as string) ?? ''}
@@ -204,10 +224,13 @@ const BucketField: React.FC<BucketFieldProps> = ({
     }
   }, [fields.length]);
 
-  const bucketNamePlaceholder = useMemo(
-    () => `${platform}-bucket-name`,
-    [platform],
-  );
+  const bucketNamePlaceholder = useMemo(() => {
+    const isVeeamVBROnly = platform === 'veeam-vbr';
+    if (isVeeamVBROnly) {
+      return `veeam-repository-name`;
+    }
+    return `${platform}-bucket-name`;
+  }, [platform]);
 
   const xCoreLibrary = useXCoreLibrary();
   const { useClusterCapacity } =
@@ -244,6 +267,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
             bucketNamePlaceholder={bucketNamePlaceholder}
             bucketNumber={fields.length}
             bucketNameTooltip={bucketNameTooltip}
+            platform={platform}
           />
           {renderCapacitySection(0)}
         </FormSection>
@@ -258,6 +282,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
               bucketNamePlaceholder={bucketNamePlaceholder}
               bucketNumber={fields.length}
               bucketNameTooltip={bucketNameTooltip}
+              platform={platform}
             />
             <div
               style={{
@@ -277,6 +302,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
     bucketNamePlaceholder,
     bucketNameTooltip,
     renderCapacitySection,
+    platform,
   ]);
 
   return (

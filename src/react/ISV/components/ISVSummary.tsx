@@ -16,17 +16,19 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
-import { ISVConfig, ISVPlatformConfig } from '../types';
+import { ISVConfig, ISVPlatformConfig, VeeamRepositoryData } from '../types';
 import { queries } from '../../next-architecture/domain/business/buckets';
 import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
 import { useAssumedRole } from '../../DataServiceRoleProvider';
 import { useQueryClient } from 'react-query';
 import { useCallback } from 'react';
 import { VEEAM_OFFICE_365 } from '../constants';
+import { VeeamRepositorySummary } from './VeeamRepositorySummary';
+import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 
 export const DEFAULT_REGION = 'us-east-1';
 
-const WrapperWithWidth = styled(Wrap)`
+export const WrapperWithWidth = styled(Wrap)`
   width: 20rem;
 `;
 const Container = styled.div`
@@ -55,6 +57,8 @@ export type ISVSummaryProps = ISVConfig & {
   secretKey: string;
   platform: ISVPlatformConfig;
   accessKeys?: string[];
+  // Veeam repository automation
+  repositoryData?: VeeamRepositoryData;
 };
 
 export const ISVSummary = ({
@@ -65,6 +69,8 @@ export const ISVSummary = ({
   secretKey,
   accessKeys,
   application,
+  autoCreateRepository,
+  repositoryData,
 }: ISVSummaryProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
@@ -73,6 +79,16 @@ export const ISVSummary = ({
   const assumedRole = useAssumedRole();
   const s3Client = useS3Client();
   const queryClient = useQueryClient();
+  const isVeeamVBROnly = useIsVeeamVBROnly();
+
+  if (
+    isVeeamVBROnly &&
+    platform.id === 'veeam-vbr' &&
+    autoCreateRepository &&
+    repositoryData
+  ) {
+    return <VeeamRepositorySummary repositoryData={repositoryData} />;
+  }
 
   const immutableSectionInfos = platform.immutabilitySummaryOverride({
     isImmutable: enableImmutableBackup,

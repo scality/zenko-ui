@@ -4,14 +4,13 @@ import { ISVConfiguration } from './ISVConfiguration';
 
 import { ISVPlatformConfig } from '../types';
 
-import { useTheme } from 'styled-components';
 import { Box } from '@scality/core-ui/dist/next';
-import { ISVSummary } from './ISVSummary';
+import { useTheme } from 'styled-components';
 import ISVApplyActions from './ISVApplyActions';
+import { ISVSummary } from './ISVSummary';
 
 import { useSearchParams } from 'react-router';
 import { isvModules } from '../modules';
-
 
 export enum ISVStepsIndexes {
   Configuration,

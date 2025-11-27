@@ -8,13 +8,14 @@ import {
   useCreateUserAccessKeyMutation,
   useCreateOrAddBucketToPolicyMutation,
   useEnableSOSAPIMutation,
+  useCreateVeeamRepositoryMutation,
 } from '../../../js/mutations';
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
-import { ISVConfig, ISVPlatformConfig } from '../types';
+import { ISVConfig, ISVPlatformConfig, VeeamRepositoryData } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { Mutation } from './useMultiMutation';
 import { VEEAM_XML_PREFIX } from '../../ISV/constants';
@@ -22,6 +23,8 @@ import { SYSTEM_XML_CONTENT } from '../../ISV/constants';
 import { GET_CAPACITY_XML_CONTENT } from '../../ISV/constants';
 import {} from '../modules/veeam';
 import { useCheckSOSAPIStatus } from './useCheckSOSAPIStatus';
+import { useIsVeeamVBROnly } from './useIsVeeamVBROnly';
+import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 
 type Result = {
   data: {
@@ -32,6 +35,7 @@ type Result = {
   }[];
   accessKey: string;
   secretKey: string;
+  repositoryData?: VeeamRepositoryData;
 };
 
 export const useMutationActions = (
@@ -52,12 +56,15 @@ export const useMutationActions = (
     account,
     generateKey,
     accessKey,
+    autoCreateRepository,
+    immutablePeriodDays,
   } = props;
   const instanceId = useInstanceId();
   const { useAuth } = useShellHooks();
-
   const { userData } = useAuth();
   const sosApiStatus = useCheckSOSAPIStatus();
+  const isVeeamVBROnly = useIsVeeamVBROnly();
+  const { s3ServicePoint } = useGetS3ServicePoint();
 
   const shouldEnableSOSAPI =
     sosApiStatus === 'available' && platform.id === 'veeam-vbr';
@@ -80,6 +87,7 @@ export const useMutationActions = (
   const createPolicyMutation = useCreateOrAddBucketToPolicyMutation();
   const attachPolicyToUserMutation = useAttachPolicyToUserMutation();
   const enableSOSAPIMutation = useEnableSOSAPIMutation();
+  const createVeeamRepositoryMutation = useCreateVeeamRepositoryMutation();
 
   const generateStepsAndActions = () => {
     const steps = [];
@@ -172,6 +180,15 @@ export const useMutationActions = (
       ...attachPolicyToUserMutation,
       key: 'attachPolicyToUser',
     });
+
+    // Add Veeam repository creation step if enabled
+    if (isVeeamVBROnly && platform.id === 'veeam-vbr' && autoCreateRepository) {
+      actions.push('Create Veeam Repository');
+      steps.push({
+        ...createVeeamRepositoryMutation,
+        key: 'createVeeamRepository',
+      });
+    }
 
     return { actions, steps };
   };
@@ -336,6 +353,30 @@ export const useMutationActions = (
       },
       ...putBucketTaggingArray,
       ...(platform.id === 'veeam-vbr' ? putVeeamFolderArray : {}),
+      // Add Veeam repository creation parameters
+      createVeeamRepository: (results) => {
+        const accountResponse = results.find(
+          (result) => result?.key === 'createAccount',
+        );
+        const userAccessKeyResponse = results.find(
+          (result) => result?.key === 'createUserAccessKey',
+        );
+        
+        // Get account endpoint - use s3ServicePoint from hook
+        const servicePoint = s3ServicePoint || `https://s3.${accountName}.local`;
+        const bucketName = buckets?.[0]?.name || '';
+        
+        return {
+          repositoryName: bucketName, // Use bucket name as repository name
+          servicePoint,
+          accessKey: userAccessKeyResponse?.AccessKey?.AccessKeyId || accessKey,
+          secretKey: userAccessKeyResponse?.AccessKey?.SecretAccessKey || '',
+          bucketName,
+          region: 'us-east-1',
+          immutable: enableImmutableBackup || false,
+          immutablePeriodDays: immutablePeriodDays || 30,
+        };
+      },
     },
   });
 
@@ -367,10 +408,29 @@ export const useMutationActions = (
     secretKey = steps[accessKeyMutationIndex].data?.AccessKey?.SecretAccessKey;
   }
 
+  // Extract repository data if repository was created
+  let repositoryData: VeeamRepositoryData | undefined;
+  const createRepositoryLabel = 'Create Veeam Repository';
+  const repositoryMutationIndex = actions.findIndex(
+    (action) => action === createRepositoryLabel,
+  );
+  
+  if (repositoryMutationIndex !== -1 && steps[repositoryMutationIndex]?.data) {
+    const repoResponse = steps[repositoryMutationIndex].data;
+    repositoryData = {
+      repositoryName: repoResponse.repositoryName || '',
+      repositoryID: repoResponse.repositoryID || '',
+      immutable: enableImmutableBackup || false,
+      immutablePeriodDays: immutablePeriodDays,
+      status: repoResponse.status || 'success',
+    };
+  }
+
   return {
     data,
     accessKey:
       accessKey || steps[accessKeyMutationIndex]?.data?.AccessKey?.AccessKeyId,
     secretKey,
+    repositoryData,
   };
 };

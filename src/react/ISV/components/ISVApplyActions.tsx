@@ -107,8 +107,12 @@ const Main = ({
     application,
     platform,
     accessKeys,
+    autoCreateRepository,
   } = props;
-  const { data, accessKey, secretKey } = useMutationActions(props, mutations);
+  const { data, accessKey, secretKey, repositoryData } = useMutationActions(
+    props,
+    mutations,
+  );
 
   const isCancellable = useMemo(
     () => data.some((row) => row.status === 'error'),
@@ -129,6 +133,8 @@ const Main = ({
       secretKey,
       application,
       accessKeys,
+      repositoryData,
+      autoCreateRepository,
     });
   }, [
     accountName,
@@ -138,6 +144,8 @@ const Main = ({
     secretKey,
     application,
     accessKeys,
+    repositoryData,
+    autoCreateRepository,
   ]);
 
   const handleExit = useCallback(() => {

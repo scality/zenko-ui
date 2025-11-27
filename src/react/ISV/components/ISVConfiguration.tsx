@@ -1,6 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from 'react';
-import { useListAccounts } from '../../next-architecture/domain/business/accounts';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Banner,
   Form,
@@ -11,24 +9,28 @@ import {
   Stack,
   Toggle,
 } from '@scality/core-ui';
-import { Accordion, Box, Button } from '@scality/core-ui/dist/next';
-import { FormProvider, useForm, Controller } from 'react-hook-form';
-import { joiResolver } from '@hookform/resolvers/joi';
-import { ISVConfig } from '../types';
+import { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
-import { ISVStepsIndexes, useISVStepper } from './ISVSteps';
-import { ISVSkipModal } from './ISVSkipModal';
-import BucketField from './BucketField';
-import { useIAMUser } from '../hooks/useIAMUser';
+import { Accordion, Box, Button } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router';
+import { useListAccounts } from '../../next-architecture/domain/business/accounts';
+import { Account } from '../../next-architecture/domain/entities/account';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { Checkbox } from '../../ui-elements/FormLayout';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import { unitChoices, VEEAM_OFFICE_365 } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
-import { Account } from '../../next-architecture/domain/entities/account';
+import { useIAMUser } from '../hooks/useIAMUser';
+import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
+import { ISVConfig } from '../types';
+import BucketField from './BucketField';
 import { CreateOrSelectNameField, Option } from './CreateOrSelectNameField';
-import { Checkbox } from '../../ui-elements/FormLayout';
-import { useSearchParams } from 'react-router';
-import { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import { ISVSkipModal } from './ISVSkipModal';
+import { ISVStepsIndexes, useISVStepper } from './ISVSteps';
+import { VeeamRepositoryFields } from './VeeamRepositoryFields';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
@@ -50,16 +52,20 @@ export const ISVConfiguration = () => {
   const paramsAccountName = searchParams.get('account');
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
   const metricsAdapter = new NoOpMetricsAdapter();
+  const isVeeamVBROnly = useIsVeeamVBROnly();
 
   const { accounts } = useListAccounts({
     accessibleAccountsAdapter,
     metricsAdapter,
   });
-  const formMethods = useForm<ISVConfig>({
-    mode: 'all',
-    defaultValues: {
+
+  // Conditional default values based on feature flag and platform
+  const getDefaultValues = (): Partial<ISVConfig> => {
+    const baseDefaults: Partial<ISVConfig> = {
       accountName: paramsAccountName || '',
-      accountNameType: paramsAccountName ? 'existing' : 'create',
+      accountNameType: (paramsAccountName ? 'existing' : 'create') as
+        | 'existing'
+        | 'create',
       enableImmutableBackup: true,
       buckets: [
         {
@@ -69,7 +75,23 @@ export const ISVConfiguration = () => {
           capacityUnit: unitChoices.TiB.toString(),
         },
       ],
-    },
+    };
+
+    // Only add Veeam repository fields when in VeeamVBR-only context
+    if (isVeeamVBROnly && platform.id === 'veeam-vbr') {
+      return {
+        ...baseDefaults,
+        autoCreateRepository: true, // Default to true in VeeamVBR-only context
+        immutablePeriodDays: 14, // Default to 14 days
+      };
+    }
+
+    return baseDefaults;
+  };
+
+  const formMethods = useForm<ISVConfig>({
+    mode: 'all',
+    defaultValues: getDefaultValues(),
     resolver: joiResolver(platform.validator),
     shouldUnregister: false,
   });
@@ -145,6 +167,7 @@ export const ISVConfiguration = () => {
     if (data.application === VEEAM_OFFICE_365) {
       data.enableImmutableBackup = false;
     }
+
     next({
       ...data,
       platform,
@@ -370,6 +393,11 @@ export const ISVConfiguration = () => {
               }
             />
           )}
+
+          <br />
+          <FormSection forceLabelWidth={280}>
+            <VeeamRepositoryFields />
+          </FormSection>
         </FormSection>
       </Form>
     </FormProvider>

@@ -555,6 +555,70 @@ const useDeleteCertificateFromZenkoConfigurationMutation = (
   return usePatchZenkoConfigurationMutation(patch, options);
 };
 
+// Veeam repository automation types
+export type VeeamRepositoryRequest = {
+  repositoryName: string;
+  servicePoint: string;
+  accessKey: string;
+  secretKey: string;
+  bucketName: string;
+  region?: string;
+  immutable?: boolean;
+  immutablePeriodDays?: number;
+};
+
+export type VeeamRepositoryResponse = {
+  status: 'success' | 'error';
+  repositoryID?: string;
+  repositoryName?: string;
+  message?: string;
+};
+
+const useCreateVeeamRepositoryMutation = () => {
+  return useMutation<VeeamRepositoryResponse, ApiError, VeeamRepositoryRequest>({
+    mutationFn: async (repositoryConfig) => {
+      // Simple mock - remove this when real API is ready
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+      
+      return {
+        status: 'success' as const,
+        repositoryID: 'repo-artesca-001',
+        repositoryName: repositoryConfig.repositoryName,
+      };
+
+      // Real API call - commented out for now
+      /*
+      const response = await fetch(
+        'http://localhost:9999/veeam-automation/create-s3-repo',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...repositoryConfig,
+            region: repositoryConfig.region || 'us-east-1',
+            immutable: repositoryConfig.immutable || false,
+            immutablePeriodDays: repositoryConfig.immutablePeriodDays || 30,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: 'Failed to create Veeam repository'
+        }));
+        throw {
+          message: errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+        };
+      }
+
+      return await response.json();
+      */
+    },
+  });
+};
+
 export {
   useAddCertificateToZenkoConfigurationMutation,
   useAttachPolicyToUserMutation,
@@ -564,6 +628,7 @@ export {
   useCreateOrAddBucketToPolicyMutation,
   useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
+  useCreateVeeamRepositoryMutation,
   useDeleteCertificateFromZenkoConfigurationMutation,
   useEnableSOSAPIMutation,
   usePatchZenkoConfigurationMutation,
