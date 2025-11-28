@@ -31,13 +31,11 @@ import Endpoints from './endpoint/Endpoints';
 import EndpointCreate from './endpoint/EndpointCreate';
 import AccountCreate from './account/AccountCreate';
 import AccountContent from './account/AccountContent';
-import BucketCreate from './databrowser/buckets/BucketCreate';
 import DataBrowser from './databrowser/DataBrowser';
 import LocationEditor from './locations/LocationEditor';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import Workflows from './workflow/Workflows';
 import CreateWorkflow from './workflow/CreateWorkflow';
-import Objects from './databrowser/objects/Objects';
 import Attachments from './account/iamAttachment/Attachments';
 import AccountUpdateUser from './account/AccountUpdateUser';
 import UpdateAccountPolicy from './account/UpdateAccountPolicy';
@@ -332,22 +330,6 @@ export function PrivateRoutes() {
         }
       />
       <Route
-        path="accounts/:accountName/create-bucket/*"
-        element={
-          <DataServiceRoleProvider>
-            <BucketCreate />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
-        path={'accounts/:accountName/buckets/:bucketName/objects'}
-        element={
-          <DataServiceRoleProvider>
-            <Objects />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
         path="accounts/:accountName/data/buckets/*"
         element={
           <DataServiceRoleProvider>
@@ -433,7 +415,6 @@ function InternalRoutes() {
     '/locations/:locations/edit',
     '/accounts/:accountName/create-user',
     '/accounts/:accountName/users/:user/update-user',
-    '/accounts/:accountName/create-bucket',
     '/accounts/:accountName/workflows/create-workflow',
     '/accounts/:accountName/create-policy',
     '/isv/configuration',
