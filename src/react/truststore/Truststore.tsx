@@ -1,14 +1,12 @@
+import { ParsedCertificate } from '@scality/certchain';
 import {
   AppContainer,
   Banner,
   ConstrainedText,
   Icon,
-  IconHelp,
-  Loader,
   spacing,
   Stack,
   Text,
-  Toggle,
   useToast,
   Wrap,
 } from '@scality/core-ui';
@@ -19,10 +17,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
 import { MutationOptions, useQuery, useQueryClient } from 'react-query';
 import { CoreUIColumn, Row } from 'react-table';
-import {
-  useDeleteCertificateFromZenkoConfigurationMutation,
-  useToggleTLSVerificationMutation,
-} from '../../js/mutations';
+import { useDeleteCertificateFromZenkoConfigurationMutation } from '../../js/mutations';
 import { ApiError } from '../../types/actions';
 import { getZenkoCRQuery } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
@@ -31,11 +26,21 @@ import CertificateDetails from './CertificateDetails';
 import {
   useParseBundleCertificates,
   useParseSecretCertificates,
-  ZenkoCRCertificateBundle,
   ZenkoCRCertificateBundleWithIndex,
+  ZenkoCRCertificateBundle,
 } from './hooks';
+import TLSVerificationUpdater from './TLSVerificationUpdater';
 import { formatExpiryDate } from './utils';
-import { ParsedCertificate } from '@scality/certchain';
+
+export type ZenkoCREgress = {
+  skipTLSVerify?: boolean;
+  extraCACerts?: ZenkoCRCertificateBundle[];
+};
+export type ZenkoCR = {
+  spec?: {
+    egress?: ZenkoCREgress;
+  } & Record<string, unknown>;
+} & Record<string, unknown>;
 
 export type CertificateWithPEM = ParsedCertificate & {
   originalPEM: string;
@@ -78,30 +83,6 @@ type CertificateData = {
   certificates: CertificateWithPEM[];
 };
 
-const skipTLSVerificationTooltipMessage = (
-  <Stack direction="vertical" gap="r8">
-    <Text variant="Small">
-      Skip TLS Verification will allow you to access external locations without
-      verifying their TLS certificates.
-    </Text>
-    <Text variant="Small">
-      Without TLS verification, you lose the ability to:
-      <ul style={{ marginLeft: spacing.r16 }}>
-        <li style={{ marginBottom: spacing.r4 }}>
-          verify the external location's identity
-        </li>
-        <li style={{ marginBottom: spacing.r4 }}>ensure non-repudiation</li>
-      </ul>
-      Your data remains encrypted, but the secure channel verification is
-      bypassed.
-    </Text>
-    <Text variant="Small">
-      Toggling this setting will update the Data Management Component
-      configuration. This action will take some time to complete.
-    </Text>
-  </Stack>
-);
-
 const Truststore = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -123,40 +104,6 @@ const Truststore = () => {
     isLoading: isLoadingZenkoCR,
     isError: isErrorZenkoCR,
   } = useQuery(getZenkoCRQuery());
-
-  const hasEgress = useMemo(() => {
-    return !!zenkoCR?.spec?.egress;
-  }, [zenkoCR]);
-
-  const toggleTLSVerificationMutationOptions: MutationOptions<
-    { skipTLSVerify: boolean },
-    ApiError,
-    { skipTLSVerify: boolean }
-  > = {
-    onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ['zenkoCR'] });
-      showToast({
-        message: 'TLS verification updated successfully',
-        status: 'success',
-        open: true,
-      });
-    },
-    onError: () => {
-      showToast({
-        message: 'Failed to update TLS verification',
-        status: 'error',
-        open: true,
-      });
-    },
-  };
-
-  const {
-    mutate: toggleTLSVerificationMutation,
-    isLoading: isLoadingToggleTLSVerification,
-  } = useToggleTLSVerificationMutation(
-    hasEgress,
-    toggleTLSVerificationMutationOptions,
-  );
 
   const deleteCertificateMutationOptions: MutationOptions<
     { certificateIndex: number },
@@ -196,10 +143,7 @@ const Truststore = () => {
   const extraCACerts = useMemo(() => {
     // Add index to the extraCACerts to track the order of the ca/secret certificates
     const extraCACertsWithIndex = zenkoCR?.spec?.egress?.extraCACerts?.map(
-      (
-        cert: ZenkoCRCertificateBundle,
-        index: number,
-      ): ZenkoCRCertificateBundleWithIndex => ({
+      (cert, index: number): ZenkoCRCertificateBundleWithIndex => ({
         ...cert,
         index,
       }),
@@ -219,10 +163,6 @@ const Truststore = () => {
     const list = [...parsedExtraCACerts, ...parsedSecretCertificates];
     return list.length > 0 ? formatCertificateDataForTable(list) : [];
   }, [parsedExtraCACerts, parsedSecretCertificates]);
-
-  const toggleTLSVerification = (skipTLSVerify: boolean) => {
-    toggleTLSVerificationMutation({ skipTLSVerify });
-  };
 
   const handleDeleteClick = (certificateData: CertificateData) => {
     setCertificateToDelete({
@@ -366,33 +306,10 @@ const Truststore = () => {
             <Icon name="ID-card" size="2x" withWrapper />
             <Text variant="Larger">Truststore</Text>
           </Stack>
-          <Stack direction="vertical" gap="r8">
-            <Stack
-              direction="horizontal"
-              gap="r4"
-              style={{ marginRight: spacing.r16 }}
-            >
-              <Text>TLS Verification</Text>
-              <IconHelp tooltipMessage={skipTLSVerificationTooltipMessage} />
-            </Stack>
-            <Stack gap="r8">
-              <Toggle
-                label={
-                  isLoadingToggleTLSVerification
-                    ? 'Updating...'
-                    : isTLSVerificationActive
-                    ? 'Active'
-                    : 'Skipped'
-                }
-                toggle={isTLSVerificationActive}
-                onChange={(e) => {
-                  toggleTLSVerification(!e.currentTarget.checked);
-                }}
-                disabled={isLoadingZenkoCR || isLoadingToggleTLSVerification}
-              />
-              {isLoadingToggleTLSVerification && <Loader size="base" />}
-            </Stack>
-          </Stack>
+          <TLSVerificationUpdater
+            zenkoCR={zenkoCR}
+            isLoadingZenkoCR={isLoadingZenkoCR}
+          />
         </Wrap>
       </AppContainer.OverallSummary>
       <AppContainer.MainContent hasPadding>

@@ -1,3 +1,4 @@
+import { useShellHooks } from '@scality/module-federation';
 import { AWSError, S3 } from 'aws-sdk';
 import {
   AccessKeyMetadata,
@@ -14,21 +15,21 @@ import {
   User,
 } from 'aws-sdk/clients/iam';
 import { ListObjectVersionsOutput } from 'aws-sdk/clients/s3';
-import { InfiniteData, useQueries, useQuery } from 'react-query';
+import { useMemo } from 'react';
+import { InfiniteData, QueryOptions, useQuery } from 'react-query';
 import IAMClient from '../js/IAMClient';
+import { UiFacingApiWrapper } from '../js/managementClient';
 import { getAccountSeeds } from '../js/vault';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { APIWorkflows, Workflow, Workflows } from '../types/workflow';
+import { useDeployedMetalk8sInstances } from './next-architecture/ui/ConfigProvider';
+import { ZenkoCR } from './truststore/Truststore';
 import { AWS_PAGINATED_QUERY } from './utils/IAMhooks';
 import {
   generateExpirationName,
   generateStreamName,
   generateTransitionName,
 } from './workflow/utils';
-import { UiFacingApiWrapper } from '../js/managementClient';
-import { useShellHooks } from '@scality/module-federation';
-import { useDeployedMetalk8sInstances } from './next-architecture/ui/ConfigProvider';
-import { useMemo } from 'react';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -311,7 +312,7 @@ export const getObjectQuery = ({
   refetchOnWindowFocus: false,
 });
 
-export const getZenkoCRQuery = () => {
+export const getZenkoCRQuery = (): QueryOptions<ZenkoCR> => {
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const { useConfigRetriever } = useShellHooks();
