@@ -6,24 +6,19 @@ import {
   Text,
 } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo } from 'react';
 import { VeeamRepositoryData } from '../types';
 import { WrapperWithWidth } from './ISVSummary';
 
 type VeeamRepositorySummaryProps = {
   repositoryData: VeeamRepositoryData;
+  onFinish: () => void;
 };
 
 export const VeeamRepositorySummary = ({
   repositoryData,
+  onFinish,
 }: VeeamRepositorySummaryProps) => {
-  const navigate = useBasenameRelativeNavigate();
-
-  const handleExit = () => {
-    navigate('/');
-  };
-
   const sucessMessage = useMemo(() => {
     if (repositoryData.status === 'success') {
       return `Veeam repo "${repositoryData.repositoryName}" was successfully created on the Veeam application.`;
@@ -41,7 +36,7 @@ export const VeeamRepositorySummary = ({
         <Button
           type="button"
           variant="primary"
-          onClick={handleExit}
+          onClick={onFinish}
           label="Exit"
         />
       }

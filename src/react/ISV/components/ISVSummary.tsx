@@ -81,22 +81,6 @@ export const ISVSummary = ({
   const queryClient = useQueryClient();
   const isVeeamVBROnly = useIsVeeamVBROnly();
 
-  if (
-    isVeeamVBROnly &&
-    platform.id === 'veeam-vbr' &&
-    autoCreateRepository &&
-    repositoryData
-  ) {
-    return <VeeamRepositorySummary repositoryData={repositoryData} />;
-  }
-
-  const immutableSectionInfos = platform.immutabilitySummaryOverride({
-    isImmutable: enableImmutableBackup,
-    application: application,
-  });
-
-  const shouldHideImmutableSection = application === VEEAM_OFFICE_365;
-
   const finish = useCallback(() => {
     const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
     queryClient
@@ -105,6 +89,27 @@ export const ISVSummary = ({
         navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`),
       );
   }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
+
+  if (
+    isVeeamVBROnly &&
+    platform.id === 'veeam-vbr' &&
+    autoCreateRepository &&
+    repositoryData
+  ) {
+    return (
+      <VeeamRepositorySummary
+        repositoryData={repositoryData}
+        onFinish={finish}
+      />
+    );
+  }
+
+  const immutableSectionInfos = platform.immutabilitySummaryOverride({
+    isImmutable: enableImmutableBackup,
+    application: application,
+  });
+
+  const shouldHideImmutableSection = application === VEEAM_OFFICE_365;
 
   const serviceEndpointLabel = platform.serviceEndpointLabel || 'Service point';
 

@@ -5,26 +5,28 @@ import {
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
   useCreateIAMUserMutation,
-  useCreateUserAccessKeyMutation,
   useCreateOrAddBucketToPolicyMutation,
-  useEnableSOSAPIMutation,
+  useCreateUserAccessKeyMutation,
   useCreateVeeamRepositoryMutation,
+  useEnableSOSAPIMutation,
 } from '../../../js/mutations';
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
-import { ISVConfig, ISVPlatformConfig, VeeamRepositoryData } from '../types';
+import {
+  GET_CAPACITY_XML_CONTENT,
+  SYSTEM_XML_CONTENT,
+  VEEAM_XML_PREFIX,
+} from '../../ISV/constants';
 import { Account } from '../../next-architecture/domain/entities/account';
-import { Mutation } from './useMultiMutation';
-import { VEEAM_XML_PREFIX } from '../../ISV/constants';
-import { SYSTEM_XML_CONTENT } from '../../ISV/constants';
-import { GET_CAPACITY_XML_CONTENT } from '../../ISV/constants';
+import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import {} from '../modules/veeam';
+import { ISVConfig, ISVPlatformConfig, VeeamRepositoryData } from '../types';
 import { useCheckSOSAPIStatus } from './useCheckSOSAPIStatus';
-import { useIsVeeamVBROnly } from './useIsVeeamVBROnly';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
+import { useIsVeeamVBROnly } from './useIsVeeamVBROnly';
+import { Mutation } from './useMultiMutation';
 
 type Result = {
   data: {
@@ -139,6 +141,22 @@ export const useMutationActions = (
           bucketMutations[`putVeeamSystemXml-${bucket.name}`],
           bucketMutations[`putVeeamCapacityXml-${bucket.name}`],
         );
+
+        // Add required Veeam folders when auto-repository creation is enabled
+        if (autoCreateRepository) {
+          actions.push(
+            'Create Veeam Backup folder structure',
+            'Create Veeam Backup Clients folder',
+            'Create Veeam Backup Config folder',
+            'Create Veeam Archive folder structure',
+          );
+          steps.push(
+            bucketMutations[`putVeeamBackupFolder-${bucket.name}`],
+            bucketMutations[`putVeeamBackupClientsFolder-${bucket.name}`],
+            bucketMutations[`putVeeamBackupConfigFolder-${bucket.name}`],
+            bucketMutations[`putVeeamArchiveFolder-${bucket.name}`],
+          );
+        }
       }
     });
 
@@ -259,6 +277,34 @@ export const useMutationActions = (
             Body: '',
           };
         },
+        [`putVeeamBackupFolder-${bucket.name}`]: () => {
+          return {
+            Bucket: bucket.name,
+            Key: `Veeam/Backup/bkp/`,
+            Body: '',
+          };
+        },
+        [`putVeeamBackupClientsFolder-${bucket.name}`]: () => {
+          return {
+            Bucket: bucket.name,
+            Key: `Veeam/Backup/bkp/Clients`,
+            Body: '',
+          };
+        },
+        [`putVeeamBackupConfigFolder-${bucket.name}`]: () => {
+          return {
+            Bucket: bucket.name,
+            Key: `Veeam/Backup/bkp/Config`,
+            Body: '',
+          };
+        },
+        [`putVeeamArchiveFolder-${bucket.name}`]: () => {
+          return {
+            Bucket: bucket.name,
+            Key: `Veeam/Archive/bkp/`,
+            Body: '',
+          };
+        },
         [`putVeeamSystemXml-${bucket.name}`]: () => {
           return {
             Bucket: bucket.name,
@@ -355,17 +401,52 @@ export const useMutationActions = (
       ...(platform.id === 'veeam-vbr' ? putVeeamFolderArray : {}),
       // Add Veeam repository creation parameters
       createVeeamRepository: (results) => {
-        const accountResponse = results.find(
-          (result) => result?.key === 'createAccount',
+        // Find index by step key (same pattern as accessing steps[index].data below)
+        const createUserAccessKeyStepIndex = steps.findIndex(
+          (step) => step.key === 'createUserAccessKey',
         );
-        const userAccessKeyResponse = results.find(
-          (result) => result?.key === 'createUserAccessKey',
-        );
-        
+
+        // Access results by index (results array corresponds to steps array)
+        const userAccessKeyResponse =
+          createUserAccessKeyStepIndex !== -1
+            ? results[createUserAccessKeyStepIndex]
+            : null;
+
         // Get account endpoint - use s3ServicePoint from hook
-        const servicePoint = s3ServicePoint || `https://s3.${accountName}.local`;
-        const bucketName = buckets?.[0]?.name || '';
-        
+        const servicePoint =
+          s3ServicePoint || `https://s3.${accountName}.local`;
+        const bucket = buckets?.[0];
+
+        const bucketName = bucket?.name || '';
+
+        // Convert capacityBytes to TB or PB (Veeam only supports TB or PB)
+        const capacityBytes = bucket?.capacityBytes || 0;
+        const PB_IN_BYTES = 1024 ** 5; // 1 PB = 1024^5 bytes
+        const TB_IN_BYTES = 1024 ** 4; // 1 TB = 1024^4 bytes
+
+        let storageConsumptionLimitKind: 'TB' | 'PB' = 'TB';
+        let storageConsumptionLimitCount = 0;
+
+        if (capacityBytes >= PB_IN_BYTES) {
+          // Use PB if capacity is >= 1 PB
+          storageConsumptionLimitKind = 'PB';
+          storageConsumptionLimitCount = Math.floor(
+            capacityBytes / PB_IN_BYTES,
+          );
+        } else if (capacityBytes >= TB_IN_BYTES) {
+          // Use TB if capacity is >= 1 TB
+          storageConsumptionLimitKind = 'TB';
+          storageConsumptionLimitCount = Math.floor(
+            capacityBytes / TB_IN_BYTES,
+          );
+        } else {
+          // If less than 1 TB, use TB with calculated value (could be 0)
+          storageConsumptionLimitKind = 'TB';
+          storageConsumptionLimitCount = Math.floor(
+            capacityBytes / TB_IN_BYTES,
+          );
+        }
+
         return {
           repositoryName: bucketName, // Use bucket name as repository name
           servicePoint,
@@ -375,6 +456,8 @@ export const useMutationActions = (
           region: 'us-east-1',
           immutable: enableImmutableBackup || false,
           immutablePeriodDays: immutablePeriodDays || 30,
+          storageConsumptionLimitKind,
+          storageConsumptionLimitCount,
         };
       },
     },
@@ -414,7 +497,7 @@ export const useMutationActions = (
   const repositoryMutationIndex = actions.findIndex(
     (action) => action === createRepositoryLabel,
   );
-  
+
   if (repositoryMutationIndex !== -1 && steps[repositoryMutationIndex]?.data) {
     const repoResponse = steps[repositoryMutationIndex].data;
     repositoryData = {

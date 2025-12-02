@@ -565,6 +565,8 @@ export type VeeamRepositoryRequest = {
   region?: string;
   immutable?: boolean;
   immutablePeriodDays?: number;
+  storageConsumptionLimitKind: string;
+  storageConsumptionLimitCount: number;
 };
 
 export type VeeamRepositoryResponse = {
@@ -575,48 +577,57 @@ export type VeeamRepositoryResponse = {
 };
 
 const useCreateVeeamRepositoryMutation = () => {
-  return useMutation<VeeamRepositoryResponse, ApiError, VeeamRepositoryRequest>({
-    mutationFn: async (repositoryConfig) => {
-      // Simple mock - remove this when real API is ready
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-      
-      return {
-        status: 'success' as const,
-        repositoryID: 'repo-artesca-001',
-        repositoryName: repositoryConfig.repositoryName,
-      };
-
-      // Real API call - commented out for now
-      /*
-      const response = await fetch(
-        'http://localhost:9999/veeam-automation/create-s3-repo',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+  return useMutation<VeeamRepositoryResponse, ApiError, VeeamRepositoryRequest>(
+    {
+      mutationFn: async (repositoryConfig) => {
+        const response = await fetch(
+          'https://192.168.14.43:8443/veeam-exporter/veeam-automation/create-s3-repo',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              repositoryName: repositoryConfig.repositoryName,
+              servicePoint: repositoryConfig.servicePoint,
+              accessKey: repositoryConfig.accessKey,
+              secretKey: repositoryConfig.secretKey,
+              bucketName: repositoryConfig.bucketName,
+              region: repositoryConfig.region,
+              immutable: repositoryConfig.immutable,
+              immutablePeriodDays: repositoryConfig.immutablePeriodDays,
+              storageConsumptionLimitKind:
+                repositoryConfig.storageConsumptionLimitKind,
+              storageConsumptionLimitCount:
+                repositoryConfig.storageConsumptionLimitCount,
+            }),
           },
-          body: JSON.stringify({
-            ...repositoryConfig,
-            region: repositoryConfig.region || 'us-east-1',
-            immutable: repositoryConfig.immutable || false,
-            immutablePeriodDays: repositoryConfig.immutablePeriodDays || 30,
-          }),
+        );
+
+        console.log('response', response);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({
+            message: 'Failed to create Veeam repository',
+          }));
+          throw {
+            message:
+              errorData.message ||
+              `HTTP ${response.status}: ${response.statusText}`,
+          };
         }
-      );
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-          message: 'Failed to create Veeam repository'
-        }));
-        throw {
-          message: errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+        const data = await response.json();
+
+        return {
+          status: data.status,
+          repositoryID: data.repositoryId,
+          repositoryName: data.repositoryName,
+          message: data.message,
         };
-      }
-
-      return await response.json();
-      */
+      },
     },
-  });
+  );
 };
 
 export {

@@ -61,13 +61,17 @@ const BucketMutation = ({
 const BucketVeeamMutation = ({
   bucket,
   onMutationReady,
+  autoCreateRepository,
 }: {
   bucket: Bucket;
   onMutationReady: (key: string, mutation: Mutation) => void;
+  autoCreateRepository?: boolean;
 }) => {
   const putVeeamFolderMutation = usePutObjectMutation();
   const putVeeamSystemXmlMutation = usePutObjectMutation();
   const putVeeamCapacityXmlMutation = usePutObjectMutation();
+  const putVeeamBackupFolderMutation = usePutObjectMutation();
+  const putVeeamArchiveFolderMutation = usePutObjectMutation();
 
   useMemo(() => {
     onMutationReady(`putVeeamFolder-${bucket.name}`, putVeeamFolderMutation);
@@ -79,10 +83,25 @@ const BucketVeeamMutation = ({
       `putVeeamCapacityXml-${bucket.name}`,
       putVeeamCapacityXmlMutation,
     );
+
+    // Add folder creation mutations when auto-repository creation is enabled
+    if (autoCreateRepository) {
+      onMutationReady(
+        `putVeeamBackupFolder-${bucket.name}`,
+        putVeeamBackupFolderMutation,
+      );
+      onMutationReady(
+        `putVeeamArchiveFolder-${bucket.name}`,
+        putVeeamArchiveFolderMutation,
+      );
+    }
   }, [
     putVeeamFolderMutation.status,
     putVeeamSystemXmlMutation.status,
     putVeeamCapacityXmlMutation.status,
+    putVeeamBackupFolderMutation.status,
+    putVeeamArchiveFolderMutation.status,
+    autoCreateRepository,
   ]);
 
   return <></>;
@@ -242,12 +261,14 @@ const Main = ({
 };
 
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
-  const { buckets, platform } = props;
+  const { buckets, platform, autoCreateRepository } = props;
   const isVeeamVBR = platform.id === 'veeam-vbr';
   const { mutations, handleMutationReady, isAllMutationsReady } =
     useMultiMutation(
       buckets,
-      isVeeamVBR ? buckets.length * 5 : buckets.length * 2,
+      isVeeamVBR
+        ? buckets.length * (autoCreateRepository ? 7 : 5) // Adjust mutation count for auto-repository
+        : buckets.length * 2,
     );
 
   return (
@@ -262,6 +283,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
             <BucketVeeamMutation
               bucket={bucket}
               onMutationReady={handleMutationReady}
+              autoCreateRepository={autoCreateRepository}
             />
           )}
         </Fragment>
