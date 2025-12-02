@@ -16,7 +16,7 @@ export const useIsVeeamVBROnly = () => {
       name: artescaUI.name,
     });
 
-    return (artescaUIConfig.spec?.selfConfiguration.flags || []).includes(
+    return (artescaUIConfig.spec?.selfConfiguration?.flags || []).includes(
       'artesca_plus_veeam',
     );
   }

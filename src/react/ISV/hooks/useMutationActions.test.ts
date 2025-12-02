@@ -10,7 +10,7 @@ import {
   useCreateUserAccessKeyMutation,
   useCreateOrAddBucketToPolicyMutation,
   useAttachPolicyToUserMutation,
-  useEnableSOSAPIMutation,
+  useCreateVeeamRepositoryMutation,
 } from '../../../js/mutations';
 import { useMutation } from 'react-query';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
@@ -46,6 +46,7 @@ jest.mock('../../../js/mutations', () => ({
   useCreateOrAddBucketToPolicyMutation: jest.fn(),
   useAttachPolicyToUserMutation: jest.fn(),
   useEnableSOSAPIMutation: jest.fn(),
+  useCreateVeeamRepositoryMutation: jest.fn(),
 }));
 
 jest.mock('react-query', () => ({
@@ -87,60 +88,90 @@ describe('useMutationActions', () => {
     'createBucket-test-bucket-1': {
       key: 'createBucket-test-bucket-1',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { name: 'test-bucket-1' },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'putBucketTagging-test-bucket-1': {
       key: 'putBucketTagging-test-bucket-1',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { tagged: true },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'createBucket-test-bucket-2': {
       key: 'createBucket-test-bucket-2',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { name: 'test-bucket-2' },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'putBucketTagging-test-bucket-2': {
       key: 'putBucketTagging-test-bucket-2',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { tagged: true },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'putVeeamFolder-test-bucket-1': {
       key: 'putVeeamFolder-test-bucket-1',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { folder: 'created' },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'putVeeamSystemXml-test-bucket-1': {
       key: 'putVeeamSystemXml-test-bucket-1',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { system: 'created' },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'putVeeamCapacityXml-test-bucket-1': {
       key: 'putVeeamCapacityXml-test-bucket-1',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { capacity: 'created' },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'putVeeamFolder-test-bucket-2': {
       key: 'putVeeamFolder-test-bucket-2',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { folder: 'created' },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'putVeeamSystemXml-test-bucket-2': {
       key: 'putVeeamSystemXml-test-bucket-2',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { system: 'created' },
       mutate: jest.fn(),
     } as unknown as Mutation,
     'putVeeamCapacityXml-test-bucket-2': {
       key: 'putVeeamCapacityXml-test-bucket-2',
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { capacity: 'created' },
       mutate: jest.fn(),
     } as unknown as Mutation,
@@ -163,6 +194,9 @@ describe('useMutationActions', () => {
     const mockRefetchMutation = {
       mutate: jest.fn(),
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { refetched: true },
     };
 
@@ -177,6 +211,9 @@ describe('useMutationActions', () => {
     const mockAssumeRoleMutation = {
       mutate: jest.fn(),
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { assumed: true },
     };
 
@@ -186,6 +223,9 @@ describe('useMutationActions', () => {
     (useCreateAccountMutation as jest.Mock).mockReturnValue({
       mutate: jest.fn(),
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { id: 'account-id' },
     });
 
@@ -193,6 +233,9 @@ describe('useMutationActions', () => {
     (useCreateIAMUserMutation as jest.Mock).mockReturnValue({
       mutate: jest.fn(),
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { User: { UserName: 'test-iam-user' } },
     });
 
@@ -200,6 +243,9 @@ describe('useMutationActions', () => {
     (useCreateUserAccessKeyMutation as jest.Mock).mockReturnValue({
       mutate: jest.fn(),
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: {
         AccessKey: {
           AccessKeyId: 'test-access-key',
@@ -212,6 +258,9 @@ describe('useMutationActions', () => {
     (useCreateOrAddBucketToPolicyMutation as jest.Mock).mockReturnValue({
       mutate: jest.fn(),
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { Policy: { Arn: 'policy-arn' } },
     });
 
@@ -219,7 +268,20 @@ describe('useMutationActions', () => {
     (useAttachPolicyToUserMutation as jest.Mock).mockReturnValue({
       mutate: jest.fn(),
       status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
       data: { attached: true },
+    });
+
+    // Mock create Veeam repository
+    (useCreateVeeamRepositoryMutation as jest.Mock).mockReturnValue({
+      mutate: jest.fn(),
+      status: 'success',
+      isSuccess: true,
+      isPending: false,
+      isError: false,
+      data: { repositoryId: 'test-repo-id' },
     });
 
     // Mock chained mutations
@@ -291,7 +353,9 @@ describe('useMutationActions', () => {
         ];
 
         const steps = actions.map((action, i) => ({
-          status: 'success',
+          isSuccess: true,
+          isPending: false,
+          isError: false,
           data: { step: i },
         }));
 
@@ -345,7 +409,9 @@ describe('useMutationActions', () => {
       ];
 
       const steps = actions.map((action, i) => ({
-        status: 'success',
+        isSuccess: true,
+        isPending: false,
+        isError: false,
         data: { step: i },
       }));
 
@@ -417,7 +483,9 @@ describe('useMutationActions', () => {
       ];
 
       const steps = actions.map((action, i) => ({
-        status: 'success',
+        isSuccess: true,
+        isPending: false,
+        isError: false,
         data: { step: i },
       }));
 
@@ -478,7 +546,9 @@ describe('useMutationActions', () => {
       ];
 
       const steps = actions.map((action, i) => ({
-        status: 'success',
+        isSuccess: true,
+        isPending: false,
+        isError: false,
         data: { step: i },
       }));
 
@@ -550,7 +620,9 @@ describe('useMutationActions', () => {
       ];
 
       const steps = actions.map((action, i) => ({
-        status: 'success',
+        isSuccess: true,
+        isPending: false,
+        isError: false,
         data: { step: i },
       }));
 
@@ -614,7 +686,9 @@ describe('useMutationActions', () => {
       ];
 
       const steps = actions.map((action, i) => ({
-        status: 'success',
+        isSuccess: true,
+        isPending: false,
+        isError: false,
         data: { step: i },
       }));
 
@@ -662,8 +736,30 @@ describe('useMutationActions', () => {
         },
       };
 
+      // Override one of the bucket mutations to be in error state
+      const errorBucketMutations = {
+        ...mockBucketMutations,
+        'putVeeamCapacityXml-test-bucket-1': {
+          key: 'putVeeamCapacityXml-test-bucket-1',
+          status: 'error',
+          isSuccess: false,
+          isPending: false,
+          isError: true,
+          error: new Error('Capacity XML creation failed'),
+          mutate: jest.fn(),
+        } as unknown as Mutation,
+      };
+
       const actions = [
         'Assume Account Role',
+        'Create a Bucket: test-bucket-1',
+        'Tag Bucket: test-bucket-1',
+        'Prepare Veeam integrated object repository',
+        'Enforce Veeam integrated object repository',
+        'Set maximum repository capacity',
+        'Create a Bucket: test-bucket-2',
+        'Tag Bucket: test-bucket-2',
+        'Prepare Veeam integrated object repository',
         'Enforce Veeam integrated object repository',
         'Set maximum repository capacity',
         'Create a User',
@@ -672,16 +768,11 @@ describe('useMutationActions', () => {
         'Attach Policy to User',
       ];
 
-      const steps = actions.map((action, i) => ({
-        status: 'success',
-        data: { step: i },
+      const steps = actions.map(() => ({
+        isSuccess: false,
+        isPending: false,
+        isError: false,
       }));
-
-      // Manually modify the third step to error state
-      steps[2] = {
-        status: 'error',
-        data: { step: 2 },
-      };
 
       (useChainedMutations as jest.Mock).mockReturnValue({
         mutate: mockMutate,
@@ -690,29 +781,31 @@ describe('useMutationActions', () => {
         actions,
       });
 
-      // Add mock to intercept data processing in useMutationActions
-      jest.spyOn(console, 'debug').mockImplementation();
-
       const { result } = renderHook(() =>
-        useMutationActions(props as any, mockBucketMutations),
+        useMutationActions(props as any, errorBucketMutations),
       );
 
-      // Log actual states for debugging
-      console.debug(
-        'Actual step statuses:',
-        result.current.data.map((item) => ({
-          step: item.step,
-          status: item.status,
-        })),
-      );
-
-      // Adjust expectations to match actual behavior
-      expect(result.current.data[0].status).toBe('success');
-      expect(result.current.data[2].status).toBe('success'); // May need adjustment
+      // Verify the error step (Set maximum repository capacity for bucket-1)
+      expect(result.current.data[5].status).toBe('error'); // Error step should show error
+      // Steps after error should be idle due to hasPreviousFailure check
+      expect(result.current.data[6].status).toBe('idle'); // Next step should be idle
     });
 
     it('should handle loading states', () => {
       const { mockMutate, mockMutationsWithRetry } = mockSetupCommonMocks();
+
+      // Override refetch mutation to be in loading state
+      const mockRefetchMutationLoading = {
+        mutate: jest.fn(),
+        status: 'loading',
+        isSuccess: false,
+        isPending: true,
+        isError: false,
+      };
+
+      (useAccountsLocationsAndEndpoints as jest.Mock).mockReturnValue({
+        refetchAccountsLocationsEndpointsMutation: mockRefetchMutationLoading,
+      });
 
       const props = {
         ...mockBaseProps,
@@ -723,14 +816,27 @@ describe('useMutationActions', () => {
         'Create an Account',
         'Update Configuration',
         'Assume Account Role',
+        'Create a Bucket: test-bucket-1',
+        'Tag Bucket: test-bucket-1',
+        'Prepare Veeam integrated object repository',
+        'Enforce Veeam integrated object repository',
+        'Set maximum repository capacity',
+        'Create a Bucket: test-bucket-2',
+        'Tag Bucket: test-bucket-2',
+        'Prepare Veeam integrated object repository',
+        'Enforce Veeam integrated object repository',
+        'Set maximum repository capacity',
+        'Create a User',
+        'Generate Access key and Secret key',
+        'Create Policy',
+        'Attach Policy to User',
       ];
 
-      // Set the second step to loading state
-      const steps = [
-        { status: 'success', data: { id: 'account-id' } },
-        { status: 'loading' },
-        { status: 'idle' },
-      ];
+      const steps = actions.map((_, i) => ({
+        isSuccess: false,
+        isPending: false,
+        isError: false,
+      }));
 
       (useChainedMutations as jest.Mock).mockReturnValue({
         mutate: mockMutate,
@@ -739,19 +845,12 @@ describe('useMutationActions', () => {
         actions,
       });
 
-      // Add debug console to see how the component transforms statuses
-      jest.spyOn(console, 'debug').mockImplementation();
-
       const { result } = renderHook(() =>
         useMutationActions(props as any, mockBucketMutations),
       );
 
-      console.debug('Loading test results:', result.current.data);
-
-      // Updated expectation to match actual behavior
-      expect(result.current.data[0].status).toBe('success'); // First step success
-      expect(result.current.data[1].status).toBe('success'); // Second step transformed to success
-      expect(result.current.data[2].status).toBe('success'); // Third step also transformed to success
+      // Verify the refetch mutation (step 1) is in loading state
+      expect(result.current.data[1].status).toBe('loading'); // Update Configuration step is loading
     });
   });
 
