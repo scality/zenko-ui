@@ -71,6 +71,8 @@ const BucketVeeamMutation = ({
   const putVeeamSystemXmlMutation = usePutObjectMutation();
   const putVeeamCapacityXmlMutation = usePutObjectMutation();
   const putVeeamBackupFolderMutation = usePutObjectMutation();
+  const putVeeamBackupClientsFolderMutation = usePutObjectMutation();
+  const putVeeamBackupConfigFolderMutation = usePutObjectMutation();
   const putVeeamArchiveFolderMutation = usePutObjectMutation();
 
   useMemo(() => {
@@ -91,6 +93,14 @@ const BucketVeeamMutation = ({
         putVeeamBackupFolderMutation,
       );
       onMutationReady(
+        `putVeeamBackupClientsFolder-${bucket.name}`,
+        putVeeamBackupClientsFolderMutation,
+      );
+      onMutationReady(
+        `putVeeamBackupConfigFolder-${bucket.name}`,
+        putVeeamBackupConfigFolderMutation,
+      );
+      onMutationReady(
         `putVeeamArchiveFolder-${bucket.name}`,
         putVeeamArchiveFolderMutation,
       );
@@ -100,6 +110,8 @@ const BucketVeeamMutation = ({
     putVeeamSystemXmlMutation.status,
     putVeeamCapacityXmlMutation.status,
     putVeeamBackupFolderMutation.status,
+    putVeeamBackupClientsFolderMutation.status,
+    putVeeamBackupConfigFolderMutation.status,
     putVeeamArchiveFolderMutation.status,
     autoCreateRepository,
   ]);
@@ -260,15 +272,33 @@ const Main = ({
   );
 };
 
+const MUTATIONS_PER_BUCKET = {
+  DEFAULT: 2,
+  VEEAM_BASE: 5,
+  VEEAM_WITH_AUTO_REPO: 9,
+} as const;
+
+function calculateMutationCount(
+  bucketCount: number,
+  isVeeamVBR: boolean,
+  autoCreateRepository: boolean,
+): number {
+  if (!isVeeamVBR) {
+    return bucketCount * MUTATIONS_PER_BUCKET.DEFAULT;
+  }
+
+  return autoCreateRepository
+    ? bucketCount * MUTATIONS_PER_BUCKET.VEEAM_WITH_AUTO_REPO
+    : bucketCount * MUTATIONS_PER_BUCKET.VEEAM_BASE;
+}
+
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   const { buckets, platform, autoCreateRepository } = props;
   const isVeeamVBR = platform.id === 'veeam-vbr';
   const { mutations, handleMutationReady, isAllMutationsReady } =
     useMultiMutation(
       buckets,
-      isVeeamVBR
-        ? buckets.length * (autoCreateRepository ? 7 : 5) // Adjust mutation count for auto-repository
-        : buckets.length * 2,
+      calculateMutationCount(buckets.length, isVeeamVBR, autoCreateRepository),
     );
 
   return (

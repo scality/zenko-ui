@@ -27,6 +27,11 @@ import { useCheckSOSAPIStatus } from './useCheckSOSAPIStatus';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 import { useIsVeeamVBROnly } from './useIsVeeamVBROnly';
 import { Mutation } from './useMultiMutation';
+import {
+  calculateStorageConsumptionLimit,
+  ensureHttpsPrefix,
+  parseCapacityBytes,
+} from '../utils/capacityCalculations';
 
 type Result = {
   data: {
@@ -143,6 +148,7 @@ export const useMutationActions = (
         );
 
         // Add required Veeam folders when auto-repository creation is enabled
+        // These mutations come from bucketMutations passed from parent
         if (autoCreateRepository) {
           actions.push(
             'Create Veeam Backup folder structure',
@@ -224,7 +230,11 @@ export const useMutationActions = (
       (acc, bucket) => ({
         ...acc,
         [`createBucket-${bucket.name}`]: (results) => {
-          const s3Client = results.find(
+          const validResults = Array.isArray(results)
+            ? results.filter((result) => result != null)
+            : [];
+
+          const s3Client = validResults.find(
             (result) => result?.config?.key === 's3Config',
           );
 
@@ -246,7 +256,11 @@ export const useMutationActions = (
       (acc, bucket) => ({
         ...acc,
         [`putBucketTagging-${bucket.name}`]: (results) => {
-          const s3Client = results.find(
+          const validResults = Array.isArray(results)
+            ? results.filter((result) => result != null)
+            : [];
+
+          const s3Client = validResults.find(
             (result) => result?.config?.key === 's3Config',
           );
 
@@ -287,14 +301,14 @@ export const useMutationActions = (
         [`putVeeamBackupClientsFolder-${bucket.name}`]: () => {
           return {
             Bucket: bucket.name,
-            Key: `Veeam/Backup/bkp/Clients`,
+            Key: `Veeam/Backup/bkp/Clients/`,
             Body: '',
           };
         },
         [`putVeeamBackupConfigFolder-${bucket.name}`]: () => {
           return {
             Bucket: bucket.name,
-            Key: `Veeam/Backup/bkp/Config`,
+            Key: `Veeam/Backup/bkp/Config/`,
             Body: '',
           };
         },
@@ -340,9 +354,18 @@ export const useMutationActions = (
       refetchAccountsLocationsEndpoints: () => ({}),
       assumeRole: (results) => {
         if (!account) {
-          const accountResponse = results.find(
+          const validResults = Array.isArray(results)
+            ? results.filter((result) => result != null)
+            : [];
+          const accountResponse = validResults.find(
             (result) => result?.key === 'createAccount',
           );
+
+          if (!accountResponse) {
+            return {
+              roleArn: `arn:aws:iam::unknown:role/scality-internal/storage-manager-role`,
+            };
+          }
 
           return {
             roleArn: `arn:aws:iam::${accountResponse.id}:role/scality-internal/storage-manager-role`,
@@ -364,10 +387,24 @@ export const useMutationActions = (
         const policyName = `${IAMUserName || accountName}-${platform.id}-${
           enableImmutableBackup ? 'immutable' : 'non-immutable'
         }`;
-        const accountResponse = results.find(
+        const validResults = Array.isArray(results)
+          ? results.filter((result) => result != null)
+          : [];
+        const accountResponse = validResults.find(
           (result) => result?.key === 'createAccount',
         );
-        const accountId = account ? account.id : accountResponse.id;
+        const accountId = account ? account.id : accountResponse?.id;
+
+        if (!accountId) {
+          return {
+            policyName,
+            bucketsName: buckets.map((bucket) => bucket.name),
+            isImmutable: enableImmutableBackup,
+            policyArn: `arn:aws:iam::unknown:policy/${policyName}`,
+            getPolicy: platform.getPolicy,
+          };
+        }
+
         return {
           policyName,
           bucketsName: buckets.map((bucket) => bucket.name),
@@ -379,9 +416,22 @@ export const useMutationActions = (
       attachPolicyToUser: (results) => {
         if (!account) {
           const name = getIAMUserName(results);
-          const accountResponse = results.find(
+          const validResults = Array.isArray(results)
+            ? results.filter((result) => result != null)
+            : [];
+          const accountResponse = validResults.find(
             (result) => result?.key === 'createAccount',
           );
+
+          if (!accountResponse) {
+            return {
+              userName: name,
+              policyArn: `arn:aws:iam::unknown:policy/${name}-${platform.id}-${
+                enableImmutableBackup ? 'immutable' : 'non-immutable'
+              }`,
+            };
+          }
+
           return {
             userName: name,
             policyArn: `arn:aws:iam::${accountResponse.id}:policy/${name}-${
@@ -401,54 +451,31 @@ export const useMutationActions = (
       ...(platform.id === 'veeam-vbr' ? putVeeamFolderArray : {}),
       // Add Veeam repository creation parameters
       createVeeamRepository: (results) => {
-        // Find index by step key (same pattern as accessing steps[index].data below)
-        const createUserAccessKeyStepIndex = steps.findIndex(
-          (step) => step.key === 'createUserAccessKey',
+        const validResults = Array.isArray(results)
+          ? results.filter((result) => result != null)
+          : [];
+
+        const userAccessKeyResponse = results.find(
+          (result) => result?.AccessKey?.AccessKeyId,
         );
 
-        // Access results by index (results array corresponds to steps array)
-        const userAccessKeyResponse =
-          createUserAccessKeyStepIndex !== -1
-            ? results[createUserAccessKeyStepIndex]
-            : null;
+        const servicePoint = ensureHttpsPrefix(
+          s3ServicePoint || `https://s3.${accountName}.local`,
+        );
 
-        // Get account endpoint - use s3ServicePoint from hook
-        const servicePoint =
-          s3ServicePoint || `https://s3.${accountName}.local`;
         const bucket = buckets?.[0];
-
         const bucketName = bucket?.name || '';
 
-        // Convert capacityBytes to TB or PB (Veeam only supports TB or PB)
-        const capacityBytes = bucket?.capacityBytes || 0;
-        const PB_IN_BYTES = 1024 ** 5; // 1 PB = 1024^5 bytes
-        const TB_IN_BYTES = 1024 ** 4; // 1 TB = 1024^4 bytes
+        const capacityBytes = parseCapacityBytes({
+          capacity: bucket?.capacity,
+          capacityUnit: bucket?.capacityUnit,
+          capacityBytes: bucket?.capacityBytes,
+        });
 
-        let storageConsumptionLimitKind: 'TB' | 'PB' = 'TB';
-        let storageConsumptionLimitCount = 0;
-
-        if (capacityBytes >= PB_IN_BYTES) {
-          // Use PB if capacity is >= 1 PB
-          storageConsumptionLimitKind = 'PB';
-          storageConsumptionLimitCount = Math.floor(
-            capacityBytes / PB_IN_BYTES,
-          );
-        } else if (capacityBytes >= TB_IN_BYTES) {
-          // Use TB if capacity is >= 1 TB
-          storageConsumptionLimitKind = 'TB';
-          storageConsumptionLimitCount = Math.floor(
-            capacityBytes / TB_IN_BYTES,
-          );
-        } else {
-          // If less than 1 TB, use TB with calculated value (could be 0)
-          storageConsumptionLimitKind = 'TB';
-          storageConsumptionLimitCount = Math.floor(
-            capacityBytes / TB_IN_BYTES,
-          );
-        }
+        const storageLimit = calculateStorageConsumptionLimit(capacityBytes);
 
         return {
-          repositoryName: bucketName, // Use bucket name as repository name
+          repositoryName: bucketName,
           servicePoint,
           accessKey: userAccessKeyResponse?.AccessKey?.AccessKeyId || accessKey,
           secretKey: userAccessKeyResponse?.AccessKey?.SecretAccessKey || '',
@@ -456,8 +483,8 @@ export const useMutationActions = (
           region: 'us-east-1',
           immutable: enableImmutableBackup || false,
           immutablePeriodDays: immutablePeriodDays || 30,
-          storageConsumptionLimitKind,
-          storageConsumptionLimitCount,
+          storageConsumptionLimitKind: storageLimit.kind,
+          storageConsumptionLimitCount: storageLimit.count,
         };
       },
     },
@@ -468,16 +495,32 @@ export const useMutationActions = (
   }, []);
 
   const data = steps.map((step, index) => {
+    const mutationWithRetry = mutationsWithRetry[index];
+
+    const actualStatus = step.isSuccess
+      ? 'success'
+      : step.isPending
+      ? 'loading'
+      : step.isError
+      ? 'error'
+      : 'idle';
+
+    const hasPreviousFailure = steps
+      .slice(0, index)
+      .some((prevStep) => prevStep.isError);
+
+    const getStatus = (): 'loading' | 'success' | 'error' | 'idle' => {
+      if (hasPreviousFailure) {
+        return 'idle';
+      }
+      return actualStatus;
+    };
+
     return {
       step: index + 1,
-      action: actions[index],
-      status:
-        steps.slice(0, index).filter(({ status }) => {
-          return status !== 'success';
-        }).length > 0
-          ? 'idle'
-          : step.status,
-      retry: mutationsWithRetry[index].retry,
+      action: actions[index] || '',
+      status: getStatus(),
+      retry: mutationWithRetry?.retry || (() => {}),
     };
   });
 

@@ -164,12 +164,26 @@ export const useChainedMutations = <T extends any[]>({
   >(mutations);
   const go = (results: unknown[] = []) => {
     const index = results.length;
+
+    if (!mutations[index]) {
+      return;
+    }
+
+    const mutation = mutations[index];
+    if (!mutation.key) {
+      return;
+    }
+
     const compute = computeVariablesForNext[
-      mutations[index].key
+      mutation.key
     ] as ComputeVariablesForNextBuilder<unknown[], unknown>;
 
+    if (!compute) {
+      return;
+    }
+
     const mutateAndTriggerNext = () => {
-      mutations[index].mutate(compute(results), {
+      mutation.mutate(compute(results), {
         onSuccess: (data: unknown) => {
           if (index < mutations.length - 1) {
             go([...results, data]);

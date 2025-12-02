@@ -604,8 +604,6 @@ const useCreateVeeamRepositoryMutation = () => {
           },
         );
 
-        console.log('response', response);
-
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({
             message: 'Failed to create Veeam repository',
