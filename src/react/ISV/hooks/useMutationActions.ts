@@ -520,7 +520,7 @@ export const useMutationActions = (
       step: index + 1,
       action: actions[index] || '',
       status: getStatus(),
-      retry: mutationWithRetry?.retry || (() => {}),
+      retry: mutationWithRetry?.retry || (() => undefined),
     };
   });
 
