@@ -581,7 +581,7 @@ const useCreateVeeamRepositoryMutation = () => {
     {
       mutationFn: async (repositoryConfig) => {
         const response = await fetch(
-          'https://192.168.14.43:8443/veeam-exporter/veeam-automation/create-s3-repo',
+          '/veeam-exporter/veeam-automation/create-s3-repo',
           {
             method: 'POST',
             headers: {
