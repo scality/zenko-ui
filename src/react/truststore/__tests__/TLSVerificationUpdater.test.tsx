@@ -89,9 +89,6 @@ describe('TLSVerificationUpdater', () => {
     jest.clearAllMocks();
   });
 
-  // ============================================
-  // Basic render
-  // ============================================
   describe('Basic render', () => {
     it('should render when active: Active label + button enabled', () => {
       render(
@@ -136,9 +133,6 @@ describe('TLSVerificationUpdater', () => {
     });
   });
 
-  // ============================================
-  // Modal opening
-  // ============================================
   describe('Modal opening', () => {
     it('should open Skip modal when clicking edit button and TLS is active', async () => {
       render(

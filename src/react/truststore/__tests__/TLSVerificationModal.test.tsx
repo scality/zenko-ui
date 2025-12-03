@@ -102,17 +102,16 @@ describe('TLSVerificationModal', () => {
     jest.clearAllMocks();
     mockMutate.mockReset();
     mockSetIsOpen.mockReset();
-    //@ts-expect-error - mock return value
-    mockUseToggleTLSVerificationMutation.mockReturnValue(mockMutationResult);
+
+    (mockUseToggleTLSVerificationMutation as jest.Mock).mockReturnValue(
+      mockMutationResult,
+    );
   });
 
   afterAll(() => {
     server.close();
   });
 
-  // ============================================
-  // Basic Modal render
-  // ============================================
   describe('Basic Modal render', () => {
     it('should render Skip modal when TLS verification is active', () => {
       render(
@@ -170,9 +169,7 @@ describe('TLSVerificationModal', () => {
       expect(mockSetIsOpen).toHaveBeenCalledWith(false);
     });
   });
-  // ============================================
-  // Mutation calls
-  // ============================================
+
   describe('Mutation', () => {
     it('should call mutation with skipTLSVerify=true when confirming from active state', async () => {
       let capturedMutateArgs: any;
@@ -238,9 +235,7 @@ describe('TLSVerificationModal', () => {
       });
     });
   });
-  // ============================================
-  // State rendering
-  // ============================================
+
   describe('State rendering', () => {
     it('should close modal and display success toast when mutation succeeds', async () => {
       (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation(
