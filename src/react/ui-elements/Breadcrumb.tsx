@@ -114,7 +114,7 @@ export const breadcrumbPathsBuckets = (
               to={{
                 pathname:
                   basePath +
-                  `${accountsURLPrefix}/buckets/${bucketName}/objects`,
+                  `/accounts/${accountName}/buckets/${bucketName}/objects`,
                 search: `?prefix=${prefix}/`,
               }}
             >
@@ -141,7 +141,7 @@ export const breadcrumbPathsBuckets = (
         <Link
           to={{
             pathname:
-              basePath + `${accountsURLPrefix}/buckets/${bucketName}/objects`,
+              basePath + `/accounts/${accountName}/buckets/${bucketName}/objects`,
           }}
         >
           {' '}
