@@ -861,6 +861,51 @@ describe('mutations', () => {
     let mockFetch;
     let originalFetch;
 
+    // Helper to create mock responses for the deployment lifecycle
+    const createDeploymentLifecycleMocks = (generation: number = 1) => {
+      const now = new Date().toISOString();
+      return {
+        patchSuccess: {
+          ok: true,
+          json: () => Promise.resolve({ status: 'Success' }),
+        },
+        deploymentInProgress: {
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation },
+              status: {
+                observedGeneration: generation,
+                conditions: [
+                  { type: 'Available', status: 'False' },
+                  {
+                    type: 'DeploymentInProgress',
+                    status: 'True',
+                    lastTransitionTime: now,
+                  },
+                  { type: 'DeploymentFailure', status: 'False' },
+                ],
+              },
+            }),
+        },
+        deploymentComplete: {
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation },
+              status: {
+                observedGeneration: generation,
+                conditions: [
+                  { type: 'Available', status: 'True' },
+                  { type: 'DeploymentInProgress', status: 'False' },
+                  { type: 'DeploymentFailure', status: 'False' },
+                ],
+              },
+            }),
+        },
+      };
+    };
+
     beforeEach(() => {
       originalFetch = global.fetch;
       mockFetch = jest.fn();
@@ -897,25 +942,13 @@ describe('mutations', () => {
     });
 
     it('should successfully patch Zenko configuration with polling', async () => {
+      jest.useFakeTimers();
+
+      const mocks = createDeploymentLifecycleMocks(5);
       mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ status: 'Success' }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation: 5 },
-              status: {
-                observedGeneration: 5,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
-            }),
-        });
+        .mockResolvedValueOnce(mocks.patchSuccess)
+        .mockResolvedValueOnce(mocks.deploymentInProgress)
+        .mockResolvedValue(mocks.deploymentComplete);
 
       const { result } = renderHook(
         () =>
@@ -939,11 +972,21 @@ describe('mutations', () => {
         mutationPromise = result.current.mutateAsync({ testValue: 'test' });
       });
 
+      // Advance timers to allow polling iterations to complete
+      // Each iteration has a 1000ms setTimeout
+      for (let i = 0; i < 5; i++) {
+        await act(async () => {
+          jest.advanceTimersByTime(1000);
+        });
+      }
+
       await mutationPromise;
+
+      jest.useRealTimers();
 
       expect(result.current.isSuccess).toBe(true);
       expect(result.current.isError).toBe(false);
-      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(mockFetch).toHaveBeenCalledTimes(3);
 
       const [url, options] = mockFetch.mock.calls[0];
       expect(url).toContain('artesca-data');
@@ -1035,194 +1078,30 @@ describe('mutations', () => {
 
       global.setTimeout = originalSetTimeout;
     });
-    it('should generate correct patch for enabling SOS API', async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ status: 'Success' }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation: 1 },
-              status: {
-                observedGeneration: 1,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
-            }),
-        });
-
-      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
-        wrapper: NewWrapper(),
-      });
-
-      await act(async () => {
-        await result.current.mutateAsync(undefined);
-      });
-
-      // Verify it calls usePatchZenkoConfigurationMutation with correct patch
-      const [, options] = mockFetch.mock.calls[0];
-      expect(JSON.parse(options.body)).toEqual([
-        {
-          op: 'replace',
-          path: '/spec/veeamSosApi',
-          value: { enable: true },
-        },
-      ]);
-    });
-
-    it('should generate append patch when hasExtraCACerts is true', async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ status: 'Success' }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation: 1 },
-              status: {
-                observedGeneration: 1,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
-            }),
-        });
-
-      const { result } = renderHook(
-        () =>
-          useAddCertificateToZenkoConfigurationMutation({
-            hasEgress: true,
-            hasExtraCACerts: true,
-          }),
-        {
-          wrapper: NewWrapper(),
-        },
-      );
-
-      await act(async () => {
-        await result.current.mutateAsync({ certificate: 'test-cert-content' });
-      });
-
-      // Verify it calls usePatchZenkoConfigurationMutation with append patch
-      const [, options] = mockFetch.mock.calls[0];
-      expect(JSON.parse(options.body)).toEqual([
-        {
-          op: 'add',
-          path: '/spec/egress/extraCACerts/-',
-          value: { 'ca.crt': 'test-cert-content' },
-        },
-      ]);
-    });
-
-    it('should generate initialize patch when hasExtraCACerts is false', async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ status: 'Success' }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation: 1 },
-              status: {
-                observedGeneration: 1,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
-            }),
-        });
-
-      const { result } = renderHook(
-        () =>
-          useAddCertificateToZenkoConfigurationMutation({
-            hasEgress: true,
-            hasExtraCACerts: false,
-          }),
-        {
-          wrapper: NewWrapper(),
-        },
-      );
-
-      await act(async () => {
-        await result.current.mutateAsync({ certificate: 'test-cert-content' });
-      });
-
-      // Verify it calls usePatchZenkoConfigurationMutation with initialize patch
-      const [, options] = mockFetch.mock.calls[0];
-      expect(JSON.parse(options.body)).toEqual([
-        {
-          op: 'add',
-          path: '/spec/egress/extraCACerts',
-          value: [{ 'ca.crt': 'test-cert-content' }],
-        },
-      ]);
-    });
-
-    it('should generate add patch when hasEgress is false', async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ status: 'Success' }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation: 1 },
-              status: {
-                observedGeneration: 1,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
-            }),
-        });
-      const { result } = renderHook(
-        () =>
-          useAddCertificateToZenkoConfigurationMutation({
-            hasEgress: false,
-            hasExtraCACerts: false,
-          }),
-        {
-          wrapper: NewWrapper(),
-        },
-      );
-
-      await act(async () => {
-        await result.current.mutateAsync({ certificate: 'test-cert-content' });
-      });
-
-      // Verify it calls usePatchZenkoConfigurationMutation with add patch
-      const [, options] = mockFetch.mock.calls[0];
-      expect(JSON.parse(options.body)).toEqual([
-        {
-          op: 'add',
-          path: '/spec/egress',
-          value: { extraCACerts: [{ 'ca.crt': 'test-cert-content' }] },
-        },
-      ]);
-    });
   });
 
-  describe('useToggleTLSVerificationMutation', () => {
-    let mockFetch;
-    let originalFetch;
+  // ==========================================================================
+  // Tests for hooks that use usePatchZenkoConfigurationMutation
+  // These tests focus only on verifying the correct patch is generated,
+  // not the polling behavior (which is tested in usePatchZenkoConfigurationMutation)
+  // ==========================================================================
+
+  describe('Patch generation for derived mutation hooks', () => {
+    let mockFetch: jest.Mock;
+    let originalFetch: typeof global.fetch;
+    let capturedPatchBody: string | null = null;
 
     beforeEach(() => {
       originalFetch = global.fetch;
-      mockFetch = jest.fn();
+      // Mock fetch to capture the PATCH body and return immediate success
+      mockFetch = jest.fn().mockImplementation((url, options) => {
+        if (options?.method === 'PATCH') {
+          capturedPatchBody = options.body;
+        }
+        // Return a rejected promise to stop the mutation early
+        // We only care about capturing the patch body
+        return Promise.reject(new Error('Test: stopping after patch capture'));
+      });
       global.fetch = mockFetch;
 
       jest
@@ -1252,93 +1131,169 @@ describe('mutations', () => {
 
     afterEach(() => {
       global.fetch = originalFetch;
+      capturedPatchBody = null;
       jest.restoreAllMocks();
     });
 
-    it('should generate replace patch when hasEgress is true', async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ status: 'Success' }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation: 1 },
-              status: {
-                observedGeneration: 1,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
-            }),
+    describe('useEnableSOSAPIMutation', () => {
+      it('should generate correct patch for enabling SOS API', async () => {
+        const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+          wrapper: NewWrapper(),
         });
 
-      const { result } = renderHook(
-        () => useToggleTLSVerificationMutation(true),
-        {
-          wrapper: NewWrapper(),
-        },
-      );
+        await act(async () => {
+          try {
+            await result.current.mutateAsync(undefined);
+          } catch {
+            // Expected - we reject to stop early
+          }
+        });
 
-      await act(async () => {
-        await result.current.mutateAsync({ skipTLSVerify: true });
+        expect(JSON.parse(capturedPatchBody!)).toEqual([
+          {
+            op: 'replace',
+            path: '/spec/veeamSosApi',
+            value: { enable: true },
+          },
+        ]);
       });
-
-      // Verify it calls usePatchZenkoConfigurationMutation with replace patch
-      const [, options] = mockFetch.mock.calls[0];
-      expect(JSON.parse(options.body)).toEqual([
-        {
-          op: 'replace',
-          path: '/spec/egress/skipTLSVerify',
-          value: true,
-        },
-      ]);
     });
 
-    it('should generate add patch when hasEgress is false', async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ status: 'Success' }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation: 1 },
-              status: {
-                observedGeneration: 1,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
+    describe('useAddCertificateToZenkoConfigurationMutation', () => {
+      it('should generate append patch when hasEgress=true and hasExtraCACerts=true', async () => {
+        const { result } = renderHook(
+          () =>
+            useAddCertificateToZenkoConfigurationMutation({
+              hasEgress: true,
+              hasExtraCACerts: true,
             }),
+          { wrapper: NewWrapper() },
+        );
+
+        await act(async () => {
+          try {
+            await result.current.mutateAsync({
+              certificate: 'test-cert-content',
+            });
+          } catch {
+            // Expected
+          }
         });
 
-      const { result } = renderHook(
-        () => useToggleTLSVerificationMutation(false),
-        {
-          wrapper: NewWrapper(),
-        },
-      );
-
-      await act(async () => {
-        await result.current.mutateAsync({ skipTLSVerify: false });
+        expect(JSON.parse(capturedPatchBody!)).toEqual([
+          {
+            op: 'add',
+            path: '/spec/egress/extraCACerts/-',
+            value: { 'ca.crt': 'test-cert-content' },
+          },
+        ]);
       });
 
-      // Verify it calls usePatchZenkoConfigurationMutation with add patch to create egress
-      const [, options] = mockFetch.mock.calls[0];
-      expect(JSON.parse(options.body)).toEqual([
-        {
-          op: 'add',
-          path: '/spec/egress',
-          value: { skipTLSVerify: false },
-        },
-      ]);
+      it('should generate initialize patch when hasEgress=true and hasExtraCACerts=false', async () => {
+        const { result } = renderHook(
+          () =>
+            useAddCertificateToZenkoConfigurationMutation({
+              hasEgress: true,
+              hasExtraCACerts: false,
+            }),
+          { wrapper: NewWrapper() },
+        );
+
+        await act(async () => {
+          try {
+            await result.current.mutateAsync({
+              certificate: 'test-cert-content',
+            });
+          } catch {
+            // Expected
+          }
+        });
+
+        expect(JSON.parse(capturedPatchBody!)).toEqual([
+          {
+            op: 'add',
+            path: '/spec/egress/extraCACerts',
+            value: [{ 'ca.crt': 'test-cert-content' }],
+          },
+        ]);
+      });
+
+      it('should generate add egress patch when hasEgress=false', async () => {
+        const { result } = renderHook(
+          () =>
+            useAddCertificateToZenkoConfigurationMutation({
+              hasEgress: false,
+              hasExtraCACerts: false,
+            }),
+          { wrapper: NewWrapper() },
+        );
+
+        await act(async () => {
+          try {
+            await result.current.mutateAsync({
+              certificate: 'test-cert-content',
+            });
+          } catch {
+            // Expected
+          }
+        });
+
+        expect(JSON.parse(capturedPatchBody!)).toEqual([
+          {
+            op: 'add',
+            path: '/spec/egress',
+            value: { extraCACerts: [{ 'ca.crt': 'test-cert-content' }] },
+          },
+        ]);
+      });
+    });
+
+    describe('useToggleTLSVerificationMutation', () => {
+      it('should generate replace patch when hasEgress=true', async () => {
+        const { result } = renderHook(
+          () => useToggleTLSVerificationMutation(true),
+          { wrapper: NewWrapper() },
+        );
+
+        await act(async () => {
+          try {
+            await result.current.mutateAsync({ skipTLSVerify: true });
+          } catch {
+            // Expected
+          }
+        });
+
+        expect(JSON.parse(capturedPatchBody!)).toEqual([
+          {
+            op: 'replace',
+            path: '/spec/egress/skipTLSVerify',
+            value: true,
+          },
+        ]);
+      });
+
+      it('should generate add egress patch when hasEgress=false', async () => {
+        const { result } = renderHook(
+          () => useToggleTLSVerificationMutation(false),
+          { wrapper: NewWrapper() },
+        );
+
+        await act(async () => {
+          try {
+            await result.current.mutateAsync({ skipTLSVerify: false });
+          } catch {
+            // Expected
+          }
+        });
+
+        expect(JSON.parse(capturedPatchBody!)).toEqual([
+          {
+            op: 'add',
+            path: '/spec/egress',
+            value: { skipTLSVerify: false },
+          },
+        ]);
+      });
     });
   });
 
