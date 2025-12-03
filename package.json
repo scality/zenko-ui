@@ -71,6 +71,7 @@
     "@monaco-editor/react": "^4.4.5",
     "@scality/certchain": "1.4.0",
     "@scality/core-ui": "0.185.0",
+    "@scality/data-browser-library": "1.0.0-preview.15",
     "@scality/module-federation": "^1.4.1",
     "@types/react-table": "^7.7.10",
     "@types/react-virtualized": "^9.21.20",
