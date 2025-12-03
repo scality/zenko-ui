@@ -19,7 +19,7 @@ const AlertProvider = ({ children }: { children: React.ReactNode }) => {
   const xcoreConfig = useXcoreRuntimeConfig();
   const { AlertsProvider } = useShellAlerts();
 
-  let alertManagerUrl = '';
+  let alertManagerUrl = '/api/alertmanager';
   if (xcoreConfig) {
     alertManagerUrl = xcoreConfig.spec.selfConfiguration.url_alertmanager;
   } else {
