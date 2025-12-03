@@ -64,14 +64,17 @@ export default function DataBrowser({
         width: '280px',
         cellStyle: { textAlign: 'left' },
       },
-      isStorageManager && {
+    ];
+
+    if (isStorageManager) {
+      columns.push({
         id: 'dataUsed',
         header: 'Data Used',
         render: DataUsedColumn,
         width: '150px',
         cellStyle: { textAlign: 'right' },
-      },
-    ];
+      });
+    }
 
     return columns;
   }, [isStorageManager]);
@@ -105,8 +108,8 @@ export default function DataBrowser({
     [pathname, prefixPath, accountName, basePath],
   );
 
+  // TODO: Move DataBrowserProvider to the S3ClientProvider when refactoring the S3ClientProvider
   return (
-    // {/* TODO: Move DataBrowserProvider to the S3ClientProvider when refactoring the S3ClientProvider */}
     <DataBrowserProvider getS3Config={getS3Config} theme={theme}>
       <BucketMetricsPrefetch />
       <DataBrowserUI
