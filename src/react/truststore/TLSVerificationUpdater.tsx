@@ -1,18 +1,7 @@
-import {
-  Banner,
-  Icon,
-  IconHelp,
-  Modal,
-  spacing,
-  Stack,
-  Text,
-  useToast,
-} from '@scality/core-ui';
-import { Box, Button } from '@scality/core-ui/dist/next';
+import { Icon, IconHelp, spacing, Stack, Text } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import { useMemo, useState } from 'react';
-import { MutationOptions, useQueryClient } from 'react-query';
-import { useToggleTLSVerificationMutation } from '../../js/mutations';
-import { ApiError } from '../../types/actions';
+import TLSVerificationModal from './TLSVerificationModal';
 import { ZenkoCR } from './Truststore';
 
 const skipTLSVerificationTooltipMessage = (
@@ -46,53 +35,13 @@ const TLSVerificationUpdater = ({
   zenkoCR: ZenkoCR;
   isLoadingZenkoCR: boolean;
 }) => {
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isTLSVerificationActive = useMemo(() => {
     return !zenkoCR?.spec?.egress?.skipTLSVerify;
   }, [zenkoCR]);
-
   const hasEgress = useMemo(() => {
     return !!zenkoCR?.spec?.egress;
   }, [zenkoCR]);
-
-  const toggleTLSVerificationMutationOptions: MutationOptions<
-    { skipTLSVerify: boolean },
-    ApiError,
-    { skipTLSVerify: boolean }
-  > = {
-    onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ['zenkoCR'] });
-      showToast({
-        message: 'TLS verification updated successfully',
-        status: 'success',
-        open: true,
-      });
-      setIsModalOpen(false);
-    },
-    onError: () => {
-      showToast({
-        message: 'An error occurred while updating TLS verification',
-        status: 'error',
-        open: true,
-      });
-      setIsModalOpen(false);
-    },
-  };
-  const {
-    mutate: toggleTLSVerificationMutation,
-    isLoading: isUpdatingTLSVerification,
-  } = useToggleTLSVerificationMutation(
-    hasEgress,
-    toggleTLSVerificationMutationOptions,
-  );
-  const handleConfirm = () => {
-    toggleTLSVerificationMutation({ skipTLSVerify: isTLSVerificationActive });
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
   return (
     <Stack direction="vertical" gap="r8">
       <Stack
@@ -105,8 +54,8 @@ const TLSVerificationUpdater = ({
       </Stack>
       <Stack>
         <Text>
-          {isUpdatingTLSVerification || isLoadingZenkoCR
-            ? 'Updating...'
+          {isLoadingZenkoCR
+            ? 'Loading...'
             : isTLSVerificationActive
             ? 'Active'
             : 'Skipped'}
@@ -116,77 +65,21 @@ const TLSVerificationUpdater = ({
           color="textSecondary"
           icon={<Icon name="Pencil" />}
           variant="outline"
-          isLoading={isUpdatingTLSVerification || isLoadingZenkoCR}
+          isLoading={isLoadingZenkoCR}
           tooltip={{
             overlay: `${
               isTLSVerificationActive ? 'Skip' : 'Activate'
             } TLS Verification`,
           }}
-          onClick={() => setIsModalOpen(!isModalOpen)}
+          onClick={() => setIsModalOpen(true)}
         />
       </Stack>
-      <Modal
-        close={() => setIsModalOpen(false)}
+      <TLSVerificationModal
         isOpen={isModalOpen}
-        title={`${
-          isTLSVerificationActive ? 'Skip' : 'Activate'
-        } TLS Verification?`}
-        footer={
-          <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Stack>
-              <Button
-                variant="outline"
-                onClick={handleCancel}
-                label="Cancel"
-                disabled={isUpdatingTLSVerification}
-              />
-              <Button
-                variant="primary"
-                onClick={handleConfirm}
-                label={isUpdatingTLSVerification ? 'Updating...' : 'Confirm'}
-                isLoading={isUpdatingTLSVerification}
-              />
-            </Stack>
-          </Box>
-        }
-      >
-        <Stack
-          direction="vertical"
-          gap="r16"
-          style={{
-            maxWidth: '35rem',
-          }}
-        >
-          <Banner
-            variant="warning"
-            icon={<Icon color="statusWarning" name="Exclamation-circle" />}
-          >
-            <Text>
-              Expect some delay (about 1 minute) - updating Data Management
-              configuration takes time.
-            </Text>
-          </Banner>
-
-          <Banner
-            variant="warning"
-            icon={<Icon color="statusWarning" name="Exclamation-circle" />}
-          >
-            {isTLSVerificationActive ? (
-              <Text>
-                Skipping TLS Verification will allow ARTESCA to access external
-                locations without verifying their TLS certificates. This is not
-                recommended as it may expose ARTESCA to security risks.
-              </Text>
-            ) : (
-              <Text>
-                Make sure to import the certificates of the external locations
-                before activating TLS Verification. This will prevent service
-                interruption.
-              </Text>
-            )}
-          </Banner>
-        </Stack>
-      </Modal>
+        setIsOpen={setIsModalOpen}
+        isTLSVerificationActive={isTLSVerificationActive}
+        hasEgress={hasEgress}
+      />
     </Stack>
   );
 };
