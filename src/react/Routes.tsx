@@ -96,7 +96,11 @@ const RedirectToAccount = () => {
   }
 };
 
-export function PrivateRoutes() {
+export function PrivateRoutes({
+  hideSideBar = false,
+}: {
+  hideSideBar?: boolean;
+}) {
   const dispatch = useDispatch();
   const isClientsLoaded = useSelector(
     (state: AppState) => state.auth.isClientsLoaded,
@@ -333,7 +337,7 @@ export function PrivateRoutes() {
         path="accounts/:accountName/data/buckets/*"
         element={
           <DataServiceRoleProvider>
-            <DataBrowser />
+            <DataBrowser hideHeader={hideSideBar} />
           </DataServiceRoleProvider>
         }
       />
@@ -341,7 +345,7 @@ export function PrivateRoutes() {
         path="accounts/:accountName/buckets/*"
         element={
           <DataServiceRoleProvider>
-            <DataBrowser />
+            <DataBrowser hideHeader={hideSideBar} />
           </DataServiceRoleProvider>
         }
       />
@@ -419,6 +423,13 @@ function InternalRoutes() {
     '/accounts/:accountName/create-policy',
     '/isv/configuration',
     '/truststore/import-certificate',
+    '/accounts/:accountName/buckets/-/create',
+    '/accounts/:accountName/buckets/:bucketName/lifecycle/create',
+    '/accounts/:accountName/buckets/:bucketName/lifecycle/edit/:ruleId',
+    '/accounts/:accountName/buckets/:bucketName/replication/create',
+    '/accounts/:accountName/buckets/:bucketName/replication/edit/:ruleId',
+    '/accounts/:accountName/buckets/:bucketName/objects/object-lock-settings',
+    '/accounts/:accountName/buckets/:bucketName/notifications/create',
   ];
 
   const hideSideBar = doesRouteMatch(routeWithoutSideBars);
@@ -506,7 +517,7 @@ function InternalRoutes() {
       >
         <RemoveTrailingSlash />
         <ManagementProvider>
-          <PrivateRoutes />
+          <PrivateRoutes hideSideBar={hideSideBar} />
         </ManagementProvider>
       </AppContainer>
     </>
