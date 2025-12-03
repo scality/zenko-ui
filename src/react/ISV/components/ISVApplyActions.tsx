@@ -172,6 +172,7 @@ const Main = ({
             <Button
               disabled={!isContinue}
               variant="primary"
+              type="button"
               label={'Continue'}
               icon={<Icon name="Arrow-right" />}
               onClick={handleContinue}

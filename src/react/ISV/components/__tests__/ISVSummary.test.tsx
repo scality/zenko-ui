@@ -16,7 +16,7 @@ import {
   renderWithCustomRoute,
   Wrapper,
 } from '../../../utils/testUtil';
-import { ISVStepperContext, ISVStepperContextType } from '../ISVSteps';
+import { ISVStepperContext, ISVStepperContextType } from '../ISVStepperContext';
 import { ISVPlatformConfig } from '../../types';
 import { Route, Routes, useParams } from 'react-router';
 import { Veeam } from '../../modules/veeam';

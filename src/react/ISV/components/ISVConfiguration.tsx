@@ -16,7 +16,8 @@ import { FormProvider, useForm, Controller } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { ISVConfig } from '../types';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
-import { ISVStepsIndexes, useISVStepper } from './ISVSteps';
+import { useISVStepper } from './ISVStepperContext';
+import { ISVStepsIndexes } from './ISVSteps';
 import { ISVSkipModal } from './ISVSkipModal';
 import BucketField from './BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
@@ -70,7 +71,7 @@ export const ISVConfiguration = () => {
         },
       ],
     },
-    resolver: joiResolver(platform.validator),
+    resolver: joiResolver(platform.validator as any),
     shouldUnregister: false,
   });
 

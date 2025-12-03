@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ISVConfiguration } from '../ISVConfiguration';
-import { ISVStepperContext } from '../ISVSteps';
+import { ISVStepperContext } from '../ISVStepperContext';
 import { useListAccounts } from '../../../next-architecture/domain/business/accounts';
 import { Veeam } from '../../modules/veeam';
 import { Commvault } from '../../modules/commvault';

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { ISVStepperContext, useISVStepper } from '../ISVSteps';
+import { ISVStepperContext, useISVStepper } from '../ISVStepperContext';
 import { Veeam } from '../../modules/veeam';
 import { Commvault } from '../../modules/commvault';
 import { VeeamVBO } from '../../modules/veeam-vbo';

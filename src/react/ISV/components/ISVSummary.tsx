@@ -15,7 +15,7 @@ import { useAuthGroups } from '../../utils/hooks';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
-import { useISVStepper } from './ISVSteps';
+import { useISVStepper } from './ISVStepperContext';
 import { ISVConfig, ISVPlatformConfig } from '../types';
 import { queries } from '../../next-architecture/domain/business/buckets';
 import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
