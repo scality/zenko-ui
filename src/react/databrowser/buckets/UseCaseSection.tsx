@@ -1,18 +1,16 @@
 import {
-  BUCKET_TAG_APPLICATION,
-  BUCKET_TAG_VEEAM_APPLICATION,
-  COMMVAULT_APPLICATION,
-  VEEAM_BACKUP_REPLICATION,
-} from '../../ISV/constants';
-import { VeeamApplicationType } from '../../ISV/constants';
-import { VEEAM_VBO_APPLICATION } from '../../ISV/modules/veeam-vbo';
-import {
   useGetBucketTagging,
   useBucketOverviewContext,
 } from '@scality/data-browser-library';
 import { VeeamCapacityOverviewRow } from '../../ISV/modules/veeam/components/VeeamCapacityOverviewRow';
 import { Row, Key, Value } from '../../ui-elements/TableKeyValue2';
+import { detectBucketApplication } from '../utils/bucketApplicationDetector';
 
+/**
+ * Displays the ISV application use-case for a bucket.
+ * Shows application type (Veeam, Commvault, or S3 Generic) and
+ * conditionally displays Veeam capacity metrics.
+ */
 export const UseCaseSection = () => {
   const { bucketName } = useBucketOverviewContext();
 
@@ -30,39 +28,16 @@ export const UseCaseSection = () => {
     });
   }
 
-  // Keep this to avoid breaking changes
-  const veeamTagApplication =
-    taggingStatus === 'success' && tags[BUCKET_TAG_VEEAM_APPLICATION];
-  // New tag for ISV application
-  const ISVApplicationTag =
-    taggingStatus === 'success' && tags[BUCKET_TAG_APPLICATION];
-
-  const isVeeamBucket =
-    veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
-    veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365 ||
-    veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365_V8;
-  const isISVBucketTagAsVeeam =
-    ISVApplicationTag === VEEAM_BACKUP_REPLICATION ||
-    ISVApplicationTag === VEEAM_VBO_APPLICATION;
-  const isISVCommvault = ISVApplicationTag === COMMVAULT_APPLICATION;
-
-  const applicationValue = isISVCommvault
-    ? COMMVAULT_APPLICATION
-    : isVeeamBucket || isISVBucketTagAsVeeam
-    ? `${veeamTagApplication || ISVApplicationTag || 'S3 Generic'}`
-    : ISVApplicationTag || 'S3 Generic';
-
-  const shouldShowVeeamCapacity =
-    ISVApplicationTag === VEEAM_BACKUP_REPLICATION ||
-    veeamTagApplication === VEEAM_BACKUP_REPLICATION;
+  // Detect application type and determine what to display
+  const application = detectBucketApplication(tags);
 
   return (
     <>
       <Row>
         <Key>Application</Key>
-        <Value>{applicationValue}</Value>
+        <Value>{application.displayName}</Value>
       </Row>
-      {shouldShowVeeamCapacity && (
+      {application.shouldShowVeeamCapacity && (
         <VeeamCapacityOverviewRow bucketName={bucketName} />
       )}
     </>
