@@ -52,9 +52,7 @@ export default function DataBrowser({
   const { basePath } = useConfig();
   const { getS3Config } = useDataBrowserS3Config();
 
-  const dataBrowserBasePath = useMemo(() => {
-    return `${basePath}/accounts/${accountName}`;
-  }, [basePath, accountName]);
+  const dataBrowserBasePath = `${basePath}/accounts/${accountName}`;
 
   const extraBucketListColumns = useMemo(() => {
     const columns: ColumnConfig<Bucket>[] = [
@@ -80,15 +78,12 @@ export default function DataBrowser({
     return columns;
   }, [isStorageManager]);
 
-  const extraBucketListActions = useMemo(
-    () => [
-      {
-        id: 'startISVConnector',
-        render: () => <StartISVConnectorButton />,
-      },
-    ],
-    [],
-  );
+  const extraBucketListActions = [
+    {
+      id: 'startISVConnector',
+      render: () => <StartISVConnectorButton />,
+    },
+  ];
 
   const headerComponent = useMemo(
     () => (
