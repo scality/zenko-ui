@@ -15,6 +15,8 @@ const VALID_LOCATION_DETAILS = {
   stsEndpoint: 'https://sts.example.com',
   accessKey: 'AKIAIOSFODNN7EXAMPLE',
   secretKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+  bucketName: 'my-target-bucket',
+  role: 'arn:aws:iam::123456789012:role/MyRole',
 };
 
 // Helper function to mount component with default props
@@ -24,6 +26,8 @@ const mountCRRComponent = (overrideProps = {}) => {
 
 // Helper function to get form inputs
 const getFormInputs = (component) => ({
+  bucketNameInput: component.getByRole('textbox', { name: /target bucket name/i }),
+  roleInput: component.getByRole('textbox', { name: /role/i }),
   accessKeyInput: component.getByRole('textbox', { name: /access key/i }),
   secretKeyInput: component.container.querySelector('input[name="secretKey"]'),
   endpointInput: component.getByRole('textbox', { name: /s3 endpoint/i }),
@@ -41,11 +45,15 @@ describe('LocationDetailsCRR', () => {
 
       // But it should render all the form fields
       const {
+        bucketNameInput,
+        roleInput,
         accessKeyInput,
         secretKeyInput,
         endpointInput,
         stsEndpointInput,
       } = getFormInputs(component);
+      expect(bucketNameInput).toBeInTheDocument();
+      expect(roleInput).toBeInTheDocument();
       expect(accessKeyInput).toBeInTheDocument();
       expect(secretKeyInput).toBeInTheDocument();
       expect(endpointInput).toBeInTheDocument();
@@ -55,12 +63,16 @@ describe('LocationDetailsCRR', () => {
     it('should show CRR details for empty details', () => {
       const component = mountCRRComponent();
       const {
+        bucketNameInput,
+        roleInput,
         accessKeyInput,
         secretKeyInput,
         endpointInput,
         stsEndpointInput,
       } = getFormInputs(component);
 
+      expect(bucketNameInput).toHaveValue('');
+      expect(roleInput).toHaveValue('');
       expect(accessKeyInput).toHaveValue('');
       expect(secretKeyInput).toHaveValue('');
       expect(endpointInput).toHaveValue('');
@@ -74,12 +86,16 @@ describe('LocationDetailsCRR', () => {
       });
 
       const {
+        bucketNameInput,
+        roleInput,
         accessKeyInput,
         secretKeyInput,
         endpointInput,
         stsEndpointInput,
       } = getFormInputs(component);
 
+      expect(bucketNameInput).toHaveValue(VALID_LOCATION_DETAILS.bucketName);
+      expect(roleInput).toHaveValue(VALID_LOCATION_DETAILS.role);
       expect(accessKeyInput).toHaveValue(VALID_LOCATION_DETAILS.accessKey);
       expect(secretKeyInput).toHaveValue(''); // cleared for security
       expect(endpointInput).toHaveValue(VALID_LOCATION_DETAILS.endpoint);
@@ -106,12 +122,16 @@ describe('LocationDetailsCRR', () => {
       let location = {};
       const component = mountCRRComponent({ onChange: (l) => (location = l) });
       const {
+        bucketNameInput,
+        roleInput,
         accessKeyInput,
         secretKeyInput,
         endpointInput,
         stsEndpointInput,
       } = getFormInputs(component);
 
+      await userEvent.type(bucketNameInput, VALID_LOCATION_DETAILS.bucketName);
+      await userEvent.type(roleInput, VALID_LOCATION_DETAILS.role);
       await userEvent.type(accessKeyInput, VALID_LOCATION_DETAILS.accessKey);
       await userEvent.type(secretKeyInput, VALID_LOCATION_DETAILS.secretKey);
       await userEvent.type(endpointInput, VALID_LOCATION_DETAILS.endpoint);
@@ -282,6 +302,40 @@ describe('LocationDetailsCRR', () => {
         'Secret key is required',
       );
     });
+
+    it('should validate bucket name field correctly', async () => {
+      const component = mountCRRComponent();
+      const { bucketNameInput } = getFormInputs(component);
+
+      // Test empty bucket name
+      fireEvent.blur(bucketNameInput);
+      expect(component.container.textContent).toContain(
+        'Bucket name is required',
+      );
+
+      // Test valid bucket name
+      await userEvent.clear(bucketNameInput);
+      await userEvent.type(bucketNameInput, VALID_LOCATION_DETAILS.bucketName);
+      fireEvent.blur(bucketNameInput);
+      expect(component.container.textContent).not.toContain(
+        'Bucket name is required',
+      );
+    });
+
+    it('should validate role field correctly', async () => {
+      const component = mountCRRComponent();
+      const { roleInput } = getFormInputs(component);
+
+      // Test empty role
+      fireEvent.blur(roleInput);
+      expect(component.container.textContent).toContain('Role is required');
+
+      // Test valid role
+      await userEvent.clear(roleInput);
+      await userEvent.type(roleInput, VALID_LOCATION_DETAILS.role);
+      fireEvent.blur(roleInput);
+      expect(component.container.textContent).not.toContain('Role is required');
+    });
   });
 
   describe('Security Features', () => {
@@ -303,6 +357,30 @@ describe('LocationDetailsCRR', () => {
   });
 
   describe('CRR Validators', () => {
+    describe('validateBucketName', () => {
+      it('should return error for empty bucket name', () => {
+        expect(crrValidators.validateBucketName('')).toBe(
+          'Bucket name is required',
+        );
+      });
+
+      it('should return empty string for valid bucket name', () => {
+        expect(crrValidators.validateBucketName('my-bucket')).toBe('');
+      });
+    });
+
+    describe('validateRole', () => {
+      it('should return error for empty role', () => {
+        expect(crrValidators.validateRole('')).toBe('Role is required');
+      });
+
+      it('should return empty string for valid role', () => {
+        expect(
+          crrValidators.validateRole('arn:aws:iam::123456789012:role/MyRole'),
+        ).toBe('');
+      });
+    });
+
     describe('validateEndpoint', () => {
       it('should return error for empty endpoint', () => {
         expect(crrValidators.validateEndpoint('')).toBe(
@@ -412,6 +490,8 @@ describe('LocationDetailsCRR', () => {
     describe('validateCRRDetails', () => {
       it('should disable for incomplete details', () => {
         const result = crrValidators.validateCRRDetails({
+          bucketName: '',
+          role: '',
           endpoint: '',
           stsEndpoint: '',
           accessKey: '',
@@ -461,6 +541,8 @@ describe('LocationDetailsCRR', () => {
         label.textContent?.trim(),
       );
 
+      expect(labelTexts).toContain('Target Bucket Name *');
+      expect(labelTexts).toContain('Role *');
       expect(labelTexts).toContain('Access Key *');
       expect(labelTexts).toContain('Secret Key *');
       expect(labelTexts).toContain('S3 Endpoint *');

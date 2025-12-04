@@ -5,13 +5,15 @@ import { LocationDetailsFormProps } from '.';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
 
-type FieldNames = 'endpoint' | 'stsEndpoint' | 'accessKey' | 'secretKey';
+type FieldNames = 'endpoint' | 'stsEndpoint' | 'accessKey' | 'secretKey' | 'bucketName' | 'role';
 
 export interface CRRDetails {
   endpoint: string;
   stsEndpoint: string;
   accessKey: string;
   secretKey: string;
+  bucketName: string;
+  role: string;
 }
 
 interface State extends CRRDetails {
@@ -35,6 +37,8 @@ const INIT_STATE: State = {
   stsEndpoint: '',
   accessKey: '',
   secretKey: '',
+  bucketName: '',
+  role: '',
 };
 
 const INIT_ERRORS: Errors = {
@@ -42,9 +46,19 @@ const INIT_ERRORS: Errors = {
   stsEndpoint: '',
   accessKey: '',
   secretKey: '',
+  bucketName: '',
+  role: '',
 };
 
 export const crrValidators = {
+  validateBucketName: (bucketName: string): string => {
+    if (!bucketName) return 'Bucket name is required';
+    return '';
+  },
+  validateRole: (role: string): string => {
+    if (!role) return 'Role is required';
+    return '';
+  },
   validateEndpoint: (endpoint: string): string => {
     if (!endpoint) return 'S3 endpoint is required';
     try {
@@ -141,6 +155,20 @@ function LocationDetailsCRR({
   const [errors, setErrors] = useState<Errors>(INIT_ERRORS);
 
   const fieldConfigs: FieldConfig[] = [
+    {
+      name: 'bucketName',
+      label: 'Target Bucket Name',
+      type: 'text',
+      required: true,
+      validator: crrValidators.validateBucketName,
+    },
+    {
+      name: 'role',
+      label: 'Role',
+      type: 'text',
+      required: true,
+      validator: crrValidators.validateRole,
+    },
     {
       name: 'accessKey',
       label: 'Access Key',
