@@ -22,16 +22,15 @@ const noRefetchOptions = {
 /**
  * Creates a React Query configuration for fetching bucket metrics.
  * Isolated from buckets.ts for data-browser-library usage.
+ *
+ * All buckets share a single cache entry for optimal performance.
+ * The cache is populated by BucketMetricsPrefetch and consumed by useBucketMetrics.
  */
 export const createBucketMetricsQuery = (
   metricsAdapter: IMetricsAdapter,
   buckets: Bucket[],
-  useSpecificCacheKey?: boolean,
 ) => ({
-  queryKey: [
-    BUCKET_METRICS_QUERY_KEY,
-    useSpecificCacheKey ? buckets.map((bucket) => bucket.Name).join(',') : '',
-  ],
+  queryKey: [BUCKET_METRICS_QUERY_KEY],
   queryFn: () => metricsAdapter.listBucketsLatestUsedCapacity(buckets),
   enabled: !!buckets.length,
   ...noRefetchOptions,
