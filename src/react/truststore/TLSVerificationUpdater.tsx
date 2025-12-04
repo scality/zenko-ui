@@ -1,6 +1,6 @@
 import { Icon, IconHelp, spacing, Stack, Text } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import TLSVerificationModal from './TLSVerificationModal';
 import { ZenkoCR } from './Truststore';
 
@@ -36,12 +36,18 @@ const TLSVerificationUpdater = ({
   isLoadingZenkoCR: boolean;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isTLSVerificationActiveRef = useRef<boolean>(false);
   const isTLSVerificationActive = useMemo(() => {
     return !zenkoCR?.spec?.egress?.skipTLSVerify;
   }, [zenkoCR]);
   const hasEgress = useMemo(() => {
     return !!zenkoCR?.spec?.egress;
   }, [zenkoCR]);
+
+  const handleOpenModal = () => {
+    isTLSVerificationActiveRef.current = isTLSVerificationActive;
+    setIsModalOpen(true);
+  };
   return (
     <Stack direction="vertical" gap="r8">
       <Stack
@@ -71,13 +77,13 @@ const TLSVerificationUpdater = ({
               isTLSVerificationActive ? 'Skip' : 'Activate'
             } TLS Verification`,
           }}
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenModal}
         />
       </Stack>
       <TLSVerificationModal
         isOpen={isModalOpen}
         setIsOpen={setIsModalOpen}
-        isTLSVerificationActive={isTLSVerificationActive}
+        isTLSVerificationActive={isTLSVerificationActiveRef.current}
         hasEgress={hasEgress}
       />
     </Stack>

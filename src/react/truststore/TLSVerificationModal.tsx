@@ -31,6 +31,11 @@ const TLSVerificationModal = ({
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
+  const handleCloseModal = () => {
+    setIsOpen(false);
+    setIsConfirmed(false);
+  };
+
   const toggleTLSVerificationMutationOptions: MutationOptions<
     { skipTLSVerify: boolean },
     ApiError,
@@ -43,7 +48,7 @@ const TLSVerificationModal = ({
         status: 'success',
         open: true,
       });
-      setIsOpen(false);
+      handleCloseModal();
     },
     onError: () => {
       showToast({
@@ -51,7 +56,7 @@ const TLSVerificationModal = ({
         status: 'error',
         open: true,
       });
-      setIsOpen(false);
+      handleCloseModal();
     },
   };
   const {
@@ -63,7 +68,7 @@ const TLSVerificationModal = ({
   );
   return (
     <Modal
-      close={() => setIsOpen(false)}
+      close={handleCloseModal}
       isOpen={isOpen}
       title={`${
         isTLSVerificationActive ? 'Skip' : 'Activate'
@@ -73,7 +78,7 @@ const TLSVerificationModal = ({
           <Stack>
             <Button
               variant="outline"
-              onClick={() => setIsOpen(false)}
+              onClick={handleCloseModal}
               label="Cancel"
               disabled={isUpdatingTLSVerification}
             />
