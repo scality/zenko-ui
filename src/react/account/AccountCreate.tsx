@@ -48,6 +48,7 @@ function AccountCreate() {
     formState: { errors },
   } = useForm<AccountFormField>({
     mode: 'all',
+    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
     resolver: joiResolver(schema),
   });
   const navigate = useNavigate();

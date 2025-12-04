@@ -59,6 +59,7 @@ export const VeeamCapacityModalInternal = ({
   const { capacityValue, capacityUnit } = useCapacityUnit(maxCapacity);
   const methods = useForm<VeeamCapacityForm>({
     mode: 'all',
+    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
     resolver: joiResolver(schema),
     defaultValues: {
       capacity: capacityValue,

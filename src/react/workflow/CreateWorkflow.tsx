@@ -174,6 +174,7 @@ const CreateWorkflow = () => {
           otherwise: Joi.valid(),
         }),
       });
+      // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
       const joiValidator = joiResolver(schema);
       if (['replication', 'transition'].includes(values.type)) {
         const validation = await joiValidator(values, context, options);

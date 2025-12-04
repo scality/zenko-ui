@@ -71,7 +71,8 @@ export const ISVConfiguration = () => {
         },
       ],
     },
-    resolver: joiResolver(platform.validator as any),
+    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
+    resolver: joiResolver(platform.validator),
     shouldUnregister: false,
   });
 

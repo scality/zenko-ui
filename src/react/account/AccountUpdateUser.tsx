@@ -49,6 +49,7 @@ const AccountUpdateUser = () => {
 
     formState: { errors },
   } = useForm({
+    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
     resolver: joiResolver(schema),
     defaultValues: { name: IAMUserName },
   });

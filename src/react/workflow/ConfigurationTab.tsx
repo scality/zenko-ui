@@ -531,6 +531,7 @@ function EditForm({
   const useFormMethods = useForm({
     mode: 'all',
     resolver: async (values, context, options) => {
+      // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
       const joiValidator = joiResolver(schema);
       if (workflow && isExpirationWorkflow(workflow)) {
         return joiValidator(prepareExpirationQuery(values), context, options);
