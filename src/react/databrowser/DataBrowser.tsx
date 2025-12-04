@@ -19,6 +19,7 @@ import { LocationSection } from './buckets/LocationSection';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 import { useDataBrowserS3Config } from './hooks/useDataBrowserS3Config';
 import { BucketMetricsPrefetch } from './hooks/useBucketMetrics';
+import { BucketLocationsPrefetch } from './BucketLocationsPrefetch';
 
 const EXTRA_BUCKET_OVERVIEW_SECTIONS = [
   {
@@ -112,6 +113,7 @@ export default function DataBrowser({
   return (
     <DataBrowserProvider getS3Config={getS3Config} theme={theme}>
       <BucketMetricsPrefetch />
+      <BucketLocationsPrefetch />
       <DataBrowserUI
         basePath={dataBrowserBasePath}
         header={hideHeader ? undefined : headerComponent}
