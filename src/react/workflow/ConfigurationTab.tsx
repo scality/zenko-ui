@@ -39,6 +39,10 @@ import { useManagementClient } from '../ManagementProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
 import { useRolePathName } from '../utils/hooks';
+import { Resolver, ResolverOptions } from 'react-hook-form';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { getLocationTypeKey } from '../utils/storageOptions';
 import { DeleteWorkflowButton } from './DeleteWorkflowButton';
 import {
   ExpirationForm,
@@ -49,6 +53,7 @@ import ReplicationForm, {
   disallowedPrefixes,
   GeneralReplicationGroup,
   replicationSchema,
+  validateCRRFields,
 } from './ReplicationForm';
 import {
   GeneralTransitionGroup,
@@ -506,38 +511,112 @@ function EditForm({
         s.source.prefix !== '',
     );
 
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
+
+  // Get CRR location names
+  const crrLocationNames =
+    accountsLocationsAndEndpoints?.locations
+      ?.filter(
+        (location) =>
+          getLocationTypeKey(location) === 'location-scality-crr-v1',
+      )
+      .map((location) => location.name) || [];
+
   const schema =
     workflow && isExpirationWorkflow(workflow)
       ? expirationSchema
       : isTransitionWorkflow(workflow)
       ? Joi.object(transitionSchema)
       : Joi.object(
-          //@ts-expect-error fix this when you are working on it
           replicationSchema(
             [],
             disallowedPrefixes(
-              //@ts-expect-error fix this when you are working on it
-              workflow.source.bucketName,
+              (workflow as Replication).source.bucketName,
               workflows.replications,
             ).filter(
               (s) =>
-                //@ts-expect-error fix this when you are working on it
-                s !== workflow.source.prefix,
+                s !== (workflow as Replication).source.prefix,
             ),
             isPrefixMandatory,
+            false,
           ),
         );
 
+  // Custom resolver that preserves React Hook Form validation errors and runs Joi validation
+  const customResolver: Resolver<Record<string, unknown>> = async (
+    values,
+    context,
+    options,
+  ) => {
+    // Check for CRR-related validation errors using the shared validation function
+    // In ConfigurationTab, ReplicationForm uses empty prefix, so fields are at root level
+    const existingErrors: Record<string, { type: string; message: string }> = {};
+    let hasExistingErrors = false;
+    
+    const formValues = values as {
+      destinationLocation?: string[];
+      destinationBucketName?: string;
+      destinationRole?: string;
+    };
+    
+    const crrValidationErrors = validateCRRFields(
+      formValues.destinationLocation,
+      crrLocationNames,
+      formValues.destinationBucketName,
+      formValues.destinationRole,
+    );
+    
+    if (crrValidationErrors.bucketNameError) {
+      existingErrors.destinationBucketName = {
+        type: 'validate',
+        message: crrValidationErrors.bucketNameError,
+      };
+      hasExistingErrors = true;
+    }
+    
+    if (crrValidationErrors.roleError) {
+      existingErrors.destinationRole = {
+        type: 'validate',
+        message: crrValidationErrors.roleError,
+      };
+      hasExistingErrors = true;
+    }
+    
+    // Run Joi validation
+    const joiValidator = joiResolver(schema);
+    let joiResult;
+    
+    if (workflow && isExpirationWorkflow(workflow)) {
+      joiResult = await joiValidator(
+        prepareExpirationQuery(values as unknown as BucketWorkflowExpirationV1),
+        context,
+        options as unknown as ResolverOptions<BucketWorkflowExpirationV1>,
+      );
+    } else {
+      joiResult = await joiValidator(values, context, options as ResolverOptions<Record<string, unknown>>);
+    }
+    
+    // Merge existing validation errors with Joi errors, giving priority to existing errors
+    if (hasExistingErrors) {
+      return {
+        values: joiResult.values,
+        errors: {
+          ...(joiResult.errors as Record<string, unknown>),
+          ...existingErrors,
+        },
+      };
+    }
+    
+    return joiResult;
+  };
+
   const useFormMethods = useForm({
     mode: 'all',
-    resolver: async (values, context, options) => {
-      const joiValidator = joiResolver(schema);
-      if (workflow && isExpirationWorkflow(workflow)) {
-        return joiValidator(prepareExpirationQuery(values), context, options);
-      } else {
-        return joiValidator(values, context, options);
-      }
-    },
+    resolver: customResolver,
     // fix this when you are working on it
     defaultValues: isExpirationWorkflow(workflow)
       ? initDefaultValues(workflow)

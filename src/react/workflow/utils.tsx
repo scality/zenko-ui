@@ -83,6 +83,8 @@ export function newReplicationForm(bucketName?: string): ReplicationForm {
     sourcePrefix: '',
     destinationLocation: [''],
     preferredReadLocation: null,
+    destinationBucketName: '',
+    destinationRole: '',
   };
 }
 
@@ -118,6 +120,8 @@ export function convertToReplicationForm(
     sourcePrefix: r.source.prefix || '',
     destinationLocation: r.destination.locations.map(({ name }) => name),
     preferredReadLocation: r.destination.preferredReadLocation ?? null,
+    destinationBucketName: r.destination.bucketName || '',
+    destinationRole: r.destination.role || '',
   };
 }
 
@@ -140,6 +144,8 @@ export function convertToReplicationStream(
     destination: {
       locations: r.destinationLocation.map((name) => ({ name })),
       preferredReadLocation: r.preferredReadLocation,
+      bucketName: r.destinationBucketName || undefined,
+      role: r.destinationRole || undefined,
     },
   };
 }
