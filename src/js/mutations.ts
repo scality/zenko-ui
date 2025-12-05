@@ -407,8 +407,9 @@ const usePatchZenkoConfigurationMutation = <T>(
       let resourceSynchronized = false;
       let isReady = false;
       let pollAttempts = 0;
-      const MAX_POLL_ATTEMPTS = 60;
-
+      const MAX_POLL_ATTEMPTS = 90;
+      let deploymentStarted = false;
+      const patchTimestamp = new Date().getTime();
       do {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const r = await fetch(getURL(instances), {
@@ -425,21 +426,46 @@ const usePatchZenkoConfigurationMutation = <T>(
           resourceSynchronized = true;
         }
 
-        isReady = false;
-        if (response.status.conditions) {
-          const availableCondition = response.status.conditions.find(
-            (cond) => cond.type === 'Available',
-          );
-          const deploymentCondition = response.status.conditions.find(
-            (cond) => cond.type === 'DeploymentInProgress',
-          );
-          if (
-            availableCondition.status === 'True' &&
-            deploymentCondition.status === 'False'
-          ) {
-            isReady = true;
+        // Phase 1: Wait for deployment to START
+        if (resourceSynchronized && !deploymentStarted) {
+          if (response.status.conditions) {
+            const deploymentCondition = response.status.conditions.find(
+              (cond) => cond.type === 'DeploymentInProgress',
+            );
+            if (
+              deploymentCondition &&
+              deploymentCondition.status === 'True' &&
+              new Date(deploymentCondition.lastTransitionTime).getTime() >=
+                patchTimestamp
+            ) {
+              deploymentStarted = true;
+            }
           }
         }
+
+        // Phase 2: Wait for deployment to COMPLETE
+        if (deploymentStarted) {
+          isReady = false;
+          if (response.status.conditions) {
+            const availableCondition = response.status.conditions.find(
+              (cond) => cond.type === 'Available',
+            );
+            const deploymentCondition = response.status.conditions.find(
+              (cond) => cond.type === 'DeploymentInProgress',
+            );
+            const failureCondition = response.status.conditions.find(
+              (cond) => cond.type === 'DeploymentFailure',
+            );
+            if (
+              availableCondition?.status === 'True' &&
+              deploymentCondition?.status === 'False' &&
+              failureCondition?.status === 'False'
+            ) {
+              isReady = true;
+            }
+          }
+        }
+
         pollAttempts++;
       } while (
         !(resourceSynchronized && isReady) &&

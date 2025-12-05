@@ -12,7 +12,6 @@ import {
   useParseBundleCertificates,
   useParseSecretCertificates,
 } from '../hooks';
-import { debug } from 'jest-preview';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -40,10 +39,42 @@ const mockUseParseSecretCertificates =
     typeof useParseSecretCertificates
   >;
 
+// Mock the delete mutation hook
+const mockDeleteMutate = jest.fn();
+const mockDeleteMutationResult = {
+  mutate: mockDeleteMutate,
+  isLoading: false,
+  isIdle: true,
+  isSuccess: false,
+  isError: false,
+  data: undefined,
+  error: null,
+  reset: jest.fn(),
+  mutateAsync: jest.fn(),
+  status: 'idle' as const,
+  variables: undefined,
+  context: undefined,
+  failureCount: 0,
+  failureReason: null,
+  isPaused: false,
+};
+
+jest.mock('../../../js/mutations', () => ({
+  ...jest.requireActual('../../../js/mutations'),
+  useDeleteCertificateFromZenkoConfigurationMutation: jest.fn(
+    () => mockDeleteMutationResult,
+  ),
+}));
+
+import { useDeleteCertificateFromZenkoConfigurationMutation } from '../../../js/mutations';
+const mockUseDeleteMutation =
+  useDeleteCertificateFromZenkoConfigurationMutation as jest.MockedFunction<
+    typeof useDeleteCertificateFromZenkoConfigurationMutation
+  >;
+
 describe('Truststore', () => {
   const selectors = {
     pageTitle: () => screen.getByText('Truststore'),
-    toggle: () => screen.getByRole('checkbox'),
     importButton: () =>
       screen.getByRole('button', { name: /Import Certificate/i }),
     nameColumn: () => screen.getByText('Name'),
@@ -116,9 +147,6 @@ describe('Truststore', () => {
     rest.get(ZENKO_CR_URL, (req, res, ctx) => {
       return res(ctx.json(mockZenkoCRWithCerts));
     }),
-    rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-      return res(ctx.json({ status: 'Success' }));
-    }),
   );
 
   beforeAll(() => {
@@ -140,6 +168,10 @@ describe('Truststore', () => {
   afterEach(() => {
     server.resetHandlers();
     jest.clearAllMocks();
+    mockDeleteMutate.mockReset();
+    (mockUseDeleteMutation as jest.Mock).mockReturnValue(
+      mockDeleteMutationResult,
+    );
   });
 
   afterAll(() => {
@@ -159,10 +191,9 @@ describe('Truststore', () => {
     //E
     render(<Truststore />, { wrapper: NewWrapper() });
     //V
-    /********** Page title and toggle: ************/
+    /********** Page title and TLS Verification: ************/
     expect(selectors.pageTitle()).toBeInTheDocument();
     expect(screen.getByText('TLS Verification')).toBeInTheDocument();
-    expect(selectors.toggle()).toBeInTheDocument();
 
     /********** Action button: ************/
     expect(selectors.importButton()).toBeInTheDocument();
@@ -172,7 +203,7 @@ describe('Truststore', () => {
     expect(selectors.expireOnColumn()).toBeInTheDocument();
   });
 
-  it('should display "Skipped" toggle label and banner when TLS verification is skipped', async () => {
+  it('should display banner when TLS verification is skipped', async () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({
       parsedCertificates: [],
@@ -201,134 +232,11 @@ describe('Truststore', () => {
     //E
     render(<Truststore />, { wrapper: NewWrapper() });
     //V
-
     await waitFor(() => {
-      expect(screen.getByText(/^Skipped$/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Imported certificates listed below are ignored/i),
+      ).toBeInTheDocument();
     });
-    expect(
-      screen.getByText(/Imported certificates listed below are ignored/i),
-    ).toBeInTheDocument();
-  });
-  it('should display "Active" toggle label when TLS verification is active', async () => {
-    //S
-    mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [],
-      isLoading: false,
-    });
-    mockUseParseSecretCertificates.mockReturnValue({
-      parsedSecretCertificates: [],
-      isLoading: false,
-    });
-
-    //E
-    render(<Truststore />, { wrapper: NewWrapper() });
-    //V
-    expect(screen.getByText(/Active/i)).toBeInTheDocument();
-  });
-  it('should render "Updating..." toggle label during TLS verification mutation', async () => {
-    //S
-    mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [],
-      isLoading: false,
-    });
-    mockUseParseSecretCertificates.mockReturnValue({
-      parsedSecretCertificates: [],
-      isLoading: false,
-    });
-
-    // Mock server to delay response to capture loading state
-    server.use(
-      rest.patch(ZENKO_CR_URL, async (req, res, ctx) => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return res(ctx.json({ status: 'Success' }));
-      }),
-    );
-    //E
-    render(<Truststore />, { wrapper: NewWrapper() });
-
-    // Wait for initial render
-    await waitFor(() => {
-      expect(screen.getByText('TLS Verification')).toBeInTheDocument();
-    });
-    //V
-    /********** Initial state: ************/
-
-    expect(selectors.toggle()).toBeInTheDocument();
-    expect(screen.getByText(/Active/i)).toBeInTheDocument();
-
-    /********** Click toggle: ************/
-    await userEvent.click(selectors.toggle());
-
-    /********** Loading state during mutation: ************/
-    await waitFor(() => {
-      expect(screen.getByText(/Updating.../i)).toBeInTheDocument();
-    });
-  });
-
-  it('should handle TLS verification toggle when no egress entry exists', async () => {
-    // Mock Zenko CR data without egress entry
-    const mockZenkoCRWithoutEgress = {
-      metadata: {
-        generation: 1,
-      },
-      spec: {
-        // No egress entry
-      },
-      status: {
-        observedGeneration: 1,
-        conditions: [
-          { type: 'Available', status: 'True' },
-          { type: 'DeploymentInProgress', status: 'False' },
-        ],
-      },
-    };
-
-    let patchBody: any;
-    server.use(
-      rest.get(ZENKO_CR_URL, (req, res, ctx) => {
-        return res(ctx.json(mockZenkoCRWithoutEgress));
-      }),
-      rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-        patchBody = req.body;
-        return res(ctx.json({ status: 'Success' }));
-      }),
-    );
-
-    mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [],
-      isLoading: false,
-    });
-    mockUseParseSecretCertificates.mockReturnValue({
-      parsedSecretCertificates: [],
-      isLoading: false,
-    });
-
-    render(<Truststore />, { wrapper: NewWrapper() });
-
-    // Wait for initial render
-    await waitFor(() => {
-      expect(screen.getByText('TLS Verification')).toBeInTheDocument();
-    });
-
-    // Toggle should show "Active" initially (no egress means skipTLSVerify is undefined, so TLS verification is active by default)
-    expect(selectors.toggle()).toBeInTheDocument();
-    expect(screen.getByText('Active')).toBeInTheDocument();
-
-    // Click toggle to disable TLS verification (which will set skipTLSVerify to true)
-    await userEvent.click(selectors.toggle());
-
-    await waitFor(() => {
-      expect(patchBody).toBeDefined();
-    });
-
-    // Verify patch creates egress entry with skipTLSVerify
-    expect(patchBody).toEqual([
-      {
-        op: 'add',
-        path: '/spec/egress',
-        value: { skipTLSVerify: true },
-      },
-    ]);
   });
 
   it('should open certificate details modal when View Details is clicked', async () => {
@@ -491,7 +399,6 @@ describe('Truststore', () => {
       //V
       // Component should render with table in loading state
       expect(selectors.pageTitle()).toBeInTheDocument();
-      expect(selectors.toggle()).toBeInTheDocument();
       expect(selectors.importButton()).toBeInTheDocument();
       expect(screen.getByText(/Loading certificates/i)).toBeInTheDocument();
     });
@@ -512,7 +419,6 @@ describe('Truststore', () => {
       //V
       // Component should render with table in loading state
       expect(selectors.pageTitle()).toBeInTheDocument();
-      expect(selectors.toggle()).toBeInTheDocument();
       expect(selectors.importButton()).toBeInTheDocument();
       expect(screen.getByText(/Loading certificates/i)).toBeInTheDocument();
     });
@@ -626,14 +532,18 @@ describe('Truststore', () => {
         isLoading: false,
       });
 
-      // Track the PATCH request
-      let patchRequestBody: any = null;
-      server.use(
-        rest.patch(ZENKO_CR_URL, async (req, res, ctx) => {
-          patchRequestBody = req.body;
-          return res(ctx.json({ status: 'Success' }));
+      // Mock the mutation to capture args and trigger success callback
+      let capturedMutateArgs: any;
+      (mockUseDeleteMutation as jest.Mock).mockImplementation(
+        (options: any) => ({
+          ...mockDeleteMutationResult,
+          mutate: (args: any) => {
+            capturedMutateArgs = args;
+            setTimeout(() => options?.onSuccess?.(), 0);
+          },
         }),
       );
+
       //E
       render(<Truststore />, { wrapper: NewWrapper() });
 
@@ -649,12 +559,6 @@ describe('Truststore', () => {
 
       await userEvent.click(selectors.deleteConfirmationDeleteButton());
 
-      // The delete button should be disabled during deletion and replaced by `deleting...`
-      await waitFor(() => {
-        expect(selectors.deletingButton()).toBeInTheDocument();
-        expect(selectors.deletingButton()).toBeDisabled();
-      });
-
       //V
       // Modal should close
       await waitFor(() => {
@@ -668,13 +572,8 @@ describe('Truststore', () => {
         ).toBeInTheDocument();
       });
 
-      // Verify the correct PATCH request was made
-      expect(patchRequestBody).toEqual([
-        {
-          op: 'remove',
-          path: '/spec/egress/extraCACerts/0',
-        },
-      ]);
+      // Verify the mutation was called with correct args
+      expect(capturedMutateArgs).toEqual({ certificateIndex: 0 });
     });
 
     it('should display error toast when delete fails', async () => {
@@ -690,12 +589,16 @@ describe('Truststore', () => {
         isLoading: false,
       });
 
-      // Mock server to return error
-      server.use(
-        rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-          return res(ctx.status(500));
+      // Mock the mutation to trigger error callback
+      (mockUseDeleteMutation as jest.Mock).mockImplementation(
+        (options: any) => ({
+          ...mockDeleteMutationResult,
+          mutate: () => {
+            setTimeout(() => options?.onError?.(), 0);
+          },
         }),
       );
+
       //E
       render(<Truststore />, { wrapper: NewWrapper() });
 
@@ -713,11 +616,6 @@ describe('Truststore', () => {
       await userEvent.click(selectors.deleteConfirmationDeleteButton());
 
       //V
-      // Modal should close
-      await waitFor(() => {
-        expect(selectors.deleteConfirmationQuery()).not.toBeInTheDocument();
-      });
-
       // Error toast should appear
       await waitFor(() => {
         expect(

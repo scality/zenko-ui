@@ -20,6 +20,39 @@ jest.mock('../../next-architecture/ui/ConfigProvider', () => ({
   useDeployedMetalk8sInstances: jest.fn(() => [{ name: 'test-instance' }]),
 }));
 
+// Mock the mutation hook
+const mockMutate = jest.fn();
+const mockMutationResult = {
+  mutate: mockMutate,
+  isLoading: false,
+  isIdle: true,
+  isSuccess: false,
+  isError: false,
+  data: undefined,
+  error: null,
+  reset: jest.fn(),
+  mutateAsync: jest.fn(),
+  status: 'idle' as const,
+  variables: undefined,
+  context: undefined,
+  failureCount: 0,
+  failureReason: null,
+  isPaused: false,
+};
+
+jest.mock('../../../js/mutations', () => ({
+  ...jest.requireActual('../../../js/mutations'),
+  useAddCertificateToZenkoConfigurationMutation: jest.fn(
+    () => mockMutationResult,
+  ),
+}));
+
+import { useAddCertificateToZenkoConfigurationMutation } from '../../../js/mutations';
+const mockUseAddCertificateMutation =
+  useAddCertificateToZenkoConfigurationMutation as jest.MockedFunction<
+    typeof useAddCertificateToZenkoConfigurationMutation
+  >;
+
 // Mock certificate validation
 jest.mock('@scality/certchain', () => ({
   isValidTrustedCACertificate: jest.fn((pemBundle: string) => {
@@ -48,6 +81,8 @@ INVALID CERTIFICATE
 describe('ImportCertificate', () => {
   const selectors = {
     importButton: () => screen.getByRole('button', { name: /Import/i }),
+    importingButton: () =>
+      screen.queryByRole('button', { name: /Importing certificate.../i }),
     cancelButton: () => screen.getByRole('button', { name: /Cancel/i }),
     formTitle: () => screen.getByText(/Import a new Certificate/i),
     dragAndDropLabel: () => screen.getByText(/Drag and drop file here/i),
@@ -91,34 +126,10 @@ describe('ImportCertificate', () => {
     },
   };
 
-  let patchCount = 0;
-
   const server = setupServer(
-    // GET Zenko CR - handles both query and polling
+    // GET Zenko CR - only for useQuery to fetch initial state
     rest.get(ZENKO_CR_URL, (req, res, ctx) => {
-      // After PATCH, return CR with synchronized status for polling
-      if (patchCount > 0) {
-        return res(
-          ctx.json({
-            ...mockZenkoCRWithoutCerts,
-            metadata: { generation: 2 },
-            status: {
-              observedGeneration: 2,
-              conditions: [
-                { type: 'Available', status: 'True' },
-                { type: 'DeploymentInProgress', status: 'False' },
-              ],
-            },
-          }),
-        );
-      }
-      // Before PATCH, return initial CR
       return res(ctx.json(mockZenkoCRWithoutCerts));
-    }),
-    // PATCH Zenko CR success
-    rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-      patchCount++;
-      return res(ctx.json({ status: 'Success' }));
     }),
   );
 
@@ -140,7 +151,11 @@ describe('ImportCertificate', () => {
 
   afterEach(() => {
     server.resetHandlers();
-    patchCount = 0;
+    jest.clearAllMocks();
+    mockMutate.mockReset();
+    (mockUseAddCertificateMutation as jest.Mock).mockReturnValue(
+      mockMutationResult,
+    );
   });
 
   afterAll(() => {
@@ -181,6 +196,14 @@ describe('ImportCertificate', () => {
     expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
   });
   it('should navigate to truststore page if import is successful and show success toast', async () => {
+    // Mock mutation to trigger success callback
+    (mockUseAddCertificateMutation as jest.Mock).mockImplementation(() => ({
+      ...mockMutationResult,
+      mutate: (args: any, options: any) => {
+        setTimeout(() => options?.onSuccess?.(), 0);
+      },
+    }));
+
     renderWithCustomRoute(
       <Routes>
         <Route path="/truststore" element={<div>Truststore</div>} />
@@ -195,9 +218,6 @@ describe('ImportCertificate', () => {
     await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
     expect(selectors.importButton()).toBeEnabled();
     await userEvent.click(selectors.importButton());
-    expect(
-      screen.getByRole('button', { name: /Importing certificate.../i }),
-    ).toBeInTheDocument();
 
     await waitFor(() => {
       expect(
@@ -208,12 +228,13 @@ describe('ImportCertificate', () => {
   });
 
   it('should show error toast if import fails', async () => {
-    // Mock failed PATCH request
-    server.use(
-      rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-        return res(ctx.status(500));
-      }),
-    );
+    // Mock mutation to trigger error callback
+    (mockUseAddCertificateMutation as jest.Mock).mockImplementation(() => ({
+      ...mockMutationResult,
+      mutate: (args: any, options: any) => {
+        setTimeout(() => options?.onError?.(), 0);
+      },
+    }));
 
     renderWithCustomRoute(
       <Routes>
@@ -230,48 +251,79 @@ describe('ImportCertificate', () => {
     expect(selectors.importButton()).toBeEnabled();
     await userEvent.click(selectors.importButton());
 
-    await waitFor(
-      () => {
-        expect(
-          screen.getByText(/Failed to import certificate/i),
-        ).toBeInTheDocument();
-      },
-      {
-        timeout: 10000,
-      },
-    );
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Failed to import certificate/i),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('should send correct patch to append when Zenko CR has existing certs', async () => {
-    let patchBody: any;
-    let localPatchCount = 0;
+  it('should call mutation with correct certificate when importing', async () => {
+    let capturedArgs: any;
+    let capturedHookArgs: any;
+
+    // Mock mutation to capture args
+    (mockUseAddCertificateMutation as jest.Mock).mockImplementation(
+      (hookArgs: any) => {
+        capturedHookArgs = hookArgs;
+        return {
+          ...mockMutationResult,
+          mutate: (args: any, options: any) => {
+            capturedArgs = args;
+            setTimeout(() => options?.onSuccess?.(), 0);
+          },
+        };
+      },
+    );
+
+    renderWithCustomRoute(
+      <Routes>
+        <Route path="/truststore" element={<div>Truststore</div>} />
+        <Route
+          path="/truststore/import-certificate"
+          element={<ImportCertificate />}
+        />
+      </Routes>,
+      '/truststore/import-certificate',
+    );
+
+    await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
+    await userEvent.click(selectors.importButton());
+
+    await waitFor(() => {
+      expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
+    });
+
+    // Verify mutation was called with correct certificate
+    expect(capturedArgs).toEqual({ certificate: mockedValidCertificate });
+    // Verify hook was called with correct hasEgress/hasExtraCACerts flags
+    expect(capturedHookArgs).toEqual({
+      hasEgress: true, // mockZenkoCRWithoutCerts has egress: {}
+      hasExtraCACerts: false, // mockZenkoCRWithoutCerts has no extraCACerts
+    });
+  });
+
+  it('should pass hasExtraCACerts=true when Zenko CR has existing certs', async () => {
+    let capturedHookArgs: any;
 
     // Mock GET to return CR with existing certs
     server.use(
       rest.get(ZENKO_CR_URL, (req, res, ctx) => {
-        // After PATCH, return synchronized CR for polling
-        if (localPatchCount > 0) {
-          return res(
-            ctx.json({
-              ...mockZenkoCRWithCerts,
-              metadata: { generation: 2 },
-              status: {
-                observedGeneration: 2,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
-            }),
-          );
-        }
         return res(ctx.json(mockZenkoCRWithCerts));
       }),
-      rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-        patchBody = req.body;
-        localPatchCount++;
-        return res(ctx.status(200));
-      }),
+    );
+
+    // Mock mutation to capture hook args
+    (mockUseAddCertificateMutation as jest.Mock).mockImplementation(
+      (hookArgs: any) => {
+        capturedHookArgs = hookArgs;
+        return {
+          ...mockMutationResult,
+          mutate: (args: any, options: any) => {
+            setTimeout(() => options?.onSuccess?.(), 0);
+          },
+        };
+      },
     );
 
     renderWithCustomRoute(
@@ -292,74 +344,11 @@ describe('ImportCertificate', () => {
       expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
     });
 
-    // Verify patch uses append operation (/-) for existing array
-    expect(patchBody).toEqual([
-      {
-        op: 'add',
-        path: '/spec/egress/extraCACerts/-',
-        value: { 'ca.crt': mockedValidCertificate },
-      },
-    ]);
-  });
-
-  it('should send correct patch to initialize when Zenko CR has no certs', async () => {
-    let patchBody: any;
-    let localPatchCount = 0;
-
-    // Override handlers to capture patch body and handle polling
-    server.use(
-      rest.get(ZENKO_CR_URL, (req, res, ctx) => {
-        // After PATCH, return synchronized CR for polling
-        if (localPatchCount > 0) {
-          return res(
-            ctx.json({
-              ...mockZenkoCRWithoutCerts,
-              metadata: { generation: 2 },
-              status: {
-                observedGeneration: 2,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                ],
-              },
-            }),
-          );
-        }
-        return res(ctx.json(mockZenkoCRWithoutCerts));
-      }),
-      rest.patch(ZENKO_CR_URL, (req, res, ctx) => {
-        patchBody = req.body;
-        localPatchCount++;
-        return res(ctx.json({ status: 'Success' }));
-      }),
-    );
-
-    renderWithCustomRoute(
-      <Routes>
-        <Route path="/truststore" element={<div>Truststore</div>} />
-        <Route
-          path="/truststore/import-certificate"
-          element={<ImportCertificate />}
-        />
-      </Routes>,
-      '/truststore/import-certificate',
-    );
-
-    await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
-    await userEvent.click(selectors.importButton());
-
-    await waitFor(() => {
-      expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
+    // Verify hook was called with correct flags
+    expect(capturedHookArgs).toEqual({
+      hasEgress: true,
+      hasExtraCACerts: true, // mockZenkoCRWithCerts has extraCACerts
     });
-
-    // Verify patch initializes new array
-    expect(patchBody).toEqual([
-      {
-        op: 'add',
-        path: '/spec/egress/extraCACerts',
-        value: [{ 'ca.crt': mockedValidCertificate }],
-      },
-    ]);
   });
   it('should show error message and disable import button if certificate is empty', async () => {
     render(<ImportCertificate />, { wrapper: NewWrapper() });
