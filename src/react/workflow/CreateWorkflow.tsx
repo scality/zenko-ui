@@ -11,6 +11,8 @@ import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import {
   Controller,
   FormProvider,
+  Resolver,
+  ResolverOptions,
   SubmitHandler,
   useForm,
 } from 'react-hook-form';
@@ -39,6 +41,8 @@ import {
 } from '../next-architecture/domain/business/buckets';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { getLocationTypeKey } from '../utils/storageOptions';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
 import { useQueryParams, useRolePathName } from '../utils/hooks';
@@ -51,6 +55,7 @@ import ReplicationForm, {
   GeneralReplicationGroup,
   disallowedPrefixes,
   replicationSchema,
+  validateCRRFields,
 } from './ReplicationForm';
 import {
   GeneralTransitionGroup,
@@ -134,55 +139,136 @@ const CreateWorkflow = () => {
     locationInfos.status === 'success' &&
     locationInfos.value.location?.isTransient;
 
+  const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
+
+  // Get CRR location names
+  const crrLocationNames =
+    accountsLocationsAndEndpoints?.locations
+      ?.filter(
+        (location) =>
+          getLocationTypeKey(location) === 'location-scality-crr-v1',
+      )
+      .map((location) => location.name) || [];
+
+  // Custom resolver that preserves React Hook Form validation errors and runs Joi validation
+  const customResolver: Resolver<Record<string, unknown>> = async (
+    values,
+    context,
+    options,
+  ) => {
+    // Check for existing React Hook Form validation errors from validate functions
+    // These are stored in options.fields with their validation results
+    const existingErrors: Record<string, Record<string, { type: string; message: string }>> = {};
+    let hasExistingErrors = false;
+    
+    // Check for CRR-related validation errors using the shared validation function
+    const replication = values.replication as {
+      destinationLocation?: string[];
+      destinationBucketName?: string;
+      destinationRole?: string;
+    } | undefined;
+    
+    if (replication) {
+      const crrValidationErrors = validateCRRFields(
+        replication.destinationLocation,
+        crrLocationNames,
+        replication.destinationBucketName,
+        replication.destinationRole,
+      );
+      
+      if (crrValidationErrors.bucketNameError) {
+        existingErrors.replication = {
+          ...existingErrors.replication,
+          destinationBucketName: {
+            type: 'validate',
+            message: crrValidationErrors.bucketNameError,
+          },
+        };
+        hasExistingErrors = true;
+      }
+      
+      if (crrValidationErrors.roleError) {
+        existingErrors.replication = {
+          ...existingErrors.replication,
+          destinationRole: {
+            type: 'validate',
+            message: crrValidationErrors.roleError,
+          },
+        };
+        hasExistingErrors = true;
+      }
+    }
+    
+    // If we have existing validation errors, run Joi validation but preserve our errors
+    const bucketName = (values.replication as { sourceBucket?: string })?.sourceBucket;
+    const streams = replicationsQuery.data ?? [];
+    const unallowedBucketName = streams.flatMap((s) => {
+      const { prefix, bucketName } = s.source;
+      if (!prefix || prefix === '') return [bucketName];
+      return [];
+    });
+    const prefixMandatory = !!streams.find((s) => {
+      const { prefix } = s.source;
+      return prefix && prefix !== '' && bucketName === s.source.bucketName;
+    });
+    const disPrefixes = disallowedPrefixes(bucketName, streams);
+    
+    // Build Joi schema
+    const schema = Joi.object({
+      type: Joi.string().valid('replication', 'expiration', 'transition'),
+      replication: Joi.when('type', {
+        is: Joi.equal('replication'),
+        then: Joi.object(
+          replicationSchema(
+            unallowedBucketName,
+            disPrefixes,
+            prefixMandatory,
+            !!isTransient,
+          ),
+        ),
+        otherwise: Joi.valid(),
+      }),
+      transition: Joi.when('type', {
+        is: Joi.equal('transition'),
+        then: Joi.object(transitionSchema),
+        otherwise: Joi.valid(),
+      }),
+      expiration: Joi.when('type', {
+        is: Joi.equal('expiration'),
+        then: expirationSchema,
+        otherwise: Joi.valid(),
+      }),
+    });
+    
+    const joiValidator = joiResolver(schema);
+    let joiResult;
+    
+    if (['replication', 'transition'].includes(values.type as string)) {
+      joiResult = await joiValidator(values, context, options as ResolverOptions<Record<string, unknown>>);
+    } else {
+      const expiration = prepareExpirationQuery(values.expiration as BucketWorkflowExpirationV1);
+      joiResult = await joiValidator({ ...values, expiration }, context, options as ResolverOptions<Record<string, unknown>>);
+    }
+    
+    // Merge existing validation errors with Joi errors, giving priority to existing errors
+    if (hasExistingErrors) {
+      return {
+        values: joiResult.values,
+        errors: {
+          ...joiResult.errors,
+          ...existingErrors,
+        },
+      };
+    }
+    
+    return joiResult;
+  };
+
   const useFormMethods = useForm({
     mode: 'onChange',
-    resolver: async (values, context, options) => {
-      const bucketName = values.replication.sourceBucket;
-      const streams = replicationsQuery.data ?? [];
-      const unallowedBucketName = streams.flatMap((s) => {
-        const { prefix, bucketName } = s.source;
-        if (!prefix || prefix === '') return [bucketName];
-        return [];
-      });
-      const prefixMandatory = !!streams.find((s) => {
-        const { prefix } = s.source;
-        return prefix && prefix !== '' && bucketName === s.source.bucketName;
-      });
-      const disPrefixes = disallowedPrefixes(bucketName, streams);
-      const schema = Joi.object({
-        type: Joi.string().valid('replication', 'expiration', 'transition'),
-        replication: Joi.when('type', {
-          is: Joi.equal('replication'),
-          then: Joi.object(
-            replicationSchema(
-              unallowedBucketName,
-              disPrefixes,
-              prefixMandatory,
-              !!isTransient,
-            ),
-          ),
-          otherwise: Joi.valid(),
-        }),
-        transition: Joi.when('type', {
-          is: Joi.equal('transition'),
-          then: Joi.object(transitionSchema),
-          otherwise: Joi.valid(),
-        }),
-        expiration: Joi.when('type', {
-          is: Joi.equal('expiration'),
-          then: expirationSchema,
-          otherwise: Joi.valid(),
-        }),
-      });
-      const joiValidator = joiResolver(schema);
-      if (['replication', 'transition'].includes(values.type)) {
-        const validation = await joiValidator(values, context, options);
-        return validation;
-      } else {
-        const expiration = prepareExpirationQuery(values.expiration);
-        return joiValidator({ ...values, expiration }, context, options);
-      }
-    },
+    resolver: customResolver,
     defaultValues: defaultFormValues,
   });
 
@@ -406,8 +492,8 @@ const CreateWorkflow = () => {
                   <Select
                     id="type"
                     onBlur={onBlur}
-                    value={type}
-                    onChange={(value) => onChange(value)}
+                    value={type as string}
+                    onChange={(value) => onChange(value as string)}
                   >
                     <Select.Option
                       value="replication"

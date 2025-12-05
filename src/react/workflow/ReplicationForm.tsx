@@ -27,7 +27,6 @@ import {
 } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router';
-import { Replication } from '../../types/config';
 import { Account } from '../../types/iam';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { SelectOption } from '../../types/ui';
@@ -45,6 +44,7 @@ import { useRolePathName } from '../utils/hooks';
 import {
   checkIfExternalLocation,
   checkSupportsReplicationTarget,
+  getLocationTypeKey,
 } from '../utils/storageOptions';
 import { SourceBucketSelect } from './SourceBucketOption';
 import { WorkflowState } from './WorkflowState';
@@ -77,6 +77,39 @@ export const disallowedPrefixes = (
       const { prefix } = s.source;
       return prefix ? [prefix] : [];
     });
+};
+
+// Shared validation function for CRR fields that can be used in both validate functions and resolver
+export const validateCRRFields = (
+  destinationLocations: string[] | undefined,
+  crrLocationNames: string[],
+  bucketNameValue: string | undefined,
+  roleValue: string | undefined,
+): {
+  bucketNameError?: string;
+  roleError?: string;
+} => {
+  const errors: { bucketNameError?: string; roleError?: string } = {};
+  
+  if (!Array.isArray(destinationLocations) || destinationLocations.length === 0) {
+    return errors;
+  }
+  
+  // Check if there's exactly one CRR location and no non-CRR locations
+  const crrLocations = destinationLocations.filter((loc: string) => 
+    loc && crrLocationNames.includes(loc)
+  );
+
+  if (crrLocations.length > 0) {
+    if (!bucketNameValue || bucketNameValue === '') {
+      errors.bucketNameError = 'Target bucket name is required for CRR locations';
+    }
+    if (!roleValue || roleValue === '') {
+      errors.roleError = 'Role is required for CRR locations';
+    }
+  }
+  
+  return errors;
 };
 
 export const replicationSchema = (
@@ -114,6 +147,14 @@ export const replicationSchema = (
     preferredReadLocation: isTransient
       ? preferredReadLocation
       : preferredReadLocation.allow(null),
+    destinationBucketName: Joi.string()
+      .label('Target Bucket Name')
+      .allow('', null)
+      .optional(),
+    destinationRole: Joi.string()
+      .label('Role')
+      .allow('', null)
+      .optional(),
   };
 };
 
@@ -343,14 +384,16 @@ function ReplicationForm({ prefix = '', isCreateMode, ...props }: Props) {
                   no Prefix filter), you need to edit the existing Workflow, you
                   cannot create the new one.
                 </Text>
-                <LinkStyle
-                  as={Link}
-                  to={`/accounts/${account!.Name}/workflows/replication-${
-                    parentReplicationStream.streamId
-                  }`}
-                >
-                  Edit the workflow
-                </LinkStyle>
+                {account && (
+                  <LinkStyle
+                    as={Link}
+                    to={`/accounts/${account.Name}/workflows/replication-${
+                      parentReplicationStream.streamId
+                    }`}
+                  >
+                    Edit the workflow
+                  </LinkStyle>
+                )}
               </Stack>
             </Banner>
           )}
@@ -425,8 +468,57 @@ const RenderDestination = ({
   isTransient: boolean;
 }) => {
   const forceLabelWidth = convertRemToPixels(12);
-  const { trigger } = useFormContext();
+  const methods = useFormContext();
+  const { trigger, register, watch, setValue } = methods;
   const options = destinationOptions(locations);
+  const destinationLocations = watch(name) || [];
+  
+  // Check if any destination location is CRR
+  const hasCRRLocation = Array.isArray(destinationLocations)
+    ? destinationLocations.some((destLoc: string) => {
+        if (!destLoc) return false;
+        const location = locations.find((l) => l.name === destLoc);
+        return (
+          location &&
+          getLocationTypeKey(location) === 'location-scality-crr-v1'
+        );
+      })
+    : false;
+
+  // Check if there are non-CRR locations when CRR is present
+  const hasNonCRRLocations = Array.isArray(destinationLocations)
+    ? destinationLocations.some((destLoc: string) => {
+        if (!destLoc) return false;
+        const location = locations.find((l) => l.name === destLoc);
+        return (
+          location &&
+          getLocationTypeKey(location) !== 'location-scality-crr-v1'
+        );
+      })
+    : false;
+
+  // Check if there's exactly one CRR location
+  const crrLocations = Array.isArray(destinationLocations)
+    ? destinationLocations.filter((destLoc: string) => {
+        if (!destLoc) return false;
+        const location = locations.find((l) => l.name === destLoc);
+        return (
+          location &&
+          getLocationTypeKey(location) === 'location-scality-crr-v1'
+        );
+      })
+    : [];
+  const hasSingleCRRLocation = crrLocations.length === 1;
+
+  const bucketNameFieldName = `${prefix}destinationBucketName`;
+  const roleFieldName = `${prefix}destinationRole`;
+
+  const bucketNameError = errors[bucketNameFieldName];
+  const roleError = errors[roleFieldName];
+  const bucketNameTouched = touchedFields[bucketNameFieldName];
+  const roleTouched = touchedFields[roleFieldName];
+
+
   return (
     <FormSection
       title={{ name: 'Destination' }}
@@ -442,14 +534,34 @@ const RenderDestination = ({
         name={name}
         render={({
           field: { onChange, onBlur, value: destinationLocations },
-        }) => (
+        }) => {
+          return (
           <>
+            {hasCRRLocation && hasNonCRRLocations && (
+              <Banner
+                variant="warning"
+                icon={
+                  <Icon
+                    name="Exclamation-circle"
+                    size="2x"
+                    color="statusWarning"
+                  />
+                }
+              >
+                <Text>
+                  Replication rules to a CRR location can only mention a single CRR
+                  location as destination. Please remove other locations or remove the
+                  CRR location.
+                </Text>
+              </Banner>
+            )}
             {!Array.isArray(destinationLocations)
               ? []
               : destinationLocations.map((destLoc: string, index) => {
                   const fieldName = `${prefix}destinationLocation.${index}`;
                   const err = errors[fieldName];
                   const touched = touchedFields[fieldName];
+
                   return (
                     <FormGroup
                       key={index}
@@ -472,8 +584,32 @@ const RenderDestination = ({
                             onChange={(value) => {
                               const newValues = [...destinationLocations];
                               newValues[index] = value;
+                              
+                              // Check if CRR status changed
+                              const oldLocation = locations.find((l) => l.name === destLoc);
+                              const newLocation = locations.find((l) => l.name === value);
+                              const wasCRR = oldLocation && getLocationTypeKey(oldLocation) === 'location-scality-crr-v1';
+                              const isCRR = newLocation && getLocationTypeKey(newLocation) === 'location-scality-crr-v1';
+                              
+                              // Check if any location in new values is CRR
+                              const willHaveCRR = newValues.some((loc: string) => {
+                                if (!loc) return false;
+                                const locInfo = locations.find((l) => l.name === loc);
+                                return locInfo && getLocationTypeKey(locInfo) === 'location-scality-crr-v1';
+                              });
+                              
+                              // Reset bucketName and role if CRR status changed
+                              if (wasCRR !== isCRR || (wasCRR && !willHaveCRR)) {
+                                setValue(bucketNameFieldName, '');
+                                setValue(roleFieldName, '');
+                              }
+                              
+                              // Trigger validation for bucketName and role to re-validate with new CRR status
+                              trigger(bucketNameFieldName);
+                              trigger(roleFieldName);
+                              
                               onChange(newValues);
-                              trigger();
+                              trigger(name);
                             }}
                             value={destLoc}
                           >
@@ -498,25 +634,50 @@ const RenderDestination = ({
                             index={index}
                             items={destinationLocations}
                             deleteEntry={() => {
+                              // Check if the location being deleted is CRR
+                              const deletedLocation = locations.find((l) => l.name === destLoc);
+                              const wasCRR = deletedLocation && getLocationTypeKey(deletedLocation) === 'location-scality-crr-v1';
+                              
+                              let newValues: string[];
                               if (destinationLocations.length === 1) {
-                                onChange(['']);
+                                newValues = [''];
                               } else {
-                                const newValues = [...destinationLocations];
+                                newValues = [...destinationLocations];
                                 newValues.splice(index, 1);
-                                onChange(newValues);
                               }
-                              trigger();
+                              
+                              // Check if new values will have any CRR location
+                              const willHaveCRR = newValues.some((loc: string) => {
+                                if (!loc) return false;
+                                const locInfo = locations.find((l) => l.name === loc);
+                                return locInfo && getLocationTypeKey(locInfo) === 'location-scality-crr-v1';
+                              });
+                              
+                              // Reset bucketName and role if CRR location was removed or no CRR locations remain
+                              if (wasCRR || (!willHaveCRR && hasCRRLocation)) {
+                                setValue(bucketNameFieldName, '');
+                                setValue(roleFieldName, '');
+                              }
+                              
+                              // Trigger validation for bucketName and role to re-validate with new CRR status
+                              trigger(bucketNameFieldName);
+                              trigger(roleFieldName);
+                              
+                              onChange(newValues);
+                              trigger(name);
                             }}
                           />
                           <AddButton
                             disabled={
                               destinationLocations.length === options.length ||
-                              destinationLocations.includes('')
+                              destinationLocations.includes('') ||
+                              hasCRRLocation
                             }
                             index={index}
                             items={destinationLocations}
                             insertEntry={() => {
                               if (destinationLocations.includes('')) return;
+                              if (hasCRRLocation) return;
                               onChange([...destinationLocations, '']);
                               trigger();
                             }}
@@ -527,6 +688,43 @@ const RenderDestination = ({
                     />
                   );
                 })}
+            {hasSingleCRRLocation && !hasNonCRRLocations && (
+              <>
+                <FormGroup
+                  required
+                  label="Target Bucket Name"
+                  id="target-bucket-name"
+                  error={
+                    bucketNameTouched
+                      ? bucketNameError?.message
+                      : undefined
+                  }
+                  helpErrorPosition="bottom"
+                  content={
+                    <Input
+                      {...register(bucketNameFieldName)}
+                      id="target-bucket-name"
+                      autoComplete="off"
+                    />
+                  }
+                />
+                <FormGroup
+                  required
+                  label="Role"
+                  id="target-role"
+                  error={roleTouched ? roleError?.message : undefined}
+                  helpErrorPosition="bottom"
+                  content={
+                    <Input
+                      {...register(roleFieldName)}
+                      id="target-role"
+                      autoComplete="off"
+                      placeholder="Enter role name or ARN"
+                    />
+                  }
+                />
+              </>
+            )}
             <PreferredReadLocationSelector
               isTransient={isTransient}
               control={control}
@@ -536,7 +734,8 @@ const RenderDestination = ({
               name={`${prefix}preferredReadLocation`}
             />
           </>
-        )}
+          );
+        }}
       />
     </FormSection>
   );
