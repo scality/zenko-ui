@@ -77,6 +77,8 @@ export type Locations = Readonly<PerLocationMap<Location>>;
 // replications
 export type TargetLocationObject = {
   name: string;
+  bucketName?: string;
+  role?: string;
 };
 export type ReplicationSource = {
   readonly prefix: string | null;
@@ -92,6 +94,8 @@ export type Replication = {
   readonly destination: {
     readonly locations: Array<TargetLocationObject>;
     readonly preferredReadLocation?: string | null;
+    readonly bucketName?: string;
+    readonly role?: string;
   };
 };
 export type Expiration = {

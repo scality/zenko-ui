@@ -12,4 +12,6 @@ export type ReplicationForm = {
   readonly sourcePrefix: string;
   readonly destinationLocation: string[];
   readonly preferredReadLocation: string | null;
+  readonly destinationBucketName?: string;
+  readonly destinationRole?: string;
 };
