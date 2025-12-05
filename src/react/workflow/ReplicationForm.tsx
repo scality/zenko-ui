@@ -713,13 +713,14 @@ const RenderDestination = ({
                   label="Role"
                   id="target-role"
                   error={roleTouched ? roleError?.message : undefined}
+                  help="Fill this with the ARN of the role created on the destination during the CRR Location preparation steps"
                   helpErrorPosition="bottom"
                   content={
                     <Input
                       {...register(roleFieldName)}
                       id="target-role"
                       autoComplete="off"
-                      placeholder="Enter role name or ARN"
+                      placeholder="arn:aws:iam::123456789012:role/ExampleRole"
                     />
                   }
                 />
