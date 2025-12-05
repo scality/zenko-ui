@@ -587,7 +587,7 @@ function EditForm({
     }
     
     // Run Joi validation
-    const joiValidator = joiResolver(schema);
+    const joiValidator = joiResolver(schema as any);
     let joiResult;
     
     if (workflow && isExpirationWorkflow(workflow)) {

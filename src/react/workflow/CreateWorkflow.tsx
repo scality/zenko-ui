@@ -242,7 +242,7 @@ const CreateWorkflow = () => {
       }),
     });
     
-    const joiValidator = joiResolver(schema);
+    const joiValidator = joiResolver(schema as any);
     let joiResult;
     
     if (['replication', 'transition'].includes(values.type as string)) {

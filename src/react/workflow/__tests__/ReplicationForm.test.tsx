@@ -133,7 +133,7 @@ const WithFormProvider = ({ children, crrLocationNames = [] }) => {
       }),
     });
     
-    const joiValidator = joiResolver(schema);
+    const joiValidator = joiResolver(schema as any);
     const joiResult = await joiValidator(values, context, options as ResolverOptions<Record<string, unknown>>);
     
     // Merge existing validation errors with Joi errors, giving priority to existing errors
