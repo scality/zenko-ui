@@ -11,7 +11,6 @@ import {
   VeeamApplicationType,
 } from '../../../constants';
 import { PrettyBytes } from '@scality/core-ui';
-import { useEffect, useState } from 'react';
 
 const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
   const { data: taggingData, status: taggingStatus } = useGetBucketTagging({
@@ -49,30 +48,7 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
     },
   );
 
-  // Extract XML string from response body asynchronously
-  const [xml, setXml] = useState<string>('');
-
-  useEffect(() => {
-    const parseBody = async () => {
-      if (!veeamObjectData?.Body) {
-        setXml('');
-        return;
-      }
-
-      const body = veeamObjectData.Body as any;
-      if (typeof body === 'string') {
-        setXml(body);
-      } else if (body.transformToString) {
-        const text = await body.transformToString();
-        setXml(text);
-      } else {
-        setXml('');
-      }
-    };
-
-    parseBody();
-  }, [veeamObjectData]);
-
+  const xml = veeamObjectData?.Body?.toString();
   const regex = /<Capacity>([\s\S]*?)<\/Capacity>/;
   const matches = xml.match(regex);
   const capacity = parseFloat(
