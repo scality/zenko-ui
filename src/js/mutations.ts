@@ -577,36 +577,37 @@ export type VeeamRepositoryResponse = {
 };
 
 const useCreateVeeamRepositoryMutation = () => {
+  const { useAuth } = useShellHooks();
+  const { getToken } = useAuth();
+
   return useMutation<VeeamRepositoryResponse, ApiError, VeeamRepositoryRequest>(
     {
       mutationFn: async (repositoryConfig) => {
-        const response = await fetch(
-          '/veeam-exporter/veeam-automation/create-s3-repo',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              repositoryName: repositoryConfig.repositoryName,
-              servicePoint: repositoryConfig.servicePoint,
-              accessKey: repositoryConfig.accessKey,
-              secretKey: repositoryConfig.secretKey,
-              bucketName: repositoryConfig.bucketName,
-              region: repositoryConfig.region,
-              ...(repositoryConfig.immutable !== undefined && {
-                immutable: repositoryConfig.immutable,
-              }),
-              ...(repositoryConfig.immutablePeriodDays !== undefined && {
-                immutablePeriodDays: repositoryConfig.immutablePeriodDays,
-              }),
-              storageConsumptionLimitKind:
-                repositoryConfig.storageConsumptionLimitKind,
-              storageConsumptionLimitCount:
-                repositoryConfig.storageConsumptionLimitCount,
-            }),
+        const response = await fetch('/api/veeam-automation/create-s3-repo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${await getToken()}`,
           },
-        );
+          body: JSON.stringify({
+            repositoryName: repositoryConfig.repositoryName,
+            servicePoint: repositoryConfig.servicePoint,
+            accessKey: repositoryConfig.accessKey,
+            secretKey: repositoryConfig.secretKey,
+            bucketName: repositoryConfig.bucketName,
+            region: repositoryConfig.region,
+            ...(repositoryConfig.immutable !== undefined && {
+              immutable: repositoryConfig.immutable,
+            }),
+            ...(repositoryConfig.immutablePeriodDays !== undefined && {
+              immutablePeriodDays: repositoryConfig.immutablePeriodDays,
+            }),
+            storageConsumptionLimitKind:
+              repositoryConfig.storageConsumptionLimitKind,
+            storageConsumptionLimitCount:
+              repositoryConfig.storageConsumptionLimitCount,
+          }),
+        });
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({
