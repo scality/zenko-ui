@@ -50,7 +50,7 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
 
   const xml = veeamObjectData?.Body?.toString();
   const regex = /<Capacity>([\s\S]*?)<\/Capacity>/;
-  const matches = xml.match(regex);
+  const matches = xml?.match(regex);
   const capacity = parseFloat(
     new DOMParser()
       ?.parseFromString(xml || '', 'application/xml')
