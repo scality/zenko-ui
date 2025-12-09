@@ -1,25 +1,14 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-  PropsWithChildren,
-} from 'react';
+import { createContext, useContext, useMemo, PropsWithChildren } from 'react';
 import ZenkoClientBase from 'zenkoclient';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { genClientEndpoint } from './utils';
 import { Site, ZenkoMapResp } from '../types/zenko';
-
-export type Credentials = {
-  accessKeyId: string;
-  secretAccessKey: string;
-  sessionToken: string;
-};
-
+import { S3Credentials } from '@scality/data-browser-library';
 class ZenkoSiteClient {
   private _jsonClient: ZenkoClientBase;
   private _isLogin = false;
 
-  constructor(endpoint: string, credentials?: Credentials) {
+  constructor(endpoint: string, credentials?: S3Credentials) {
     this._jsonClient = new ZenkoClientBase({
       accessKeyId: credentials?.accessKeyId || '',
       secretAccessKey: credentials?.secretAccessKey || '',
@@ -31,10 +20,12 @@ class ZenkoSiteClient {
       signatureVersion: 'v4',
       maxRetries: 0,
     });
-    this._isLogin = !!(credentials?.accessKeyId && credentials?.secretAccessKey);
+    this._isLogin = !!(
+      credentials?.accessKeyId && credentials?.secretAccessKey
+    );
   }
 
-  login(credentials: Credentials): void {
+  login(credentials: S3Credentials): void {
     this._jsonClient.config.update({
       accessKeyId: credentials.accessKeyId,
       secretAccessKey: credentials.secretAccessKey,
@@ -92,10 +83,13 @@ export const useZenkoClient = () => {
 };
 
 type ZenkoProviderProps = PropsWithChildren<{
-  credentials?: Credentials;
+  credentials?: S3Credentials;
 }>;
 
-export const ZenkoProvider = ({ children, credentials }: ZenkoProviderProps) => {
+export const ZenkoProvider = ({
+  children,
+  credentials,
+}: ZenkoProviderProps) => {
   const { zenkoEndpoint } = useConfig();
 
   const zenkoClient = useMemo(() => {
@@ -116,4 +110,3 @@ export const ZenkoProvider = ({ children, credentials }: ZenkoProviderProps) => 
 };
 
 export type { ZenkoSiteClient };
-

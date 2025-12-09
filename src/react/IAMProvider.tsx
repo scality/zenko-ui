@@ -1,17 +1,7 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-  PropsWithChildren,
-} from 'react';
+import { createContext, useContext, useMemo, PropsWithChildren } from 'react';
 import IAMClient from '../js/IAMClient';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
-
-export type Credentials = {
-  accessKeyId: string;
-  secretAccessKey: string;
-  sessionToken: string;
-};
+import { S3Credentials } from '@scality/data-browser-library';
 
 export const _IAMContext = createContext<null | {
   iamClient: IAMClient;
@@ -30,7 +20,7 @@ export const useIAMClient = () => {
 };
 
 type IAMProviderProps = PropsWithChildren<{
-  credentials?: Credentials;
+  credentials?: S3Credentials;
 }>;
 
 export const IAMProvider = ({ children, credentials }: IAMProviderProps) => {
