@@ -77,6 +77,7 @@ function BucketCreate() {
 
   const useFormMethods = useForm({
     mode: 'all',
+    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
     resolver: joiResolver(schema),
     defaultValues: {
       name: '',

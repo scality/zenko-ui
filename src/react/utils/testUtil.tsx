@@ -54,8 +54,7 @@ const TestProvidersWrapper = ({ children }: { children: React.ReactNode }) => (
   <IAMProvider credentials={testS3Config.credentials}>
     <ZenkoProvider credentials={testS3Config.credentials}>
       <DataBrowserProvider getS3Config={() => testS3Config} theme={theme}>
-        {/* @ts-expect-error fix this when you are working on it */}
-        {children}
+        {children as any}
       </DataBrowserProvider>
     </ZenkoProvider>
   </IAMProvider>
