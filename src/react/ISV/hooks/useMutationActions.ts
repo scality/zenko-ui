@@ -452,10 +452,6 @@ export const useMutationActions = (
       ...(platform.id === 'veeam-vbr' ? putVeeamFolderArray : {}),
       // Add Veeam repository creation parameters
       createVeeamRepository: (results) => {
-        const validResults = Array.isArray(results)
-          ? results.filter((result) => result != null)
-          : [];
-
         const userAccessKeyResponse = results.find(
           (result) => result?.AccessKey?.AccessKeyId,
         );
