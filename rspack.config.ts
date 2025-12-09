@@ -122,12 +122,6 @@ const config: Configuration = {
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.css', '.json', '.ts', '.tsx'],
-    alias: {
-      '@scality/core-ui': path.resolve(
-        __dirname,
-        './node_modules/@scality/core-ui',
-      ),
-    },
   },
   plugins: [
     new ModuleFederationPlugin({
