@@ -17,10 +17,6 @@ import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVStepperContext';
 import { ISVConfig, ISVPlatformConfig } from '../types';
-import { queries } from '../../next-architecture/domain/business/buckets';
-import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
-import { useAssumedRole } from '../../DataServiceRoleProvider';
-import { useQueryClient } from 'react-query';
 import { useCallback } from 'react';
 import { VEEAM_OFFICE_365 } from '../constants';
 
@@ -70,9 +66,6 @@ export const ISVSummary = ({
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform } = useISVStepper();
-  const assumedRole = useAssumedRole();
-  const s3Client = useS3Client();
-  const queryClient = useQueryClient();
 
   const immutableSectionInfos = platform.immutabilitySummaryOverride({
     isImmutable: enableImmutableBackup,
@@ -82,13 +75,8 @@ export const ISVSummary = ({
   const shouldHideImmutableSection = application === VEEAM_OFFICE_365;
 
   const finish = useCallback(() => {
-    const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
-    queryClient
-      .resetQueries(queries.listBuckets(s3Client, assumedRoleArn).queryKey)
-      .then(() =>
-        navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`),
-      );
-  }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
+    navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`);
+  }, [accountName, buckets, navigate]);
 
   const serviceEndpointLabel = platform.serviceEndpointLabel || 'Service point';
 

@@ -1,5 +1,5 @@
 import { useShellHooks } from '@scality/module-federation';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useMutation } from 'react-query';
 import {
   useAttachPolicyToUserMutation,
@@ -20,7 +20,6 @@ import { Mutation } from './useMultiMutation';
 import { VEEAM_XML_PREFIX } from '../../ISV/constants';
 import { SYSTEM_XML_CONTENT } from '../../ISV/constants';
 import { GET_CAPACITY_XML_CONTENT } from '../../ISV/constants';
-import {} from '../modules/veeam';
 import { useCheckSOSAPIStatus } from './useCheckSOSAPIStatus';
 
 type Result = {
@@ -70,7 +69,8 @@ export const useMutationActions = (
   const setRolePromise = useSetAssumedRolePromise();
   const assumeRoleMutation = useMutation({
     mutationFn: async ({ roleArn }: { roleArn: string }) => {
-      return await setRolePromise({ roleArn });
+      const s3Config = await setRolePromise({ roleArn });
+      return { credentials: s3Config.credentials };
     },
   });
 
@@ -188,17 +188,10 @@ export const useMutationActions = (
     return buckets?.reduce(
       (acc, bucket) => ({
         ...acc,
-        [`createBucket-${bucket.name}`]: (results) => {
-          const s3Client = results.find(
-            (result) => result?.config?.key === 's3Config',
-          );
-
+        [`createBucket-${bucket.name}`]: () => {
           return {
-            s3Client,
-            request: {
-              ObjectLockEnabledForBucket: enableImmutableBackup,
-              Bucket: bucket.name,
-            },
+            Bucket: bucket.name,
+            ObjectLockEnabledForBucket: enableImmutableBackup,
           };
         },
       }),
@@ -210,20 +203,17 @@ export const useMutationActions = (
     return buckets?.reduce(
       (acc, bucket) => ({
         ...acc,
-        [`putBucketTagging-${bucket.name}`]: (results) => {
-          const s3Client = results.find(
-            (result) => result?.config?.key === 's3Config',
-          );
-
+        [`putBucketTagging-${bucket.name}`]: () => {
           return {
-            s3Client,
-            bucketName: bucket.name,
-            tagSet: [
-              {
-                Key: 'X-Scality-Application',
-                Value: platform.bucketTag,
-              },
-            ],
+            Bucket: bucket.name,
+            Tagging: {
+              TagSet: [
+                {
+                  Key: 'X-Scality-Application',
+                  Value: platform.bucketTag,
+                },
+              ],
+            },
           };
         },
       }),
@@ -339,9 +329,14 @@ export const useMutationActions = (
     },
   });
 
-  useMemo(() => {
-    mutate();
-  }, []);
+  const hasInitialized = useRef(false);
+
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      mutate();
+    }
+  }, [mutate]);
 
   const data = steps.map((step, index) => {
     return {

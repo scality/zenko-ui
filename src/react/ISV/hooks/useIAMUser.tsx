@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from 'react-query';
 import { useMemo } from 'react';
 import { useIAMClient } from '../../IAMProvider';
-import { useAssumeRoleQuery } from '../../next-architecture/ui/S3ClientProvider';
+import { useAssumeRoleQuery } from '../../DataServiceRoleProvider';
 
 interface IAMUser {
   id: string;

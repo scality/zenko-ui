@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useIAMUser } from './useIAMUser';
 import { useIAMClient } from '../../IAMProvider';
-import { useAssumeRoleQuery } from '../../next-architecture/ui/S3ClientProvider';
+import { useAssumeRoleQuery } from '../../DataServiceRoleProvider';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 
@@ -10,7 +10,7 @@ jest.mock('../../IAMProvider', () => ({
   useIAMClient: jest.fn(),
 }));
 
-jest.mock('../../next-architecture/ui/S3ClientProvider', () => ({
+jest.mock('../../DataServiceRoleProvider', () => ({
   useAssumeRoleQuery: jest.fn(),
 }));
 

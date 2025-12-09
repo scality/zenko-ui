@@ -106,7 +106,7 @@ const InternalProvider = ({
   Pick<SelectAccountIAMRoleWithAccountProps, 'defaultValue'>
 >) => {
   return (
-    <DataServiceRoleProvider DoNotChangePropsWithRedux={false} inlineLoader>
+    <DataServiceRoleProvider inlineLoader>
       <AccountsLocationsEndpointsAdapterProvider>
         <AccessibleAccountsAdapterProvider
           DoNotChangePropsWithEventDispatcher={false}

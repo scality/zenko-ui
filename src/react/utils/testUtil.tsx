@@ -27,15 +27,39 @@ import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
 import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
 import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
-import {
-  S3ClientProvider,
-  useAssumeRoleQuery,
-} from '../next-architecture/ui/S3ClientProvider';
+import { useAssumeRoleQuery } from '../DataServiceRoleProvider';
+import { DataBrowserProvider } from '@scality/data-browser-library';
+import { IAMProvider } from '../IAMProvider';
+import { ZenkoProvider } from '../ZenkoProvider';
 import zenkoUIReducer from '../reducers';
 import Activity from '../ui-elements/Activity';
 import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
 import ReauthDialog from '../ui-elements/ReauthDialog';
 import { ShellHooksProvider } from '@scality/module-federation';
+
+export const testS3Config = {
+  endpoint: 'http://testendpoint',
+  region: 'us-east-1',
+  forcePathStyle: true,
+  credentials: {
+    accessKeyId: 'accessKey',
+    secretAccessKey: 'secretKey',
+    sessionToken: 'sessionToken',
+  },
+};
+
+export const testS3Credentials = testS3Config.credentials;
+
+const TestProvidersWrapper = ({ children }: { children: React.ReactNode }) => (
+  <IAMProvider credentials={testS3Config.credentials}>
+    <ZenkoProvider credentials={testS3Config.credentials}>
+      <DataBrowserProvider getS3Config={() => testS3Config} theme={theme}>
+        {/* @ts-expect-error fix this when you are working on it */}
+        {children}
+      </DataBrowserProvider>
+    </ZenkoProvider>
+  </IAMProvider>
+);
 
 export const theme = coreUIAvailableThemes.darkRebrand;
 export const configuration = {
@@ -291,19 +315,9 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
                       <MetricsAdapterProvider>
                         <AccountsLocationsEndpointsAdapterProvider>
                           <AccessibleAccountsAdapterProvider>
-                            <S3ClientProvider
-                              configuration={{
-                                endpoint: zenkoUITestConfig.zenkoEndpoint,
-                                s3ForcePathStyle: true,
-                                credentials: {
-                                  accessKeyId: 'accessKey',
-                                  secretAccessKey: 'secretKey',
-                                  sessionToken: 'sessionToken',
-                                },
-                              }}
-                            >
+                            <TestProvidersWrapper>
                               {children}
-                            </S3ClientProvider>
+                            </TestProvidersWrapper>
                           </AccessibleAccountsAdapterProvider>
                         </AccountsLocationsEndpointsAdapterProvider>
                       </MetricsAdapterProvider>
@@ -524,24 +538,14 @@ export function renderWithRouterMatch(
                         <MetricsAdapterProvider>
                           <AccountsLocationsEndpointsAdapterProvider>
                             <AccessibleAccountsAdapterProvider>
-                              <S3ClientProvider
-                                configuration={{
-                                  endpoint: zenkoUITestConfig.zenkoEndpoint,
-                                  s3ForcePathStyle: true,
-                                  credentials: {
-                                    accessKeyId: 'accessKey',
-                                    secretAccessKey: 'secretKey',
-                                    sessionToken: 'sessionToken',
-                                  },
-                                }}
-                              >
+                              <TestProvidersWrapper>
                                 <Routes>
                                   <Route path={path} element={component} />
                                 </Routes>
                                 {/* FIXME We are going to manage error differently
                               I keep it here to pass some tests */}
                                 <ErrorHandlerModal />
-                              </S3ClientProvider>
+                              </TestProvidersWrapper>
                             </AccessibleAccountsAdapterProvider>
                           </AccountsLocationsEndpointsAdapterProvider>
                         </MetricsAdapterProvider>
@@ -596,22 +600,12 @@ export const renderWithCustomRoute = (
                           <AccountsLocationsEndpointsAdapterProvider>
                             <AccessibleAccountsAdapterProvider>
                               <ToastProvider>
-                                <S3ClientProvider
-                                  configuration={{
-                                    endpoint: zenkoUITestConfig.zenkoEndpoint,
-                                    s3ForcePathStyle: true,
-                                    credentials: {
-                                      accessKeyId: 'accessKey',
-                                      secretAccessKey: 'secretKey',
-                                      sessionToken: 'sessionToken',
-                                    },
-                                  }}
-                                >
+                                <TestProvidersWrapper>
                                   {component}
                                   {/* FIXME We are going to manage error differently
                               I keep it here to pass some tests */}
                                   <ErrorHandlerModal />
-                                </S3ClientProvider>
+                                </TestProvidersWrapper>
                               </ToastProvider>
                             </AccessibleAccountsAdapterProvider>
                           </AccountsLocationsEndpointsAdapterProvider>
@@ -677,22 +671,12 @@ export const NewWrapper =
                         <MetricsAdapterProvider>
                           <AccountsLocationsEndpointsAdapterProvider>
                             <AccessibleAccountsAdapterProvider>
-                              <S3ClientProvider
-                                configuration={{
-                                  endpoint: zenkoUITestConfig.zenkoEndpoint,
-                                  s3ForcePathStyle: true,
-                                  credentials: {
-                                    accessKeyId: 'accessKey',
-                                    secretAccessKey: 'secretKey',
-                                    sessionToken: 'sessionToken',
-                                  },
-                                }}
-                              >
+                              <TestProvidersWrapper>
                                 {children}
                                 {/* FIXME We are going to manage error differently
                               I keep it here to pass some tests */}
                                 <ErrorHandlerModal />
-                              </S3ClientProvider>
+                              </TestProvidersWrapper>
                             </AccessibleAccountsAdapterProvider>
                           </AccountsLocationsEndpointsAdapterProvider>
                         </MetricsAdapterProvider>

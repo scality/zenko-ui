@@ -1,7 +1,18 @@
-import { createContext, useContext } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  PropsWithChildren,
+} from 'react';
 import IAMClient from '../js/IAMClient';
+import { useConfig } from './next-architecture/ui/ConfigProvider';
 
-// Only exported to ease testing
+export type Credentials = {
+  accessKeyId: string;
+  secretAccessKey: string;
+  sessionToken: string;
+};
+
 export const _IAMContext = createContext<null | {
   iamClient: IAMClient;
 }>(null);
@@ -16,4 +27,41 @@ export const useIAMClient = () => {
   }
 
   return IAMCtxt.iamClient;
+};
+
+type IAMProviderProps = PropsWithChildren<{
+  credentials?: Credentials;
+}>;
+
+export const IAMProvider = ({ children, credentials }: IAMProviderProps) => {
+  const { iamEndpoint } = useConfig();
+
+  const iamClient = useMemo(() => {
+    const client = new IAMClient(iamEndpoint);
+
+    if (
+      credentials?.accessKeyId &&
+      credentials?.secretAccessKey &&
+      credentials?.sessionToken
+    ) {
+      client.login({
+        accessKey: credentials.accessKeyId,
+        secretKey: credentials.secretAccessKey,
+        sessionToken: credentials.sessionToken,
+      });
+    }
+
+    return client;
+  }, [
+    iamEndpoint,
+    credentials?.accessKeyId,
+    credentials?.secretAccessKey,
+    credentials?.sessionToken,
+  ]);
+
+  return (
+    <_IAMContext.Provider value={{ iamClient }}>
+      {children}
+    </_IAMContext.Provider>
+  );
 };

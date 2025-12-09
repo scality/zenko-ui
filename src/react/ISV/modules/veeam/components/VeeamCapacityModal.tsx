@@ -10,17 +10,11 @@ import {
   useToast,
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { AWSError } from 'aws-sdk';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useQueryClient } from 'react-query';
-import { usePutObjectMutation } from '../../../../../js/mutations';
+import { usePutObject } from '@scality/data-browser-library';
 
-import {
-  GET_CAPACITY_XML_CONTENT,
-  VEEAM_OBJECT_KEY,
-  VEEAM_XML_PREFIX,
-} from '../../../constants';
+import { GET_CAPACITY_XML_CONTENT, VEEAM_OBJECT_KEY } from '../../../constants';
 import {
   getCapacityBytes,
   useCapacityUnit,
@@ -59,7 +53,6 @@ export const VeeamCapacityModalInternal = ({
   const { capacityValue, capacityUnit } = useCapacityUnit(maxCapacity);
   const methods = useForm<VeeamCapacityForm>({
     mode: 'all',
-    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
     resolver: joiResolver(schema),
     defaultValues: {
       capacity: capacityValue,
@@ -72,15 +65,14 @@ export const VeeamCapacityModalInternal = ({
     watch,
   } = methods;
   const [isCapacityModalOpen, setIsCapacityModalOpen] = useState(false);
-  const { mutate } = usePutObjectMutation();
+  const { mutate } = usePutObject();
   const { showToast } = useToast();
-  const queryClient = useQueryClient();
 
   const onSubmit = ({ capacity, capacityUnit }: VeeamCapacityForm) => {
     mutate(
       {
         Bucket: bucketName,
-        Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
+        Key: VEEAM_OBJECT_KEY,
         Body: GET_CAPACITY_XML_CONTENT(
           getCapacityBytes(capacity, capacityUnit),
         ),
@@ -94,18 +86,14 @@ export const VeeamCapacityModalInternal = ({
             status: 'success',
             message: 'Repository capacity updated successfully',
           });
-          queryClient.invalidateQueries([
-            'getObjectQuery',
-            bucketName,
-            VEEAM_OBJECT_KEY,
-          ]);
         },
         onError: (err) => {
-          const error = err as AWSError;
           showToast({
             open: true,
             status: 'error',
-            message: `Failed to update repository capacity: ${error.message}`,
+            message: `Failed to update repository capacity: ${
+              err instanceof Error ? err.message : 'Unknown error'
+            }`,
           });
         },
       },

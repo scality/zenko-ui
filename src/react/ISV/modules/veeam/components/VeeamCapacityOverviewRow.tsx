@@ -1,9 +1,7 @@
-import { useQuery } from 'react-query';
-
-import { useBucketTagging } from '../../../../next-architecture/domain/business/buckets';
-
-import { useS3Client } from '../../../../next-architecture/ui/S3ClientProvider';
-import { getObjectQuery } from '../../../../queries';
+import {
+  useGetBucketTagging,
+  useGetObject,
+} from '@scality/data-browser-library';
 import * as T from '../../../../ui-elements/TableKeyValue2';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import {
@@ -13,34 +11,70 @@ import {
   VeeamApplicationType,
 } from '../../../constants';
 import { PrettyBytes } from '@scality/core-ui';
+import { useEffect, useState } from 'react';
 
-export const VeeamCapacityOverviewRow = ({
-  bucketName,
-}: {
-  bucketName: string;
-}) => {
-  const s3Client = useS3Client();
-  const { tags } = useBucketTagging({ bucketName });
+const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
+  const { data: taggingData, status: taggingStatus } = useGetBucketTagging({
+    Bucket: bucketName,
+  });
+
+  const tags: Record<string, string> = {};
+  if (taggingStatus === 'success' && taggingData?.TagSet) {
+    taggingData.TagSet.forEach((tag) => {
+      if (tag.Key && tag.Value) {
+        tags[tag.Key] = tag.Value;
+      }
+    });
+  }
 
   const veeamTagApplication =
-    tags.status === 'success' &&
-    (tags.value?.[BUCKET_TAG_VEEAM_APPLICATION] ||
-      tags.value?.[BUCKET_TAG_APPLICATION]);
+    tags[BUCKET_TAG_VEEAM_APPLICATION] || tags[BUCKET_TAG_APPLICATION];
 
   const isSOSAPIEnabled =
     veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION;
 
-  const { data: veeamObject, status: veeamObjectStatus } = useQuery(
-    getObjectQuery({
-      bucketName,
-      s3Client,
-      key: VEEAM_OBJECT_KEY,
-    }),
+  const {
+    data: veeamObjectData,
+    status: veeamObjectStatus,
+    isLoading,
+    isError,
+  } = useGetObject(
+    {
+      Bucket: bucketName,
+      Key: VEEAM_OBJECT_KEY,
+    },
+    {
+      enabled: taggingStatus === 'success' && isSOSAPIEnabled,
+      retry: false,
+    },
   );
 
-  const xml = veeamObject?.Body?.toString();
+  // Extract XML string from response body asynchronously
+  const [xml, setXml] = useState<string>('');
+
+  useEffect(() => {
+    const parseBody = async () => {
+      if (!veeamObjectData?.Body) {
+        setXml('');
+        return;
+      }
+
+      const body = veeamObjectData.Body as any;
+      if (typeof body === 'string') {
+        setXml(body);
+      } else if (body.transformToString) {
+        const text = await body.transformToString();
+        setXml(text);
+      } else {
+        setXml('');
+      }
+    };
+
+    parseBody();
+  }, [veeamObjectData]);
+
   const regex = /<Capacity>([\s\S]*?)<\/Capacity>/;
-  const matches = xml?.match(regex);
+  const matches = xml.match(regex);
   const capacity = parseFloat(
     new DOMParser()
       ?.parseFromString(xml || '', 'application/xml')
@@ -55,15 +89,15 @@ export const VeeamCapacityOverviewRow = ({
         <T.Key> Max repository Capacity </T.Key>
         <T.GroupValues>
           <>
-            {veeamObjectStatus === 'loading' ? (
+            {isLoading ? (
               'Loading...'
-            ) : veeamObjectStatus === 'error' ? (
+            ) : isError ? (
               'Error'
             ) : (
               <PrettyBytes bytes={capacity} decimals={2} />
             )}
           </>
-          {veeamObjectStatus === 'success' && (
+          {!isLoading && !isError && (
             <VeeamCapacityModal
               bucketName={bucketName}
               maxCapacity={capacity}
@@ -76,4 +110,12 @@ export const VeeamCapacityOverviewRow = ({
   }
 
   return <></>;
+};
+
+export const VeeamCapacityOverviewRow = ({
+  bucketName,
+}: {
+  bucketName: string;
+}) => {
+  return <VeeamCapacityContent bucketName={bucketName} />;
 };

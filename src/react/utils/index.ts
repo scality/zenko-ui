@@ -1,4 +1,88 @@
-import { DateTime } from 'luxon';
+import AWS from 'aws-sdk/lib/core';
+import OriginalV4Signer from 'aws-sdk/lib/signers/v4';
+
+let signerInitialized = false;
+
+export const initializeAWSSigner = ({
+  iamInternalFQDN,
+  s3InternalFQDN,
+  zenkoEndpoint,
+  iamEndpoint,
+}: {
+  iamInternalFQDN: string;
+  s3InternalFQDN: string;
+  zenkoEndpoint: string;
+  iamEndpoint: string;
+}) => {
+  if (signerInitialized) return;
+
+  //@ts-expect-error - Signers is not typed
+  AWS.Signers.V4 = function V4(request, serviceName, options) {
+    const originalRequest = JSON.parse(JSON.stringify(request));
+
+    if (request.path.startsWith(zenkoEndpoint)) {
+      request.path = request.path.replace(zenkoEndpoint, '');
+      request.endpoint.path = request.path.replace(zenkoEndpoint, '');
+      request.endpoint.pathname = request.path.replace(zenkoEndpoint, '');
+      request.endpoint.port = 80;
+
+      request.headers.Host = s3InternalFQDN;
+
+      request.endpoint.host = s3InternalFQDN;
+      request.endpoint.hostname = s3InternalFQDN;
+      request.endpoint.href = `https://${s3InternalFQDN}`;
+    } else if (request.path.startsWith(iamEndpoint)) {
+      request.path = request.path.replace(iamEndpoint, '/');
+      request.endpoint.path = request.path.replace(iamEndpoint, '/');
+      request.endpoint.pathname = request.path.replace(iamEndpoint, '/');
+      request.endpoint.port = 80;
+
+      request.headers.Host = iamInternalFQDN;
+
+      request.endpoint.host = iamInternalFQDN;
+      request.endpoint.hostname = iamInternalFQDN;
+      request.endpoint.href = `https://${iamInternalFQDN}`;
+    }
+
+    const originalV4Signer = new OriginalV4Signer(
+      request,
+      serviceName,
+      options,
+    );
+    originalV4Signer.originalAddAuthorization =
+      originalV4Signer.addAuthorization;
+    originalV4Signer.addAuthorization = function addAuthorization(
+      credentials: AWS.Credentials,
+      date: Date,
+    ) {
+      const result = this.originalAddAuthorization(credentials, date);
+
+      if (!this.isPresigned()) {
+        request.endpoint = originalRequest.endpoint;
+        request.headers = {
+          ...originalRequest.headers,
+          ...request.headers,
+          Host: originalRequest.headers.Host,
+        };
+        request.path = originalRequest.path;
+      } else {
+        request.endpoint = originalRequest.endpoint;
+        request.headers = {
+          ...originalRequest.headers,
+          ...request.headers,
+          Host: originalRequest.headers.Host,
+        };
+        request.path = zenkoEndpoint + request.path;
+      }
+      return result;
+    };
+
+    return originalV4Signer;
+  };
+
+  signerInitialized = true;
+};
+
 export const systemMetadata = [
   {
     key: 'CacheControl',

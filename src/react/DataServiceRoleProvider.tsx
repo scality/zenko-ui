@@ -1,23 +1,101 @@
-import { createContext, useContext, useMemo, useState, JSX } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+  JSX,
+} from 'react';
+import { flushSync } from 'react-dom';
 import { useParams } from 'react-router';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
 import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
 import { useMutation } from 'react-query';
-import {
-  S3ClientProvider,
-  S3ClientWithoutReduxProvider,
-  useAssumeRoleQuery,
-  useS3ConfigFromAssumeRoleResult,
-} from './next-architecture/ui/S3ClientProvider';
+import { useTheme } from 'styled-components';
 import Loader from './ui-elements/Loader';
 import { PromiseResult } from 'aws-sdk/lib/request';
-import { AWSError, S3, STS } from 'aws-sdk';
+import { AWSError, STS } from 'aws-sdk';
 import { useShellHooks } from '@scality/module-federation';
+import {
+  DataBrowserProvider,
+  S3BrowserConfig,
+  S3Credentials,
+} from '@scality/data-browser-library';
+
+import STSClient from '../js/STSClient';
+import { useConfig } from './next-architecture/ui/ConfigProvider';
+import { notFalsyTypeGuard } from '../types/typeGuards';
+import { genClientEndpoint, initializeAWSSigner } from './utils';
+import { IAMProvider, Credentials } from './IAMProvider';
+import { ZenkoProvider } from './ZenkoProvider';
+import { DEFAULT_REGION } from './ISV/components/ISVSummary';
+
+export type S3Config = S3BrowserConfig & {
+  credentials: S3Credentials;
+};
+
+const useAssumeRoleQuery = () => {
+  const { stsEndpoint } = useConfig();
+  const { useAuth } = useShellHooks();
+  const { getToken } = useAuth();
+  const user = useAuth();
+  const roleSessionName = `ui-${user.userData?.id}`;
+  const stsClient = new STSClient({ endpoint: stsEndpoint });
+  const queryKey = ['s3AssumeRoleClient', roleSessionName];
+
+  return {
+    queryKey,
+    getQuery: (roleArn: string) => {
+      return {
+        queryKey,
+        queryFn: async () =>
+          stsClient.assumeRoleWithWebIdentity({
+            idToken: notFalsyTypeGuard(await getToken()),
+            roleArn: roleArn,
+            RoleSessionName: roleSessionName,
+          }),
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        enabled: !!roleArn,
+      };
+    },
+  };
+};
+
+const useS3ConfigFromAssumeRoleResult = () => {
+  const { zenkoEndpoint, features, s3InternalFQDN } = useConfig();
+  const endpoint = genClientEndpoint(zenkoEndpoint);
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  return {
+    getS3Config: (
+      assumeRoleResult:
+        | PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>
+        | undefined,
+    ): S3Config => ({
+      endpoint,
+      region: DEFAULT_REGION,
+      forcePathStyle: true,
+      features,
+      ...(isDevelopment && {
+        useDevProxy: true,
+        realS3Host: s3InternalFQDN,
+        proxyPath: zenkoEndpoint,
+      }),
+      credentials: {
+        accessKeyId: assumeRoleResult?.Credentials?.AccessKeyId || '',
+        secretAccessKey: assumeRoleResult?.Credentials?.SecretAccessKey || '',
+        sessionToken: assumeRoleResult?.Credentials?.SessionToken || '',
+      },
+    }),
+  };
+};
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
   setRole: (role: { roleArn: string }) => void;
-  setRolePromise: (role: { roleArn: string }) => Promise<S3>;
+  setRolePromise: (role: { roleArn: string }) => Promise<S3Config>;
   assumedRole:
     | PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>
     | undefined;
@@ -78,7 +156,7 @@ export const useCurrentAccount = () => {
   const accountId = roleArn
     ? regexArn.exec(roleArn)?.groups?.['account_id']
     : '';
-  const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
+  const { accounts } = useAccounts(noopBasedEventDispatcher);
 
   const account = useMemo(() => {
     return accounts.find((account) => {
@@ -93,26 +171,41 @@ export const useCurrentAccount = () => {
   };
 };
 
+export const useS3Config = (): S3Config | undefined => {
+  const assumedRole = useAssumedRole();
+  const { getS3Config } = useS3ConfigFromAssumeRoleResult();
+  return useMemo(() => {
+    if (!assumedRole) return undefined;
+    return getS3Config(assumedRole);
+  }, [assumedRole, getS3Config]);
+};
+
 const DataServiceRoleProvider = ({
   children,
   inlineLoader = false,
-  /**
-   * DoNotChangePropsWithRedux is a static props.
-   * When set, it must not be changed, otherwise it will break the hook rules.
-   * To be removed when we remove redux.
-   */
-  DoNotChangePropsWithRedux = true,
 }: {
   children: JSX.Element;
   inlineLoader?: boolean;
-  DoNotChangePropsWithRedux?: boolean;
 }) => {
   const [role, setRoleState] = useState<{ roleArn: string }>({
     roleArn: '',
   });
-  const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
+  const { accounts } = useAccounts(noopBasedEventDispatcher);
   const params = useParams();
   const accountName = params?.accountName;
+  const theme = useTheme();
+
+  const { iamInternalFQDN, s3InternalFQDN, zenkoEndpoint, iamEndpoint } =
+    useConfig();
+
+  useEffect(() => {
+    initializeAWSSigner({
+      iamInternalFQDN,
+      s3InternalFQDN,
+      zenkoEndpoint,
+      iamEndpoint,
+    });
+  }, [iamInternalFQDN, s3InternalFQDN, zenkoEndpoint, iamEndpoint]);
 
   const { getQuery } = useAssumeRoleQuery();
   const [assumedRole, setAssumedRole] =
@@ -127,8 +220,7 @@ const DataServiceRoleProvider = ({
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
 
-  // invalide the stored ARN if it's not in the list accountsWithRoles
-  useMemo(() => {
+  useEffect(() => {
     const storedRole = getRoleArnStored();
     if (accountName) {
       const account = accounts.find((account) => account.Name === accountName);
@@ -149,13 +241,35 @@ const DataServiceRoleProvider = ({
     } else if (!storedRole && !role.roleArn && accounts.length) {
       setRoleState({ roleArn: accounts[0].Roles[0].Arn });
     }
+  }, [accounts.length, accountName, role.roleArn]);
 
+  useEffect(() => {
     if (role.roleArn) {
       assumeRoleMutation.mutate(role.roleArn);
     }
-  }, [role.roleArn, JSON.stringify(accounts), userData?.token, accountName]);
+  }, [role.roleArn, userData?.token]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
+
+  const s3Config = useMemo(
+    () => getS3Config(assumedRole),
+    [assumedRole, getS3Config],
+  );
+
+  const credentials: Credentials = useMemo(
+    () => ({
+      accessKeyId: s3Config.credentials.accessKeyId,
+      secretAccessKey: s3Config.credentials.secretAccessKey,
+      sessionToken: s3Config.credentials.sessionToken,
+    }),
+    [
+      s3Config.credentials.accessKeyId,
+      s3Config.credentials.secretAccessKey,
+      s3Config.credentials.sessionToken,
+    ],
+  );
+
+  const getS3ConfigFn = useMemo(() => () => s3Config, [s3Config]);
 
   const setRole = (role: { roleArn: string }) => {
     setRoleArnStored(role.roleArn);
@@ -165,18 +279,22 @@ const DataServiceRoleProvider = ({
     }
   };
 
-  const setRolePromise = async (role: { roleArn: string }) => {
+  const setRolePromise = async (role: {
+    roleArn: string;
+  }): Promise<S3Config> => {
     if (!role.roleArn) {
       return Promise.reject('Invalid role arn');
     }
     return getQuery(role.roleArn)
       .queryFn()
       .then((data) => {
-        setAssumedRole(data);
-        setRoleArnStored(role.roleArn);
-        setRoleState(role);
-
-        return new S3(getS3Config(data));
+        // Use flushSync to force synchronous state updates
+        flushSync(() => {
+          setAssumedRole(data);
+          setRoleArnStored(role.roleArn);
+          setRoleState(role);
+        });
+        return getS3Config(data);
       });
   };
 
@@ -185,37 +303,26 @@ const DataServiceRoleProvider = ({
     return inlineLoader ? <div>loading...</div> : <Loader>Loading...</Loader>;
   }
 
-  if (DoNotChangePropsWithRedux) {
-    return (
-      <S3ClientProvider configuration={getS3Config(assumedRole)}>
-        <_DataServiceRoleContext.Provider
-          value={{
-            role,
-            setRole,
-            setRolePromise,
-            assumedRole,
-          }}
-        >
-          {children}
-        </_DataServiceRoleContext.Provider>
-      </S3ClientProvider>
-    );
-  }
-
   return (
-    <S3ClientWithoutReduxProvider configuration={getS3Config(assumedRole)}>
-      <_DataServiceRoleContext.Provider
-        value={{
-          role,
-          setRole,
-          setRolePromise,
-          assumedRole,
-        }}
-      >
-        {children}
-      </_DataServiceRoleContext.Provider>
-    </S3ClientWithoutReduxProvider>
+    <_DataServiceRoleContext.Provider
+      value={{
+        role,
+        setRole,
+        setRolePromise,
+        assumedRole,
+      }}
+    >
+      <IAMProvider credentials={credentials}>
+        <ZenkoProvider credentials={credentials}>
+          <DataBrowserProvider getS3Config={getS3ConfigFn} theme={theme}>
+            {children}
+          </DataBrowserProvider>
+        </ZenkoProvider>
+      </IAMProvider>
+    </_DataServiceRoleContext.Provider>
   );
 };
 
 export default DataServiceRoleProvider;
+
+export { useAssumeRoleQuery, useS3ConfigFromAssumeRoleResult };

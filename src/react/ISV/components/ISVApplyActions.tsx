@@ -2,7 +2,7 @@ import { Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import Table, * as T from '../../ui-elements/Table';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { useState, useMemo, useCallback, Fragment } from 'react';
+import { useState, useMemo, useCallback, Fragment, useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import styled, { useTheme } from 'styled-components';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -12,11 +12,11 @@ import { ISVSkipModal } from './ISVSkipModal';
 import { useMutationActions } from '../hooks/useMutationActions';
 import { Bucket, ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
-import { useCreateBucketByS3Client } from '../../next-architecture/domain/business/buckets';
 import {
-  usePutBucketTaggingMutationByS3Client,
-  usePutObjectMutation,
-} from '../../../js/mutations';
+  useCreateBucket,
+  useSetBucketTagging,
+  usePutObject,
+} from '@scality/data-browser-library';
 import { useMultiMutation, Mutation } from '../hooks/useMultiMutation';
 
 export const ListItem = styled.li`
@@ -44,16 +44,26 @@ const BucketMutation = ({
   bucket: Bucket;
   onMutationReady: (key: string, mutation: Mutation) => void;
 }) => {
-  const createBucketMutation = useCreateBucketByS3Client();
-  const putBucketTaggingMutation = usePutBucketTaggingMutationByS3Client();
+  const createBucketMutation = useCreateBucket();
+  const putBucketTaggingMutation = useSetBucketTagging();
 
-  useMemo(() => {
-    onMutationReady(`createBucket-${bucket.name}`, createBucketMutation);
+  // Update whenever mutation status changes
+  // This ensures Main component receives mutations with current status
+  useEffect(() => {
+    onMutationReady(
+      `createBucket-${bucket.name}`,
+      createBucketMutation as unknown as Mutation,
+    );
     onMutationReady(
       `putBucketTagging-${bucket.name}`,
-      putBucketTaggingMutation,
+      putBucketTaggingMutation as unknown as Mutation,
     );
-  }, [createBucketMutation.status, putBucketTaggingMutation.status]);
+  }, [
+    bucket.name,
+    createBucketMutation.status, // Only track status, not entire object
+    putBucketTaggingMutation.status,
+    onMutationReady,
+  ]);
 
   return <></>;
 };
@@ -65,24 +75,30 @@ const BucketVeeamMutation = ({
   bucket: Bucket;
   onMutationReady: (key: string, mutation: Mutation) => void;
 }) => {
-  const putVeeamFolderMutation = usePutObjectMutation();
-  const putVeeamSystemXmlMutation = usePutObjectMutation();
-  const putVeeamCapacityXmlMutation = usePutObjectMutation();
+  const putVeeamFolderMutation = usePutObject();
+  const putVeeamSystemXmlMutation = usePutObject();
+  const putVeeamCapacityXmlMutation = usePutObject();
 
-  useMemo(() => {
-    onMutationReady(`putVeeamFolder-${bucket.name}`, putVeeamFolderMutation);
+  // Update whenever mutation status changes
+  useEffect(() => {
+    onMutationReady(
+      `putVeeamFolder-${bucket.name}`,
+      putVeeamFolderMutation as unknown as Mutation,
+    );
     onMutationReady(
       `putVeeamSystemXml-${bucket.name}`,
-      putVeeamSystemXmlMutation,
+      putVeeamSystemXmlMutation as unknown as Mutation,
     );
     onMutationReady(
       `putVeeamCapacityXml-${bucket.name}`,
-      putVeeamCapacityXmlMutation,
+      putVeeamCapacityXmlMutation as unknown as Mutation,
     );
   }, [
+    bucket.name,
     putVeeamFolderMutation.status,
     putVeeamSystemXmlMutation.status,
     putVeeamCapacityXmlMutation.status,
+    onMutationReady,
   ]);
 
   return <></>;

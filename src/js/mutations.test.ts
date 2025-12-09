@@ -4,7 +4,6 @@ import { setupServer } from 'msw/node';
 import { INSTANCE_ID } from '../react/actions/__tests__/utils/testUtil';
 import {
   GET_VEEAM_IMMUTABLE_POLICY,
-  SYSTEM_XML_CONTENT,
   VEEAM_IMMUTABLE_POLICY_NAME,
   VEEAM_XML_PREFIX,
 } from '../react/ISV/constants';
@@ -16,8 +15,6 @@ import {
   useCreateIAMUserMutation,
   useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
-  usePutBucketTaggingMutation,
-  usePutObjectMutation,
   useWaitForRunningConfigurationVersionToBeUpdated,
   useEnableSOSAPIMutation,
   useCreateOrAddBucketToPolicyMutation,
@@ -749,72 +746,6 @@ describe('mutations', () => {
         Version: '2010-05-08',
       }),
     );
-  });
-  it('should handle the usePutBucketTaggingMutation', async () => {
-    //Setup
-    const { result, waitFor } = renderHook(
-      () => usePutBucketTaggingMutation(),
-      { wrapper: NewWrapper() },
-    );
-    //Exercise
-    result.current.mutate({ bucketName, tagSet });
-    //Verify
-    await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true);
-    });
-    const bucketTaggingXML =
-      '<Tagging xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><TagSet><Tag><Key>X-Scality-Usecase</Key><Value>Veeam 12</Value></Tag></TagSet></Tagging>';
-    expect(SUT).toHaveBeenCalledWith(bucketTaggingXML);
-  });
-  it('should handle the error case of usePutBucketTaggingMutation', async () => {
-    //Setup
-    const { result, waitFor } = renderHook(
-      () => usePutBucketTaggingMutation(),
-      { wrapper: NewWrapper() },
-    );
-    //Exercise
-    result.current.mutate({ bucketName: bucketNameWithErrorTriggered, tagSet });
-    //Verify
-    await waitFor(() => {
-      expect(result.current.isError).toBe(true);
-    });
-    const bucketTaggingXML =
-      '<Tagging xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><TagSet><Tag><Key>X-Scality-Usecase</Key><Value>Veeam 12</Value></Tag></TagSet></Tagging>';
-    expect(SUT).toHaveBeenCalledWith(bucketTaggingXML);
-  });
-  it('should handle the usePutObjectMutation', async () => {
-    //Setup
-    const { result, waitFor } = renderHook(() => usePutObjectMutation(), {
-      wrapper: NewWrapper(),
-    });
-    //Exercise
-    result.current.mutate({
-      Bucket: bucketName,
-      Key: veeamObjectKey,
-      Body: SYSTEM_XML_CONTENT,
-    });
-    //Verify
-    await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true);
-    });
-    expect(SUT).toHaveBeenCalledWith(SYSTEM_XML_CONTENT);
-  });
-  it('should handle the error case of usePutObjectMutation', async () => {
-    //Setup
-    const { result, waitFor } = renderHook(() => usePutObjectMutation(), {
-      wrapper: NewWrapper(),
-    });
-    //Exercise
-    result.current.mutate({
-      Bucket: bucketNameWithErrorTriggered,
-      Key: veeamObjectKey,
-      Body: SYSTEM_XML_CONTENT,
-    });
-    //Verify
-    await waitFor(() => {
-      expect(result.current.isError).toBe(true);
-    });
-    expect(SUT).toHaveBeenCalledWith(SYSTEM_XML_CONTENT);
   });
   it('should handle the useCreateUserAccessKeyMutation', async () => {
     //Setup

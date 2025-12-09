@@ -1,5 +1,4 @@
 import { useShellHooks } from '@scality/module-federation';
-import { S3 } from 'aws-sdk';
 import { useEffect, useRef, useState } from 'react';
 import { MutationOptions, useMutation, useQueryClient } from 'react-query';
 import { useIAMClient } from '../react/IAMProvider';
@@ -7,12 +6,9 @@ import { defaultActions, immutableActions } from '../react/ISV/utils/ISVPolicy';
 import { useManagementClient } from '../react/ManagementProvider';
 import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
 import { useDeployedMetalk8sInstances } from '../react/next-architecture/ui/ConfigProvider';
-import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
 import { getPolicyInfoQuery } from '../react/queries';
 import { ApiError } from '../types/actions';
-import { TagSetItem } from '../types/s3';
 import { notFalsyTypeGuard } from '../types/typeGuards';
-import { MULTIPART_UPLOAD } from './S3Client';
 import { EndpointV1 } from './managementClient/api';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
@@ -312,49 +308,6 @@ const useAttachPolicyToUserMutation = () => {
   });
 };
 
-const usePutBucketTaggingMutation = () => {
-  const s3Client = useS3Client();
-  return useMutation(
-    ({ bucketName, tagSet }: { bucketName: string; tagSet: TagSetItem[] }) => {
-      return s3Client
-        .putBucketTagging({
-          Bucket: bucketName,
-          Tagging: { TagSet: tagSet },
-        })
-        .promise();
-    },
-  );
-};
-
-const usePutBucketTaggingMutationByS3Client = () => {
-  return useMutation({
-    mutationFn: ({
-      s3Client,
-      bucketName,
-      tagSet,
-    }: {
-      s3Client: S3;
-      bucketName: string;
-      tagSet: TagSetItem[];
-    }) =>
-      s3Client
-        .putBucketTagging({ Bucket: bucketName, Tagging: { TagSet: tagSet } })
-        .promise(),
-  });
-};
-
-const usePutObjectMutation = () => {
-  const s3Client = useS3Client();
-  const options = {
-    partSize: MULTIPART_UPLOAD.partSize,
-    queueSize: MULTIPART_UPLOAD.queueSize,
-  };
-  return useMutation(
-    ({ Bucket, Key, Body, ContentType }: S3.PutObjectRequest) =>
-      s3Client.upload({ Bucket, Key, Body, ContentType }, options).promise(),
-  );
-};
-
 const useCreateUserAccessKeyMutation = () => {
   const IAMClient = useIAMClient();
   return useMutation({
@@ -512,20 +465,20 @@ const useAddCertificateToZenkoConfigurationMutation = ({
           },
         ]
       : hasExtraCACerts
-      ? [
-          {
-            op: 'add',
-            path: '/spec/egress/extraCACerts/-',
-            value: { 'ca.crt': args.certificate },
-          },
-        ]
-      : [
-          {
-            op: 'add',
-            path: '/spec/egress/extraCACerts',
-            value: [{ 'ca.crt': args.certificate }],
-          },
-        ];
+        ? [
+            {
+              op: 'add',
+              path: '/spec/egress/extraCACerts/-',
+              value: { 'ca.crt': args.certificate },
+            },
+          ]
+        : [
+            {
+              op: 'add',
+              path: '/spec/egress/extraCACerts',
+              value: [{ 'ca.crt': args.certificate }],
+            },
+          ];
 
     return JSON.stringify(patch);
   });
@@ -593,8 +546,5 @@ export {
   useDeleteCertificateFromZenkoConfigurationMutation,
   useEnableSOSAPIMutation,
   usePatchZenkoConfigurationMutation,
-  usePutBucketTaggingMutation,
-  usePutBucketTaggingMutationByS3Client,
-  usePutObjectMutation,
   useToggleTLSVerificationMutation,
 };
