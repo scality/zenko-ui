@@ -26,7 +26,7 @@ import STSClient from '../js/STSClient';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { genClientEndpoint, initializeAWSSigner } from './utils';
-import { IAMProvider, Credentials } from './IAMProvider';
+import { IAMProvider } from './IAMProvider';
 import { ZenkoProvider } from './ZenkoProvider';
 import { DEFAULT_REGION } from './ISV/components/ISVSummary';
 
@@ -256,17 +256,13 @@ const DataServiceRoleProvider = ({
     [assumedRole, getS3Config],
   );
 
-  const credentials: Credentials = useMemo(
+  const credentials: S3Credentials = useMemo(
     () => ({
       accessKeyId: s3Config.credentials.accessKeyId,
       secretAccessKey: s3Config.credentials.secretAccessKey,
       sessionToken: s3Config.credentials.sessionToken,
     }),
-    [
-      s3Config.credentials.accessKeyId,
-      s3Config.credentials.secretAccessKey,
-      s3Config.credentials.sessionToken,
-    ],
+    [s3Config.credentials],
   );
 
   const getS3ConfigFn = useMemo(() => () => s3Config, [s3Config]);
