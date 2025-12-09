@@ -594,8 +594,12 @@ const useCreateVeeamRepositoryMutation = () => {
               secretKey: repositoryConfig.secretKey,
               bucketName: repositoryConfig.bucketName,
               region: repositoryConfig.region,
-              immutable: repositoryConfig.immutable,
-              immutablePeriodDays: repositoryConfig.immutablePeriodDays,
+              ...(repositoryConfig.immutable !== undefined && {
+                immutable: repositoryConfig.immutable,
+              }),
+              ...(repositoryConfig.immutablePeriodDays !== undefined && {
+                immutablePeriodDays: repositoryConfig.immutablePeriodDays,
+              }),
               storageConsumptionLimitKind:
                 repositoryConfig.storageConsumptionLimitKind,
               storageConsumptionLimitCount:
@@ -608,11 +612,14 @@ const useCreateVeeamRepositoryMutation = () => {
           const errorData = await response.json().catch(() => ({
             message: 'Failed to create Veeam repository',
           }));
-          throw {
+          const error: ApiError = {
+            name: 'ApiError',
             message:
               errorData.message ||
               `HTTP ${response.status}: ${response.statusText}`,
+            status: (response.status as ApiError['status']) || 500,
           };
+          throw error;
         }
 
         const data = await response.json();

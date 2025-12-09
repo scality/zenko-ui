@@ -1,6 +1,7 @@
 import { FormGroup, Toggle, Stack } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
+import { MAX_IMMUTABLE_PERIOD_DAYS } from '../constants';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 
 export const VeeamRepositoryFields = () => {
@@ -57,6 +58,7 @@ export const VeeamRepositoryFields = () => {
                     value={value}
                     onChange={onChange}
                     min={1}
+                    max={MAX_IMMUTABLE_PERIOD_DAYS}
                   />
                 )}
               />

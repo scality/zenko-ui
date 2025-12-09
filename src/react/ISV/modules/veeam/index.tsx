@@ -203,7 +203,11 @@ export const Veeam: ISVPlatformConfig = {
     autoCreateRepository: Joi.boolean().optional(),
     immutablePeriodDays: Joi.when('autoCreateRepository', {
       is: true,
-      then: Joi.number().integer().min(1).max(3650).optional(),
+      then: Joi.when('enableImmutableBackup', {
+        is: true,
+        then: Joi.number().integer().min(1).max(3650).optional(),
+        otherwise: Joi.valid(),
+      }),
       otherwise: Joi.valid(),
     }),
     buckets: Joi.array().items(

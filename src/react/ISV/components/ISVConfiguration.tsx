@@ -21,7 +21,11 @@ import { Account } from '../../next-architecture/domain/entities/account';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { Checkbox } from '../../ui-elements/FormLayout';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
-import { unitChoices, VEEAM_OFFICE_365 } from '../constants';
+import {
+  DEFAULT_IMMUTABLE_PERIOD_DAYS,
+  unitChoices,
+  VEEAM_OFFICE_365,
+} from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
@@ -81,8 +85,8 @@ export const ISVConfiguration = () => {
     if (isVeeamVBROnly && platform.id === 'veeam-vbr') {
       return {
         ...baseDefaults,
-        autoCreateRepository: true, // Default to true in VeeamVBR-only context
-        immutablePeriodDays: 14, // Default to 14 days
+        autoCreateRepository: true,
+        immutablePeriodDays: DEFAULT_IMMUTABLE_PERIOD_DAYS,
       };
     }
 

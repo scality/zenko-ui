@@ -19,7 +19,7 @@ export const VeeamRepositorySummary = ({
   repositoryData,
   onFinish,
 }: VeeamRepositorySummaryProps) => {
-  const sucessMessage = useMemo(() => {
+  const successMessage = useMemo(() => {
     if (repositoryData.status === 'success') {
       return `Veeam repo "${repositoryData.repositoryName}" was successfully created on the Veeam application.`;
     }
@@ -41,7 +41,7 @@ export const VeeamRepositorySummary = ({
         />
       }
     >
-      <Text isEmphazed>{sucessMessage}</Text>
+      <Text isEmphazed>{successMessage}</Text>
 
       <FormSection forceLabelWidth={300}>
         <FormGroup

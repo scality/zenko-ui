@@ -19,6 +19,7 @@ import {
   SYSTEM_XML_CONTENT,
   VEEAM_XML_PREFIX,
 } from '../../ISV/constants';
+import { DEFAULT_REGION } from '../components/ISVSummary';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import {} from '../modules/veeam';
@@ -459,6 +460,13 @@ export const useMutationActions = (
           (result) => result?.AccessKey?.AccessKeyId,
         );
 
+        const extractedSecretKey =
+          userAccessKeyResponse?.AccessKey?.SecretAccessKey || '';
+
+        if (!extractedSecretKey) {
+          throw new Error('Secret key not found in mutation results');
+        }
+
         const servicePoint = ensureHttpsPrefix(
           s3ServicePoint || `https://s3.${accountName}.local`,
         );
@@ -478,11 +486,11 @@ export const useMutationActions = (
           repositoryName: bucketName,
           servicePoint,
           accessKey: userAccessKeyResponse?.AccessKey?.AccessKeyId || accessKey,
-          secretKey: userAccessKeyResponse?.AccessKey?.SecretAccessKey || '',
+          secretKey: extractedSecretKey,
           bucketName,
-          region: 'us-east-1',
-          immutable: enableImmutableBackup || false,
-          immutablePeriodDays: immutablePeriodDays || 30,
+          region: DEFAULT_REGION,
+          immutable: enableImmutableBackup,
+          immutablePeriodDays,
           storageConsumptionLimitKind: storageLimit.kind,
           storageConsumptionLimitCount: storageLimit.count,
         };
