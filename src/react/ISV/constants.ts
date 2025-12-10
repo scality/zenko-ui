@@ -88,3 +88,6 @@ export const unitChoices = {
 };
 export const VEEAM_OBJECT_KEY = `${VEEAM_XML_PREFIX}/capacity.xml`;
 export const VEEAM_SYSTEM_KEY = `${VEEAM_XML_PREFIX}/system.xml`;
+
+export const DEFAULT_IMMUTABLE_PERIOD_DAYS = 14;
+export const MAX_IMMUTABLE_PERIOD_DAYS = 3650;
