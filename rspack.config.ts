@@ -164,6 +164,7 @@ const config: Configuration = {
   ].filter(Boolean),
   devServer: {
     host: '127.0.0.1',
+    allowedHosts: ['localhost', '127.0.0.1', '.local'],
     port: 8383,
     hot: !isProduction,
     client: {
