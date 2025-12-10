@@ -105,10 +105,6 @@ const config: Configuration = {
         test: /\.woff(2)?$/,
         type: 'asset/resource',
       },
-      {
-        test: /\.css$/,
-        type: 'css',
-      },
     ],
   },
   resolve: {
