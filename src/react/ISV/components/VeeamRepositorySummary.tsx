@@ -59,7 +59,7 @@ export const VeeamRepositorySummary = ({
         />
 
         {repositoryData.status === 'success' && (
-          <FormSection forceLabelWidth={200}>
+          <>
             <Text variant="Large" isEmphazed>
               Option
             </Text>
@@ -79,11 +79,11 @@ export const VeeamRepositorySummary = ({
                 label="Veeam Immutable retention period"
                 labelHelpTooltip={<></>}
                 content={
-                  <Text>{`${repositoryData.immutablePeriodDays} days`}</Text>
+                  <Text>{`${repositoryData.immutablePeriodDays} day(s)`}</Text>
                 }
               />
             )}
-          </FormSection>
+          </>
         )}
 
         <InfoMessage

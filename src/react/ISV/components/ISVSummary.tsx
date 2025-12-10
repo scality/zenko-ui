@@ -25,6 +25,7 @@ import { useCallback } from 'react';
 import { VEEAM_OFFICE_365 } from '../constants';
 import { VeeamRepositorySummary } from './VeeamRepositorySummary';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
+import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
 
 export const DEFAULT_REGION = 'us-east-1';
 
@@ -80,6 +81,7 @@ export const ISVSummary = ({
   const s3Client = useS3Client();
   const queryClient = useQueryClient();
   const isVeeamVBROnly = useIsVeeamVBROnly();
+  const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
 
   const finish = useCallback(() => {
     const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
@@ -92,6 +94,7 @@ export const ISVSummary = ({
 
   if (
     isVeeamVBROnly &&
+    isAutoRepoFeatureEnabled &&
     platform.id === 'veeam-vbr' &&
     autoCreateRepository &&
     repositoryData

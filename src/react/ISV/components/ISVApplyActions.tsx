@@ -18,6 +18,7 @@ import {
   usePutObjectMutation,
 } from '../../../js/mutations';
 import { useMultiMutation, Mutation } from '../hooks/useMultiMutation';
+import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
@@ -62,10 +63,12 @@ const BucketVeeamMutation = ({
   bucket,
   onMutationReady,
   autoCreateRepository,
+  isAutoRepoFeatureEnabled,
 }: {
   bucket: Bucket;
   onMutationReady: (key: string, mutation: Mutation) => void;
   autoCreateRepository?: boolean;
+  isAutoRepoFeatureEnabled?: boolean;
 }) => {
   const putVeeamFolderMutation = usePutObjectMutation();
   const putVeeamSystemXmlMutation = usePutObjectMutation();
@@ -87,7 +90,7 @@ const BucketVeeamMutation = ({
     );
 
     // Add folder creation mutations when auto-repository creation is enabled
-    if (autoCreateRepository) {
+    if (isAutoRepoFeatureEnabled && autoCreateRepository) {
       onMutationReady(
         `putVeeamBackupFolder-${bucket.name}`,
         putVeeamBackupFolderMutation,
@@ -114,6 +117,7 @@ const BucketVeeamMutation = ({
     putVeeamBackupConfigFolderMutation.status,
     putVeeamArchiveFolderMutation.status,
     autoCreateRepository,
+    isAutoRepoFeatureEnabled,
   ]);
 
   return <></>;
@@ -282,8 +286,9 @@ function calculateMutationCount(
   bucketCount: number,
   isVeeamVBR: boolean,
   autoCreateRepository: boolean,
+  isAutoRepoFeatureEnabled: boolean,
 ): number {
-  if (!isVeeamVBR) {
+  if (!isVeeamVBR || !isAutoRepoFeatureEnabled) {
     return bucketCount * MUTATIONS_PER_BUCKET.DEFAULT;
   }
 
@@ -295,10 +300,16 @@ function calculateMutationCount(
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   const { buckets, platform, autoCreateRepository } = props;
   const isVeeamVBR = platform.id === 'veeam-vbr';
+  const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
   const { mutations, handleMutationReady, isAllMutationsReady } =
     useMultiMutation(
       buckets,
-      calculateMutationCount(buckets.length, isVeeamVBR, autoCreateRepository),
+      calculateMutationCount(
+        buckets.length,
+        isVeeamVBR,
+        autoCreateRepository,
+        isAutoRepoFeatureEnabled,
+      ),
     );
 
   return (
@@ -314,6 +325,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
               bucket={bucket}
               onMutationReady={handleMutationReady}
               autoCreateRepository={autoCreateRepository}
+              isAutoRepoFeatureEnabled={isAutoRepoFeatureEnabled}
             />
           )}
         </Fragment>

@@ -1,16 +1,18 @@
-import { FormGroup, Toggle, Stack } from '@scality/core-ui';
+import { FormGroup, Toggle, Stack, Text } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
 import { MAX_IMMUTABLE_PERIOD_DAYS } from '../constants';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
+import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
 
 export const VeeamRepositoryFields = () => {
   const { control, watch } = useFormContext();
   const isVeeamVBROnly = useIsVeeamVBROnly();
+  const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
   const autoCreateRepository = watch('autoCreateRepository');
   const enableImmutableBackup = watch('enableImmutableBackup');
 
-  if (!isVeeamVBROnly) {
+  if (!isVeeamVBROnly || !isAutoRepoFeatureEnabled) {
     return null;
   }
 
@@ -62,13 +64,7 @@ export const VeeamRepositoryFields = () => {
                   />
                 )}
               />
-              <Input
-                id="immutablePeriodDays-label"
-                type="text"
-                size="1/3"
-                value="Day(s)"
-                readOnly
-              />
+              <Text>day(s)</Text>
             </Stack>
           }
         />

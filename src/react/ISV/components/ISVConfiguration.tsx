@@ -29,6 +29,7 @@ import {
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
+import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
 import { ISVConfig } from '../types';
 import BucketField from './BucketField';
 import { CreateOrSelectNameField, Option } from './CreateOrSelectNameField';
@@ -57,6 +58,7 @@ export const ISVConfiguration = () => {
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
   const metricsAdapter = new NoOpMetricsAdapter();
   const isVeeamVBROnly = useIsVeeamVBROnly();
+  const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
 
   const { accounts } = useListAccounts({
     accessibleAccountsAdapter,
@@ -81,8 +83,12 @@ export const ISVConfiguration = () => {
       ],
     };
 
-    // Only add Veeam repository fields when in VeeamVBR-only context
-    if (isVeeamVBROnly && platform.id === 'veeam-vbr') {
+    // Only add Veeam repository fields when in VeeamVBR-only context and feature is enabled
+    if (
+      isVeeamVBROnly &&
+      isAutoRepoFeatureEnabled &&
+      platform.id === 'veeam-vbr'
+    ) {
       return {
         ...baseDefaults,
         autoCreateRepository: true,

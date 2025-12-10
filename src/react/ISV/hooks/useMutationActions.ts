@@ -27,6 +27,7 @@ import { ISVConfig, ISVPlatformConfig, VeeamRepositoryData } from '../types';
 import { useCheckSOSAPIStatus } from './useCheckSOSAPIStatus';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 import { useIsVeeamVBROnly } from './useIsVeeamVBROnly';
+import { useVeeamAutoRepositoryFeature } from './useVeeamAutoRepositoryFeature';
 import { Mutation } from './useMultiMutation';
 import {
   calculateStorageConsumptionLimit,
@@ -72,6 +73,7 @@ export const useMutationActions = (
   const { userData } = useAuth();
   const sosApiStatus = useCheckSOSAPIStatus();
   const isVeeamVBROnly = useIsVeeamVBROnly();
+  const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
   const { s3ServicePoint } = useGetS3ServicePoint();
 
   const shouldEnableSOSAPI =
@@ -150,7 +152,7 @@ export const useMutationActions = (
 
         // Add required Veeam folders when auto-repository creation is enabled
         // These mutations come from bucketMutations passed from parent
-        if (autoCreateRepository) {
+        if (isAutoRepoFeatureEnabled && autoCreateRepository) {
           actions.push(
             'Create Veeam Backup folder structure',
             'Create Veeam Backup Clients folder',
@@ -207,7 +209,12 @@ export const useMutationActions = (
     });
 
     // Add Veeam repository creation step if enabled
-    if (isVeeamVBROnly && platform.id === 'veeam-vbr' && autoCreateRepository) {
+    if (
+      isVeeamVBROnly &&
+      isAutoRepoFeatureEnabled &&
+      platform.id === 'veeam-vbr' &&
+      autoCreateRepository
+    ) {
       actions.push('Create Veeam Repository');
       steps.push({
         ...createVeeamRepositoryMutation,
