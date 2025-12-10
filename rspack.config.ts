@@ -1,7 +1,7 @@
 import path from 'path';
 import packageJson from './package.json';
 import { Configuration } from '@rspack/cli';
-import rspack from '@rspack/core';
+import * as rspack from '@rspack/core';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 import { execSync } from 'node:child_process';
@@ -115,6 +115,9 @@ const config: Configuration = {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.css', '.json', '.ts', '.tsx'],
   },
+  experiments: {
+    css: true,
+  },
   plugins: [
     new ModuleFederationPlugin({
       name: 'zenko',
@@ -177,47 +180,51 @@ const config: Configuration = {
       'Access-Control-Allow-Headers': accessControlAllowHeaders.join(', '),
       'Access-Control-Expose-Headers': 'ETag',
     },
-    proxy: {
-      '/data/s3': {
+    proxy: [
+      {
+        context: ['/data/s3'],
         target: `https://s3.${zenkoDNS}`,
         pathRewrite: { '^/data/s3': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
         logProvider: () => console,
-        onProxyRes: function (proxyRes, req, res) {
+        onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
             proxyRes.statusCode = 200;
           }
         },
       },
-      '/data/iam': {
+      {
+        context: ['/data/iam'],
         target: `https://iam.${zenkoDNS}`,
         pathRewrite: { '^/data/iam': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
         logProvider: () => console,
-        onProxyRes: function (proxyRes, req, res) {
+        onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
             proxyRes.statusCode = 200;
           }
         },
       },
-      '/sts': {
+      {
+        context: ['/sts'],
         target: `https://sts.${zenkoDNS}`,
         pathRewrite: { '^/sts': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
         logProvider: () => console,
-        onProxyRes: function (proxyRes, req, res) {
+        onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
             proxyRes.statusCode = 200;
           }
         },
       },
-      '/management': {
+      {
+        context: ['/management'],
         target: `https://management.${zenkoDNS}`,
         pathRewrite: { '^/management': '' },
         secure: false,
@@ -225,7 +232,7 @@ const config: Configuration = {
         logLevel: 'debug',
         logProvider: () => console,
       },
-    },
+    ],
   },
 };
 
