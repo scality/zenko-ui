@@ -4,18 +4,13 @@ import {
   CloseAccountDeleteDialogAction,
   CloseBucketDeleteDialogAction,
   CloseEndpointDeleteDialogAction,
-  CloseFolderCreateModalAction,
-  CloseObjectDeleteModalAction,
-  CloseObjectUploadModalAction,
   CloseWorkflowEditNotificationAction,
   ConfigAuthFailureAction,
   ConfigurationVersionAction,
   GetBucketInfoSuccessAction,
-  GetObjectMetadataSuccessAction,
   HandleErrorAction,
   InstanceStatusAction,
   ListAccountAccessKeySuccessAction,
-  ListObjectsSuccessAction,
   LoadClientsSuccessAction,
   LoadConfigSuccessAction,
   NetworkActivityAuthFailureAction,
@@ -24,37 +19,19 @@ import {
   OpenAccountDeleteDialogAction,
   OpenBucketDeleteDialogAction,
   OpenEndpointDeleteDialogAction,
-  OpenFolderCreateModalAction,
-  OpenObjectDeleteModalAction,
-  OpenObjectUploadModalAction,
   OpenWorkflowEditNotificationAction,
-  ResetObjectMetadataAction,
   SelectAccountAction,
   SelectInstanceAction,
   SetAppConfigAction,
   SetManagementClientAction,
   SetOIDCLogoutAction,
   SetSTSClientAction,
-  ToggleAllObjectsAction,
-  ToggleObjectAction,
-  ZenkoAppendSearchListAction,
   ZenkoClearAction,
   ZenkoErrorAction,
-  ZenkoWriteSearchListAction,
 } from '../../../../types/actions';
 import { Hostname } from '../../../../types/config';
-import {
-  CommonPrefix,
-  HeadObjectResponse,
-  RetentionMode,
-  S3Object,
-  TagSet,
-} from '../../../../types/s3';
-import {
-  Marker,
-  SearchResultList,
-  ZenkoClientError,
-} from '../../../../types/zenko';
+
+import { ZenkoClientError } from '../../../../types/zenko';
 import {
   ACCOUNT,
   ACCOUNT_ACCESS_KEYS,
@@ -182,7 +159,6 @@ export const CLOSE_ENDPOINT_DELETE_DIALOG_ACTION: CloseEndpointDeleteDialogActio
     type: 'CLOSE_ENDPOINT_DELETE_DIALOG',
   };
 // * buckets actions
-
 export const OPEN_BUCKET_DELETE_DIALOG_ACTION = (
   bucketName: string,
 ): OpenBucketDeleteDialogAction => ({
@@ -197,121 +173,10 @@ export const GET_BUCKET_INFO_SUCCESS_ACTION: GetBucketInfoSuccessAction = {
   type: 'GET_BUCKET_INFO_SUCCESS',
   info: BUCKET_INFO_RESPONSE,
 };
-// * objects actions
-export const LIST_OBJECTS_SUCCESS_ACTION = (
-  contents: Array<S3Object>,
-  commonPrefixes: Array<CommonPrefix>,
-  prefix: string,
-  nextContinuationToken: Marker,
-): ListObjectsSuccessAction => {
-  return {
-    type: 'LIST_OBJECTS_SUCCESS',
-    contents,
-    commonPrefixes,
-    prefix,
-    nextMarker: nextContinuationToken,
-  };
-};
-export const OPEN_FOLDER_CREATE_MODAL_ACTION =
-  (): OpenFolderCreateModalAction => {
-    return {
-      type: 'OPEN_FOLDER_CREATE_MODAL',
-    };
-  };
-export const CLOSE_FOLDER_CREATE_MODAL_ACTION =
-  (): CloseFolderCreateModalAction => {
-    return {
-      type: 'CLOSE_FOLDER_CREATE_MODAL',
-    };
-  };
-export const OPEN_OBJECT_UPLOAD_MODAL_ACTION =
-  (): OpenObjectUploadModalAction => {
-    return {
-      type: 'OPEN_OBJECT_UPLOAD_MODAL',
-    };
-  };
-export const CLOSE_OBJECT_UPLOAD_MODAL_ACTION =
-  (): CloseObjectUploadModalAction => {
-    return {
-      type: 'CLOSE_OBJECT_UPLOAD_MODAL',
-    };
-  };
-export const OPEN_OBJECT_DELETE_MODAL_ACTION =
-  (): OpenObjectDeleteModalAction => {
-    return {
-      type: 'OPEN_OBJECT_DELETE_MODAL',
-    };
-  };
-export const CLOSE_OBJECT_DELETE_MODAL_ACTION =
-  (): CloseObjectDeleteModalAction => {
-    return {
-      type: 'CLOSE_OBJECT_DELETE_MODAL',
-    };
-  };
-export const TOGGLE_OBJECT_ACTION = (objectKey: string): ToggleObjectAction => {
-  return {
-    type: 'TOGGLE_OBJECT',
-    objectKey,
-  };
-};
-export const TOGGLE_ALL_OBJECTS_ACTION = (
-  toggled: boolean,
-): ToggleAllObjectsAction => {
-  return {
-    type: 'TOGGLE_ALL_OBJECTS',
-    toggled,
-  };
-};
-export const RESET_OBJECT_METADATA_ACTION = (): ResetObjectMetadataAction => {
-  return {
-    type: 'RESET_OBJECT_METADATA',
-  };
-};
-export const GET_OBJECT_METADATA_SUCCESS_ACTION = (
-  bucketName: string,
-  objectKey: string,
-  info: HeadObjectResponse,
-  tags: TagSet,
-  ObjectRetention: {
-    Mode: RetentionMode;
-    RetainUntilDate: Date;
-  },
-  isLegalHoldEnabled: boolean,
-): GetObjectMetadataSuccessAction => {
-  return {
-    type: 'GET_OBJECT_METADATA_SUCCESS',
-    bucketName,
-    objectKey,
-    info,
-    tags,
-    ObjectRetention,
-    isLegalHoldEnabled,
-  };
-};
 // * zenko actions
 export const ZENKO_CLEAR_ERROR_ACTION = (): ZenkoClearAction => {
   return {
     type: 'ZENKO_CLEAR_ERROR',
-  };
-};
-export const ZENKO_CLIENT_WRITE_SEARCH_LIST_ACTION = (
-  nextMarker: Marker,
-  list: SearchResultList,
-): ZenkoWriteSearchListAction => {
-  return {
-    type: 'ZENKO_CLIENT_WRITE_SEARCH_LIST',
-    nextMarker,
-    list,
-  };
-};
-export const ZENKO_CLIENT_APPEND_SEARCH_LIST_ACTION = (
-  nextMarker: Marker,
-  list: SearchResultList,
-): ZenkoAppendSearchListAction => {
-  return {
-    type: 'ZENKO_CLIENT_APPEND_SEARCH_LIST',
-    nextMarker,
-    list,
   };
 };
 // workflow actions

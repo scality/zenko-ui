@@ -7,22 +7,7 @@ import { accountAccessKeys } from '../../../../js/mock/IAMClient';
 import {
   bucketInfoResponseNoVersioning,
   bucketName,
-  commonPrefix,
-  file,
-  fileName,
-  folderName,
-  info,
-  nextContinuationToken,
-  objectKey,
-  objectKey2,
-  objectMetadata,
-  objectRetention,
   ownerName,
-  prefix,
-  s3Object,
-  systemMetadata,
-  tags,
-  userMetadata,
 } from '../../../../js/mock/S3Client';
 import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
 import { ApiErrorObject, awsErrorObject } from '../../../../js/mock/error';
@@ -93,21 +78,7 @@ export const ACCOUNT = account;
 export const LOCATION = location;
 export const OWNER_NAME = ownerName;
 export const BUCKET_NAME = bucketName;
-export const FILE_NAME = fileName;
-export const FOLDER_NAME = folderName;
-export const COMMON_PREFIX = commonPrefix;
-export const S3_OBJECT = s3Object;
-export const FILE = file;
-export const PREFIX = prefix;
-export const NEXT_CONTINUATION_TOKEN = nextContinuationToken;
-export const OBJECT_METADATA = objectMetadata;
-export const OBJECT_KEY = objectKey;
-export const OBJECT_KEY2 = objectKey2;
-export const INFO = info;
-export const USER_METADATA = userMetadata;
-export const SYSTEM_METADATA = systemMetadata;
-export const TAGS = tags;
-export const OBJECT_RETENTION = objectRetention;
+
 export const BUCKET_INFO_RESPONSE = bucketInfoResponseNoVersioning;
 export const WORKFLOWS = workflows;
 export const REPLICATION_WORKFLOW = replicationWorkflow;
@@ -143,18 +114,6 @@ export function errorZenkoState(): AppState {
       ...initState.zenko,
       //@ts-expect-error fix this when you are working on it
       zenkoClient: new ErrorMockZenkoClient(AWS_CLIENT_ERROR),
-    },
-  };
-}
-export function addNextMarkerToState(state: AppState): AppState {
-  return {
-    ...state,
-    s3: {
-      ...state.s3,
-      listObjectsResults: {
-        ...state.s3.listObjectsResults,
-        nextMarker: 'object1',
-      },
     },
   };
 }

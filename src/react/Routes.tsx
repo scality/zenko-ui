@@ -428,7 +428,6 @@ function InternalRoutes() {
     '/accounts/:accountName/buckets/:bucketName/lifecycle/edit/:ruleId',
     '/accounts/:accountName/buckets/:bucketName/replication/create',
     '/accounts/:accountName/buckets/:bucketName/replication/edit/:ruleId',
-    '/accounts/:accountName/buckets/:bucketName/objects/object-lock-settings',
     '/accounts/:accountName/buckets/:bucketName/notifications/create',
   ];
 

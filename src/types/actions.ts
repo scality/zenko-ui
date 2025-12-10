@@ -3,22 +3,12 @@ import { AuthUser, OidcLogoutFunction } from './auth';
 import { ConfigurationOverlay, Hostname } from './config';
 import { AppConfig, InstanceId } from './entities';
 import { ManagementClient } from './managementClient';
-import {
-  BucketInfo,
-  CommonPrefix,
-  HeadObjectResponse,
-  RetentionMode,
-  S3Bucket,
-  S3DeleteMarker,
-  S3Object,
-  S3Version,
-  TagSet,
-} from './s3';
+import { BucketInfo, S3Bucket } from './s3';
 import { AppState } from './state';
 import { InstanceStatus } from './stats';
 import { STSClient } from './sts';
 import { IamAccessKey } from './user';
-import { Marker, SearchResultList, ZenkoClient } from './zenko';
+import { ZenkoClient } from './zenko';
 export type DispatchFunction = (arg0: Action) => any;
 export type GetStateFunction = () => AppState;
 export interface ApiError extends Error {
@@ -110,85 +100,7 @@ export type GetBucketInfoSuccessAction = {
   readonly type: 'GET_BUCKET_INFO_SUCCESS';
   readonly info: BucketInfo;
 };
-export type ToggleObjectAction = {
-  readonly type: 'TOGGLE_OBJECT';
-  readonly objectKey: string;
-  readonly versionId?: string;
-};
-export type ToggleAllObjectsAction = {
-  readonly type: 'TOGGLE_ALL_OBJECTS';
-  readonly toggled: boolean;
-};
-export type ListObjectsSuccessAction = {
-  readonly type: 'LIST_OBJECTS_SUCCESS';
-  readonly contents: Array<S3Object>;
-  readonly commonPrefixes: Array<CommonPrefix>;
-  readonly prefix: string;
-  readonly nextMarker: Marker;
-};
-export type ContinueListObjectsSuccessAction = {
-  readonly type: 'CONTINUE_LIST_OBJECTS_SUCCESS';
-  readonly contents: Array<S3Object>;
-  readonly commonPrefixes: Array<CommonPrefix>;
-  readonly prefix: string;
-  readonly nextMarker: Marker;
-};
-export type ListObjectVersionsSuccessAction = {
-  readonly type: 'LIST_OBJECT_VERSIONS_SUCCESS';
-  readonly versions: Array<S3Version>;
-  readonly deleteMarkers: Array<S3DeleteMarker>;
-  readonly commonPrefixes: Array<CommonPrefix>;
-  readonly prefix: string;
-  readonly nextMarker: Marker;
-  readonly nextVersionIdMarker: Marker;
-};
-export type ContinueListObjectVersionsSuccessAction = {
-  readonly type: 'CONTINUE_LIST_OBJECT_VERSIONS_SUCCESS';
-  readonly versions: Array<S3Version>;
-  readonly deleteMarkers: Array<S3DeleteMarker>;
-  readonly commonPrefixes: Array<CommonPrefix>;
-  readonly prefix: string;
-  readonly nextMarker: Marker;
-  readonly nextVersionIdMarker: Marker;
-};
-export type GetObjectMetadataSuccessAction = {
-  readonly type: 'GET_OBJECT_METADATA_SUCCESS';
-  readonly bucketName: string;
-  readonly objectKey: string;
-  readonly info: HeadObjectResponse;
-  readonly tags: TagSet;
-  readonly ObjectRetention: {
-    Mode: RetentionMode;
-    RetainUntilDate: Date;
-  };
-  readonly isLegalHoldEnabled?: boolean;
-};
-export type ResetObjectMetadataAction = {
-  readonly type: 'RESET_OBJECT_METADATA';
-};
-export type ZenkoWriteSearchListAction = {
-  readonly type: 'ZENKO_CLIENT_WRITE_SEARCH_LIST';
-  readonly nextMarker: Marker;
-  readonly list: SearchResultList;
-};
-export type ZenkoAppendSearchListAction = {
-  readonly type: 'ZENKO_CLIENT_APPEND_SEARCH_LIST';
-  readonly nextMarker: Marker;
-  readonly list: SearchResultList;
-};
-export type S3Action =
-  | GetBucketInfoSuccessAction
-  | ListBucketsSuccessAction
-  | ListObjectsSuccessAction
-  | ContinueListObjectsSuccessAction
-  | ListObjectVersionsSuccessAction
-  | ContinueListObjectVersionsSuccessAction
-  | GetObjectMetadataSuccessAction
-  | ResetObjectMetadataAction
-  | ToggleAllObjectsAction
-  | ToggleObjectAction
-  | ZenkoWriteSearchListAction
-  | ZenkoAppendSearchListAction;
+export type S3Action = GetBucketInfoSuccessAction | ListBucketsSuccessAction;
 // zenko actions
 export type SetZenkoClientAction = {
   readonly type: 'SET_ZENKO_CLIENT';
@@ -207,47 +119,7 @@ export type ZenkoErrorAction = {
 export type ZenkoAction =
   | SetZenkoClientAction
   | ZenkoClearAction
-  | ZenkoErrorAction
-  | ZenkoWriteSearchListAction
-  | ZenkoAppendSearchListAction
-  | ListObjectsSuccessAction;
-// ui buckets actions
-export type OpenBucketDeleteDialogAction = {
-  readonly type: 'OPEN_BUCKET_DELETE_DIALOG';
-  readonly bucketName: string;
-};
-export type CloseBucketDeleteDialogAction = {
-  readonly type: 'CLOSE_BUCKET_DELETE_DIALOG';
-};
-export type BucketsUIAction =
-  | OpenBucketDeleteDialogAction
-  | CloseBucketDeleteDialogAction;
-// ui objects actions
-export type OpenFolderCreateModalAction = {
-  readonly type: 'OPEN_FOLDER_CREATE_MODAL';
-};
-export type CloseFolderCreateModalAction = {
-  readonly type: 'CLOSE_FOLDER_CREATE_MODAL';
-};
-export type OpenObjectUploadModalAction = {
-  readonly type: 'OPEN_OBJECT_UPLOAD_MODAL';
-};
-export type CloseObjectUploadModalAction = {
-  readonly type: 'CLOSE_OBJECT_UPLOAD_MODAL';
-};
-export type OpenObjectDeleteModalAction = {
-  readonly type: 'OPEN_OBJECT_DELETE_MODAL';
-};
-export type CloseObjectDeleteModalAction = {
-  readonly type: 'CLOSE_OBJECT_DELETE_MODAL';
-};
-export type ObjectsUIAction =
-  | OpenFolderCreateModalAction
-  | CloseFolderCreateModalAction
-  | OpenObjectUploadModalAction
-  | CloseObjectUploadModalAction
-  | OpenObjectDeleteModalAction
-  | CloseObjectDeleteModalAction;
+  | ZenkoErrorAction;
 // networkActivity actions
 export type NetworkActivityAuthFailureAction = {
   readonly type: 'NETWORK_AUTH_FAILURE';
@@ -299,6 +171,17 @@ export type AccountUIAction =
   | CloseAccountDeleteDialogAction
   | OpenAccountKeyCreateModalAction
   | CloseAccountKeyCreateModalAction;
+// bucket UI actions
+export type OpenBucketDeleteDialogAction = {
+  readonly type: 'OPEN_BUCKET_DELETE_DIALOG';
+  readonly bucketName: string;
+};
+export type CloseBucketDeleteDialogAction = {
+  readonly type: 'CLOSE_BUCKET_DELETE_DIALOG';
+};
+export type BucketsUIAction =
+  | OpenBucketDeleteDialogAction
+  | CloseBucketDeleteDialogAction;
 
 export type StatsAction = InstanceStatusAction;
 export type CloseWorkflowEditNotificationAction = {
@@ -340,8 +223,6 @@ export type EndpointsUIAction =
 export type Action =
   | AccountAction
   | AuthAction
-  | BucketsUIAction
-  | ObjectsUIAction
   | OIDCAction
   | S3Action
   | ThunkNonStateAction

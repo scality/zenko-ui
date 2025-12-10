@@ -5,9 +5,8 @@ import {
   BucketWorkflowTransitionV2,
   BucketWorkflowV1,
 } from '../../js/managementClient/api';
-import { Replication as ReplicationStream } from '../../types/config';
+import { Replication as ReplicationStream, Tag } from '../../types/config';
 import { ReplicationForm } from '../../types/replication';
-import { Tag } from '../../types/s3';
 import { SelectOption } from '../../types/ui';
 import { storageOptions } from '../locations/LocationDetails';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';

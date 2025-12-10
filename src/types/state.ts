@@ -1,13 +1,7 @@
 import { Account, AccountKey } from './account';
 import { AppConfig, InstanceId } from './entities';
 import { AuthUser, OidcLogoutFunction } from './auth';
-import {
-  BucketInfo,
-  ListObjectsType,
-  ObjectEntity,
-  ObjectMetadata,
-  S3BucketList,
-} from './s3';
+import { BucketInfo, S3BucketList } from './s3';
 import { BucketList, InstanceStatus } from './stats';
 import {
   ConfigurationOverlay,
@@ -69,11 +63,6 @@ export type AccountsUIState = {
 export type BucketsUIState = {
   readonly showDelete: string;
 };
-export type ObjectsUIState = {
-  readonly showFolderCreate: boolean;
-  readonly showObjectUpload: boolean;
-  readonly showObjectDelete: boolean;
-};
 export type LocationsUIState = {
   readonly showDeleteLocation: LocationName;
 };
@@ -86,13 +75,6 @@ export type S3State = {
     readonly ownerName: string;
   };
   readonly bucketInfo: BucketInfo | null;
-  readonly listObjectsResults: {
-    readonly list: List<ObjectEntity>;
-    readonly nextMarker: Marker;
-    readonly nextVersionIdMarker: Marker;
-  };
-  readonly listObjectsType: ListObjectsType;
-  readonly objectMetadata: ObjectMetadata | null;
 };
 export type SecretsState = {
   accountKey: AccountKey | null;
@@ -131,7 +113,6 @@ export type AppState = {
   readonly uiEndpoints: EndpointsUIState;
   readonly uiAccounts: AccountsUIState;
   readonly uiBuckets: BucketsUIState;
-  readonly uiObjects: ObjectsUIState;
   readonly stats: StatsState;
   readonly s3: S3State;
   readonly uiWorkflows: WorkflowsUIState;

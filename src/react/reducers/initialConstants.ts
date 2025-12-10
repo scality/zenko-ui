@@ -9,12 +9,11 @@ import {
   InstanceStatusState,
   NetworkActivityState,
   OIDCState,
-  ObjectsUIState,
   S3State,
   WorkflowState,
   WorkflowsUIState,
 } from '../../types/state';
-import { LIST_OBJECTS_S3_TYPE } from '../utils/s3';
+
 import { List } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
@@ -46,14 +45,7 @@ export const initialS3State: S3State = {
     list: List(),
     ownerName: '',
   },
-  listObjectsType: LIST_OBJECTS_S3_TYPE,
   bucketInfo: null,
-  //@ts-expect-error fix this when you are working on it
-  listObjectsResults: {
-    list: List(),
-    nextMarker: null,
-  },
-  objectMetadata: null,
 };
 export const initialBucketState = {
   list: [],
@@ -158,11 +150,6 @@ export const initialNetworkActivityState: NetworkActivityState = {
 export const initialOidc: OIDCState = {
   user: null,
 };
-export const initialObjectUIState: ObjectsUIState = {
-  showFolderCreate: false,
-  showObjectUpload: false,
-  showObjectDelete: false,
-};
 export const initialSecretsState = {
   accountKey: null,
 };
@@ -211,7 +198,6 @@ export const initialFullState = {
   uiAccounts: initialAccountsUIState,
   uiUser: initialUserUIState,
   uiLocations: initialLocationsUIState,
-  uiObjects: initialObjectUIState,
   uiErrors: initialErrorsUIState,
   uiBuckets: initialBucketUIState,
   uiWorkflows: initialWorkflowsUIState,
