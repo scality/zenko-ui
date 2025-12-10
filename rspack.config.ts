@@ -188,6 +188,7 @@ const config: Configuration = {
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
+        // @ts-expect-error - console is not a valid LogProvider (rspack types)
         logProvider: () => console,
         onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
@@ -202,6 +203,7 @@ const config: Configuration = {
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
+        // @ts-expect-error - console is not a valid LogProvider (rspack types)
         logProvider: () => console,
         onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
@@ -216,6 +218,7 @@ const config: Configuration = {
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
+        // @ts-expect-error - console is not a valid LogProvider (rspack types)
         logProvider: () => console,
         onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
@@ -230,6 +233,7 @@ const config: Configuration = {
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
+        // @ts-expect-error - console is not a valid LogProvider (rspack types)
         logProvider: () => console,
       },
     ],
