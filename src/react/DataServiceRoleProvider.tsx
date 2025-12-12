@@ -66,7 +66,6 @@ const useAssumeRoleQuery = () => {
 const useS3ConfigFromAssumeRoleResult = () => {
   const { zenkoEndpoint, features, s3InternalFQDN } = useConfig();
   const endpoint = genClientEndpoint(zenkoEndpoint);
-  const isDevelopment = process.env.NODE_ENV === 'development';
 
   return {
     getS3Config: (
@@ -78,11 +77,11 @@ const useS3ConfigFromAssumeRoleResult = () => {
       region: DEFAULT_REGION,
       forcePathStyle: true,
       features,
-      ...(isDevelopment && {
-        useDevProxy: true,
-        realS3Host: s3InternalFQDN,
-        proxyPath: zenkoEndpoint,
-      }),
+      proxy: {
+        enabled: true,
+        endpoint: zenkoEndpoint,
+        target: s3InternalFQDN,
+      },
       credentials: {
         accessKeyId: assumeRoleResult?.Credentials?.AccessKeyId || '',
         secretAccessKey: assumeRoleResult?.Credentials?.SecretAccessKey || '',
