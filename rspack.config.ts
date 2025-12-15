@@ -1,7 +1,7 @@
 import path from 'path';
 import packageJson from './package.json';
 import { Configuration } from '@rspack/cli';
-import rspack from '@rspack/core';
+import * as rspack from '@rspack/core';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 import { execSync } from 'node:child_process';
@@ -113,15 +113,14 @@ const config: Configuration = {
         test: /\.woff(2)?$/,
         type: 'asset/resource',
       },
-      {
-        test: /\.css$/,
-        type: 'css',
-      },
     ],
   },
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.css', '.json', '.ts', '.tsx'],
+  },
+  experiments: {
+    css: true,
   },
   plugins: [
     new ModuleFederationPlugin({
@@ -169,6 +168,7 @@ const config: Configuration = {
   ].filter(Boolean),
   devServer: {
     host: '127.0.0.1',
+    allowedHosts: ['localhost', '127.0.0.1', '.local'],
     port: 8383,
     hot: !isProduction,
     client: {
@@ -185,55 +185,63 @@ const config: Configuration = {
       'Access-Control-Allow-Headers': accessControlAllowHeaders.join(', '),
       'Access-Control-Expose-Headers': 'ETag',
     },
-    proxy: {
-      '/zenko/s3': {
+    proxy: [
+      {
+        context: ['/data/s3'],
         target: `https://s3.${zenkoDNS}`,
         pathRewrite: { '^/zenko/s3': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
+        // @ts-expect-error - console is not a valid LogProvider (rspack types)
         logProvider: () => console,
-        onProxyRes: function (proxyRes, req, res) {
+        onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
             proxyRes.statusCode = 200;
           }
         },
       },
-      '/zenko/iam': {
+      {
+        context: ['/data/iam'],
         target: `https://iam.${zenkoDNS}`,
         pathRewrite: { '^/zenko/iam': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
+        // @ts-expect-error - console is not a valid LogProvider (rspack types)
         logProvider: () => console,
-        onProxyRes: function (proxyRes, req, res) {
+        onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
             proxyRes.statusCode = 200;
           }
         },
       },
-      '/zenko/sts': {
+      {
+        context: ['/sts'],
         target: `https://sts.${zenkoDNS}`,
         pathRewrite: { '^/zenko/sts': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
+        // @ts-expect-error - console is not a valid LogProvider (rspack types)
         logProvider: () => console,
-        onProxyRes: function (proxyRes, req, res) {
+        onProxyRes: (proxyRes, req) => {
           if (req.method === 'OPTIONS') {
             proxyRes.statusCode = 200;
           }
         },
       },
-      '/zenko/management': {
+      {
+        context: ['/management'],
         target: `https://management.${zenkoDNS}`,
         pathRewrite: { '^/zenko/management': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
+        // @ts-expect-error - console is not a valid LogProvider (rspack types)
         logProvider: () => console,
       },
-    },
+    ],
   },
 };
 
