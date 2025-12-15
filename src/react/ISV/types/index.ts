@@ -42,6 +42,8 @@ export type ISVConfig = {
   application?: string;
   enableImmutableBackup?: boolean;
   buckets?: Bucket[];
+  autoCreateRepository?: boolean;
+  immutablePeriodDays?: number;
 };
 
 export type ISVFieldOverride = {
@@ -92,6 +94,13 @@ export type ISVSummaryData = {
   accessKey: string;
   secretKey: string;
   application: string;
+  repositoryData?: VeeamRepositoryData;
+};
+
+export type VeeamRepositoryData = {
+  repositoryName: string;
+  immutable?: boolean;
+  immutablePeriodDays?: number;
 };
 
 export type ISVStepComponentProps = {
