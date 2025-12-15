@@ -98,10 +98,7 @@ export type ISVSummaryData = {
 };
 
 export type VeeamRepositoryData = {
-  repositoryId?: string;
-  repositoryName?: string;
-  status: string;
-  message?: string;
+  repositoryName: string;
   immutable?: boolean;
   immutablePeriodDays?: number;
 };
