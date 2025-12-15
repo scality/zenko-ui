@@ -3,19 +3,13 @@ import { AppConfig, InstanceId } from './entities';
 import { AuthUser, OidcLogoutFunction } from './auth';
 import { BucketInfo, S3BucketList } from './s3';
 import { BucketList, InstanceStatus } from './stats';
-import {
-  ConfigurationOverlay,
-  Hostname,
-  LocationName,
-  ReplicationStreams,
-} from './config';
-import { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
+import { ConfigurationOverlay, Hostname, LocationName } from './config';
+import { ZenkoClient as ZenkoClientInterface } from './zenko';
 import { ErrorViewType } from './ui';
 import { IamAccessKey } from './user';
 import { List } from 'immutable';
 import { ManagementClient as ManagementClientInterface } from './managementClient';
 import { STSClient } from './sts';
-import { Workflows } from './workflow';
 export type AuthState = {
   readonly isConfigLoaded: boolean;
   readonly isClientsLoaded: boolean;
@@ -79,14 +73,6 @@ export type S3State = {
 export type SecretsState = {
   accountKey: AccountKey | null;
 };
-export type WorkflowState = {
-  list: Workflows;
-  replications: ReplicationStreams;
-};
-export type WorkflowsUIState = {
-  showEditWorkflowNotification: boolean;
-  showWorkflowDeleteModal: boolean;
-};
 export type ZenkoState = {
   readonly zenkoClient: ZenkoClientInterface;
   readonly error: {
@@ -115,7 +101,5 @@ export type AppState = {
   readonly uiBuckets: BucketsUIState;
   readonly stats: StatsState;
   readonly s3: S3State;
-  readonly uiWorkflows: WorkflowsUIState;
-  readonly workflow: WorkflowState;
   readonly zenko: ZenkoState;
 };

@@ -218,7 +218,6 @@ export const breadcrumbPathsBuckets = (
 type Props = {
   breadcrumbPaths?: JSX.IntrinsicElements['label'][];
 };
-//breadcrumb for data browser and workflows
 export function Breadcrumb({ breadcrumbPaths }: Props) {
   const paths = [<AccountRoleSelectButtonAndModal />];
   if (breadcrumbPaths) {

@@ -15,7 +15,6 @@ import uiBuckets from './uiBuckets';
 import uiErrors from './uiErrors';
 import uiLocations from './uiLocations';
 import uiUser from './uiUser';
-import uiWorkflows from './uiWorkflows';
 import zenko from './zenko';
 
 const zenkoUIReducer = () =>
@@ -32,7 +31,6 @@ const zenkoUIReducer = () =>
     uiErrors,
     uiLocations,
     uiUser,
-    uiWorkflows,
     s3,
     secrets,
     stats,

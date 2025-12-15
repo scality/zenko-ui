@@ -34,8 +34,6 @@ import AccountContent from './account/AccountContent';
 import DataBrowser from './databrowser/DataBrowser';
 import LocationEditor from './locations/LocationEditor';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import Workflows from './workflow/Workflows';
-import CreateWorkflow from './workflow/CreateWorkflow';
 import Attachments from './account/iamAttachment/Attachments';
 import AccountUpdateUser from './account/AccountUpdateUser';
 import UpdateAccountPolicy from './account/UpdateAccountPolicy';
@@ -79,15 +77,11 @@ const RedirectToAccount = () => {
       />
     );
   } else if (isStorageManager) {
-    const description =
-      pathname === '/workflows'
-        ? { singular: 'Workflow', plural: 'Workflows' }
-        : { singular: 'Bucket', plural: 'Buckets' };
     return (
       <EmptyState
-        icon={pathname === '/workflows' ? 'Workflow' : 'Bucket'}
+        icon="Bucket"
         link={`${config.basePath}/create-account`}
-        listedResource={description}
+        listedResource={{ singular: 'Bucket', plural: 'Buckets' }}
         resourceToCreate="Account"
       ></EmptyState>
     );
@@ -177,14 +171,6 @@ export function PrivateRoutes({
         element={
           <DataServiceRoleProvider>
             <LocationEditor />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
-        path="workflows/*"
-        element={
-          <DataServiceRoleProvider>
-            <RedirectToAccount />
           </DataServiceRoleProvider>
         }
       />
@@ -302,38 +288,6 @@ export function PrivateRoutes({
         }
       />
       <Route
-        path={'accounts/:accountName/workflows/:workflowId/*'}
-        element={
-          <DataServiceRoleProvider>
-            <Workflows />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
-        path={'accounts/:accountName/workflows/create-workflow/*'}
-        element={
-          <DataServiceRoleProvider>
-            <CreateWorkflow />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
-        path="accounts/:accountName/data/workflows/*"
-        element={
-          <DataServiceRoleProvider>
-            <Workflows />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
-        path="accounts/:accountName/workflows/*"
-        element={
-          <DataServiceRoleProvider>
-            <Workflows />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
         path="accounts/:accountName/data/buckets/*"
         element={
           <DataServiceRoleProvider>
@@ -390,7 +344,6 @@ function InternalRoutes() {
   const location = useLocation();
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const config = useConfig();
-  const { features } = config;
   const navigate = useBasenameRelativeNavigate();
 
   const doesRouteMatch = useCallback(
@@ -419,7 +372,6 @@ function InternalRoutes() {
     '/locations/:locations/edit',
     '/accounts/:accountName/create-user',
     '/accounts/:accountName/users/:user/update-user',
-    '/accounts/:accountName/workflows/create-workflow',
     '/accounts/:accountName/create-policy',
     '/isv/configuration',
     '/truststore/import-certificate',
@@ -465,17 +417,6 @@ function InternalRoutes() {
           doesRouteMatch('/buckets') ||
           doesRouteMatch('/accounts/:accountName/buckets/*') ||
           doesRouteMatch('/accounts/:accountName/data/buckets/*'),
-      },
-      {
-        label: 'Workflows',
-        icon: <Icon name="Workflow" />,
-        onClick: () => {
-          navigate('/workflows');
-        },
-        active:
-          doesRouteMatch('/workflows') ||
-          doesRouteMatch('/accounts/:accountName/workflows/*') ||
-          doesRouteMatch('/accounts/:accountName/data/workflows/*'),
       },
 
       isStorageManager && {

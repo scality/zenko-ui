@@ -7,7 +7,6 @@ import {
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
   OUTSCALE_SNC_S3_LOCATION_KEY,
-  Replication,
 } from '../../types/config';
 import { BucketList } from '../../types/stats';
 import { LocationForm } from '../../types/location';
@@ -15,7 +14,6 @@ import { storageOptions } from './LocationDetails';
 import { getLocationType } from '../utils/storageOptions';
 
 import { BucketInfo } from '../../types/s3';
-import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { Location as NextLocation } from '../next-architecture/domain/entities/location';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 
@@ -89,30 +87,15 @@ function convertToForm(locationProps: LocationInfo): LocationForm {
   return ret;
 }
 
+/**
+ * Check if a location can be deleted.
+ */
 function getLocationDeletionBlocker(
   location: NextLocation,
-  replicationStreams: Array<Replication>,
-  transitions: Array<BucketWorkflowTransitionV2>,
   buckets: BucketList,
   endpoints: Array<Endpoint>,
 ): Record<string, boolean> {
   const isBuiltin = location.isBuiltin;
-
-  const checkStreamLocations = replicationStreams.every((r) => {
-    //@ts-expect-error fix this when you are working on it
-    if (r.destination.location) {
-      //@ts-expect-error fix this when you are working on it
-      return r.destination.location !== location.name;
-    }
-    return r.destination.locations.every((destLocation) => {
-      return destLocation.name !== location.name;
-    });
-  });
-  const hasReplicationWorkflow = !checkStreamLocations;
-
-  const hasTransitionWorkflow = !!transitions.find(
-    (t: BucketWorkflowTransitionV2) => t.locationName === location.name,
-  );
 
   const hasBucket = !buckets.every(
     (bucket) => bucket.location !== location.name,
@@ -122,7 +105,6 @@ function getLocationDeletionBlocker(
 
   return {
     isBuiltin,
-    hasWorkflow: hasTransitionWorkflow || hasReplicationWorkflow,
     hasBucket,
     hasEndpoint,
   };

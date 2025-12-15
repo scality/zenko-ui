@@ -45,9 +45,6 @@ const TEST_STATE = {
   uiBuckets: {
     showDelete: false,
   },
-  workflow: {
-    replications: [],
-  },
   networkActivity: {
     counter: 0,
     messages: Immutable.List(),
@@ -404,9 +401,7 @@ import {
   mockGetBucketTaggingNoSuchTagSet,
 } from '../../../../../js/mock/S3ClientMSWHandlers';
 import {
-  ACCOUNT_ID,
   USERS,
-  azureblobstorage,
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../../../js/mock/managementClientMSWHandlers';
@@ -446,12 +441,6 @@ const server = setupServer(
       }),
     );
   }),
-  rest.post(
-    `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
-    (req, res, ctx) => {
-      return res(ctx.json([]));
-    },
-  ),
   getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
   ...getStorageConsumptionMetricsHandlers(
     zenkoUITestConfig.managementEndpoint,

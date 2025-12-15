@@ -15,7 +15,7 @@ import { XDM_FEATURE } from '../../../../js/config';
 import { LocationV1 } from '../../../../js/managementClient/api';
 import { BucketInfo } from '../../../../types/s3';
 import { AppState } from '../../../../types/state';
-import { WorkflowScheduleUnitState } from '../../../../types/stats';
+import { ScheduleUnitState } from '../../../../types/stats';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { getBucketInfo, toggleBucketVersioning } from '../../../actions';
 import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
@@ -29,9 +29,8 @@ import { useConfig } from '../../../next-architecture/ui/ConfigProvider';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import { DeleteBucket } from '../../../ui-elements/DeleteBucket';
 import { EmptyBucket } from '../../../ui-elements/EmptyBucket';
-import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
 import { HelpAsyncNotification } from '../../../ui-elements/Help';
-import { CellLink, TableContainer } from '../../../ui-elements/Table';
+import { TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import { VeeamCapacityOverviewRow } from '../../../ISV/modules/veeam/components/VeeamCapacityOverviewRow';
 
@@ -40,7 +39,6 @@ import {
   getLocationIngestionState,
   getLocationType,
 } from '../../../utils/storageOptions';
-import { useWorkflows } from '../../../workflow/Workflows';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
   BUCKET_TAG_APPLICATION,
@@ -79,24 +77,9 @@ function getDefaultBucketRetention(bucketInfo: BucketInfo): string {
 
 type Props = {
   bucket: Bucket;
-  ingestionStates: WorkflowScheduleUnitState | null | undefined;
+  ingestionStates: ScheduleUnitState | null | undefined;
 };
 
-const workflowAttachedError = (count: number, bucketName: string) => (
-  <div>
-    The bucket you tried to delete has{' '}
-    {maybePluralize(count, 'workflow', 's', true)} attached to it, you should{' '}
-    <CellLink
-      to={{
-        pathname: `/workflows`,
-        search: `?search=${bucketName}`,
-      }}
-    >
-      delete
-    </CellLink>{' '}
-    {count > 1 ? 'them' : 'it'} first.
-  </div>
-);
 
 function VersionningValue({
   bucketInfo,
@@ -233,10 +216,8 @@ function Overview({ bucket, ingestionStates }: Props) {
   const navigate = useBasenameRelativeNavigate();
   const dispatch = useDispatch();
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
-  const workflowsQuery = useWorkflows([bucket.name]);
   const { features } = useConfig();
   const { account } = useCurrentAccount();
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [bucketTaggingToast, setBucketTaggingToast] = useState(true);
   const { tags } = useBucketTagging({ bucketName: bucket.name });
 
@@ -260,12 +241,6 @@ function Overview({ bucket, ingestionStates }: Props) {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
 
-  const workflows = workflowsQuery.data;
-  const attachedWorkflowsCount =
-    (workflows?.expirations?.length || 0) +
-    (workflows?.replications.length || 0) +
-    (workflows?.transitions.length || 0);
-
   if (!bucketInfo) {
     return null;
   }
@@ -277,17 +252,6 @@ function Overview({ bucket, ingestionStates }: Props) {
 
   return (
     <TableContainer>
-      <DumbErrorModal
-        isOpen={isErrorModalOpen}
-        close={() => {
-          setIsErrorModalOpen(false);
-        }}
-        errorMessage={
-          isErrorModalOpen
-            ? workflowAttachedError(attachedWorkflowsCount, bucket.name)
-            : null
-        }
-      />
       <Toast
         message="Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page."
         open={tags.status === 'error' && bucketTaggingToast}

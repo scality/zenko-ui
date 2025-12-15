@@ -198,8 +198,6 @@ const ModalFooter = ({
 
     if (replacePath.includes('/buckets')) {
       navigateWithBasename(`/accounts/${assumedAccount}/buckets`);
-    } else if (replacePath.includes('/workflows')) {
-      navigateWithBasename(`/accounts/${assumedAccount}/workflows`);
     } else {
       navigate(replacePath);
     }

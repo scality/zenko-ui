@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { BucketWorkflowV1 } from '../js/managementClient/api';
 import { Account } from './account';
 
 export type Tag = {
@@ -84,41 +83,6 @@ export type TargetLocationObject = {
   bucketName?: string;
   role?: string;
 };
-export type ReplicationSource = {
-  readonly prefix: string | null;
-  readonly bucketName: string;
-  readonly location?: string;
-};
-export type Replication = {
-  readonly streamId: string;
-  readonly name: string;
-  readonly version: number;
-  readonly enabled: boolean;
-  readonly source: ReplicationSource;
-  readonly destination: {
-    readonly locations: Array<TargetLocationObject>;
-    readonly preferredReadLocation?: string | null;
-    readonly bucketName?: string;
-    readonly role?: string;
-  };
-};
-export type Expiration = {
-  readonly bucketName: string;
-  readonly enabled: boolean;
-  readonly filter?: {
-    readonly objectKeyPrefix?: string;
-    readonly objectTags?: Tag[];
-  };
-  readonly name?: string;
-  readonly type: BucketWorkflowV1.TypeEnum.ExpirationV1;
-  readonly workflowId?: string;
-  readonly currentVersionTriggerDelayDate?: string | null;
-  readonly currentVersionTriggerDelayDays?: number | null;
-  readonly previousVersionTriggerDelayDays?: number | null;
-  readonly expireDeleteMarkersTrigger?: boolean | null;
-  readonly incompleteMultipartUploadTriggerDelayDays?: number | null;
-};
-
 // endpoints
 export type Hostname = string;
 export type Endpoint = {
@@ -126,7 +90,6 @@ export type Endpoint = {
   readonly locationName: LocationName;
   readonly isBuiltin: boolean;
 };
-export type ReplicationStreams = Array<Replication>;
 export type ConfigurationOverlay = {
   readonly version: number;
   readonly users: Array<Account>;

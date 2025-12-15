@@ -9,9 +9,7 @@ import {
   ConfigurationOverlay,
   Endpoint,
   Location,
-  Replication,
 } from '../../types/config';
-import { APIWorkflows } from '../../types/workflow';
 import { ApiErrorObject } from './error';
 import { InstanceStatus } from '../../types/stats';
 export const location: Location = {
@@ -44,30 +42,6 @@ export const latestOverlay: ConfigurationOverlay = {
   },
   endpoints: [],
 };
-export const replicationWorkflow: Replication = {
-  streamId: '123e4567-e89b-12d3-a456-426614174001',
-  name: 'replication',
-  version: 1,
-  enabled: true,
-  source: {
-    prefix: 'myprefix',
-    bucketName: 'mybucket',
-  },
-  destination: {
-    locations: [
-      {
-        name: 'location-name',
-      },
-    ],
-    preferredReadLocation: 'location-name',
-  },
-};
-export const workflows: APIWorkflows = [
-  //@ts-expect-error fix this when you are working on it
-  {
-    replication: replicationWorkflow,
-  },
-];
 export const accountAccessKey: AccessKey = 'ak1';
 export const accountSecretKey: SecretKey = 'sk1';
 export const userName = 'bart';
@@ -130,28 +104,6 @@ export class MockManagementClient implements ManagementClientInterface {
     });
   }
 
-  searchWorkflows(): Promise<APIWorkflows> {
-    return Promise.resolve({
-      ...workflows,
-    });
-  }
-
-  //@ts-expect-error fix this when you are working on it
-  deleteBucketWorkflowReplication(): Promise<void> {
-    return Promise.resolve();
-  }
-
-  updateBucketWorkflowReplication(): Promise<Replication> {
-    return Promise.resolve(replicationWorkflow);
-  }
-
-  saveBucketWorkflowReplication(): Promise<{
-    body: Replication;
-  }> {
-    return Promise.resolve({
-      body: replicationWorkflow,
-    });
-  }
 
   //@ts-expect-error fix this when you are working on it
   generateKeyConfigurationOverlayUser(): Promise<ApiAccountKeyResponse> {
@@ -211,24 +163,6 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     return Promise.reject(this._error);
   }
 
-  //@ts-expect-error fix this when you are working on it
-  searchWorkflows(): Promise<void> {
-    return Promise.reject(this._error);
-  }
-
-  //@ts-expect-error fix this when you are working on it
-  deleteBucketWorkflowReplication(): Promise<void> {
-    return Promise.reject(this._error);
-  }
-
-  //@ts-expect-error fix this when you are working on it
-  updateBucketWorkflowReplication(): Promise<void> {
-    return Promise.reject(this._error);
-  }
-
-  saveBucketWorkflowReplication(): Promise<void> {
-    return Promise.reject(this._error);
-  }
 
   //@ts-expect-error fix this when you are working on it
   generateKeyConfigurationOverlayUser(): Promise<void> {

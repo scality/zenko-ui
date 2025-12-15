@@ -9,7 +9,7 @@ const ColdStorageTemperatureToolTip = () => {
         <>
           The Temperature of this Location is Cold.
           <br /> <br />
-          You can move your data in this Location through a Transition Workflow.
+          You can move your data in this Location through a Transition rule.
           <br /> <br />
           Once your data are in this Location, you can only trigger a request
           for restoration to get a temporary access to the object.

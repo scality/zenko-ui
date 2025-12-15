@@ -19,13 +19,13 @@ export type CrrStatUnit = CrrStatUnitProps & {
   readonly byLocation: PerLocationMap<CrrStatUnitProps>;
 };
 export type EnabledState = 'enabled' | 'disabled';
-export type WorkflowScheduleUnitState = PerLocationMap<EnabledState>;
-export type WorkflowScheduleUnit = {
-  readonly states: WorkflowScheduleUnitState;
+export type ScheduleUnitState = PerLocationMap<EnabledState>;
+export type ScheduleUnit = {
+  readonly states: ScheduleUnitState;
   readonly schedules: PerLocationMap<string>;
 };
-export type CrrScheduleUnit = WorkflowScheduleUnit;
-export type IngestScheduleUnit = WorkflowScheduleUnit;
+export type CrrScheduleUnit = ScheduleUnit;
+export type IngestScheduleUnit = ScheduleUnit;
 export type DataManagedUnit = {
   total: VersionCounter;
   readonly byLocation: PerLocationMap<VersionCounter>;

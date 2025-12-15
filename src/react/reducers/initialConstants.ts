@@ -10,8 +10,6 @@ import {
   NetworkActivityState,
   OIDCState,
   S3State,
-  WorkflowState,
-  WorkflowsUIState,
 } from '../../types/state';
 
 import { List } from 'immutable';
@@ -177,14 +175,6 @@ export const initialZenkoState = {
     type: null,
   },
 };
-export const initialWorkflowsUIState: WorkflowsUIState = {
-  showEditWorkflowNotification: false,
-  showWorkflowDeleteModal: false,
-};
-export const initialWorkflowState: WorkflowState = {
-  list: [],
-  replications: [],
-};
 export const initialFullState = {
   account: initialAccountState,
   auth: initialAuthState,
@@ -200,7 +190,6 @@ export const initialFullState = {
   uiLocations: initialLocationsUIState,
   uiErrors: initialErrorsUIState,
   uiBuckets: initialBucketUIState,
-  uiWorkflows: initialWorkflowsUIState,
   oidc: initialOidc,
   zenko: initialZenkoState,
 };
