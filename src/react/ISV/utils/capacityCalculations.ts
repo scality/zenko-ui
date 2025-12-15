@@ -13,7 +13,12 @@ export function parseCapacityBytes(capacityBytes: string | number): number {
     typeof capacityBytes === 'string'
       ? parseInt(capacityBytes, 10)
       : capacityBytes;
-  return isNaN(parsed) ? 0 : parsed;
+
+  if (isNaN(parsed) || parsed < 0) {
+    return 0;
+  }
+
+  return parsed;
 }
 
 export function calculateStorageConsumptionLimit(
