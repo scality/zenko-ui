@@ -3,7 +3,7 @@ import Joi from '@hapi/joi';
 import { Stack, Text } from '@scality/core-ui';
 import { ListItem } from '..';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
-import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
+import { bucketNameValidationSchema } from '../../utils/bucketNameValidation';
 import { CommvaultLogo } from './components/CommvaultLogo';
 import { GET_COMMVAULT_POLICY } from '../../utils/ISVPolicy';
 import { IAMUSerTooltip } from '../../components/IAMUserTooltip';

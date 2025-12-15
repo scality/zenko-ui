@@ -14,7 +14,6 @@ import { fireEvent, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { applyMiddleware, compose, createStore } from 'redux';
 import { QueryClientProvider } from '../../QueryClientProvider';
-import ZenkoClient from '../../js/ZenkoClient';
 import { VEEAM_FEATURE, XDM_FEATURE } from '../../js/config';
 import { UiFacingApiWrapper } from '../../js/managementClient';
 import { Configuration } from '../../js/managementClient/configuration';
@@ -84,25 +83,11 @@ export const newTestStore = (state) => {
 
 export const TEST_API_BASE_URL = 'http://testendpoint';
 export const realStoreWithInitState = (state) => {
-  const zenkoClient = new ZenkoClient(
-    TEST_API_BASE_URL,
-    'iam.internal',
-    's3.internal',
-    '/',
-    '/',
-  );
-  zenkoClient.login({
-    accessKey: 'accessKey',
-    secretKey: 'secretKey',
-    sessionToken: 'sessionToken',
-  });
-
   const tmpState = {
     ...initialFullState,
     ...authenticatedUserState(),
 
     configuration,
-    ...{ zenko: { ...initialFullState.zenko, zenkoClient } },
     ...(state || {}),
   };
   tmpState.auth.managementClient = TEST_MANAGEMENT_CLIENT;

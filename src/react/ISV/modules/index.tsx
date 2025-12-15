@@ -1,7 +1,7 @@
 import Joi from '@hapi/joi';
 import styled from 'styled-components';
 import { accountNameValidationSchema } from '../../account/AccountCreate';
-import { bucketNameValidationSchema } from '../../databrowser/buckets/BucketCreate';
+import { bucketNameValidationSchema } from '../utils/bucketNameValidation';
 import { Commvault } from './commvault';
 import { ISVPlatformConfig } from '../types';
 import { VeeamVBO } from './veeam-vbo';

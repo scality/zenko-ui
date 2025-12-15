@@ -1,7 +1,5 @@
 /* eslint-disable */
 import { S3 } from 'aws-sdk';
-import S3Client from '../js/S3Client';
-import { RetentionMode } from './s3';
 
 export type Site = string;
 export type Marker = null | string;
@@ -16,6 +14,7 @@ export type SearchVersionParams = CommonSearchParams & {
   readonly KeyMarker?: string;
   readonly VersionIdMarker?: string;
 };
+export type RetentionMode = 'COMPLIANCE' | 'GOVERNANCE';
 export type SearchResult = {
   readonly Key: string;
   readonly LastModified: Date;
@@ -43,7 +42,7 @@ export interface ZenkoClientError extends Error {
 export type ConnectionResp = void | ZenkoClientError;
 export type ZenkoMapResp = {};
 export type ZenkoErrorType = 'ingestion' | 'replication' | 'failed' | null;
-export interface ZenkoClient extends S3Client {
+export interface ZenkoClient {
   _init(): void;
   logout(): void;
   login(params: Credentials): void;

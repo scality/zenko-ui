@@ -1,5 +1,5 @@
 import { useShellHooks } from '@scality/module-federation';
-import { AWSError, S3 } from 'aws-sdk';
+import { AWSError } from 'aws-sdk';
 import {
   AccessKeyMetadata,
   Group,
@@ -14,9 +14,8 @@ import {
   Role,
   User,
 } from 'aws-sdk/clients/iam';
-import { ListObjectVersionsOutput } from 'aws-sdk/clients/s3';
 import { useMemo } from 'react';
-import { InfiniteData, QueryOptions, useQuery } from 'react-query';
+import { QueryOptions, useQuery } from 'react-query';
 import IAMClient from '../js/IAMClient';
 import { getAccountSeeds } from '../js/vault';
 import { useDeployedMetalk8sInstances } from './next-architecture/ui/ConfigProvider';
@@ -163,77 +162,6 @@ export const getListPolicyVersionsQuery = (
 export const getAccountSeedsQuery = (basePath: string) => ({
   queryKey: ['AccountSeeds'],
   queryFn: () => getAccountSeeds(basePath),
-});
-
-interface GetObjectVersionProps {
-  bucketName: string;
-  s3Client: S3;
-  enabled?: boolean;
-  isInfinite?: boolean;
-  maxKeys?: number;
-  queryKey?: unknown[];
-}
-
-export const getObjectsVersions = ({
-  bucketName,
-  s3Client,
-  enabled = true,
-  isInfinite = false,
-  maxKeys = 1000,
-  queryKey = ['objectVersions', bucketName],
-}: GetObjectVersionProps): AWS_PAGINATED_QUERY<
-  ListObjectVersionsOutput,
-  S3.ObjectIdentifier,
-  AWSError,
-  ListObjectVersionsOutput
-> => ({
-  queryKey,
-  queryFn: (_, marker) =>
-    s3Client
-      .listObjectVersions({
-        Bucket: bucketName,
-        KeyMarker: marker?.NextKeyMarker,
-        VersionIdMarker: marker?.NextVersionIdMarker,
-        MaxKeys: maxKeys,
-      })
-      .promise(),
-  enabled,
-  select: (data) => {
-    if (isInfinite) {
-      const infiniteData = data as InfiniteData<ListObjectVersionsOutput>;
-      const pages = infiniteData.pages?.flatMap((d) => d);
-
-      return {
-        pages,
-        pageParams: infiniteData.pageParams,
-      } as ListObjectVersionsOutput;
-    }
-    return data;
-  },
-  getNextPageParam: ({ IsTruncated, NextKeyMarker, NextVersionIdMarker }) =>
-    IsTruncated
-      ? {
-          NextKeyMarker,
-          NextVersionIdMarker,
-        }
-      : undefined,
-});
-
-export const getObjectQuery = ({
-  bucketName,
-  s3Client,
-  key,
-}: {
-  bucketName: string;
-  s3Client: S3;
-  key: string;
-}) => ({
-  queryKey: ['getObjectQuery', bucketName, key],
-  queryFn: () => {
-    return s3Client.getObject({ Bucket: bucketName, Key: key }).promise();
-  },
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
 });
 
 export const getZenkoCRQuery = (): QueryOptions<ZenkoCR> => {

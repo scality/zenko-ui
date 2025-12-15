@@ -4,12 +4,6 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { XDM_FEATURE } from '../../../../js/config';
 import { accountAccessKeys } from '../../../../js/mock/IAMClient';
-import {
-  bucketInfoResponseNoVersioning,
-  bucketName,
-  ownerName,
-} from '../../../../js/mock/S3Client';
-import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
 import { ApiErrorObject, awsErrorObject } from '../../../../js/mock/error';
 import {
   ErrorMockManagementClient,
@@ -74,10 +68,6 @@ export const SITE = 'ring-s3-loc';
 export const LATEST_OVERLAY = latestOverlay;
 export const ACCOUNT = account;
 export const LOCATION = location;
-export const OWNER_NAME = ownerName;
-export const BUCKET_NAME = bucketName;
-
-export const BUCKET_INFO_RESPONSE = bucketInfoResponseNoVersioning;
 export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
 export const ACCOUNT_NAME = userName;
 export const ACCOUNT_ACCESS_KEY = accountAccessKey;
@@ -100,16 +90,6 @@ export function errorManagementState(): AppState {
       ...state.auth,
       //@ts-expect-error fix this when you are working on it
       managementClient: new ErrorMockManagementClient(MANAGEMENT_ERROR),
-    },
-  };
-}
-export function errorZenkoState(): AppState {
-  return {
-    ...initState,
-    zenko: {
-      ...initState.zenko,
-      //@ts-expect-error fix this when you are working on it
-      zenkoClient: new ErrorMockZenkoClient(AWS_CLIENT_ERROR),
     },
   };
 }

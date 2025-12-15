@@ -1,7 +1,6 @@
 import { render, waitFor, screen } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { bucketName } from '../../../../../js/mock/S3Client';
 import {
   NewWrapper,
   TEST_API_BASE_URL,
@@ -9,6 +8,8 @@ import {
 } from '../../../../utils/testUtil';
 import { VeeamCapacityOverviewRow } from './VeeamCapacityOverviewRow';
 import { VEEAM_XML_PREFIX } from '../../../constants';
+
+const bucketName = 'test-bucket';
 
 describe('VeeamCapacityOverviewRow', () => {
   const server = setupServer(
