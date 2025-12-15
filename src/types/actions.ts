@@ -184,15 +184,6 @@ export type BucketsUIAction =
   | CloseBucketDeleteDialogAction;
 
 export type StatsAction = InstanceStatusAction;
-export type CloseWorkflowEditNotificationAction = {
-  readonly type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION';
-};
-export type OpenWorkflowEditNotificationAction = {
-  readonly type: 'OPEN_WORKFLOW_EDIT_NOTIFICATION';
-};
-export type WorkflowUIAction =
-  | CloseWorkflowEditNotificationAction
-  | OpenWorkflowEditNotificationAction;
 // OIDC
 export type AddOIDCUserAction = {
   readonly type: 'ADD_OIDC_USER';
@@ -236,5 +227,4 @@ export type Action =
   | ConfigurationAction
   | AccountUIAction
   | StatsAction
-  | WorkflowUIAction
   | ZenkoAction;

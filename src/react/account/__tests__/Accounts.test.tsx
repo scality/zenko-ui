@@ -3,7 +3,6 @@ import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
-  ACCOUNT_ID,
   USERS,
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
@@ -55,12 +54,6 @@ const server = setupServer(
       }),
     );
   }),
-  rest.post(
-    `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
-    (req, res, ctx) => {
-      return res(ctx.json([]));
-    },
-  ),
   getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
   ...getStorageConsumptionMetricsHandlers(
     zenkoUITestConfig.managementEndpoint,

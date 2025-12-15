@@ -45,7 +45,7 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const {
     data: instanceStatus,
     status,
-    isFetching: loadingWorkflowStatus,
+    isFetching: loadingStatus,
   } = useQuery({
     queryKey: ['instanceStatus', instanceId],
     queryFn: async () => {
@@ -109,13 +109,13 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
     );
   }
 
-  const isLoadingButton = loadingWorkflowStatus || isPollingEnabled;
+  const isLoadingButton = loadingStatus || isPollingEnabled;
 
   const tooltip = (
     <Box>
-      {replicationStatus === 'enabled' && 'Replication workflow is active.'}
+      {replicationStatus === 'enabled' && 'Replication is active.'}
       {ingestionStatus === 'enabled' && 'Async Metadata updates is active.'}
-      {replicationStatus === 'disabled' && 'Replication workflow is paused.'}
+      {replicationStatus === 'disabled' && 'Replication is paused.'}
       {ingestionStatus === 'disabled' && 'Async Metadata updates is paused.'}
     </Box>
   );

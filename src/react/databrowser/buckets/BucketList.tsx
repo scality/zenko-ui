@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 import { useParams } from 'react-router';
 import { CoreUIColumn } from 'react-table';
 import { XDM_FEATURE } from '../../../js/config';
-import { WorkflowScheduleUnitState } from '../../../types/stats';
+import { ScheduleUnitState } from '../../../types/stats';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { useBucketLatestUsedCapacity } from '../../next-architecture/domain/business/buckets';
 import { Bucket } from '../../next-architecture/domain/entities/bucket';
@@ -23,7 +23,6 @@ import { TableHeaderWrapper } from '../../ui-elements/Table';
 
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
-import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { StartISVConnectorButton } from '../../ISV/components/StartISVConnectorButton';
 const SEARCH_QUERY_PARAM = 'search';
@@ -31,7 +30,7 @@ const SEARCH_QUERY_PARAM = 'search';
 type Props = {
   buckets: Bucket[];
   selectedBucketName: string | null | undefined;
-  ingestionStates: WorkflowScheduleUnitState | null | undefined;
+  ingestionStates: ScheduleUnitState | null | undefined;
 };
 export default function BucketList({
   selectedBucketName,
@@ -89,13 +88,9 @@ export default function BucketList({
       {
         Header: 'Storage Location',
         accessor: 'locationConstraint',
-
-        Cell({ row }) {
-          return (
-            <>{BucketLocationNameAndType({ bucketName: row.original.name })}</>
-          );
+        Cell({ value }) {
+          return <>{value || 'us-east-1'}</>;
         },
-
         cellStyle: { width: 'unset', flex: '1.2' },
       },
     ];

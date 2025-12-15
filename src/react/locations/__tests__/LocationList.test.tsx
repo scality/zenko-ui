@@ -16,10 +16,11 @@ import {
   mockOffsetSize,
   renderWithRouterMatch,
   zenkoUITestConfig,
+  TEST_ROLE_PATH_NAME,
 } from '../../utils/testUtil';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import { LocationsList } from '../LocationsList';
-import { debug } from 'jest-preview';
+import { _DataServiceRoleContext } from '../../DataServiceRoleProvider';
 
 jest.setTimeout(30_000);
 
@@ -36,7 +37,6 @@ const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
     //@ts-ignore
     const params = new URLSearchParams(req.body);
-    console.log(req.body);
 
     if (params.get('Action') === 'GetRolesForWebIdentity') {
       const TEST_ACCOUNT = 'Test Account';
@@ -75,7 +75,36 @@ describe('LocationList', () => {
   });
   it('should disable the delete button for default location', async () => {
     //S
-    renderWithRouterMatch(<LocationsList />);
+    const customRole = {
+      roleArn: `arn:aws:iam::${ACCOUNT_ID}:role/${TEST_ROLE_PATH_NAME}`,
+    };
+    
+    const Component = () => (
+      <_DataServiceRoleContext.Provider
+        value={{
+          role: customRole,
+          setRole: jest.fn(),
+          setRolePromise: jest.fn().mockResolvedValue({}),
+          assumedRole: undefined,
+        }}
+      >
+        <LocationsList />
+      </_DataServiceRoleContext.Provider>
+    );
+    
+    renderWithRouterMatch(<Component />, {}, {
+      auth: {
+        config: {
+          iamEndpoint: TEST_API_BASE_URL,
+        },
+        selectedAccount: {
+          id: ACCOUNT_ID,
+        },
+      },
+      instances: {
+        selectedId: INSTANCE_ID,
+      },
+    });
     //E
 
     const loading = await screen.findByText(/Loading/i);

@@ -64,28 +64,6 @@ export const WarningMetadata = ({ description }: WarningMetadataProps) => (
     <Description> {description} </Description>
   </Container2>
 );
-export const NoBucketWarning = () => (
-  <Container2>
-    <Icon size="2x" name="Exclamation-circle" />
-    <Title> No bucket </Title>
-    <Description>
-      {' '}
-      Data workflows and search work on buckets, but no bucket has been created
-      yet.{' '}
-    </Description>
-  </Container2>
-);
-export const NoLocationWarning = () => (
-  <Container2>
-    <Icon size="2x" name="Exclamation-circle" />
-    <Title> No location </Title>
-    <Description>
-      {' '}
-      To create a replication workflow, first create one or several cloud
-      locations that will be used as replication targets.{' '}
-    </Description>
-  </Container2>
-);
 
 export const EmptyStateRow = styled.div`
   display: flex;

@@ -1,4 +1,5 @@
 import {
+  Banner,
   EmptyState,
   Icon,
   IconHelp,
@@ -7,26 +8,22 @@ import {
   Wrap,
   spacing,
 } from '@scality/core-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useSelector } from 'react-redux';
 import { CellProps, CoreUIColumn } from 'react-table';
 
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
-import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
-import { Replication } from '../../types/config';
 import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import {
   queries,
   useAccountsLocationsAndEndpoints,
-  useListAccounts,
 } from '../next-architecture/domain/business/accounts';
 import { useListLocations } from '../next-architecture/domain/business/locations';
 import { Location } from '../next-architecture/domain/entities/location';
-import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
@@ -35,7 +32,6 @@ import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { getLocationType } from '../utils/storageOptions';
-import { useWorkflows } from '../workflow/Workflows';
 import { PauseAndResume } from './PauseAndResume';
 import { getLocationDeletionBlocker } from './utils';
 import styled from 'styled-components';
@@ -44,15 +40,17 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useShellHooks } from '@scality/module-federation';
 
-const ActionButtons = ({
-  rowValues,
-  replications,
-  transitions,
-}: {
-  rowValues: Location;
-  replications: Replication[];
-  transitions: BucketWorkflowTransitionV2[];
-}) => {
+const TooltipList = styled.ul`
+  margin-left: ${spacing.r8};
+  li {
+    margin-bottom: 0;
+  }
+`;
+
+/**
+ * Action buttons for location row.
+ */
+const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
   const { name: locationName } = rowValues;
   const navigate = useBasenameRelativeNavigate();
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
@@ -109,29 +107,18 @@ const ActionButtons = ({
     });
   };
 
-  useMemo(() => {
+  useEffect(() => {
     if (waiterStatus === 'success') {
       refetchAccountsLocationsEndpointsMutation.mutate();
     }
   }, [waiterStatus]);
 
-  const { isBuiltin, hasWorkflow, hasBucket, hasEndpoint } =
-    getLocationDeletionBlocker(
-      rowValues,
-      replications,
-      transitions,
-      buckets,
-      accountsLocationsAndEndpoints?.endpoints || [],
-    );
-  const isDeletionDisabled =
-    isBuiltin || hasWorkflow || hasBucket || hasEndpoint;
-
-  const List = styled.ul`
-    margin-left: ${spacing.r8};
-    li {
-      margin-bottom: 0;
-    }
-  `;
+  const { isBuiltin, hasBucket, hasEndpoint } = getLocationDeletionBlocker(
+    rowValues,
+    buckets,
+    accountsLocationsAndEndpoints?.endpoints || [],
+  );
+  const isDeletionDisabled = isBuiltin || hasBucket || hasEndpoint;
 
   const TooltipOverlay = () => {
     return isDeletionDisabled ? (
@@ -140,11 +127,10 @@ const ActionButtons = ({
       ) : (
         <div>
           You cannot delete this location because it has:
-          <List>
-            {hasWorkflow && <li>at least one workflow</li>}
+          <TooltipList>
             {hasBucket && <li>at least one bucket</li>}
             {hasEndpoint && <li>at least one data service</li>}
-          </List>
+          </TooltipList>
         </div>
       )
     ) : (
@@ -162,8 +148,20 @@ const ActionButtons = ({
         isLoading={deleteMutation.isLoading || waiterStatus === 'waiting'}
         cancel={() => setShowModal(false)}
         approve={() => handleDeleteClick(locationName)}
-        titleText={`Delete location? \n
-                    Permanently remove the following location ${locationName} ?`}
+        titleText={
+          <>
+            Permanently remove the following location {locationName}?
+            <Box marginTop={spacing.r16}>
+              <Banner
+                variant="warning"
+                icon={<Icon name="Exclamation-circle" color="statusWarning" />}
+              >
+                Please ensure this location is not used by any replication or
+                lifecycle rules before deleting.
+              </Banner>
+            </Box>
+          </>
+        }
       />
       <Wrap>
         <div></div>
@@ -208,7 +206,6 @@ const ActionButtons = ({
 
 export function LocationsList() {
   const navigate = useBasenameRelativeNavigate();
-  const workflowsQuery = useWorkflows();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
   const metricsAdapter = useMetricsAdapter();
@@ -218,13 +215,6 @@ export function LocationsList() {
   });
   const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
     accountsLocationsEndpointsAdapter,
-  });
-
-  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-
-  const { accounts } = useListAccounts({
-    accessibleAccountsAdapter,
-    metricsAdapter,
   });
 
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
@@ -301,18 +291,17 @@ export function LocationsList() {
     columns.push({
       Header: (
         <>
-          Workflow status{' '}
+          Replication status{' '}
           <IconHelp
             placement="top"
             overlayStyle={{ width: '24rem' }}
             tooltipMessage={
               <>
-                Pausing the Workflow statuses will halt any workflow processes,
-                including asynchronous metadata updates and replication, that
-                are targeting this location.
+                Pausing the replication will halt asynchronous metadata updates
+                and replication targeting this location.
                 <br /> <br />
                 Any new object added to the source location will be queued and
-                processed only once the Workflow processes are resumed.
+                processed only once the replication is resumed.
               </>
             }
           />
@@ -343,26 +332,7 @@ export function LocationsList() {
       },
       disableSortBy: true,
       Cell: (value: CellProps<Location>) => {
-        if (accounts.status === 'loading' || accounts.status === 'unknown') {
-          return <>Checking if linked to workflows...</>;
-        }
-
-        if (
-          (workflowsQuery.status === 'idle' ||
-            workflowsQuery.status === 'loading') &&
-          accounts.status === 'success' &&
-          accounts.value.length > 0
-        ) {
-          return <>Checking if linked to workflows...</>;
-        }
-        return (
-          <ActionButtons
-            rowValues={value.row.original}
-            //@ts-expect-error fix this when you are working on it
-            replications={workflowsQuery.data?.replications || []}
-            transitions={workflowsQuery.data?.transitions || []}
-          />
-        );
+        return <ActionButtons rowValues={value.row.original} />;
       },
     });
     return columns;
@@ -370,7 +340,6 @@ export function LocationsList() {
     locations,
     buckets,
     accountsLocationsAndEndpoints?.endpoints,
-    workflowsQuery.data?.replications,
     loadingBuckets,
   ]);
 

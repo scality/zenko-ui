@@ -39,7 +39,6 @@ const CustomListItem = styled.li`
 const emptyBucketInfosList = [
   'Emptying a bucket removes all contents and cannot be reversed.',
   'New objects added during the empty action may also be removed.',
-  'Adjust workflows linked to this bucket to avoid adding objects during the emptying action.',
 ];
 
 const RetentionText = () => (
@@ -53,8 +52,8 @@ const RetentionText = () => (
 const LifecycleText = () => (
   <BasicText>
     The action of emptying can erase a maximum of 20 000 objects. For buckets
-    with a substantial number of objects, an expiration workflow (lifecycle
-    rule) could provide an effective alternative to emptying the bucket.
+    with a substantial number of objects, a lifecycle rule could provide an
+    effective alternative to emptying the bucket.
   </BasicText>
 );
 

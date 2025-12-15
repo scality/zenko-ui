@@ -4,7 +4,6 @@ import {
   CloseAccountDeleteDialogAction,
   CloseBucketDeleteDialogAction,
   CloseEndpointDeleteDialogAction,
-  CloseWorkflowEditNotificationAction,
   ConfigAuthFailureAction,
   ConfigurationVersionAction,
   GetBucketInfoSuccessAction,
@@ -19,7 +18,6 @@ import {
   OpenAccountDeleteDialogAction,
   OpenBucketDeleteDialogAction,
   OpenEndpointDeleteDialogAction,
-  OpenWorkflowEditNotificationAction,
   SelectAccountAction,
   SelectInstanceAction,
   SetAppConfigAction,
@@ -179,19 +177,6 @@ export const ZENKO_CLEAR_ERROR_ACTION = (): ZenkoClearAction => {
     type: 'ZENKO_CLEAR_ERROR',
   };
 };
-// workflow actions
-export const OPEN_WORKFLOW_EDIT_NOTIFICATION_ACTION =
-  (): OpenWorkflowEditNotificationAction => {
-    return {
-      type: 'OPEN_WORKFLOW_EDIT_NOTIFICATION',
-    };
-  };
-export const CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION =
-  (): CloseWorkflowEditNotificationAction => {
-    return {
-      type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
-    };
-  };
 // instance status actions
 export const INSTANCE_STATUS_ACTION_RUNNINGv1: InstanceStatusAction = {
   type: 'INSTANCE_STATUS',

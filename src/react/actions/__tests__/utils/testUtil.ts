@@ -19,9 +19,7 @@ import {
   instanceStatus,
   latestOverlay,
   location,
-  replicationWorkflow,
   userName,
-  workflows,
 } from '../../../../js/mock/managementClient';
 import { ManagementClient } from '../../../../types/managementClient';
 import { AppState } from '../../../../types/state';
@@ -80,8 +78,6 @@ export const OWNER_NAME = ownerName;
 export const BUCKET_NAME = bucketName;
 
 export const BUCKET_INFO_RESPONSE = bucketInfoResponseNoVersioning;
-export const WORKFLOWS = workflows;
-export const REPLICATION_WORKFLOW = replicationWorkflow;
 export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
 export const ACCOUNT_NAME = userName;
 export const ACCOUNT_ACCESS_KEY = accountAccessKey;

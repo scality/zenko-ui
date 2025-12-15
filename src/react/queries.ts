@@ -18,86 +18,10 @@ import { ListObjectVersionsOutput } from 'aws-sdk/clients/s3';
 import { useMemo } from 'react';
 import { InfiniteData, QueryOptions, useQuery } from 'react-query';
 import IAMClient from '../js/IAMClient';
-import { UiFacingApiWrapper } from '../js/managementClient';
 import { getAccountSeeds } from '../js/vault';
-import { notFalsyTypeGuard } from '../types/typeGuards';
-import { APIWorkflows, Workflow, Workflows } from '../types/workflow';
 import { useDeployedMetalk8sInstances } from './next-architecture/ui/ConfigProvider';
 import { ZenkoCR } from './truststore/Truststore';
 import { AWS_PAGINATED_QUERY } from './utils/IAMhooks';
-import {
-  generateExpirationName,
-  generateStreamName,
-  generateTransitionName,
-} from './workflow/utils';
-
-// Copy paste form legacy redux workflow
-export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
-  const workflows = apiWorkflows
-    .filter((w) => !!w.replication || !!w.expiration || !!w.transition)
-    .map((w) => {
-      if (w.replication) {
-        const r = w.replication;
-        return {
-          id: `replication-${r.streamId}`,
-          type: 'replication' as const,
-          name: generateStreamName(r),
-          // Until name get saved on the backend side.
-          state: r.enabled,
-          workflowId: r.streamId,
-        } as Workflow;
-      } else if (w.expiration) {
-        const r = w.expiration;
-        return {
-          id: `expiration-${r.workflowId}`,
-          type: 'expiration' as const,
-          name: generateExpirationName(r),
-          state: r.enabled,
-          workflowId: r.workflowId,
-        } as Workflow;
-      } else {
-        const r = w.transition;
-        return {
-          id: `transition-${r.workflowId}`,
-          type: 'transition' as const,
-          name: generateTransitionName(r),
-          state: r.enabled,
-          workflowId: r.workflowId || '',
-        };
-      }
-    });
-  // TODO: add expiration and transition rules.
-  return workflows;
-};
-
-export const workflowListQuery = (
-  mgnt: UiFacingApiWrapper,
-  accountId: string,
-  instanceId: string,
-  rolePathName: string,
-  getToken: () => Promise<string | null>,
-  onStart?: () => void,
-  filters?: string[],
-) => {
-  return {
-    queryKey: ['workflowList', accountId, instanceId, rolePathName, filters],
-    queryFn: async () => {
-      if (onStart) {
-        onStart();
-      }
-      mgnt.setToken(await getToken());
-      return notFalsyTypeGuard(mgnt).searchWorkflows(
-        accountId,
-        instanceId,
-        rolePathName,
-        {
-          bucketList: filters,
-        },
-      );
-    },
-    enabled: mgnt != null && accountId !== undefined,
-  };
-};
 
 export const getUserAccessKeysQuery = (
   userName: string,

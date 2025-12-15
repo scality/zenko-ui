@@ -70,10 +70,6 @@ export const configuration = {
     locations: {},
     users: [],
     endpoints: [],
-    workflows: {
-      lifecycle: {},
-      transition: {},
-    },
   },
 };
 export const newTestStore = (state) => {
@@ -503,8 +499,6 @@ export const simpleRender = (component: React.ReactNode) => {
 
 export function renderWithRouterMatch(
   component: React.ReactNode,
-  // path /workflow/:workflowid
-  // route /workflow/0d55a1d7-349c-4e79-932b-b502bcc45a8f
   { path = '/', route = '/' } = {},
   testState?: unknown,
 ) {

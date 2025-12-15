@@ -12,12 +12,6 @@ export const ACCOUNT_ID = '718643629313';
 export const BUCKET_NAME = 'test-bucket';
 export const azureblobstorage = 'azureblobstorage';
 
-export const TRANSITION_WORKFLOW_CURRENT_ID =
-  '0d55a1d7-349c-4e79-932b-b502bcc45a8f';
-export const TRANSITION_WORKFLOW_PREVIOUS_ID =
-  '1e55a1d7-349c-4e79-932b-b502bcc45a8f';
-export const EXPIRATION_WORKFLOW_ID = '330f2359-dc93-4abd-97c1-37c8483b1872';
-export const TRIGGER_DELAY_DAYS = 15;
 export const COLD_LOCATION_NAME = 'europe25-myroom-cold';
 
 export const USERS = [
@@ -238,100 +232,6 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
   rest.delete(
     `${baseUrl}/api/v1/config/${instanceId}/location/europe25-myroom-cold`,
     (req, res, ctx) => res(ctx.status(204)),
-  ),
-
-  //Transitions mocks below
-  rest.post(
-    `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/workflow/search`,
-    (req, res, ctx) =>
-      res(
-        ctx.json([
-          {
-            replication: {
-              destination: { locations: [{ name: 'location-aws-s3' }] },
-              name: null,
-              source: {
-                bucketName: 'test-post-react-hook-form',
-                prefix: 'tester',
-              },
-              streamId: '0d55a1d7-349c-4e79-932b-a502bcc45a8f',
-              version: null,
-            },
-          },
-          {
-            transition: {
-              bucketName: BUCKET_NAME,
-              workflowId: TRANSITION_WORKFLOW_CURRENT_ID,
-              applyToVersion: 'current',
-              type: 'bucket-workflow-transition-v2',
-              triggerDelayDays: TRIGGER_DELAY_DAYS,
-              locationName: COLD_LOCATION_NAME,
-              enabled: true,
-            },
-          },
-          {
-            transition: {
-              bucketName: BUCKET_NAME,
-              workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
-              applyToVersion: 'noncurrent',
-              type: 'bucket-workflow-transition-v2',
-              triggerDelayDays: TRIGGER_DELAY_DAYS,
-              locationName: COLD_LOCATION_NAME,
-              enabled: true,
-            },
-          },
-          {
-            expiration: {
-              bucketName: BUCKET_NAME,
-              enabled: true,
-              filter: {
-                objectTags: null,
-              },
-              type: 'bucket-workflow-expiration-v1',
-              workflowId: EXPIRATION_WORKFLOW_ID,
-              previousVersionTriggerDelayDays: 7,
-            },
-          },
-        ]),
-      ),
-  ),
-  rest.post(
-    `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/bucket/${BUCKET_NAME}/workflow/transition`,
-    (req, res, ctx) =>
-      res(
-        ctx.json([
-          {
-            bucketName: BUCKET_NAME,
-            workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
-            applyToVersion: 'noncurrent',
-            type: 'bucket-workflow-transition-v2',
-            triggerDelayDays: TRIGGER_DELAY_DAYS,
-            locationName: COLD_LOCATION_NAME,
-            enabled: true,
-          },
-        ]),
-      ),
-  ),
-  rest.put(
-    `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/bucket/${BUCKET_NAME}/workflow/transition/1e55a1d7-349c-4e79-932b-b502bcc45a8f`,
-    (req, res, ctx) =>
-      res(
-        ctx.json([
-          {
-            bucketName: BUCKET_NAME,
-            workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
-            applyToVersion: 'noncurrent',
-            type: 'bucket-workflow-transition-v2',
-            triggerDelayDays: TRIGGER_DELAY_DAYS,
-            locationName: COLD_LOCATION_NAME,
-            enabled: true,
-          },
-        ]),
-      ),
-  ),
-  rest.delete(
-    `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/bucket/${BUCKET_NAME}/workflow/transition/1e55a1d7-349c-4e79-932b-b502bcc45a8f`,
-    (req, res, ctx) => res(ctx.status(200)),
   ),
 ];
 
