@@ -179,7 +179,7 @@ const config: Configuration = {
     },
     proxy: [
       {
-        context: ['/data/s3'],
+        context: ['/zenko/s3'],
         target: `https://s3.${zenkoDNS}`,
         pathRewrite: { '^/zenko/s3': '' },
         secure: false,
@@ -194,7 +194,7 @@ const config: Configuration = {
         },
       },
       {
-        context: ['/data/iam'],
+        context: ['/zenko/iam'],
         target: `https://iam.${zenkoDNS}`,
         pathRewrite: { '^/zenko/iam': '' },
         secure: false,
@@ -209,7 +209,7 @@ const config: Configuration = {
         },
       },
       {
-        context: ['/sts'],
+        context: ['/zenko/sts'],
         target: `https://sts.${zenkoDNS}`,
         pathRewrite: { '^/zenko/sts': '' },
         secure: false,
@@ -224,7 +224,7 @@ const config: Configuration = {
         },
       },
       {
-        context: ['/management'],
+        context: ['/zenko/management'],
         target: `https://management.${zenkoDNS}`,
         pathRewrite: { '^/zenko/management': '' },
         secure: false,
