@@ -1,6 +1,7 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import React, { type ReactNode } from 'react';
 import { NewWrapper } from '../../utils/testUtil';
 import { useCreateVeeamRepository } from './useCreateVeeamRepository';
 
@@ -9,6 +10,10 @@ const server = setupServer();
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
+
+const Wrapper = NewWrapper() as React.ComponentType<{
+  children: ReactNode;
+}>;
 
 describe('useCreateVeeamRepository', () => {
   it('creates a Veeam repository successfully', async () => {
@@ -38,8 +43,8 @@ describe('useCreateVeeamRepository', () => {
       }),
     );
 
-    const { result, waitFor } = renderHook(() => useCreateVeeamRepository(), {
-      wrapper: NewWrapper(),
+    const { result } = renderHook(() => useCreateVeeamRepository(), {
+      wrapper: Wrapper,
     });
 
     act(() => {
@@ -80,8 +85,8 @@ describe('useCreateVeeamRepository', () => {
       }),
     );
 
-    const { result, waitFor } = renderHook(() => useCreateVeeamRepository(), {
-      wrapper: NewWrapper(),
+    const { result } = renderHook(() => useCreateVeeamRepository(), {
+      wrapper: Wrapper,
     });
 
     act(() => {
@@ -92,7 +97,7 @@ describe('useCreateVeeamRepository', () => {
       expect(result.current.isError).toBe(true);
     });
 
-    expect(result.current.error?.message).toBe(
+    expect((result.current.error as { message?: string })?.message).toBe(
       'Invalid repository configuration',
     );
   });

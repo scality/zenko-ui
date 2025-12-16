@@ -1,6 +1,5 @@
 import { useShellHooks } from '@scality/module-federation';
 import { useMutation } from 'react-query';
-import { ApiError } from '../../../types/actions';
 import { StorageConsumptionLimitKind } from '../utils/capacityCalculations';
 
 export type VeeamRepositoryRequest = {
@@ -32,19 +31,7 @@ async function createVeeamRepository(
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      repositoryName: repositoryConfig.repositoryName,
-      servicePoint: repositoryConfig.servicePoint,
-      accessKey: repositoryConfig.accessKey,
-      secretKey: repositoryConfig.secretKey,
-      bucketName: repositoryConfig.bucketName,
-      region: repositoryConfig.region,
-      immutable: repositoryConfig.immutable,
-      immutablePeriodDays: repositoryConfig.immutablePeriodDays,
-      storageConsumptionLimitKind: repositoryConfig.storageConsumptionLimitKind,
-      storageConsumptionLimitCount:
-        repositoryConfig.storageConsumptionLimitCount,
-    }),
+    body: JSON.stringify(repositoryConfig),
   });
 
   if (!response.ok) {
@@ -53,23 +40,17 @@ async function createVeeamRepository(
   }
 
   const data = await response.json();
-  return {
-    repositoryId: data.repositoryId,
-    repositoryName: data.repositoryName,
-    message: data.message,
-  };
+  return data as VeeamRepositoryResponse;
 }
 
 export const useCreateVeeamRepository = () => {
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
 
-  return useMutation<VeeamRepositoryResponse, ApiError, VeeamRepositoryRequest>(
-    {
-      mutationFn: async (repositoryConfig) => {
-        const token = await getToken();
-        return createVeeamRepository(repositoryConfig, token);
-      },
+  return useMutation<VeeamRepositoryResponse, unknown, VeeamRepositoryRequest>({
+    mutationFn: async (repositoryConfig) => {
+      const token = await getToken();
+      return createVeeamRepository(repositoryConfig, token);
     },
-  );
+  });
 };
