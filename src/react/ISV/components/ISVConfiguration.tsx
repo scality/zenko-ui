@@ -68,9 +68,7 @@ export const ISVConfiguration = () => {
   const getDefaultValues = (): Partial<ISVConfig> => {
     const baseDefaults: Partial<ISVConfig> = {
       accountName: paramsAccountName || '',
-      accountNameType: (paramsAccountName ? 'existing' : 'create') as
-        | 'existing'
-        | 'create',
+      accountNameType: paramsAccountName ? 'existing' : 'create',
       enableImmutableBackup: true,
       buckets: [
         {
@@ -82,11 +80,7 @@ export const ISVConfiguration = () => {
       ],
     };
 
-    if (
-      isVeeamVBROnly &&
-      isAutoRepoFeatureEnabled &&
-      platform.id === 'veeam-vbr'
-    ) {
+    if (isVeeamVBROnly && isAutoRepoFeatureEnabled) {
       return {
         ...baseDefaults,
         autoCreateRepository: true,

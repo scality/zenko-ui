@@ -6,7 +6,11 @@ import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
 
 export const VeeamRepositoryFields = () => {
-  const { control, watch } = useFormContext();
+  const {
+    control,
+    watch,
+    formState: { errors },
+  } = useFormContext();
   const isVeeamVBROnly = useIsVeeamVBROnly();
   const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
   const autoCreateRepository = watch('autoCreateRepository');
@@ -47,6 +51,7 @@ export const VeeamRepositoryFields = () => {
           label="Veeam Immutable retention period"
           help="Minimum immutability period"
           helpErrorPosition="bottom"
+          error={(errors.immutablePeriodDays?.message as string) ?? ''}
           content={
             <Stack direction="horizontal">
               <Controller

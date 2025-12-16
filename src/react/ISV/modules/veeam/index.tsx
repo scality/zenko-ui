@@ -205,7 +205,7 @@ export const Veeam: ISVPlatformConfig = {
       is: true,
       then: Joi.when('enableImmutableBackup', {
         is: true,
-        then: Joi.number().integer().min(1).max(3650).optional(),
+        then: Joi.number().integer().min(1).max(3650).required(),
         otherwise: Joi.valid(),
       }),
       otherwise: Joi.valid(),
