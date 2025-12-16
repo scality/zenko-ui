@@ -5,7 +5,6 @@ import configuration from './configuration';
 import instanceStatus from './instanceStatus';
 import instances from './instances';
 import networkActivity from './networkActivity';
-import oidc from './oidc';
 import secrets from './secrets';
 import stats from './stats';
 import uiAccounts from './uiAccounts';
@@ -23,7 +22,6 @@ const zenkoUIReducer = () =>
     uiErrors,
     secrets,
     stats,
-    oidc,
   });
 
 export default zenkoUIReducer;

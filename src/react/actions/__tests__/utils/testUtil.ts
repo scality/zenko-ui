@@ -94,43 +94,38 @@ export function errorManagementState(): AppState {
   };
 }
 export function authenticatedUserState(): AppState {
-  const state = initState;
-  return {
-    ...state,
-    oidc: {
-      ...state.oidc,
-      user: {
-        id_token: 'idtoken',
-        session_state: '8480d2f0-be54-4c1b-9df7-fcce8dfc7436',
-        access_token: 'accessToken',
-        refresh_token: 'refreshToken',
-        token_type: 'bearer',
-        scope: 'openid profile email',
-        profile: {
-          auth_time: 1592593605,
-          jti: 'd193f7de-134c-47cf-a4e5-7a1b9a7eed72',
-          sub: 'deff329b-72fc-450a-bcb1-354d989859a6',
-          typ: 'ID',
-          azp: 'myclient',
-          session_state: '8480d2f0-be54-4c1b-9df7-fcce8dfc7436',
-          acr: '1',
-          email_verified: true,
-          role: 'user',
-          instanceIds: [INSTANCE_ID],
-          name: 'FirstName LastName',
-          preferred_username: 'username',
-          given_name: 'FirstName',
-          family_name: 'LastName',
-          email: 'test@test.com',
-        },
-        expires_at: 1592593907,
-        state: {
-          path: '/',
-        },
-      },
-    },
-  };
+  return initState;
 }
+
+export const TEST_USER = {
+  id_token: 'idtoken',
+  session_state: '8480d2f0-be54-4c1b-9df7-fcce8dfc7436',
+  access_token: 'accessToken',
+  refresh_token: 'refreshToken',
+  token_type: 'bearer',
+  scope: 'openid profile email',
+  profile: {
+    auth_time: 1592593605,
+    jti: 'd193f7de-134c-47cf-a4e5-7a1b9a7eed72',
+    sub: 'deff329b-72fc-450a-bcb1-354d989859a6',
+    typ: 'ID',
+    azp: 'myclient',
+    session_state: '8480d2f0-be54-4c1b-9df7-fcce8dfc7436',
+    acr: '1',
+    email_verified: true,
+    role: 'user',
+    instanceIds: [INSTANCE_ID],
+    name: 'FirstName LastName',
+    preferred_username: 'username',
+    given_name: 'FirstName',
+    family_name: 'LastName',
+    email: 'test@test.com',
+  },
+  expires_at: 1592593907,
+  state: {
+    path: '/',
+  },
+};
 export function storeStateWithRunningConfigurationVersion2(): AppState {
   return {
     ...initState,

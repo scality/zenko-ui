@@ -33,7 +33,7 @@ import AccountCreate from './account/AccountCreate';
 import AccountContent from './account/AccountContent';
 import DataBrowser from './databrowser/DataBrowser';
 import LocationEditor from './locations/LocationEditor';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useBasenameRelativeNavigate, useShellHooks } from '@scality/module-federation';
 import Attachments from './account/iamAttachment/Attachments';
 import AccountUpdateUser from './account/AccountUpdateUser';
 import UpdateAccountPolicy from './account/UpdateAccountPolicy';
@@ -99,7 +99,9 @@ export function PrivateRoutes({
   const isClientsLoaded = useSelector(
     (state: AppState) => state.auth.isClientsLoaded,
   );
-  const user = useSelector((state: AppState) => state.oidc.user);
+  const { useAuth } = useShellHooks();
+  const { userData } = useAuth();
+  const user = userData?.original;
   const config = useConfig();
 
   const managementEndpoint = useSelector(
@@ -110,28 +112,28 @@ export function PrivateRoutes({
   );
 
   useMemo(() => {
-    if (!!managementEndpoint && !!user?.access_token) {
+    if (!!managementEndpoint && !!userData?.token) {
       const managementClient = makeMgtClient(
         managementEndpoint,
-        user.access_token,
+        userData.token,
       );
       dispatch(setManagementClient(managementClient));
     }
-  }, [managementEndpoint, user?.access_token]);
+  }, [managementEndpoint, userData?.token]);
 
-  const isAuthenticated = !!user && !user.expired && user?.access_token;
+  const isAuthenticated = !!userData && !userData.expired && !!userData.token;
   useEffect(() => {
     if (isAuthenticated) {
       // TODO: forbid loading clients when authorization server redirects the user back to ui.zenko.local with an authorization code.
       // That will fix management API request being canceled during autentication.
       if (!latestConfiguration) {
-        dispatch(loadClients()); // FIXME To be delete soon
+        dispatch(loadClients(user)); // FIXME To be delete soon
       }
 
       const refreshIntervalStatsUnit = setInterval(() => {
         const currentTime = Math.floor(Date.now() / 1000);
 
-        if (user.expires_at >= currentTime) {
+        if (user?.expires_at && user.expires_at >= currentTime) {
           dispatch(loadInstanceLatestStatus());
         }
       }, 30000);
@@ -139,7 +141,8 @@ export function PrivateRoutes({
         clearInterval(refreshIntervalStatsUnit);
       };
     }
-  }, [dispatch, isAuthenticated, user, latestConfiguration]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, isAuthenticated, user?.profile?.sub, latestConfiguration]);
 
   const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
   useMemo(() => {

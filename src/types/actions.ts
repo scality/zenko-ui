@@ -1,5 +1,5 @@
 import { AccessKey, Account, SecretKey } from './account';
-import { AuthUser, OidcLogoutFunction } from './auth';
+import { OidcLogoutFunction } from './auth';
 import { ConfigurationOverlay, Hostname } from './config';
 import { AppConfig, InstanceId } from './entities';
 import { ManagementClient } from './managementClient';
@@ -107,7 +107,6 @@ export type NetworkActivityAction =
   | NetworkActivityStartAction
   | NetworkActivityEndAction
   | NetworkActivityAuthResetAction
-  | AddOIDCUserAction
   | LoadClientsSuccessAction;
 // configuration actions
 export type InstanceStatusAction = {
@@ -141,12 +140,6 @@ export type AccountUIAction =
   | CloseAccountKeyCreateModalAction;
 
 export type StatsAction = InstanceStatusAction;
-// OIDC
-export type AddOIDCUserAction = {
-  readonly type: 'ADD_OIDC_USER';
-  readonly user: AuthUser;
-};
-export type OIDCAction = AddOIDCUserAction;
 // SECRETS
 export type AddAccountSecretAction = {
   readonly type: 'ADD_ACCOUNT_SECRET';
@@ -171,7 +164,6 @@ export type EndpointsUIAction =
 export type Action =
   | AccountAction
   | AuthAction
-  | OIDCAction
   | ThunkNonStateAction
   | ThunkStatePromisedAction
   | ThunkNonStatePromisedAction

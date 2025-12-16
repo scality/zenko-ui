@@ -13,6 +13,7 @@ import {
   SelectAccountAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
+import { AuthUser } from '../../types/auth';
 import { IamAccessKey } from '../../types/user';
 import { getClients } from '../utils/actions';
 import {
@@ -77,10 +78,11 @@ export function deleteAccountSecret(): DeleteAccountSecretAction {
 
 export function listAccountAccessKeys(
   roleArn: string,
+  user: AuthUser,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(networkStart('Listing Root user Access keys'));
-    return getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
+    return getAssumeRoleWithWebIdentityIAM(getState(), roleArn, user)
       .then((iamClient) => iamClient.listOwnAccessKeys())
       .then((resp) =>
         //@ts-expect-error fix this when you are working on it
@@ -100,14 +102,15 @@ export function listAccountAccessKeys(
 export function deleteAccountAccessKey(
   roleArn: string,
   accessKey: string,
+  user: AuthUser,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(networkStart('Deleting Root user Access keys'));
     return (
-      getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
+      getAssumeRoleWithWebIdentityIAM(getState(), roleArn, user)
         //@ts-expect-error fix this when you are working on it
         .then((iamClient) => iamClient.deleteAccessKey(accessKey))
-        .then(() => dispatch(listAccountAccessKeys(roleArn)))
+        .then(() => dispatch(listAccountAccessKeys(roleArn, user)))
         .catch((error) => dispatch(handleAWSClientError(error)))
         .catch((error) => dispatch(handleAWSError(error, 'byModal')))
         .finally(() => dispatch(networkEnd()))
@@ -117,6 +120,7 @@ export function deleteAccountAccessKey(
 export function createAccountAccessKey(
   accountName: string,
   roleArn: string,
+  user: AuthUser,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -131,7 +135,7 @@ export function createAccountAccessKey(
         dispatch(
           addAccountSecret(resp.userName, resp.accessKey, resp.secretKey),
         );
-        return dispatch(listAccountAccessKeys(roleArn));
+        return dispatch(listAccountAccessKeys(roleArn, user));
       })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byModal')))

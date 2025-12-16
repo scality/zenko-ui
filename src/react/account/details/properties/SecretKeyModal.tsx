@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../../../types/state';
 import { Banner, Icon, Stack, Wrap, spacing } from '@scality/core-ui';
 import { Button, CopyButton, Box } from '@scality/core-ui/dist/next';
+import { useShellHooks } from '@scality/module-federation';
 
 import { HideCredential } from '../../../ui-elements/Hide';
 
@@ -31,6 +32,8 @@ function SecretKeyModal({ account }: Props) {
   const isModalOpen = useSelector(
     (state: AppState) => state.uiAccounts.showKeyCreate,
   );
+  const { useAuth } = useShellHooks();
+  const { userData } = useAuth();
 
   const handleClose = () => {
     dispatch(deleteAccountSecret());
@@ -38,7 +41,9 @@ function SecretKeyModal({ account }: Props) {
   };
   const { roleArn } = useDataServiceRole();
   const handleAccessKeyCreate = () => {
-    dispatch(createAccountAccessKey(account.Name, roleArn));
+    if (userData?.original) {
+      dispatch(createAccountAccessKey(account.Name, roleArn, userData.original));
+    }
   };
 
   if (!isModalOpen) {

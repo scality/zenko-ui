@@ -1,6 +1,6 @@
 import { Account, AccountKey } from './account';
 import { AppConfig, InstanceId } from './entities';
-import { AuthUser, OidcLogoutFunction } from './auth';
+import { OidcLogoutFunction } from './auth';
 import { BucketList, InstanceStatus } from './stats';
 import { ConfigurationOverlay, Hostname } from './config';
 import { ErrorViewType } from './ui';
@@ -17,9 +17,6 @@ export type AuthState = {
   readonly config: AppConfig;
   readonly selectedAccount: Account | null;
   readonly oidcLogout: OidcLogoutFunction | null;
-};
-export type OIDCState = {
-  readonly user: AuthUser;
 };
 export type AssumeRoleParams = {
   readonly idToken: string;
@@ -68,7 +65,6 @@ export type AppState = {
   readonly instances: InstancesState;
   readonly instanceStatus: InstanceStatusState;
   readonly networkActivity: NetworkActivityState;
-  readonly oidc: OIDCState;
   readonly secrets: SecretsState;
   readonly uiErrors: ErrorsUIState;
   readonly uiEndpoints: EndpointsUIState;

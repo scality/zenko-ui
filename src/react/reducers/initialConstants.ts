@@ -7,7 +7,6 @@ import {
   ErrorsUIState,
   InstanceStatusState,
   NetworkActivityState,
-  OIDCState,
 } from '../../types/state';
 
 import { List } from 'immutable';
@@ -126,9 +125,6 @@ export const initialNetworkActivityState: NetworkActivityState = {
   counter: 0,
   messages: List(),
 };
-export const initialOidc: OIDCState = {
-  user: null,
-};
 export const initialSecretsState = {
   accountKey: null,
 };
@@ -153,5 +149,4 @@ export const initialFullState = {
   stats: initialStatsState,
   uiAccounts: initialAccountsUIState,
   uiErrors: initialErrorsUIState,
-  oidc: initialOidc,
 };

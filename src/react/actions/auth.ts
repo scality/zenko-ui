@@ -11,12 +11,11 @@ import {
   ThunkNonStateAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import { OidcLogoutFunction } from '../../types/auth';
+import { AuthUser, OidcLogoutFunction } from '../../types/auth';
 import { AppConfig, InstanceId } from '../../types/entities';
 import { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 import { STSClient as STSClientInterface } from '../../types/sts';
 import {
-  addOIDCUser,
   handleErrorMessage,
   loadInstanceLatestStatus,
   networkAuthFailure,
@@ -72,7 +71,6 @@ export function configAuthFailure(): ConfigAuthFailureAction {
 }
 export function loadAppConfig(config: AppConfig, user): ThunkNonStateAction {
   return (dispatch) => {
-    dispatch(addOIDCUser(user.original));
     dispatch(setAppConfig(config));
     dispatch(
       setSTSClient(
@@ -83,18 +81,16 @@ export function loadAppConfig(config: AppConfig, user): ThunkNonStateAction {
       ),
     );
     dispatch(loadConfigSuccess());
-    dispatch(loadClients());
+    dispatch(loadClients(user?.original));
     return Promise.resolve();
   };
 }
-export function loadClients(): ThunkStatePromisedAction {
+export function loadClients(user?: AuthUser): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const {
-      oidc,
       auth: { config },
     } = getState();
-    const instanceIds =
-      oidc.user && oidc.user.profile && oidc.user.profile.instanceIds;
+    const instanceIds = user && user.profile && user.profile.instanceIds;
 
     if (!instanceIds || instanceIds.length === 0) {
       dispatch(
@@ -112,7 +108,7 @@ export function loadClients(): ThunkStatePromisedAction {
     dispatch(selectInstance(instanceIds[0]));
     const managementClient = makeMgtClient(
       config.managementEndpoint,
-      oidc.user.id_token,
+      user.id_token,
     );
 
     dispatch(setManagementClient(managementClient));

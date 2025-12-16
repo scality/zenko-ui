@@ -6,11 +6,13 @@ import {
   spacing,
 } from '@scality/core-ui';
 import { Button, CopyButton, Table } from '@scality/core-ui/dist/next';
+import { useShellHooks } from '@scality/module-federation';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Row } from 'react-table';
 import styled from 'styled-components';
 import { Account } from '../../../../types/account';
+import { AuthUser } from '../../../../types/auth';
 import { AppState } from '../../../../types/state';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import {
@@ -43,7 +45,12 @@ type AccessKey = {
   created_at: string;
 };
 
-function DeleteKey({ accessKey }: { accessKey: string }) {
+type DeleteKeyProps = {
+  accessKey: string;
+  user?: AuthUser;
+};
+
+function DeleteKey({ accessKey, user }: DeleteKeyProps) {
   const dispatch = useDispatch();
   const { roleArn } = useDataServiceRole();
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
@@ -64,7 +71,7 @@ function DeleteKey({ accessKey }: { accessKey: string }) {
       <DeleteConfirmation
         show={showDeleteConfirmationModal}
         cancel={() => setShowDeleteConfirmationModal(false)}
-        approve={() => dispatch(deleteAccountAccessKey(roleArn, accessKey))}
+        approve={() => dispatch(deleteAccountAccessKey(roleArn, accessKey, user))}
         titleText={`Permanently remove the following access key ${accessKey} ?`}
       />
     </>
@@ -77,9 +84,15 @@ function AccountKeys({ account }: Props) {
     (state: AppState) => state.account.accessKeyList,
   );
   const { roleArn } = useDataServiceRole();
+  const { useAuth } = useShellHooks();
+  const { userData } = useAuth();
+  const user = userData?.original;
   useEffect(() => {
-    dispatch(listAccountAccessKeys(roleArn));
-  }, [dispatch, roleArn]);
+    if (user) {
+      dispatch(listAccountAccessKeys(roleArn, user));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, roleArn, user?.profile?.sub]);
 
   const handleOpenKeyModal = () => {
     dispatch(openAccountKeyCreateModal());
@@ -147,13 +160,14 @@ function AccountKeys({ account }: Props) {
           return (
             <Wrap marginRight={spacing.r8}>
               <div></div>
-              <DeleteKey accessKey={access_key} />
+              <DeleteKey accessKey={access_key} user={user} />
             </Wrap>
           );
         },
       },
     ],
-    [dispatch, account.Name],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, account.Name, user?.profile?.sub],
   );
   const accessKeys = useMemo(
     () =>
