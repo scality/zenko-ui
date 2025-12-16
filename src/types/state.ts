@@ -1,7 +1,6 @@
 import { Account, AccountKey } from './account';
 import { AppConfig, InstanceId } from './entities';
 import { AuthUser, OidcLogoutFunction } from './auth';
-import { BucketInfo, S3BucketList } from './s3';
 import { BucketList, InstanceStatus } from './stats';
 import { ConfigurationOverlay, Hostname, LocationName } from './config';
 import { ZenkoClient as ZenkoClientInterface } from './zenko';
@@ -54,21 +53,11 @@ export type AccountsUIState = {
   readonly showDelete: boolean;
   readonly showKeyCreate: boolean;
 };
-export type BucketsUIState = {
-  readonly showDelete: string;
-};
 export type LocationsUIState = {
   readonly showDeleteLocation: LocationName;
 };
 export type StatsState = {
   readonly bucketList: BucketList;
-};
-export type S3State = {
-  readonly listBucketsResults: {
-    readonly list: S3BucketList;
-    readonly ownerName: string;
-  };
-  readonly bucketInfo: BucketInfo | null;
 };
 export type SecretsState = {
   accountKey: AccountKey | null;
@@ -98,8 +87,6 @@ export type AppState = {
   readonly uiLocations: LocationsUIState;
   readonly uiEndpoints: EndpointsUIState;
   readonly uiAccounts: AccountsUIState;
-  readonly uiBuckets: BucketsUIState;
   readonly stats: StatsState;
-  readonly s3: S3State;
   readonly zenko: ZenkoState;
 };

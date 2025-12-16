@@ -4,7 +4,7 @@ import Joi from '@hapi/joi';
 import { Banner, Stack, Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
-import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
+import { bucketNameValidationSchema } from '../../utils/bucketNameValidation';
 import { VEEAM_BACKUP_REPLICATION, VEEAM_OFFICE_365 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 import { useCheckSOSAPIStatus } from '../../hooks/useCheckSOSAPIStatus';

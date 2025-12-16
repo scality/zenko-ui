@@ -2,7 +2,6 @@ import { ZenkoAction } from '../../types/actions';
 import { ZenkoState } from '../../types/state';
 import { initialZenkoState } from './initialConstants';
 export default function (
-  //@ts-expect-error fix this when you are working on it
   state: ZenkoState = initialZenkoState,
   action: ZenkoAction,
 ): ZenkoState {

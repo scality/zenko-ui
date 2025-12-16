@@ -3,19 +3,16 @@ import {
   AccountState,
   AccountsUIState,
   AuthState,
-  BucketsUIState,
   ConfigurationState,
   ErrorsUIState,
   InstanceStatusState,
   NetworkActivityState,
   OIDCState,
-  S3State,
 } from '../../types/state';
 
 import { List } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
-import { MockZenkoClient } from '../../js/mock/ZenkoClient';
 
 export const initialAccountState: AccountState = {
   //@ts-expect-error fix this when you are working on it
@@ -38,19 +35,6 @@ export const initialAuthState: AuthState = {
   oidcLogout: null,
 };
 
-export const initialS3State: S3State = {
-  listBucketsResults: {
-    list: List(),
-    ownerName: '',
-  },
-  bucketInfo: null,
-};
-export const initialBucketState = {
-  list: [],
-};
-export const initialBucketUIState: BucketsUIState = {
-  showDelete: '',
-};
 export const initialConfiguration: ConfigurationState = {
   latest: null,
 };
@@ -167,7 +151,7 @@ export const initialUserState = {
   displayedUser: {},
 };
 export const initialZenkoState = {
-  zenkoClient: new MockZenkoClient(),
+  zenkoClient: null,
   error: {
     message: null,
     code: null,
@@ -182,14 +166,12 @@ export const initialFullState = {
   instanceStatus: initialInstanceStatus,
   instances: initialInstancesState,
   networkActivity: initialNetworkActivityState,
-  s3: initialS3State,
   secrets: initialSecretsState,
   stats: initialStatsState,
   uiAccounts: initialAccountsUIState,
   uiUser: initialUserUIState,
   uiLocations: initialLocationsUIState,
   uiErrors: initialErrorsUIState,
-  uiBuckets: initialBucketUIState,
   oidc: initialOidc,
   zenko: initialZenkoState,
 };

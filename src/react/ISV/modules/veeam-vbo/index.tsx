@@ -4,7 +4,7 @@ import Joi from '@hapi/joi';
 import { FormGroup, Stack, Text } from '@scality/core-ui';
 import { ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
-import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
+import { bucketNameValidationSchema } from '../../utils/bucketNameValidation';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 import { Select } from '@scality/core-ui/dist/next';

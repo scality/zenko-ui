@@ -21,8 +21,6 @@ import {
   networkStart,
 } from '../actions';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
-import { getObjectsVersions } from '../queries';
 import { useAwsPaginatedEntities } from './IAMhooks';
 
 export const useHeight = (myRef) => {
@@ -292,27 +290,4 @@ export const usePrevious = <T>(value: T): T | undefined => {
     ref.current = value;
   });
   return ref.current;
-};
-
-export const useCheckIfBucketEmpty = (bucketName: string) => {
-  const s3Client = useS3Client();
-  const { data: object, status: objectStatus } = useQuery(
-    getObjectsVersions({
-      bucketName,
-      s3Client,
-      queryKey: ['checkIfBucketEmpty', bucketName],
-    }),
-  );
-
-  const isBucketEmpty = object
-    ? ![
-        ...(object.Versions ? object.Versions : []),
-        ...(object.DeleteMarkers ? object.DeleteMarkers : []),
-      ].length
-    : true;
-
-  return {
-    isBucketEmpty,
-    objectStatus,
-  };
 };

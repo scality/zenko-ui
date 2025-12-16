@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { OWNER_NAME } from '../../actions/__tests__/utils/testUtil';
 import { Clipboard } from '../Clipboard';
 import { NewWrapper } from '../../utils/testUtil';
+
+const OWNER_NAME = 'test-owner';
 
 describe('Clipboard', () => {
   const writeTextFn = jest.fn();

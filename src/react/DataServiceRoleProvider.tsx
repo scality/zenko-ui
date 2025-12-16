@@ -216,9 +216,6 @@ const DataServiceRoleProvider = ({
     },
   });
 
-  const { useAuth } = useShellHooks();
-  const { userData } = useAuth();
-
   useEffect(() => {
     const storedRole = getRoleArnStored();
     if (accountName) {
@@ -246,7 +243,7 @@ const DataServiceRoleProvider = ({
     if (role.roleArn) {
       assumeRoleMutation.mutate(role.roleArn);
     }
-  }, [role.roleArn, userData?.token]);
+  }, [role.roleArn]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 

@@ -3,7 +3,6 @@ import { AuthUser, OidcLogoutFunction } from './auth';
 import { ConfigurationOverlay, Hostname } from './config';
 import { AppConfig, InstanceId } from './entities';
 import { ManagementClient } from './managementClient';
-import { BucketInfo, S3Bucket } from './s3';
 import { AppState } from './state';
 import { InstanceStatus } from './stats';
 import { STSClient } from './sts';
@@ -90,17 +89,6 @@ export type SelectInstanceAction = {
   readonly type: 'SELECT_INSTANCE';
   readonly selectedId: InstanceId;
 };
-// s3 actions
-export type ListBucketsSuccessAction = {
-  readonly type: 'LIST_BUCKETS_SUCCESS';
-  readonly list: Array<S3Bucket>;
-  readonly ownerName: string;
-};
-export type GetBucketInfoSuccessAction = {
-  readonly type: 'GET_BUCKET_INFO_SUCCESS';
-  readonly info: BucketInfo;
-};
-export type S3Action = GetBucketInfoSuccessAction | ListBucketsSuccessAction;
 // zenko actions
 export type SetZenkoClientAction = {
   readonly type: 'SET_ZENKO_CLIENT';
@@ -171,17 +159,6 @@ export type AccountUIAction =
   | CloseAccountDeleteDialogAction
   | OpenAccountKeyCreateModalAction
   | CloseAccountKeyCreateModalAction;
-// bucket UI actions
-export type OpenBucketDeleteDialogAction = {
-  readonly type: 'OPEN_BUCKET_DELETE_DIALOG';
-  readonly bucketName: string;
-};
-export type CloseBucketDeleteDialogAction = {
-  readonly type: 'CLOSE_BUCKET_DELETE_DIALOG';
-};
-export type BucketsUIAction =
-  | OpenBucketDeleteDialogAction
-  | CloseBucketDeleteDialogAction;
 
 export type StatsAction = InstanceStatusAction;
 // OIDC
@@ -215,7 +192,6 @@ export type Action =
   | AccountAction
   | AuthAction
   | OIDCAction
-  | S3Action
   | ThunkNonStateAction
   | ThunkStatePromisedAction
   | ThunkNonStatePromisedAction

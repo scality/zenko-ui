@@ -2,11 +2,9 @@ import { MockSTSClient } from '../../../../js/mock/STSClient';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import {
   CloseAccountDeleteDialogAction,
-  CloseBucketDeleteDialogAction,
   CloseEndpointDeleteDialogAction,
   ConfigAuthFailureAction,
   ConfigurationVersionAction,
-  GetBucketInfoSuccessAction,
   HandleErrorAction,
   InstanceStatusAction,
   ListAccountAccessKeySuccessAction,
@@ -16,7 +14,6 @@ import {
   NetworkActivityEndAction,
   NetworkActivityStartAction,
   OpenAccountDeleteDialogAction,
-  OpenBucketDeleteDialogAction,
   OpenEndpointDeleteDialogAction,
   SelectAccountAction,
   SelectInstanceAction,
@@ -34,7 +31,6 @@ import {
   ACCOUNT,
   ACCOUNT_ACCESS_KEYS,
   APP_CONFIG,
-  BUCKET_INFO_RESPONSE,
   INSTANCE_ID,
   INSTANCE_STATUS_RUNNINGv1,
   INSTANCE_STATUS_RUNNINGv2,
@@ -156,21 +152,6 @@ export const CLOSE_ENDPOINT_DELETE_DIALOG_ACTION: CloseEndpointDeleteDialogActio
   {
     type: 'CLOSE_ENDPOINT_DELETE_DIALOG',
   };
-// * buckets actions
-export const OPEN_BUCKET_DELETE_DIALOG_ACTION = (
-  bucketName: string,
-): OpenBucketDeleteDialogAction => ({
-  type: 'OPEN_BUCKET_DELETE_DIALOG',
-  bucketName,
-});
-export const CLOSE_BUCKET_DELETE_DIALOG_ACTION: CloseBucketDeleteDialogAction =
-  {
-    type: 'CLOSE_BUCKET_DELETE_DIALOG',
-  };
-export const GET_BUCKET_INFO_SUCCESS_ACTION: GetBucketInfoSuccessAction = {
-  type: 'GET_BUCKET_INFO_SUCCESS',
-  info: BUCKET_INFO_RESPONSE,
-};
 // * zenko actions
 export const ZENKO_CLEAR_ERROR_ACTION = (): ZenkoClearAction => {
   return {

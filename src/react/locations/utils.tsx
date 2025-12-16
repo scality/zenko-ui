@@ -13,7 +13,6 @@ import { LocationForm } from '../../types/location';
 import { storageOptions } from './LocationDetails';
 import { getLocationType } from '../utils/storageOptions';
 
-import { BucketInfo } from '../../types/s3';
 import { Location as NextLocation } from '../next-architecture/domain/entities/location';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 
@@ -114,33 +113,6 @@ function isLocationExists(location: string): boolean {
   return Object.keys(storageOptions).some((opt) => opt === location);
 }
 
-function convertToBucketInfo(bucketInfo: BucketInfo | null) {
-  const objectLockEnabled =
-    bucketInfo?.objectLockConfiguration.ObjectLockEnabled;
-  const isDefaultRetentionEnabled = bucketInfo?.objectLockConfiguration.Rule
-    ?.DefaultRetention
-    ? true
-    : false;
-  const retentionMode =
-    bucketInfo?.objectLockConfiguration.Rule?.DefaultRetention?.Mode ||
-    'GOVERNANCE';
-  const retentionPeriod = bucketInfo?.objectLockConfiguration.Rule
-    ?.DefaultRetention?.Days
-    ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days
-    : bucketInfo?.objectLockConfiguration.Rule?.DefaultRetention?.Years || 1;
-  const retentionPeriodFrequencyChoice = bucketInfo?.objectLockConfiguration
-    .Rule?.DefaultRetention?.Years
-    ? 'YEARS'
-    : 'DAYS';
-  return {
-    objectLockEnabled,
-    isDefaultRetentionEnabled,
-    retentionMode,
-    retentionPeriod,
-    retentionPeriodFrequencyChoice,
-  };
-}
-
 //disable the Cold Location as a source storage location
 function renderLocation(
   location: LegacyLocation | Omit<NextLocation, 'usedCapacity'> | LocationInfo,
@@ -169,6 +141,5 @@ export {
   newLocationDetails,
   getLocationDeletionBlocker,
   isLocationExists,
-  convertToBucketInfo,
   renderLocation,
 };
