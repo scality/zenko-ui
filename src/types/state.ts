@@ -2,7 +2,7 @@ import { Account, AccountKey } from './account';
 import { AppConfig, InstanceId } from './entities';
 import { AuthUser, OidcLogoutFunction } from './auth';
 import { BucketList, InstanceStatus } from './stats';
-import { ConfigurationOverlay, Hostname, LocationName } from './config';
+import { ConfigurationOverlay, Hostname } from './config';
 import { ErrorViewType } from './ui';
 import { IamAccessKey } from './user';
 import { List } from 'immutable';
@@ -52,9 +52,6 @@ export type AccountsUIState = {
   readonly showDelete: boolean;
   readonly showKeyCreate: boolean;
 };
-export type LocationsUIState = {
-  readonly showDeleteLocation: LocationName;
-};
 export type StatsState = {
   readonly bucketList: BucketList;
 };
@@ -74,7 +71,6 @@ export type AppState = {
   readonly oidc: OIDCState;
   readonly secrets: SecretsState;
   readonly uiErrors: ErrorsUIState;
-  readonly uiLocations: LocationsUIState;
   readonly uiEndpoints: EndpointsUIState;
   readonly uiAccounts: AccountsUIState;
   readonly stats: StatsState;

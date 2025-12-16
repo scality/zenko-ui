@@ -10,8 +10,6 @@ import secrets from './secrets';
 import stats from './stats';
 import uiAccounts from './uiAccounts';
 import uiErrors from './uiErrors';
-import uiLocations from './uiLocations';
-import uiUser from './uiUser';
 
 const zenkoUIReducer = () =>
   combineReducers({
@@ -23,8 +21,6 @@ const zenkoUIReducer = () =>
     networkActivity,
     uiAccounts,
     uiErrors,
-    uiLocations,
-    uiUser,
     secrets,
     stats,
     oidc,

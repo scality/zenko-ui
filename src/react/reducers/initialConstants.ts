@@ -118,9 +118,6 @@ export const initialInstanceStatus: InstanceStatusState = {
     },
   },
 };
-export const initialLocationsUIState = {
-  showDeleteLocation: '',
-};
 export const initialEndpointsUIState = {
   showDelete: '',
 };
@@ -137,11 +134,6 @@ export const initialSecretsState = {
 };
 export const initialStatsState = {
   bucketList: [],
-};
-export const initialUserUIState = {
-  showDelete: false,
-  showSecret: null,
-  showDeleteKey: null,
 };
 export const initialUserState = {
   list: [],
@@ -160,8 +152,6 @@ export const initialFullState = {
   secrets: initialSecretsState,
   stats: initialStatsState,
   uiAccounts: initialAccountsUIState,
-  uiUser: initialUserUIState,
-  uiLocations: initialLocationsUIState,
   uiErrors: initialErrorsUIState,
   oidc: initialOidc,
 };
