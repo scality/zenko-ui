@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, PropsWithChildren } from 'react';
 import IAMClient from '../js/IAMClient';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
-import { S3Credentials } from '@scality/data-browser-library';
+import type { AwsCredentialIdentity } from '@aws-sdk/types';
 
 export const _IAMContext = createContext<null | {
   iamClient: IAMClient;
@@ -20,7 +20,7 @@ export const useIAMClient = () => {
 };
 
 type IAMProviderProps = PropsWithChildren<{
-  credentials?: S3Credentials;
+  credentials?: AwsCredentialIdentity;
 }>;
 
 export const IAMProvider = ({ children, credentials }: IAMProviderProps) => {
@@ -29,25 +29,12 @@ export const IAMProvider = ({ children, credentials }: IAMProviderProps) => {
   const iamClient = useMemo(() => {
     const client = new IAMClient(iamEndpoint);
 
-    if (
-      credentials?.accessKeyId &&
-      credentials?.secretAccessKey &&
-      credentials?.sessionToken
-    ) {
-      client.login({
-        accessKey: credentials.accessKeyId,
-        secretKey: credentials.secretAccessKey,
-        sessionToken: credentials.sessionToken,
-      });
+    if (credentials?.accessKeyId && credentials?.secretAccessKey) {
+      client.login(credentials);
     }
 
     return client;
-  }, [
-    iamEndpoint,
-    credentials?.accessKeyId,
-    credentials?.secretAccessKey,
-    credentials?.sessionToken,
-  ]);
+  }, [iamEndpoint, credentials]);
 
   return (
     <_IAMContext.Provider value={{ iamClient }}>

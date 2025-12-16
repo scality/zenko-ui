@@ -150,15 +150,6 @@ export const initialUserState = {
   groupList: [],
   displayedUser: {},
 };
-export const initialZenkoState = {
-  zenkoClient: null,
-  error: {
-    message: null,
-    code: null,
-    target: null,
-    type: null,
-  },
-};
 export const initialFullState = {
   account: initialAccountState,
   auth: initialAuthState,
@@ -173,5 +164,4 @@ export const initialFullState = {
   uiLocations: initialLocationsUIState,
   uiErrors: initialErrorsUIState,
   oidc: initialOidc,
-  zenko: initialZenkoState,
 };

@@ -1,4 +1,3 @@
-import { AWSError } from '../../types/aws';
 export class ApiErrorObject extends Error {
   code: number | string;
   status: number | string;
@@ -15,7 +14,13 @@ export class ApiErrorObject extends Error {
     this.status = status === undefined ? 500 : status;
   }
 }
-export function awsErrorObject(message: string, code: string): AWSError {
+
+export type MockAWSError = {
+  code: string;
+  message: string;
+};
+
+export function awsErrorObject(message: string, code: string): MockAWSError {
   return {
     code,
     message,

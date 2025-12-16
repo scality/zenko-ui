@@ -1,5 +1,6 @@
 import { IamAccessKey, ListAccessKeysResponse } from '../../types/user';
-import { AWSError } from '../../types/aws';
+import { MockAWSError } from './error';
+
 export const accountAccessKeys: Array<IamAccessKey> = [
   {
     AccessKeyId: 'LEAST_RECENT_KEY_BBB',
@@ -24,9 +25,9 @@ export class MockIAMClient {
   }
 }
 export class ErrorMockIAMClient {
-  _error: AWSError;
+  _error: MockAWSError;
 
-  constructor(error: AWSError) {
+  constructor(error: MockAWSError) {
     this._error = error;
   }
 

@@ -5,7 +5,7 @@ import {
   HandleErrorAction,
   ThunkNonStateAction,
 } from '../../types/actions';
-import { AWSError } from '../../types/aws';
+import { AWSError } from 'aws-sdk';
 import { ErrorViewType } from '../../types/ui';
 import { errorParser } from '../utils';
 import { networkAuthFailure } from './network';

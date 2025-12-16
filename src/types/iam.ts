@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Credentials } from './zenko';
+import type { AwsCredentialIdentity } from '@aws-sdk/types';
 export type IAMResp = {};
 export type WebIdentityRoles = {
   IsTruncated: boolean;
@@ -20,7 +20,7 @@ export type Role = {
 };
 
 export interface IAMClient {
-  login(creds: Credentials): void;
+  login(creds: AwsCredentialIdentity): void;
   logout(): void;
   createAccessKey(userName: string): Promise<IAMResp>;
   createUser(userName: string): Promise<IAMResp>;

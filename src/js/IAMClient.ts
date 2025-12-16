@@ -1,6 +1,6 @@
 import { AppState } from '../types/state';
-import { Credentials } from '../types/zenko';
 import IAM from 'aws-sdk/clients/iam';
+import type { AwsCredentialIdentity } from '@aws-sdk/types';
 import {
   IAMClient as IAMClientInterface,
   WebIdentityRoles,
@@ -24,13 +24,12 @@ export function getAssumeRoleWithWebIdentityIAM(
   };
 
   return stsClient.assumeRoleWithWebIdentity(assumeRoleParams).then((creds) => {
-    const params = {
-      accessKey: creds.Credentials.AccessKeyId,
-      secretKey: creds.Credentials.SecretAccessKey,
-      sessionToken: creds.Credentials.SessionToken,
-    };
     const iamClient = new IAMClient(auth.config.iamEndpoint);
-    iamClient.login(params);
+    iamClient.login({
+      accessKeyId: creds.Credentials.AccessKeyId,
+      secretAccessKey: creds.Credentials.SecretAccessKey,
+      sessionToken: creds.Credentials.SessionToken,
+    });
     return iamClient;
   });
 }
@@ -104,12 +103,11 @@ export default class IAMClient implements IAMClientInterface {
     this.endpoint = genClientEndpoint(endpoint);
   }
 
-  login(creds: Credentials) {
+  login(creds: AwsCredentialIdentity) {
     this.client = new IAM({
-      // endpoint: 'https://iam.amazonaws.com',
       endpoint: this.endpoint,
-      accessKeyId: creds.accessKey,
-      secretAccessKey: creds.secretKey,
+      accessKeyId: creds.accessKeyId,
+      secretAccessKey: creds.secretAccessKey,
       sessionToken: creds.sessionToken,
       region: 'us-east-1',
     });

@@ -12,7 +12,6 @@ import uiAccounts from './uiAccounts';
 import uiErrors from './uiErrors';
 import uiLocations from './uiLocations';
 import uiUser from './uiUser';
-import zenko from './zenko';
 
 const zenkoUIReducer = () =>
   combineReducers({
@@ -29,7 +28,6 @@ const zenkoUIReducer = () =>
     secrets,
     stats,
     oidc,
-    zenko: zenko,
   });
 
 export default zenkoUIReducer;

@@ -2,13 +2,12 @@ import { createContext, useContext, useMemo, PropsWithChildren } from 'react';
 import ZenkoClientBase from 'zenkoclient';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { genClientEndpoint } from './utils';
-import { Site, ZenkoMapResp } from '../types/zenko';
-import { S3Credentials } from '@scality/data-browser-library';
+import type { AwsCredentialIdentity } from '@aws-sdk/types';
 class ZenkoSiteClient {
   private _jsonClient: ZenkoClientBase;
   private _isLogin = false;
 
-  constructor(endpoint: string, credentials?: S3Credentials) {
+  constructor(endpoint: string, credentials?: AwsCredentialIdentity) {
     this._jsonClient = new ZenkoClientBase({
       accessKeyId: credentials?.accessKeyId || '',
       secretAccessKey: credentials?.secretAccessKey || '',
@@ -25,7 +24,7 @@ class ZenkoSiteClient {
     );
   }
 
-  login(credentials: S3Credentials): void {
+  login(credentials: AwsCredentialIdentity): void {
     this._jsonClient.config.update({
       accessKeyId: credentials.accessKeyId,
       secretAccessKey: credentials.secretAccessKey,
@@ -47,25 +46,25 @@ class ZenkoSiteClient {
     return this._isLogin;
   }
 
-  pauseCrrSite(site: Site): Promise<ZenkoMapResp> {
+  pauseCrrSite(site: string): Promise<Record<string, unknown>> {
     const params = { Site: site };
     //@ts-expect-error fix this when you are working on it
     return this._jsonClient.pauseSite(params).promise();
   }
 
-  resumeCrrSite(site: Site): Promise<ZenkoMapResp> {
+  resumeCrrSite(site: string): Promise<Record<string, unknown>> {
     const params = { Site: site };
     //@ts-expect-error fix this when you are working on it
     return this._jsonClient.resumeSite(params).promise();
   }
 
-  pauseIngestionSite(site: Site): Promise<ZenkoMapResp> {
+  pauseIngestionSite(site: string): Promise<Record<string, unknown>> {
     const params = { Site: site };
     //@ts-expect-error fix this when you are working on it
     return this._jsonClient.pauseIngestionSite(params).promise();
   }
 
-  resumeIngestionSite(site: Site): Promise<ZenkoMapResp> {
+  resumeIngestionSite(site: string): Promise<Record<string, unknown>> {
     const params = { Site: site };
     //@ts-expect-error fix this when you are working on it
     return this._jsonClient.resumeIngestionSite(params).promise();
@@ -83,7 +82,7 @@ export const useZenkoClient = () => {
 };
 
 type ZenkoProviderProps = PropsWithChildren<{
-  credentials?: S3Credentials;
+  credentials?: AwsCredentialIdentity;
 }>;
 
 export const ZenkoProvider = ({

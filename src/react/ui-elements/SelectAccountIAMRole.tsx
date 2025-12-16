@@ -1,7 +1,7 @@
 import { Form, FormGroup, FormSection, useToast } from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
 import { IAM } from 'aws-sdk';
-import { Bucket } from 'aws-sdk/clients/s3';
+import { Bucket } from '@scality/data-browser-library';
 import { PropsWithChildren, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useParams } from 'react-router';

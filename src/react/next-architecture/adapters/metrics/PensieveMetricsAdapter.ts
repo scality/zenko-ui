@@ -1,4 +1,4 @@
-import { Bucket } from 'aws-sdk/clients/s3';
+import { Bucket } from '@scality/data-browser-library';
 import { LatestUsedCapacity } from '../../domain/entities/metrics';
 import { IMetricsAdapter } from './IMetricsAdapter';
 import makeMgtClient, {

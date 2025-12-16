@@ -51,8 +51,8 @@ export const useIAMUser = ({
       const { Credentials } = await getQuery(roleArn).queryFn();
 
       IAMClient.login({
-        accessKey: Credentials.AccessKeyId,
-        secretKey: Credentials.SecretAccessKey,
+        accessKeyId: Credentials.AccessKeyId,
+        secretAccessKey: Credentials.SecretAccessKey,
         sessionToken: Credentials.SessionToken,
       });
 

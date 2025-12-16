@@ -1,5 +1,5 @@
 import { useBuckets } from '@scality/data-browser-library';
-import { Bucket } from 'aws-sdk/clients/s3';
+import { Bucket } from '@scality/data-browser-library';
 import { useQuery, useQueryClient } from 'react-query';
 import { useAuthGroups } from '../../utils/hooks';
 import { IMetricsAdapter } from '../../next-architecture/adapters/metrics/IMetricsAdapter';

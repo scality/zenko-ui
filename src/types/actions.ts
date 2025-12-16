@@ -7,7 +7,6 @@ import { AppState } from './state';
 import { InstanceStatus } from './stats';
 import { STSClient } from './sts';
 import { IamAccessKey } from './user';
-import { ZenkoClient } from './zenko';
 export type DispatchFunction = (arg0: Action) => any;
 export type GetStateFunction = () => AppState;
 export interface ApiError extends Error {
@@ -89,25 +88,6 @@ export type SelectInstanceAction = {
   readonly type: 'SELECT_INSTANCE';
   readonly selectedId: InstanceId;
 };
-// zenko actions
-export type SetZenkoClientAction = {
-  readonly type: 'SET_ZENKO_CLIENT';
-  readonly zenkoClient: ZenkoClient;
-};
-export type ZenkoClearAction = {
-  readonly type: 'ZENKO_CLEAR_ERROR';
-};
-export type ZenkoErrorAction = {
-  readonly type: 'ZENKO_HANDLE_ERROR';
-  readonly errorMsg: string | null;
-  readonly errorCode: string | number | null;
-  readonly errorType: string | null;
-  readonly errorTarget: string | null;
-};
-export type ZenkoAction =
-  | SetZenkoClientAction
-  | ZenkoClearAction
-  | ZenkoErrorAction;
 // networkActivity actions
 export type NetworkActivityAuthFailureAction = {
   readonly type: 'NETWORK_AUTH_FAILURE';
@@ -202,5 +182,4 @@ export type Action =
   | NetworkActivityAction
   | ConfigurationAction
   | AccountUIAction
-  | StatsAction
-  | ZenkoAction;
+  | StatsAction;

@@ -21,12 +21,8 @@ import {
   SetManagementClientAction,
   SetOIDCLogoutAction,
   SetSTSClientAction,
-  ZenkoClearAction,
-  ZenkoErrorAction,
 } from '../../../../types/actions';
 import { Hostname } from '../../../../types/config';
-
-import { ZenkoClientError } from '../../../../types/zenko';
 import {
   ACCOUNT,
   ACCOUNT_ACCESS_KEYS,
@@ -101,18 +97,6 @@ export function HANDLE_ERROR_SPEC_ACTION(errorMsg: string): HandleErrorAction {
     errorType: 'byComponent',
   };
 }
-export const ZENKO_HANDLE_ERROR_ACTION = (
-  error: ZenkoClientError,
-  target: string | null,
-  type: string | null,
-): ZenkoErrorAction => ({
-  type: 'ZENKO_HANDLE_ERROR',
-  errorMsg: error.message || null,
-  errorCode: error.code || null,
-  errorType: type,
-  errorTarget: target,
-});
-
 // * config actions
 export const CONFIGURATION_VERSION_ACTION: ConfigurationVersionAction = {
   type: 'CONFIGURATION_VERSION',
@@ -152,12 +136,6 @@ export const CLOSE_ENDPOINT_DELETE_DIALOG_ACTION: CloseEndpointDeleteDialogActio
   {
     type: 'CLOSE_ENDPOINT_DELETE_DIALOG',
   };
-// * zenko actions
-export const ZENKO_CLEAR_ERROR_ACTION = (): ZenkoClearAction => {
-  return {
-    type: 'ZENKO_CLEAR_ERROR',
-  };
-};
 // instance status actions
 export const INSTANCE_STATUS_ACTION_RUNNINGv1: InstanceStatusAction = {
   type: 'INSTANCE_STATUS',

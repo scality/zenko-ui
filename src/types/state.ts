@@ -3,7 +3,6 @@ import { AppConfig, InstanceId } from './entities';
 import { AuthUser, OidcLogoutFunction } from './auth';
 import { BucketList, InstanceStatus } from './stats';
 import { ConfigurationOverlay, Hostname, LocationName } from './config';
-import { ZenkoClient as ZenkoClientInterface } from './zenko';
 import { ErrorViewType } from './ui';
 import { IamAccessKey } from './user';
 import { List } from 'immutable';
@@ -62,15 +61,6 @@ export type StatsState = {
 export type SecretsState = {
   accountKey: AccountKey | null;
 };
-export type ZenkoState = {
-  readonly zenkoClient: ZenkoClientInterface;
-  readonly error: {
-    readonly message: null | string;
-    readonly code: null | string | number;
-    readonly target: null | string;
-    readonly type: string | null;
-  };
-};
 export type EndpointsUIState = {
   showDelete: Hostname;
 };
@@ -88,5 +78,4 @@ export type AppState = {
   readonly uiEndpoints: EndpointsUIState;
   readonly uiAccounts: AccountsUIState;
   readonly stats: StatsState;
-  readonly zenko: ZenkoState;
 };

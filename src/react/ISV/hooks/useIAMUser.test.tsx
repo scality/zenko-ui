@@ -98,8 +98,8 @@ describe('useIAMUser', () => {
 
     // verify IAM client call
     expect(mockIAMClient.login).toHaveBeenCalledWith({
-      accessKey: 'test-access-key',
-      secretKey: 'test-secret-key',
+      accessKeyId: 'test-access-key',
+      secretAccessKey: 'test-secret-key',
       sessionToken: 'test-session-token',
     });
     expect(mockIAMClient.listUsers).toHaveBeenCalledWith(100);

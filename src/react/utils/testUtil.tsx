@@ -136,13 +136,12 @@ export const defaultUserData = {
 
 export const TEST_ROLE_PATH_NAME = 'scality-internal/storage-manager-role';
 export const TEST_ROLE_ARN = `arn:aws:iam::000000000000:role/${TEST_ROLE_PATH_NAME}`;
-const params = {
-  accessKey: 'accessKey',
-  secretKey: 'secretKey',
-  sessionToken: 'sessionToken',
-};
 const iamClient = new IAMClient(TEST_API_BASE_URL);
-iamClient.login(params);
+iamClient.login({
+  accessKeyId: 'accessKey',
+  secretAccessKey: 'secretKey',
+  sessionToken: 'sessionToken',
+});
 export const TEST_MANAGEMENT_CLIENT = new UiFacingApiWrapper(
   new Configuration({
     apiKey: 'token',
