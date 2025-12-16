@@ -60,22 +60,11 @@ const TestProvidersWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const theme = coreUIAvailableThemes.darkRebrand;
-export const configuration = {
-  latest: {
-    version: 1,
-    updatedAt: '2017-09-28T19:39:22.191Z',
-    creator: 'initial',
-    instanceId: 'demo-instance',
-    locations: {},
-    users: [],
-    endpoints: [],
-  },
-};
+
 export const newTestStore = (state) => {
   const store = configureStore([thunk])({
     ...initialFullState,
     ...authenticatedUserState(),
-    configuration,
     ...(state || {}),
   });
   return store;
@@ -86,8 +75,6 @@ export const realStoreWithInitState = (state) => {
   const tmpState = {
     ...initialFullState,
     ...authenticatedUserState(),
-
-    configuration,
     ...(state || {}),
   };
   tmpState.auth.managementClient = TEST_MANAGEMENT_CLIENT;
@@ -129,6 +116,9 @@ export const defaultUserData = {
       iat: 1592593605,
       iss: 'https://zenko.io',
       sub: 'test',
+      instanceIds: ['1abe6d07-9b04-45e4-8c62-bdc5548f1f95'],
+      name: 'test ADMIN',
+      email: 'test.admin@scality.com',
       groups: ['StorageManager'],
     },
   },

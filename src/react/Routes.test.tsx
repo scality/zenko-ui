@@ -49,18 +49,6 @@ describe('Routes component', () => {
           },
           oidcLogout: jest.fn(),
         },
-        oidc: {
-          user: {
-            access_token: 'mock-token',
-            expired: false,
-            expires_at: Date.now() / 1000 + 3600, // 1 hour from now
-          },
-        },
-        configuration: {
-          latest: {
-            version: 1,
-          },
-        },
       };
       // Pass the mock state to the selector function
       return selector(mockState);
@@ -75,12 +63,6 @@ describe('Routes component', () => {
           isClientsLoaded: false,
           config: {
             managementEndpoint: 'http://test-endpoint.com',
-          },
-        },
-        oidc: {
-          user: {
-            access_token: 'mock-token',
-            expired: false,
           },
         },
       };
@@ -133,7 +115,16 @@ describe('Routes component', () => {
         userData: {
           token: FAKE_TOKEN,
           original: {
+            id_token: 'idtoken',
             session_state: 'session-state-1',
+            access_token: 'accessToken',
+            profile: {
+              sub: 'test-user-sub',
+              instanceIds: ['1abe6d07-9b04-45e4-8c62-bdc5548f1f95'],
+              name: 'Test User',
+              email: 'test@test.com',
+            },
+            expires_at: Date.now() / 1000 + 3600,
           },
           groups: ['PlatformAdmin'],
         },
@@ -158,7 +149,16 @@ describe('Routes component', () => {
         userData: {
           token: FAKE_TOKEN,
           original: {
+            id_token: 'idtoken',
             session_state: 'session-state-1',
+            access_token: 'accessToken',
+            profile: {
+              sub: 'test-user-sub',
+              instanceIds: ['1abe6d07-9b04-45e4-8c62-bdc5548f1f95'],
+              name: 'Test User',
+              email: 'test@test.com',
+            },
+            expires_at: Date.now() / 1000 + 3600,
           },
           groups: ['PlatformAdmin'],
         },
@@ -191,7 +191,16 @@ describe('Routes component', () => {
         userData: {
           token: FAKE_TOKEN,
           original: {
+            id_token: 'idtoken',
             session_state: 'session-state-1',
+            access_token: 'accessToken',
+            profile: {
+              sub: 'test-user-sub',
+              instanceIds: ['1abe6d07-9b04-45e4-8c62-bdc5548f1f95'],
+              name: 'Test User',
+              email: 'test@test.com',
+            },
+            expires_at: Date.now() / 1000 + 3600,
           },
           groups: ['StorageManager'],
         },

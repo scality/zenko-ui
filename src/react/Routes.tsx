@@ -107,9 +107,6 @@ export function PrivateRoutes({
   const managementEndpoint = useSelector(
     (state: AppState) => state.auth?.config?.managementEndpoint,
   );
-  const latestConfiguration = useSelector(
-    (state: AppState) => state.configuration?.latest,
-  );
 
   useMemo(() => {
     if (!!managementEndpoint && !!userData?.token) {
@@ -124,11 +121,7 @@ export function PrivateRoutes({
   const isAuthenticated = !!userData && !userData.expired && !!userData.token;
   useEffect(() => {
     if (isAuthenticated) {
-      // TODO: forbid loading clients when authorization server redirects the user back to ui.zenko.local with an authorization code.
-      // That will fix management API request being canceled during autentication.
-      if (!latestConfiguration) {
-        dispatch(loadClients(user)); // FIXME To be delete soon
-      }
+      dispatch(loadClients(user));
 
       const refreshIntervalStatsUnit = setInterval(() => {
         const currentTime = Math.floor(Date.now() / 1000);
@@ -141,8 +134,7 @@ export function PrivateRoutes({
         clearInterval(refreshIntervalStatsUnit);
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, isAuthenticated, user?.profile?.sub, latestConfiguration]);
+  }, [dispatch, isAuthenticated, user?.profile?.sub]);
 
   const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
   useMemo(() => {

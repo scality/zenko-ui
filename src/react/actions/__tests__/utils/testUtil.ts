@@ -20,7 +20,6 @@ import { AppState } from '../../../../types/state';
 import { EnabledState } from '../../../../types/stats';
 import zenkoUIReducer from '../../../reducers';
 import { initialFullState } from '../../../reducers/initialConstants';
-import { configuration } from '../../../utils/testUtil';
 import { waitFor } from '@testing-library/react';
 type ActionTestObject = {
   skip?: boolean;
@@ -129,7 +128,6 @@ export const TEST_USER = {
 export function storeStateWithRunningConfigurationVersion2(): AppState {
   return {
     ...initState,
-    configuration,
     instanceStatus: {
       ...initState.instanceStatus,
       latest: {

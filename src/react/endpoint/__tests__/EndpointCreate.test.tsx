@@ -34,26 +34,7 @@ describe('EndpointCreate', () => {
   it('should disable cold location as a source storage location when creating a data service', async () => {
     const coldLocation = 'europe25-myroom-cold';
     //E
-    await renderWithRouterMatch(<EndpointCreate />, undefined, {
-      configuration: {
-        latest: {
-          locations: {
-            [coldLocation]: {
-              locationType: 'location-dmf-v1',
-              name: coldLocation,
-              isCold: true,
-              details: {
-                endpoint: 'ws://tape.myroom.europe25.cnes:8181',
-                repoId: ['repoId'],
-                nsId: 'nsId',
-                username: 'username',
-                password: 'password',
-              },
-            },
-          },
-        },
-      },
-    });
+    await renderWithRouterMatch(<EndpointCreate />);
 
     await waitForElementToBeRemoved(() =>
       screen.getByText('Loading locations...'),
@@ -71,26 +52,7 @@ describe('EndpointCreate', () => {
   it('should always render the warning message', async () => {
     const coldLocation = 'europe25-myroom-cold';
     //E
-    await renderWithRouterMatch(<EndpointCreate />, undefined, {
-      configuration: {
-        latest: {
-          locations: {
-            [coldLocation]: {
-              locationType: 'location-dmf-v1',
-              name: coldLocation,
-              isCold: true,
-              details: {
-                endpoint: 'ws://tape.myroom.europe25.cnes:8181',
-                repoId: ['repoId'],
-                nsId: 'nsId',
-                username: 'username',
-                password: 'password',
-              },
-            },
-          },
-        },
-      },
-    });
+    await renderWithRouterMatch(<EndpointCreate />);
 
     await waitForElementToBeRemoved(() =>
       screen.getByText('Loading locations...'),

@@ -4,7 +4,6 @@ import {
   CloseAccountDeleteDialogAction,
   CloseEndpointDeleteDialogAction,
   ConfigAuthFailureAction,
-  ConfigurationVersionAction,
   HandleErrorAction,
   InstanceStatusAction,
   ListAccountAccessKeySuccessAction,
@@ -30,7 +29,6 @@ import {
   INSTANCE_ID,
   INSTANCE_STATUS_RUNNINGv1,
   INSTANCE_STATUS_RUNNINGv2,
-  LATEST_OVERLAY,
   LOGOUT_MOCK,
 } from './testUtil';
 // auth actions
@@ -97,11 +95,6 @@ export function HANDLE_ERROR_SPEC_ACTION(errorMsg: string): HandleErrorAction {
     errorType: 'byComponent',
   };
 }
-// * config actions
-export const CONFIGURATION_VERSION_ACTION: ConfigurationVersionAction = {
-  type: 'CONFIGURATION_VERSION',
-  configuration: LATEST_OVERLAY,
-};
 // * network actions
 export const NETWORK_START_ACTION = (
   msg: string,

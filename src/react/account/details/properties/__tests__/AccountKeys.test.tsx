@@ -32,11 +32,6 @@ describe('AccountKeys', () => {
 
   it('should render AccountKeys component', () => {
     renderWithRouterMatch(<AccountKeys account={account1} />, undefined, {
-      configuration: {
-        latest: {
-          users: [account1],
-        },
-      },
       account: {
         accessKeyList: accountAccessKeys,
       },
@@ -56,11 +51,6 @@ describe('AccountKeys', () => {
   it('should render notification whenever there is at least 1 Root Access Key', () => {
     const accessKey = accountAccessKeys[0];
     renderWithRouterMatch(<AccountKeys account={account1} />, undefined, {
-      configuration: {
-        latest: {
-          users: [account1],
-        },
-      },
       account: {
         accessKeyList: [accessKey], // only one key
       },
@@ -75,11 +65,6 @@ describe('AccountKeys', () => {
 
   it('should render Warning/Banner accordingly to number of Access Key', () => {
     const { component } = reduxRender(<AccountKeys account={account1} />, {
-      configuration: {
-        latest: {
-          users: [account1],
-        },
-      },
       account: {
         accessKeyList: [],
       },

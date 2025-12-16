@@ -167,12 +167,6 @@ describe.skip('Locations', () => {
           config: { features: [] },
           selectedAccount: { id: accountId },
         },
-        configuration: {
-          latest: {
-            locations,
-            endpoints: [],
-          },
-        },
       });
 
       await waitForElementToBeRemoved(
@@ -372,14 +366,6 @@ describe.skip('Locations', () => {
           config: { features: [] },
           selectedAccount: { id: accountId },
         },
-        configuration: {
-          latest: {
-            locations: {
-              'location-aws-s3': locationAwsS3,
-            },
-            endpoints: [],
-          },
-        },
       });
 
       await waitForElementToBeRemoved(
@@ -461,14 +447,6 @@ describe.skip('Locations', () => {
           },
           selectedAccount: { id: accountId },
         },
-        configuration: {
-          latest: {
-            locations: {
-              'location-aws-s3': locationAwsS3,
-            },
-            endpoints: [],
-          },
-        },
       });
 
       await waitForElementToBeRemoved(
@@ -524,14 +502,6 @@ describe.skip('Locations', () => {
         auth: {
           config: { features: [] },
           selectedAccount: { id: accountId },
-        },
-        configuration: {
-          latest: {
-            locations: {
-              'location-aws-s3': locationAwsS3,
-            },
-            endpoints: [],
-          },
         },
         stats: {
           bucketList: [
@@ -592,19 +562,6 @@ describe.skip('Locations', () => {
         auth: {
           config: { features: [] },
           selectedAccount: { id: accountId },
-        },
-        configuration: {
-          latest: {
-            locations: {
-              'location-aws-s3': locationAwsS3,
-            },
-            endpoints: [
-              {
-                hostname: 'host1',
-                locationName: 'location-aws-s3',
-              },
-            ],
-          },
         },
       });
 
@@ -682,13 +639,6 @@ describe.skip('Locations', () => {
       auth: {
         config: { features: [], iamEndpoint: TEST_API_BASE_URL },
         selectedAccount: { id: ACCOUNT_ID },
-      },
-      configuration: {
-        latest: {
-          locations: {
-            'location-dmf': locationDmf,
-          },
-        },
       },
     });
 

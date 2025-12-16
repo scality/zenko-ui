@@ -3,7 +3,6 @@ import {
   AccountState,
   AccountsUIState,
   AuthState,
-  ConfigurationState,
   ErrorsUIState,
   InstanceStatusState,
   NetworkActivityState,
@@ -34,9 +33,6 @@ export const initialAuthState: AuthState = {
   oidcLogout: null,
 };
 
-export const initialConfiguration: ConfigurationState = {
-  latest: null,
-};
 export const initialErrorsUIState: ErrorsUIState = {
   errorMsg: null,
   errorType: null,
@@ -50,7 +46,7 @@ export const initialInstanceStatus: InstanceStatusState = {
         secureChannel: true,
       },
       lastSeen: '',
-      latestConfigurationOverlay: initialConfiguration.latest,
+      latestConfigurationOverlay: null,
       serverVersion: '',
     },
     metrics: {
@@ -141,7 +137,6 @@ export const initialUserState = {
 export const initialFullState = {
   account: initialAccountState,
   auth: initialAuthState,
-  configuration: initialConfiguration,
   instanceStatus: initialInstanceStatus,
   instances: initialInstancesState,
   networkActivity: initialNetworkActivityState,

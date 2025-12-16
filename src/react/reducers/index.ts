@@ -1,7 +1,6 @@
 import account from './account';
 import auth from './auth';
 import { combineReducers } from 'redux';
-import configuration from './configuration';
 import instanceStatus from './instanceStatus';
 import instances from './instances';
 import networkActivity from './networkActivity';
@@ -14,7 +13,6 @@ const zenkoUIReducer = () =>
   combineReducers({
     account,
     auth,
-    configuration,
     instanceStatus,
     instances,
     networkActivity,

@@ -108,18 +108,11 @@ export type NetworkActivityAction =
   | NetworkActivityEndAction
   | NetworkActivityAuthResetAction
   | LoadClientsSuccessAction;
-// configuration actions
+// instance status actions
 export type InstanceStatusAction = {
   readonly type: 'INSTANCE_STATUS';
   readonly status?: InstanceStatus;
 };
-export type ConfigurationVersionAction = {
-  readonly type: 'CONFIGURATION_VERSION';
-  readonly configuration: ConfigurationOverlay;
-};
-export type ConfigurationAction =
-  | InstanceStatusAction
-  | ConfigurationVersionAction;
 // account UI actions
 export type OpenAccountDeleteDialogAction = {
   readonly type: 'OPEN_ACCOUNT_DELETE_DIALOG';
@@ -172,6 +165,6 @@ export type Action =
   | SelectInstanceAction
   | SecretsAction
   | NetworkActivityAction
-  | ConfigurationAction
+  | InstanceStatusAction
   | AccountUIAction
   | StatsAction;

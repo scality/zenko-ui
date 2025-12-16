@@ -91,7 +91,6 @@ function AccountKeys({ account }: Props) {
     if (user) {
       dispatch(listAccountAccessKeys(roleArn, user));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, roleArn, user?.profile?.sub]);
 
   const handleOpenKeyModal = () => {
@@ -166,7 +165,6 @@ function AccountKeys({ account }: Props) {
         },
       },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, account.Name, user?.profile?.sub],
   );
   const accessKeys = useMemo(

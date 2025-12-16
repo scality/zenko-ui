@@ -35,13 +35,19 @@ jest.mock('../../hooks/useGetS3ServicePoint', () => ({
 
 const mockAuthUserData = {
   userData: {
-    original: {
-      session_state: 'xxx-yyy-zzzz-id',
-    },
-    id: 'xxx-yyy-zzzz-id',
     token: 'xxx-yyy-zzz-token',
-    username: 'Renard ADMIN',
-    email: 'renard.admin@scality.com',
+    original: {
+      id_token: 'idtoken',
+      session_state: 'xxx-yyy-zzzz-id',
+      access_token: 'xxx-yyy-zzz-token',
+      profile: {
+        sub: 'xxx-yyy-zzzz-id',
+        instanceIds: ['instance-id'],
+        name: 'Renard ADMIN',
+        email: 'renard.admin@scality.com',
+      },
+      expires_at: Date.now() / 1000 + 3600,
+    },
     groups: ['user', 'PlatformAdmin'],
   },
   getToken: async (): Promise<string> => {

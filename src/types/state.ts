@@ -2,7 +2,7 @@ import { Account, AccountKey } from './account';
 import { AppConfig, InstanceId } from './entities';
 import { OidcLogoutFunction } from './auth';
 import { BucketList, InstanceStatus } from './stats';
-import { ConfigurationOverlay, Hostname } from './config';
+import { Hostname } from './config';
 import { ErrorViewType } from './ui';
 import { IamAccessKey } from './user';
 import { List } from 'immutable';
@@ -26,9 +26,6 @@ export type AssumeRoleParams = {
 export type ErrorsUIState = {
   readonly errorMsg: string | null;
   readonly errorType: ErrorViewType | null;
-};
-export type ConfigurationState = {
-  readonly latest: ConfigurationOverlay | null;
 };
 export type AccountState = {
   readonly display: Account;
@@ -61,7 +58,6 @@ export type EndpointsUIState = {
 export type AppState = {
   readonly account: AccountState;
   readonly auth: AuthState;
-  readonly configuration: ConfigurationState;
   readonly instances: InstancesState;
   readonly instanceStatus: InstanceStatusState;
   readonly networkActivity: NetworkActivityState;
