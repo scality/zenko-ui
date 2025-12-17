@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Banner,
@@ -46,7 +46,6 @@ function EndpointCreate() {
     formState: { errors, isValid },
   } = useForm({
     mode: 'onChange',
-    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
     resolver: joiResolver(schema),
     defaultValues: {
       hostname: '',

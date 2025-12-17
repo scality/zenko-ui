@@ -1,6 +1,6 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from './components/VeeamLogo';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { Banner, Stack, Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
