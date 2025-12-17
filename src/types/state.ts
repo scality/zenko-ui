@@ -1,10 +1,8 @@
 import { Account } from './account';
 import { AppConfig, InstanceId } from './entities';
-import { OidcLogoutFunction } from './auth';
 import { BucketList, InstanceStatus } from './stats';
 import { Hostname } from './config';
 import { ErrorViewType } from './ui';
-import { IamAccessKey } from './user';
 import { List } from 'immutable';
 import { ManagementClient as ManagementClientInterface } from './managementClient';
 import { STSClient } from './sts';
@@ -16,7 +14,6 @@ export type AuthState = {
   readonly stsClient: STSClient;
   readonly config: AppConfig;
   readonly selectedAccount: Account | null;
-  readonly oidcLogout: OidcLogoutFunction | null;
 };
 export type AssumeRoleParams = {
   readonly idToken: string;
@@ -26,10 +23,6 @@ export type AssumeRoleParams = {
 export type ErrorsUIState = {
   readonly errorMsg: string | null;
   readonly errorType: ErrorViewType | null;
-};
-export type AccountState = {
-  readonly display: Account;
-  readonly accessKeyList: Array<IamAccessKey>;
 };
 export type InstancesState = {
   readonly selectedId: InstanceId | null;
@@ -49,7 +42,6 @@ export type EndpointsUIState = {
   showDelete: Hostname;
 };
 export type AppState = {
-  readonly account: AccountState;
   readonly auth: AuthState;
   readonly instances: InstancesState;
   readonly instanceStatus: InstanceStatusState;

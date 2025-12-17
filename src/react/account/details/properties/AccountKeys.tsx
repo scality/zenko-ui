@@ -6,20 +6,14 @@ import {
   spacing,
 } from '@scality/core-ui';
 import { Button, CopyButton, Table } from '@scality/core-ui/dist/next';
-import { useShellHooks } from '@scality/module-federation';
-import { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useMemo, useState } from 'react';
 import { Row } from 'react-table';
 import styled from 'styled-components';
 import { Account } from '../../../../types/account';
-import { AuthUser } from '../../../../types/auth';
-import { AppState } from '../../../../types/state';
-import { useDataServiceRole } from '../../../DataServiceRoleProvider';
-import {
-  deleteAccountAccessKey,
-  listAccountAccessKeys,
-} from '../../../actions';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
+import { useAccessKeysQuery, useDeleteAccessKeyMutation } from './useAccessKeysQuery';
+import { useDispatch } from 'react-redux';
+import { handleAWSClientError, handleAWSError } from '../../../actions/error';
 
 const AccessKeysDetails = styled.div`
   display: block;
@@ -42,24 +36,33 @@ type Props = {
 
 type AccessKey = {
   access_key: string;
-  created_at: string;
+  created_at: Date;
 };
 
 type DeleteKeyProps = {
   accessKey: string;
-  user?: AuthUser;
 };
 
-function DeleteKey({ accessKey, user }: DeleteKeyProps) {
+function DeleteKey({ accessKey }: DeleteKeyProps) {
   const dispatch = useDispatch();
-  const { roleArn } = useDataServiceRole();
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
     useState(false);
+  const deleteAccessKeyMutation = useDeleteAccessKeyMutation();
+
+  const handleDelete = () => {
+    deleteAccessKeyMutation.mutate(accessKey, {
+      onError: (error: any) => {
+        dispatch(handleAWSClientError(error));
+        dispatch(handleAWSError(error, 'byModal'));
+      },
+    });
+    setShowDeleteConfirmationModal(false);
+  };
 
   return (
     <>
       <Button
-        disabled={false}
+        disabled={deleteAccessKeyMutation.isLoading}
         icon={<Icon name="Delete" />}
         onClick={() => setShowDeleteConfirmationModal(true)}
         variant="danger"
@@ -71,7 +74,7 @@ function DeleteKey({ accessKey, user }: DeleteKeyProps) {
       <DeleteConfirmation
         show={showDeleteConfirmationModal}
         cancel={() => setShowDeleteConfirmationModal(false)}
-        approve={() => dispatch(deleteAccountAccessKey(roleArn, accessKey, user))}
+        approve={handleDelete}
         titleText={`Permanently remove the following access key ${accessKey} ?`}
       />
     </>
@@ -79,19 +82,7 @@ function DeleteKey({ accessKey, user }: DeleteKeyProps) {
 }
 
 function AccountKeys({ account, onOpenKeyModal }: Props) {
-  const dispatch = useDispatch();
-  const accessKeysInfo = useSelector(
-    (state: AppState) => state.account.accessKeyList,
-  );
-  const { roleArn } = useDataServiceRole();
-  const { useAuth } = useShellHooks();
-  const { userData } = useAuth();
-  const user = userData?.original;
-  useEffect(() => {
-    if (user) {
-      dispatch(listAccountAccessKeys(roleArn, user));
-    }
-  }, [dispatch, roleArn, user?.profile?.sub]);
+  const { data: accessKeysInfo, isLoading } = useAccessKeysQuery();
 
   const columns = useMemo(
     () => [
@@ -136,9 +127,9 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
           return 0;
         },
 
-        Cell({ value }: { value: string }) {
+        Cell({ value }: { value: Date }) {
           return (
-            <FormattedDateTime format="date-time" value={new Date(value)} />
+            <FormattedDateTime format="date-time" value={value} />
           );
         },
       },
@@ -155,17 +146,18 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
           return (
             <Wrap marginRight={spacing.r8}>
               <div></div>
-              <DeleteKey accessKey={access_key} user={user} />
+              <DeleteKey accessKey={access_key} />
             </Wrap>
           );
         },
       },
     ],
-    [dispatch, account.Name, user?.profile?.sub],
+    [],
   );
+
   const accessKeys = useMemo(
     () =>
-      accessKeysInfo.map((accessKeyInfo) => {
+      (accessKeysInfo || []).map((accessKeyInfo) => {
         return {
           access_key: accessKeyInfo.AccessKeyId,
           created_at: accessKeyInfo.CreateDate,
@@ -173,6 +165,15 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
       }),
     [accessKeysInfo],
   );
+
+  if (isLoading) {
+    return (
+      <AccessKeysDetails>
+        <h3 style={{ marginLeft: spacing.r16 }}>Root user Access keys details</h3>
+        <div style={{ padding: spacing.r16 }}>Loading...</div>
+      </AccessKeysDetails>
+    );
+  }
 
   return (
     <AccessKeysDetails>

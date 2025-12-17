@@ -7,6 +7,7 @@ import {
   renderWithRouterMatch,
 } from './utils/testUtil';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
+import { useAuthLoading } from './AuthLoadingProvider';
 
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
@@ -18,10 +19,15 @@ jest.mock('./next-architecture/ui/ConfigProvider', () => ({
   useConfig: jest.fn(),
 }));
 
+jest.mock('./AuthLoadingProvider', () => ({
+  useAuthLoading: jest.fn(),
+}));
+
 describe('Routes component', () => {
   const mockUseSelector = useSelector as jest.Mock;
   const mockUseDispatch = useDispatch as jest.Mock;
   const mockUseConfig = useConfig as jest.Mock;
+  const mockUseAuthLoading = useAuthLoading as jest.Mock;
   const selectors = {
     loadingAccounts: () => screen.queryByText(/Loading accounts/i),
     loadingDataServices: () => screen.queryByText(/Loading Data Services/i),
@@ -38,6 +44,14 @@ describe('Routes component', () => {
     // Default mock implementations
     mockUseDispatch.mockReturnValue(jest.fn());
 
+    // Default mock for useAuthLoading - clients loaded
+    mockUseAuthLoading.mockReturnValue({
+      isConfigLoaded: true,
+      isClientsLoaded: true,
+      configFailure: false,
+      configFailureErrorMessage: '',
+    });
+
     // Setup the default state for useSelector
     mockUseSelector.mockImplementation((selector) => {
       // Create a mock state that has the necessary fields
@@ -47,7 +61,6 @@ describe('Routes component', () => {
           config: {
             managementEndpoint: 'http://test-endpoint.com',
           },
-          oidcLogout: jest.fn(),
         },
       };
       // Pass the mock state to the selector function
@@ -57,6 +70,13 @@ describe('Routes component', () => {
 
   it('should show loading state when isClientsLoaded is false', async () => {
     // Override the default mock to set isClientsLoaded to false
+    mockUseAuthLoading.mockReturnValue({
+      isConfigLoaded: true,
+      isClientsLoaded: false,
+      configFailure: false,
+      configFailureErrorMessage: '',
+    });
+
     mockUseSelector.mockImplementation((selector) => {
       const mockState = {
         auth: {

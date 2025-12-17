@@ -71,7 +71,6 @@ export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
 export const ACCOUNT_NAME = userName;
 export const ACCOUNT_ACCESS_KEY = accountAccessKey;
 export const ACCOUNT_SECRET_KEY = accountSecretKey;
-export const LOGOUT_MOCK = () => {};
 export const INSTANCE_STATUS_RUNNINGv1 = {
   ...instanceStatus,
   state: { ...instanceStatus.state, runningConfigurationVersion: 1 },

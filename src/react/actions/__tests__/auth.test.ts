@@ -3,7 +3,6 @@ import * as dispatchAction from './utils/dispatchActionsList';
 import {
   APP_CONFIG,
   INSTANCE_ID,
-  LOGOUT_MOCK,
   initState,
   testActionFunction,
   testDispatchFunction,
@@ -50,11 +49,6 @@ describe.skip('auth actions', () => {
       it: 'should return CONFIG_AUTH_FAILURE action',
       fn: actions.configAuthFailure(),
       expectedActions: [dispatchAction.CONFIG_AUTH_FAILURE_ACTION],
-    },
-    {
-      it: 'should return SET_OIDC_LOGOUT action',
-      fn: actions.setOIDCLogout(LOGOUT_MOCK),
-      expectedActions: [dispatchAction.SET_OIDC_LOGOUT_ACTION],
     },
   ];
   //@ts-expect-error fix this when you are working on it

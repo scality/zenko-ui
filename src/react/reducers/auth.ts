@@ -9,9 +9,6 @@ export default function auth(
     case 'SET_STS_CLIENT':
       return { ...state, stsClient: action.stsClient };
 
-    case 'SET_OIDC_LOGOUT':
-      return { ...state, oidcLogout: action.logout };
-
     case 'SET_MANAGEMENT_CLIENT':
       return { ...state, managementClient: action.managementClient };
 
