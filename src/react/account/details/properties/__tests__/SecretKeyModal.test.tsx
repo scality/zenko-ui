@@ -3,15 +3,13 @@ import userEvent from '@testing-library/user-event';
 
 import { renderWithRouterMatch } from '../../../../utils/testUtil';
 import SecretKeyModal from '../SecretKeyModal';
+import { Account } from '../../../../../types/account';
 
-const account = {
-  arn: 'arn1',
-  canonicalId: 'canonicalId1',
-  createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
-  email: 'test@email1.com',
-  id: '1',
-  quotaMax: 1,
+const account: Account = {
   Name: 'bart',
+  CreationDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  Roles: [],
+  id: '1',
 };
 const accountKey = {
   userName: 'bart',
@@ -32,7 +30,6 @@ describe('SecretKeyModal', () => {
   it('should not render SecretKeyModal if closed', async () => {
     renderWithRouterMatch(
       <SecretKeyModal
-        //@ts-expect-error fix this when you are working on it
         account={account}
         isOpen={false}
         accountKey={null}
@@ -52,7 +49,6 @@ describe('SecretKeyModal', () => {
 
     renderWithRouterMatch(
       <SecretKeyModal
-        //@ts-expect-error fix this when you are working on it
         account={account}
         isOpen={true}
         accountKey={accountKey}

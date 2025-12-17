@@ -43,10 +43,6 @@ function SecretKeyModal({ account, isOpen, accountKey, onClose, onKeyCreated }: 
     }
   };
 
-  if (!isOpen) {
-    return null;
-  }
-
   const modalFooter = (key: AccountKey | null) => {
     const isFirstModal = key === null;
 
@@ -79,7 +75,7 @@ function SecretKeyModal({ account, isOpen, accountKey, onClose, onKeyCreated }: 
     <Modal
       close={onClose}
       footer={modalFooter(accountKey)}
-      isOpen={true}
+      isOpen={isOpen}
       title="Create Root user Access keys"
     >
       {modalBody(accountKey)}
