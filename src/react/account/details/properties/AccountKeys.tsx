@@ -18,7 +18,6 @@ import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import {
   deleteAccountAccessKey,
   listAccountAccessKeys,
-  openAccountKeyCreateModal,
 } from '../../../actions';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 
@@ -38,6 +37,7 @@ const ButtonContainer = styled.div`
 
 type Props = {
   account: Account;
+  onOpenKeyModal: () => void;
 };
 
 type AccessKey = {
@@ -78,7 +78,7 @@ function DeleteKey({ accessKey, user }: DeleteKeyProps) {
   );
 }
 
-function AccountKeys({ account }: Props) {
+function AccountKeys({ account, onOpenKeyModal }: Props) {
   const dispatch = useDispatch();
   const accessKeysInfo = useSelector(
     (state: AppState) => state.account.accessKeyList,
@@ -92,10 +92,6 @@ function AccountKeys({ account }: Props) {
       dispatch(listAccountAccessKeys(roleArn, user));
     }
   }, [dispatch, roleArn, user?.profile?.sub]);
-
-  const handleOpenKeyModal = () => {
-    dispatch(openAccountKeyCreateModal());
-  };
 
   const columns = useMemo(
     () => [
@@ -197,7 +193,7 @@ function AccountKeys({ account }: Props) {
           <Button
             variant="primary"
             icon={<Icon name="Create-add" />}
-            onClick={handleOpenKeyModal}
+            onClick={onOpenKeyModal}
             label="Create Access key"
           />
         </ButtonContainer>

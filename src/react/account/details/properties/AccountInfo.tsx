@@ -24,7 +24,6 @@ import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { removeRoleArnStored } from '../../../utils/localStorage';
-import SecretKeyModal from './SecretKeyModal';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useShellHooks } from '@scality/module-federation';
 
@@ -146,7 +145,6 @@ function AccountInfo({ account }: Props) {
   // TODO: Should we let the user delete accounts that still owns buckets.
   return (
     <TableContainer>
-      <SecretKeyModal account={account} />
       <Wrap alignItems="center" marginBottom={spacing.r16}>
         <h3>Account details</h3>
         {isStorageManager && (

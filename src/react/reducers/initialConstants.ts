@@ -1,7 +1,6 @@
 // @noflow
 import {
   AccountState,
-  AccountsUIState,
   AuthState,
   ErrorsUIState,
   InstanceStatusState,
@@ -16,10 +15,6 @@ export const initialAccountState: AccountState = {
   //@ts-expect-error fix this when you are working on it
   display: {},
   accessKeyList: [],
-};
-export const initialAccountsUIState: AccountsUIState = {
-  showDelete: false,
-  showKeyCreate: false,
 };
 export const initialAuthState: AuthState = {
   isConfigLoaded: false,
@@ -121,9 +116,6 @@ export const initialNetworkActivityState: NetworkActivityState = {
   counter: 0,
   messages: List(),
 };
-export const initialSecretsState = {
-  accountKey: null,
-};
 export const initialStatsState = {
   bucketList: [],
 };
@@ -140,8 +132,6 @@ export const initialFullState = {
   instanceStatus: initialInstanceStatus,
   instances: initialInstancesState,
   networkActivity: initialNetworkActivityState,
-  secrets: initialSecretsState,
   stats: initialStatsState,
-  uiAccounts: initialAccountsUIState,
   uiErrors: initialErrorsUIState,
 };

@@ -1,4 +1,4 @@
-import { Account, AccountKey } from './account';
+import { Account } from './account';
 import { AppConfig, InstanceId } from './entities';
 import { OidcLogoutFunction } from './auth';
 import { BucketList, InstanceStatus } from './stats';
@@ -42,15 +42,8 @@ export type NetworkActivityState = {
   readonly authFailure: boolean;
   readonly messages: List<string>;
 };
-export type AccountsUIState = {
-  readonly showDelete: boolean;
-  readonly showKeyCreate: boolean;
-};
 export type StatsState = {
   readonly bucketList: BucketList;
-};
-export type SecretsState = {
-  accountKey: AccountKey | null;
 };
 export type EndpointsUIState = {
   showDelete: Hostname;
@@ -61,9 +54,7 @@ export type AppState = {
   readonly instances: InstancesState;
   readonly instanceStatus: InstanceStatusState;
   readonly networkActivity: NetworkActivityState;
-  readonly secrets: SecretsState;
   readonly uiErrors: ErrorsUIState;
   readonly uiEndpoints: EndpointsUIState;
-  readonly uiAccounts: AccountsUIState;
   readonly stats: StatsState;
 };

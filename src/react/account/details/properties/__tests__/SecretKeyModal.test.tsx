@@ -3,15 +3,13 @@ import userEvent from '@testing-library/user-event';
 
 import { renderWithRouterMatch } from '../../../../utils/testUtil';
 import SecretKeyModal from '../SecretKeyModal';
+import { Account } from '../../../../../types/account';
 
-const account = {
-  arn: 'arn1',
-  canonicalId: 'canonicalId1',
-  createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
-  email: 'test@email1.com',
-  id: '1',
-  quotaMax: 1,
+const account: Account = {
   Name: 'bart',
+  CreationDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  Roles: [],
+  id: '1',
 };
 const accountKey = {
   userName: 'bart',
@@ -22,9 +20,23 @@ const hiddenValue = '*********';
 
 describe('SecretKeyModal', () => {
   const modalTitle = 'Create Root user Access keys';
+  const mockOnClose = jest.fn();
+  const mockOnKeyCreated = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should not render SecretKeyModal if closed', async () => {
-    //@ts-expect-error fix this when you are working on it
-    renderWithRouterMatch(<SecretKeyModal account={account} />);
+    renderWithRouterMatch(
+      <SecretKeyModal
+        account={account}
+        isOpen={false}
+        accountKey={null}
+        onClose={mockOnClose}
+        onKeyCreated={mockOnKeyCreated}
+      />,
+    );
     expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
 
@@ -35,15 +47,15 @@ describe('SecretKeyModal', () => {
       writeText: writeTextFn,
     };
 
-    //@ts-expect-error fix this when you are working on it
-    renderWithRouterMatch(<SecretKeyModal account={account} />, undefined, {
-      uiAccounts: {
-        showKeyCreate: true,
-      },
-      secrets: {
-        accountKey,
-      },
-    });
+    renderWithRouterMatch(
+      <SecretKeyModal
+        account={account}
+        isOpen={true}
+        accountKey={accountKey}
+        onClose={mockOnClose}
+        onKeyCreated={mockOnKeyCreated}
+      />,
+    );
     expect(screen.queryByText(modalTitle)).toBeInTheDocument();
 
     expect(screen.getByText('Account name')).toBeInTheDocument();
@@ -54,9 +66,11 @@ describe('SecretKeyModal', () => {
     expect(screen.getByText(accountKey.accessKey)).toBeInTheDocument();
     expect(screen.getByText(hiddenValue)).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', {
-      name: /copy to clipboard/i,
-    }));
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /copy to clipboard/i,
+      }),
+    );
 
     expect(writeTextFn).toHaveBeenCalledTimes(1);
   });

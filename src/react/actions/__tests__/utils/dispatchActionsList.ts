@@ -1,7 +1,6 @@
 import { MockSTSClient } from '../../../../js/mock/STSClient';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import {
-  CloseAccountDeleteDialogAction,
   CloseEndpointDeleteDialogAction,
   ConfigAuthFailureAction,
   HandleErrorAction,
@@ -12,7 +11,6 @@ import {
   NetworkActivityAuthFailureAction,
   NetworkActivityEndAction,
   NetworkActivityStartAction,
-  OpenAccountDeleteDialogAction,
   OpenEndpointDeleteDialogAction,
   SelectAccountAction,
   SelectInstanceAction,
@@ -108,16 +106,6 @@ export const NETWORK_END_ACTION: NetworkActivityEndAction = {
 export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction = {
   type: 'NETWORK_AUTH_FAILURE',
 };
-// * account actions
-export const OPEN_ACCOUNT_DELETE_DIALOG_ACTION: OpenAccountDeleteDialogAction =
-  {
-    type: 'OPEN_ACCOUNT_DELETE_DIALOG',
-  };
-export const CLOSE_ACCOUNT_DELETE_DIALOG_ACTION: CloseAccountDeleteDialogAction =
-  {
-    type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
-  };
-
 // * endpoint actions
 export const OPEN_ENDPOINT_DELETE_DIALOG_ACTION = (
   hostname: Hostname,

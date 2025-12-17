@@ -1,13 +1,8 @@
 import { Account, AccountKey } from '../../../../types/account';
 import { CustomModal as Modal, ModalBody } from '../../../ui-elements/Modal';
 import Table, * as T from '../../../ui-elements/TableKeyValue';
-import {
-  closeAccountKeyCreateModal,
-  createAccountAccessKey,
-  deleteAccountSecret,
-} from '../../../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppState } from '../../../../types/state';
+import { createAccountAccessKey, listAccountAccessKeys } from '../../../actions';
+import { useDispatch } from 'react-redux';
 import { Banner, Icon, Stack, Wrap, spacing } from '@scality/core-ui';
 import { Button, CopyButton, Box } from '@scality/core-ui/dist/next';
 import { useShellHooks } from '@scality/module-federation';
@@ -19,6 +14,10 @@ import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import styled from 'styled-components';
 type Props = {
   account: Account;
+  isOpen: boolean;
+  accountKey: AccountKey | null;
+  onClose: () => void;
+  onKeyCreated: (key: AccountKey) => void;
 };
 
 const StyledCopybutton = styled(CopyButton)({
@@ -26,29 +25,23 @@ const StyledCopybutton = styled(CopyButton)({
   width: '11rem',
 });
 
-function SecretKeyModal({ account }: Props) {
+function SecretKeyModal({ account, isOpen, accountKey, onClose, onKeyCreated }: Props) {
   const dispatch = useDispatch();
-  const accountKey = useSelector((state: AppState) => state.secrets.accountKey);
-  const isModalOpen = useSelector(
-    (state: AppState) => state.uiAccounts.showKeyCreate,
-  );
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
-
-  const handleClose = () => {
-    dispatch(deleteAccountSecret());
-    dispatch(closeAccountKeyCreateModal());
-  };
   const { roleArn } = useDataServiceRole();
+
   const handleAccessKeyCreate = () => {
-    if (userData?.original) {
-      dispatch(createAccountAccessKey(account.Name, roleArn, userData.original));
+    const user = userData?.original;
+    if (user) {
+      dispatch(
+        createAccountAccessKey(account.Name, roleArn, user, (key) => {
+          onKeyCreated(key);
+          dispatch(listAccountAccessKeys(roleArn, user));
+        }),
+      );
     }
   };
-
-  if (!isModalOpen) {
-    return null;
-  }
 
   const modalFooter = (key: AccountKey | null) => {
     const isFirstModal = key === null;
@@ -58,7 +51,7 @@ function SecretKeyModal({ account }: Props) {
         <Wrap>
           <p></p>
           <Stack>
-            <Button variant="outline" onClick={handleClose} label="Cancel" />
+            <Button variant="outline" onClick={onClose} label="Cancel" />
             <Button
               icon={<Icon name="Arrow-right" />}
               variant="primary"
@@ -73,16 +66,16 @@ function SecretKeyModal({ account }: Props) {
     return (
       <Wrap>
         <p></p>
-        <Button onClick={handleClose} variant="primary" label="Close" />
+        <Button onClick={onClose} variant="primary" label="Close" />
       </Wrap>
     );
   };
 
   return (
     <Modal
-      close={handleClose}
+      close={onClose}
       footer={modalFooter(accountKey)}
-      isOpen={true}
+      isOpen={isOpen}
       title="Create Root user Access keys"
     >
       {modalBody(accountKey)}
