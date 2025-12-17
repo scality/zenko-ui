@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { accountAccessKeys } from '../../../../../js/mock/IAMClient';
 
 import {
@@ -7,6 +7,7 @@ import {
   renderWithRouterMatch,
 } from '../../../../utils/testUtil';
 import AccountKeys from '../AccountKeys';
+import * as useAccessKeysQueryModule from '../useAccessKeysQuery';
 
 const account1 = {
   arn: 'arn1',
@@ -19,12 +20,6 @@ const account1 = {
   Name: 'bart',
 };
 
-function flattenTableRow(row: Element) {
-  return Array.from(row.getElementsByClassName('td')).map(
-    (cell) => cell.textContent,
-  );
-}
-
 describe('AccountKeys', () => {
   const mockOnOpenKeyModal = jest.fn();
 
@@ -36,18 +31,21 @@ describe('AccountKeys', () => {
     jest.clearAllMocks();
   });
 
-  it('should render AccountKeys component', () => {
+  it('should render AccountKeys component', async () => {
+    jest.spyOn(useAccessKeysQueryModule, 'useAccessKeysQuery').mockReturnValue({
+      data: accountAccessKeys,
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as any);
+
     renderWithRouterMatch(
       <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
-      undefined,
-      {
-        account: {
-          accessKeyList: accountAccessKeys,
-        },
-      },
     );
 
-    expect(screen.getByText('Access key ID')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Access key ID')).toBeInTheDocument();
+    });
     expect(screen.getByText('Created On')).toBeInTheDocument();
 
     accountAccessKeys.forEach((accessKey, i) => {
@@ -58,43 +56,48 @@ describe('AccountKeys', () => {
     });
   });
 
-  it('should render notification whenever there is at least 1 Root Access Key', () => {
+  it('should render notification whenever there is at least 1 Root Access Key', async () => {
     const accessKey = accountAccessKeys[0];
+    jest.spyOn(useAccessKeysQueryModule, 'useAccessKeysQuery').mockReturnValue({
+      data: [accessKey],
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as any);
+
     renderWithRouterMatch(
       <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
-      undefined,
-      {
-        account: {
-          accessKeyList: [accessKey], // only one key
-        },
-      },
     );
 
-    expect(
-      screen.getByText(
-        /Security Status: Root user Access keys give unrestricted access to account resources. It is a best practice to delete root Access keys and use IAM user access keys instead./i,
-      ),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /Security Status: Root user Access keys give unrestricted access to account resources. It is a best practice to delete root Access keys and use IAM user access keys instead./i,
+        ),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('should render Warning/Banner accordingly to number of Access Key', () => {
+  it('should render Warning/Banner accordingly to number of Access Key', async () => {
+    jest.spyOn(useAccessKeysQueryModule, 'useAccessKeysQuery').mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as any);
+
     const { component } = reduxRender(
       <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
-      {
-        account: {
-          accessKeyList: [],
-        },
-      },
     );
 
-    const TableBody = component.queryByTestId('table-body');
+    await waitFor(() => {
+      expect(component.getByText('No access keys found')).toBeInTheDocument();
+    });
 
+    const TableBody = component.queryByTestId('table-body');
     expect(TableBody).toBeFalsy();
-    // Check if there is the notification
     expect(
       component.queryByTestId('root-access-keys-banner'),
     ).not.toBeInTheDocument();
-    // Check if there is the Warning in the table
-    expect(component.getByText('No access keys found')).toBeInTheDocument();
   });
 });
