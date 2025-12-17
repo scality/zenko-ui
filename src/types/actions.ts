@@ -1,4 +1,4 @@
-import { AccessKey, Account, SecretKey } from './account';
+import { Account } from './account';
 import { OidcLogoutFunction } from './auth';
 import { ConfigurationOverlay, Hostname } from './config';
 import { AppConfig, InstanceId } from './entities';
@@ -113,37 +113,8 @@ export type InstanceStatusAction = {
   readonly type: 'INSTANCE_STATUS';
   readonly status?: InstanceStatus;
 };
-// account UI actions
-export type OpenAccountDeleteDialogAction = {
-  readonly type: 'OPEN_ACCOUNT_DELETE_DIALOG';
-};
-export type CloseAccountDeleteDialogAction = {
-  readonly type: 'CLOSE_ACCOUNT_DELETE_DIALOG';
-};
-export type OpenAccountKeyCreateModalAction = {
-  readonly type: 'OPEN_ACCOUNT_KEY_CREATE_MODAL';
-};
-export type CloseAccountKeyCreateModalAction = {
-  readonly type: 'CLOSE_ACCOUNT_KEY_CREATE_MODAL';
-};
-export type AccountUIAction =
-  | OpenAccountDeleteDialogAction
-  | CloseAccountDeleteDialogAction
-  | OpenAccountKeyCreateModalAction
-  | CloseAccountKeyCreateModalAction;
-
 export type StatsAction = InstanceStatusAction;
-// SECRETS
-export type AddAccountSecretAction = {
-  readonly type: 'ADD_ACCOUNT_SECRET';
-  readonly userName: string;
-  readonly accessKey: AccessKey;
-  readonly secretKey: SecretKey;
-};
-export type DeleteAccountSecretAction = {
-  readonly type: 'DELETE_ACCOUNT_SECRET';
-};
-export type SecretsAction = AddAccountSecretAction | DeleteAccountSecretAction;
+
 export type OpenEndpointDeleteDialogAction = {
   readonly type: 'OPEN_ENDPOINT_DELETE_DIALOG';
   readonly hostname: Hostname;
@@ -163,8 +134,6 @@ export type Action =
   | EndpointsUIAction
   | ErrorsUIAction
   | SelectInstanceAction
-  | SecretsAction
   | NetworkActivityAction
   | InstanceStatusAction
-  | AccountUIAction
   | StatsAction;

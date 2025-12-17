@@ -4,9 +4,7 @@ import { combineReducers } from 'redux';
 import instanceStatus from './instanceStatus';
 import instances from './instances';
 import networkActivity from './networkActivity';
-import secrets from './secrets';
 import stats from './stats';
-import uiAccounts from './uiAccounts';
 import uiErrors from './uiErrors';
 
 const zenkoUIReducer = () =>
@@ -16,9 +14,7 @@ const zenkoUIReducer = () =>
     instanceStatus,
     instances,
     networkActivity,
-    uiAccounts,
     uiErrors,
-    secrets,
     stats,
   });
 

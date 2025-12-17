@@ -1,15 +1,9 @@
 import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
-import { AccessKey, Account, SecretKey } from '../../types/account';
+import { Account, AccountKey } from '../../types/account';
 import {
-  AddAccountSecretAction,
-  CloseAccountDeleteDialogAction,
-  CloseAccountKeyCreateModalAction,
-  DeleteAccountSecretAction,
   DispatchFunction,
   GetStateFunction,
   ListAccountAccessKeySuccessAction,
-  OpenAccountDeleteDialogAction,
-  OpenAccountKeyCreateModalAction,
   SelectAccountAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
@@ -24,26 +18,6 @@ import {
 } from './error';
 import { networkEnd, networkStart } from './network';
 
-export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
-  return {
-    type: 'OPEN_ACCOUNT_DELETE_DIALOG',
-  };
-}
-export function closeAccountDeleteDialog(): CloseAccountDeleteDialogAction {
-  return {
-    type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
-  };
-}
-export function openAccountKeyCreateModal(): OpenAccountKeyCreateModalAction {
-  return {
-    type: 'OPEN_ACCOUNT_KEY_CREATE_MODAL',
-  };
-}
-export function closeAccountKeyCreateModal(): CloseAccountKeyCreateModalAction {
-  return {
-    type: 'CLOSE_ACCOUNT_KEY_CREATE_MODAL',
-  };
-}
 export function selectAccount(account: Account): SelectAccountAction {
   return {
     type: 'SELECT_ACCOUNT',
@@ -58,24 +32,6 @@ export function listAccountAccessKeySuccess(
     accessKeys,
   };
 }
-export function addAccountSecret(
-  userName: string,
-  accessKey: AccessKey,
-  secretKey: SecretKey,
-): AddAccountSecretAction {
-  return {
-    type: 'ADD_ACCOUNT_SECRET',
-    userName,
-    accessKey,
-    secretKey,
-  };
-}
-export function deleteAccountSecret(): DeleteAccountSecretAction {
-  return {
-    type: 'DELETE_ACCOUNT_SECRET',
-  };
-}
-
 export function listAccountAccessKeys(
   roleArn: string,
   user: AuthUser,
@@ -121,6 +77,7 @@ export function createAccountAccessKey(
   accountName: string,
   roleArn: string,
   user: AuthUser,
+  onSuccess: (key: AccountKey) => void,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -132,10 +89,11 @@ export function createAccountAccessKey(
     return managementClient
       .generateKeyConfigurationOverlayUser(params.uuid, params.accountName)
       .then((resp) => {
-        dispatch(
-          addAccountSecret(resp.userName, resp.accessKey, resp.secretKey),
-        );
-        return dispatch(listAccountAccessKeys(roleArn, user));
+        onSuccess({
+          userName: resp.userName,
+          accessKey: resp.accessKey,
+          secretKey: resp.secretKey,
+        });
       })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byModal')))

@@ -26,16 +26,26 @@ function flattenTableRow(row: Element) {
 }
 
 describe('AccountKeys', () => {
+  const mockOnOpenKeyModal = jest.fn();
+
   beforeAll(() => {
     mockOffsetSize(200, 800);
   });
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should render AccountKeys component', () => {
-    renderWithRouterMatch(<AccountKeys account={account1} />, undefined, {
-      account: {
-        accessKeyList: accountAccessKeys,
+    renderWithRouterMatch(
+      <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
+      undefined,
+      {
+        account: {
+          accessKeyList: accountAccessKeys,
+        },
       },
-    });
+    );
 
     expect(screen.getByText('Access key ID')).toBeInTheDocument();
     expect(screen.getByText('Created On')).toBeInTheDocument();
@@ -50,11 +60,15 @@ describe('AccountKeys', () => {
 
   it('should render notification whenever there is at least 1 Root Access Key', () => {
     const accessKey = accountAccessKeys[0];
-    renderWithRouterMatch(<AccountKeys account={account1} />, undefined, {
-      account: {
-        accessKeyList: [accessKey], // only one key
+    renderWithRouterMatch(
+      <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
+      undefined,
+      {
+        account: {
+          accessKeyList: [accessKey], // only one key
+        },
       },
-    });
+    );
 
     expect(
       screen.getByText(
@@ -64,11 +78,14 @@ describe('AccountKeys', () => {
   });
 
   it('should render Warning/Banner accordingly to number of Access Key', () => {
-    const { component } = reduxRender(<AccountKeys account={account1} />, {
-      account: {
-        accessKeyList: [],
+    const { component } = reduxRender(
+      <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
+      {
+        account: {
+          accessKeyList: [],
+        },
       },
-    });
+    );
 
     const TableBody = component.queryByTestId('table-body');
 
