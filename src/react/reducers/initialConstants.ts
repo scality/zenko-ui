@@ -1,6 +1,5 @@
 // @noflow
 import {
-  AccountState,
   AuthState,
   ErrorsUIState,
   InstanceStatusState,
@@ -11,11 +10,6 @@ import { List } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 
-export const initialAccountState: AccountState = {
-  //@ts-expect-error fix this when you are working on it
-  display: {},
-  accessKeyList: [],
-};
 export const initialAuthState: AuthState = {
   isConfigLoaded: false,
   isClientsLoaded: false,
@@ -25,7 +19,7 @@ export const initialAuthState: AuthState = {
   managementClient: new MockManagementClient(),
   //@ts-expect-error fix this when you are working on it
   config: { features: [] },
-  oidcLogout: null,
+  selectedAccount: null,
 };
 
 export const initialErrorsUIState: ErrorsUIState = {
@@ -127,7 +121,6 @@ export const initialUserState = {
   displayedUser: {},
 };
 export const initialFullState = {
-  account: initialAccountState,
   auth: initialAuthState,
   instanceStatus: initialInstanceStatus,
   instances: initialInstancesState,

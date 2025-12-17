@@ -1,12 +1,10 @@
 import { Account } from './account';
-import { OidcLogoutFunction } from './auth';
-import { ConfigurationOverlay, Hostname } from './config';
+import { Hostname } from './config';
 import { AppConfig, InstanceId } from './entities';
 import { ManagementClient } from './managementClient';
 import { AppState } from './state';
 import { InstanceStatus } from './stats';
 import { STSClient } from './sts';
-import { IamAccessKey } from './user';
 export type DispatchFunction = (arg0: Action) => any;
 export type GetStateFunction = () => AppState;
 export interface ApiError extends Error {
@@ -64,10 +62,6 @@ export type SelectAccountAction = {
   readonly type: 'SELECT_ACCOUNT';
   readonly account: Account;
 };
-export type SetOIDCLogoutAction = {
-  readonly type: 'SET_OIDC_LOGOUT';
-  readonly logout: OidcLogoutFunction | null;
-};
 export type AuthAction =
   | SetSTSClientAction
   | SetManagementClientAction
@@ -75,14 +69,7 @@ export type AuthAction =
   | ConfigAuthFailureAction
   | LoadConfigSuccessAction
   | LoadClientsSuccessAction
-  | SelectAccountAction
-  | SetOIDCLogoutAction;
-// account actions
-export type ListAccountAccessKeySuccessAction = {
-  readonly type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS';
-  readonly accessKeys: Array<IamAccessKey>;
-};
-export type AccountAction = ListAccountAccessKeySuccessAction;
+  | SelectAccountAction;
 // instances actions
 export type SelectInstanceAction = {
   readonly type: 'SELECT_INSTANCE';
@@ -126,7 +113,6 @@ export type EndpointsUIAction =
   | OpenEndpointDeleteDialogAction
   | CloseEndpointDeleteDialogAction;
 export type Action =
-  | AccountAction
   | AuthAction
   | ThunkNonStateAction
   | ThunkStatePromisedAction

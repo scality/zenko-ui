@@ -1,11 +1,9 @@
 import { useSelector } from 'react-redux';
 import { AppState } from '../../types/state';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { CustomModal as Modal } from './Modal';
 import { useLocation } from 'react-router';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Wrap } from '@scality/core-ui';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
-import { Icon, Stack, Wrap } from '@scality/core-ui';
 const DEFAULT_MESSAGE = 'We need to log you in.';
 
 const ReauthDialog = () => {
@@ -21,7 +19,6 @@ const ReauthDialog = () => {
     }
     return null;
   });
-  const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
 
   if (!needReauth) {
     return null;
@@ -35,24 +32,10 @@ const ReauthDialog = () => {
       footer={
         <Wrap>
           <p></p>
-          <Stack>
-            {oidcLogout && (
-              <Button
-                style={{
-                  marginRight: spacing.sp24,
-                }}
-                icon={<Icon name="Log-out" />}
-                variant="secondary"
-                onClick={() => oidcLogout(true)}
-                label="Log Out"
-              />
-            )}
-
-            <AccountRoleSelectButtonAndModal
-              bigButton
-              buttonLabel="Switch Account"
-            />
-          </Stack>
+          <AccountRoleSelectButtonAndModal
+            bigButton
+            buttonLabel="Switch Account"
+          />
         </Wrap>
       }
       isOpen={true}

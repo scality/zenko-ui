@@ -1,4 +1,3 @@
-import account from './account';
 import auth from './auth';
 import { combineReducers } from 'redux';
 import instanceStatus from './instanceStatus';
@@ -9,7 +8,6 @@ import uiErrors from './uiErrors';
 
 const zenkoUIReducer = () =>
   combineReducers({
-    account,
     auth,
     instanceStatus,
     instances,

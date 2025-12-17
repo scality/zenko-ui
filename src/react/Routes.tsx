@@ -6,7 +6,7 @@ import {
   Loader,
   Sidebar,
 } from '@scality/core-ui';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Route, Routes, matchPath, useLocation } from 'react-router';
 
@@ -16,8 +16,9 @@ import DataServiceRoleProvider, {
   useCurrentAccount,
 } from './DataServiceRoleProvider';
 import ManagementProvider from './ManagementProvider';
+import STSProvider from './STSProvider';
+import { useAuthLoading } from './AuthLoadingProvider';
 import {
-  loadClients,
   loadInstanceLatestStatus,
   setManagementClient,
 } from './actions';
@@ -96,9 +97,7 @@ export function PrivateRoutes({
   hideSideBar?: boolean;
 }) {
   const dispatch = useDispatch();
-  const isClientsLoaded = useSelector(
-    (state: AppState) => state.auth.isClientsLoaded,
-  );
+  const { isClientsLoaded } = useAuthLoading();
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
   const user = userData?.original;
@@ -108,25 +107,22 @@ export function PrivateRoutes({
     (state: AppState) => state.auth?.config?.managementEndpoint,
   );
 
-  useMemo(() => {
-    if (!!managementEndpoint && !!userData?.token) {
+  useEffect(() => {
+    if (managementEndpoint && userData?.token) {
       const managementClient = makeMgtClient(
         managementEndpoint,
         userData.token,
       );
       dispatch(setManagementClient(managementClient));
     }
-  }, [managementEndpoint, userData?.token]);
+  }, [dispatch, managementEndpoint, userData?.token]);
 
-  const isAuthenticated = !!userData && !userData.expired && !!userData.token;
   useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(loadClients(user));
-
+    if (isClientsLoaded && user) {
       const refreshIntervalStatsUnit = setInterval(() => {
         const currentTime = Math.floor(Date.now() / 1000);
 
-        if (user?.expires_at && user.expires_at >= currentTime) {
+        if (user.expires_at && user.expires_at >= currentTime) {
           dispatch(loadInstanceLatestStatus());
         }
       }, 30000);
@@ -134,14 +130,7 @@ export function PrivateRoutes({
         clearInterval(refreshIntervalStatsUnit);
       };
     }
-  }, [dispatch, isAuthenticated, user?.profile?.sub]);
-
-  const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
-  useMemo(() => {
-    if (!isAuthenticated && oidcLogout) {
-      oidcLogout(true);
-    }
-  }, [isAuthenticated, oidcLogout]);
+  }, [dispatch, isClientsLoaded, user?.profile?.sub]);
 
   if (!isClientsLoaded) {
     return (
@@ -452,7 +441,9 @@ function InternalRoutes() {
       >
         <RemoveTrailingSlash />
         <ManagementProvider>
-          <PrivateRoutes hideSideBar={hideSideBar} />
+          <STSProvider>
+            <PrivateRoutes hideSideBar={hideSideBar} />
+          </STSProvider>
         </ManagementProvider>
       </AppContainer>
     </>

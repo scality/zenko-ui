@@ -5,7 +5,6 @@ import {
   ConfigAuthFailureAction,
   HandleErrorAction,
   InstanceStatusAction,
-  ListAccountAccessKeySuccessAction,
   LoadClientsSuccessAction,
   LoadConfigSuccessAction,
   NetworkActivityAuthFailureAction,
@@ -16,18 +15,15 @@ import {
   SelectInstanceAction,
   SetAppConfigAction,
   SetManagementClientAction,
-  SetOIDCLogoutAction,
   SetSTSClientAction,
 } from '../../../../types/actions';
 import { Hostname } from '../../../../types/config';
 import {
   ACCOUNT,
-  ACCOUNT_ACCESS_KEYS,
   APP_CONFIG,
   INSTANCE_ID,
   INSTANCE_STATUS_RUNNINGv1,
   INSTANCE_STATUS_RUNNINGv2,
-  LOGOUT_MOCK,
 } from './testUtil';
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction = {
@@ -61,16 +57,6 @@ export const SELECT_ACCOUNT_ACTION: SelectAccountAction = {
   type: 'SELECT_ACCOUNT',
   account: ACCOUNT,
 };
-export const SET_OIDC_LOGOUT_ACTION: SetOIDCLogoutAction = {
-  type: 'SET_OIDC_LOGOUT',
-  logout: LOGOUT_MOCK,
-};
-// * account action
-export const LIST_ACCOUNT_ACCESS_KEY_SUCCESS_ACTION: ListAccountAccessKeySuccessAction =
-  {
-    type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS',
-    accessKeys: ACCOUNT_ACCESS_KEYS,
-  };
 // * error action
 export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {
   return {

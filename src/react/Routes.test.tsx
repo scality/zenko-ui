@@ -47,7 +47,6 @@ describe('Routes component', () => {
           config: {
             managementEndpoint: 'http://test-endpoint.com',
           },
-          oidcLogout: jest.fn(),
         },
       };
       // Pass the mock state to the selector function

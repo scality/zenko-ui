@@ -6,12 +6,11 @@ import {
   LoadConfigSuccessAction,
   SetAppConfigAction,
   SetManagementClientAction,
-  SetOIDCLogoutAction,
   SetSTSClientAction,
   ThunkNonStateAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import { AuthUser, OidcLogoutFunction } from '../../types/auth';
+import { AuthUser } from '../../types/auth';
 import { AppConfig, InstanceId } from '../../types/entities';
 import { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 import { STSClient as STSClientInterface } from '../../types/sts';
@@ -20,12 +19,6 @@ import {
   loadInstanceLatestStatus,
   networkAuthFailure,
 } from './index';
-export function setOIDCLogout(logout: OidcLogoutFunction): SetOIDCLogoutAction {
-  return {
-    type: 'SET_OIDC_LOGOUT',
-    logout,
-  };
-}
 export function setManagementClient(
   managementClient: ManagementClientInterface,
 ): SetManagementClientAction {

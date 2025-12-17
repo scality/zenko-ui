@@ -1,15 +1,17 @@
 import { Account, AccountKey } from '../../../../types/account';
 import { CustomModal as Modal, ModalBody } from '../../../ui-elements/Modal';
 import Table, * as T from '../../../ui-elements/TableKeyValue';
-import { createAccountAccessKey, listAccountAccessKeys } from '../../../actions';
+import { createAccountAccessKey } from '../../../actions';
 import { useDispatch } from 'react-redux';
 import { Banner, Icon, Stack, Wrap, spacing } from '@scality/core-ui';
 import { Button, CopyButton, Box } from '@scality/core-ui/dist/next';
 import { useShellHooks } from '@scality/module-federation';
+import { useQueryClient } from 'react-query';
 
 import { HideCredential } from '../../../ui-elements/Hide';
 
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
+import { ACCESS_KEYS_QUERY_KEY } from './useAccessKeysQuery';
 
 import styled from 'styled-components';
 type Props = {
@@ -30,6 +32,7 @@ function SecretKeyModal({ account, isOpen, accountKey, onClose, onKeyCreated }: 
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
   const { roleArn } = useDataServiceRole();
+  const queryClient = useQueryClient();
 
   const handleAccessKeyCreate = () => {
     const user = userData?.original;
@@ -37,7 +40,7 @@ function SecretKeyModal({ account, isOpen, accountKey, onClose, onKeyCreated }: 
       dispatch(
         createAccountAccessKey(account.Name, roleArn, user, (key) => {
           onKeyCreated(key);
-          dispatch(listAccountAccessKeys(roleArn, user));
+          queryClient.invalidateQueries([ACCESS_KEYS_QUERY_KEY, roleArn]);
         }),
       );
     }
