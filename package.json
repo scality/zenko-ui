@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "joi": "^17.13.3",
+    "joi": "^18.0.1",
     "@monaco-editor/react": "^4.4.5",
     "@scality/certchain": "1.4.0",
     "@scality/core-ui": "0.185.0",
