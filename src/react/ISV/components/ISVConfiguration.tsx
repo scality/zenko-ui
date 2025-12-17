@@ -23,13 +23,20 @@ import BucketField from './BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
-import { unitChoices, VEEAM_OFFICE_365 } from '../constants';
+import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
+import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
+import {
+  DEFAULT_IMMUTABLE_PERIOD_DAYS,
+  unitChoices,
+  VEEAM_OFFICE_365,
+} from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { CreateOrSelectNameField, Option } from './CreateOrSelectNameField';
 import { Checkbox } from '../../ui-elements/FormLayout';
 import { useSearchParams } from 'react-router';
 import { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import { VeeamRepositoryFields } from './VeeamRepositoryFields';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
@@ -51,14 +58,16 @@ export const ISVConfiguration = () => {
   const paramsAccountName = searchParams.get('account');
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
   const metricsAdapter = new NoOpMetricsAdapter();
+  const isVeeamVBROnly = useIsVeeamVBROnly();
+  const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
 
   const { accounts } = useListAccounts({
     accessibleAccountsAdapter,
     metricsAdapter,
   });
-  const formMethods = useForm<ISVConfig>({
-    mode: 'all',
-    defaultValues: {
+
+  const getDefaultValues = (): Partial<ISVConfig> => {
+    const baseDefaults: Partial<ISVConfig> = {
       accountName: paramsAccountName || '',
       accountNameType: paramsAccountName ? 'existing' : 'create',
       enableImmutableBackup: true,
@@ -70,8 +79,22 @@ export const ISVConfiguration = () => {
           capacityUnit: unitChoices.TiB.toString(),
         },
       ],
-    },
-    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
+    };
+
+    if (isVeeamVBROnly && isAutoRepoFeatureEnabled) {
+      return {
+        ...baseDefaults,
+        autoCreateRepository: true,
+        immutablePeriodDays: DEFAULT_IMMUTABLE_PERIOD_DAYS,
+      };
+    }
+
+    return baseDefaults;
+  };
+
+  const formMethods = useForm<ISVConfig>({
+    mode: 'all',
+    defaultValues: getDefaultValues(),
     resolver: joiResolver(platform.validator),
     shouldUnregister: false,
   });
@@ -372,6 +395,11 @@ export const ISVConfiguration = () => {
               }
             />
           )}
+
+          <br />
+          <FormSection forceLabelWidth={280}>
+            <VeeamRepositoryFields />
+          </FormSection>
         </FormSection>
       </Form>
     </FormProvider>
