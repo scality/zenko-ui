@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import styled from 'styled-components';
 import { accountNameValidationSchema } from '../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../utils/bucketNameValidation';

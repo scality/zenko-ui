@@ -11,7 +11,7 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
@@ -49,7 +49,6 @@ const AccountUpdateUser = () => {
 
     formState: { errors },
   } = useForm({
-    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
     resolver: joiResolver(schema),
     defaultValues: { name: IAMUserName },
   });

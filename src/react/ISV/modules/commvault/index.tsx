@@ -1,5 +1,5 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { Stack, Text } from '@scality/core-ui';
 import { ListItem } from '..';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';

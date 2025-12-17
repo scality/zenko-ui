@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 
 export const bucketErrorMessage =
   'Bucket names can include only lowercase letters, numbers, dots (.), and hyphens (-)';
@@ -32,4 +32,3 @@ export const bucketNameValidationSchema = Joi.string()
     }
     return value;
   }, 'Unique name validation');
-

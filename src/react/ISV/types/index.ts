@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import React from 'react';
 
 export type ISVPlatform = 'veeam-vbr' | 'commvault' | 'veeam-vbo';

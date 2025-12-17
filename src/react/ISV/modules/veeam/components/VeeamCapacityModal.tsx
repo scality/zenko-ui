@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Icon,
@@ -53,7 +53,6 @@ export const VeeamCapacityModalInternal = ({
   const { capacityValue, capacityUnit } = useCapacityUnit(maxCapacity);
   const methods = useForm<VeeamCapacityForm>({
     mode: 'all',
-    // @ts-expect-error - Type conflict between @hookform/resolvers versions in zenko-ui and data-browser-library
     resolver: joiResolver(schema),
     defaultValues: {
       capacity: capacityValue,

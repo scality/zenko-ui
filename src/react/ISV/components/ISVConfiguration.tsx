@@ -95,8 +95,7 @@ export const ISVConfiguration = () => {
   const formMethods = useForm<ISVConfig>({
     mode: 'all',
     defaultValues: getDefaultValues(),
-    // @ts-expect-error - fix this when you are working on it
-    resolver: joiResolver(platform.validator),
+    resolver: platform.validator ? joiResolver(platform.validator) : undefined,
     shouldUnregister: false,
   });
 
