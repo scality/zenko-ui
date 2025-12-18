@@ -25,16 +25,21 @@ type ErrorContextValue = {
   clearError: () => void;
 };
 
+const noop = () => undefined;
+const fallbackContext: ErrorContextValue = {
+  error: { message: null, type: null },
+  showModalError: (msg) => console.error('[ErrorProvider not found]', msg),
+  showAuthError: (msg) => console.error('[ErrorProvider not found]', msg),
+  showComponentError: (msg) => console.error('[ErrorProvider not found]', msg),
+  clearError: noop,
+};
+
 const ErrorContext = createContext<ErrorContextValue | null>(null);
 
 export const useError = () => {
   const context = useContext(ErrorContext);
-
-  if (!context) {
-    throw new Error('useError must be used within ErrorProvider.');
-  }
-
-  return context;
+  // Fallback for federated modules loaded outside ErrorProvider
+  return context ?? fallbackContext;
 };
 
 export const useModalError = () => {
