@@ -81,7 +81,6 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           }}
         >
           {accessKeys > 2 ? (
-            //@ts-expect-error fix this when you are working on it
             <TextBadge variant={'statusWarning'} text={accessKeys}></TextBadge>
           ) : (
             accessKeys

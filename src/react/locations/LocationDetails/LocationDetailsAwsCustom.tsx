@@ -178,7 +178,7 @@ export default function LocationDetailsAwsCustom({
               label="Endpoint"
               id="endpoint"
               required
-              labelHelpTooltip="Endpoint to reach the S3 server, including scheme and port. The
+              labelHelpTooltip="Endpoint to reach the S3 server, including scheme and optional port. The
         buckets will have a path-style access."
               helpErrorPosition="bottom"
             />
