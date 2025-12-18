@@ -113,13 +113,6 @@ export const initialNetworkActivityState: NetworkActivityState = {
 export const initialStatsState = {
   bucketList: [],
 };
-export const initialUserState = {
-  list: [],
-  accessKeyList: [],
-  attachedPoliciesList: [],
-  groupList: [],
-  displayedUser: {},
-};
 export const initialFullState = {
   auth: initialAuthState,
   instanceStatus: initialInstanceStatus,

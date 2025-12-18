@@ -12,6 +12,7 @@ import { HideCredential } from '../../../ui-elements/Hide';
 
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import { ACCESS_KEYS_QUERY_KEY } from './useAccessKeysQuery';
+import { useModalError } from '../../../ErrorProvider';
 
 import styled from 'styled-components';
 type Props = {
@@ -33,15 +34,22 @@ function SecretKeyModal({ account, isOpen, accountKey, onClose, onKeyCreated }: 
   const { userData } = useAuth();
   const { roleArn } = useDataServiceRole();
   const queryClient = useQueryClient();
+  const { showModalError } = useModalError();
 
   const handleAccessKeyCreate = () => {
     const user = userData?.original;
     if (user) {
       dispatch(
-        createAccountAccessKey(account.Name, roleArn, user, (key) => {
-          onKeyCreated(key);
-          queryClient.invalidateQueries([ACCESS_KEYS_QUERY_KEY, roleArn]);
-        }),
+        createAccountAccessKey(
+          account.Name,
+          roleArn,
+          user,
+          (key) => {
+            onKeyCreated(key);
+            queryClient.invalidateQueries([ACCESS_KEYS_QUERY_KEY, roleArn]);
+          },
+          showModalError,
+        ),
       );
     }
   };

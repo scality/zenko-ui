@@ -11,9 +11,11 @@ import { Row } from 'react-table';
 import styled from 'styled-components';
 import { Account } from '../../../../types/account';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import { useAccessKeysQuery, useDeleteAccessKeyMutation } from './useAccessKeysQuery';
-import { useDispatch } from 'react-redux';
-import { handleAWSClientError, handleAWSError } from '../../../actions/error';
+import {
+  useAccessKeysQuery,
+  useDeleteAccessKeyMutation,
+} from './useAccessKeysQuery';
+import { useModalError } from '../../../ErrorProvider';
 
 const AccessKeysDetails = styled.div`
   display: block;
@@ -44,7 +46,7 @@ type DeleteKeyProps = {
 };
 
 function DeleteKey({ accessKey }: DeleteKeyProps) {
-  const dispatch = useDispatch();
+  const { showModalError } = useModalError();
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
     useState(false);
   const deleteAccessKeyMutation = useDeleteAccessKeyMutation();
@@ -52,8 +54,7 @@ function DeleteKey({ accessKey }: DeleteKeyProps) {
   const handleDelete = () => {
     deleteAccessKeyMutation.mutate(accessKey, {
       onError: (error: any) => {
-        dispatch(handleAWSClientError(error));
-        dispatch(handleAWSError(error, 'byModal'));
+        showModalError(error.message || 'Failed to delete access key');
       },
     });
     setShowDeleteConfirmationModal(false);
@@ -128,9 +129,7 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
         },
 
         Cell({ value }: { value: Date }) {
-          return (
-            <FormattedDateTime format="date-time" value={value} />
-          );
+          return <FormattedDateTime format="date-time" value={value} />;
         },
       },
       {
@@ -169,7 +168,9 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
   if (isLoading) {
     return (
       <AccessKeysDetails>
-        <h3 style={{ marginLeft: spacing.r16 }}>Root user Access keys details</h3>
+        <h3 style={{ marginLeft: spacing.r16 }}>
+          Root user Access keys details
+        </h3>
         <div style={{ padding: spacing.r16 }}>Loading...</div>
       </AccessKeysDetails>
     );

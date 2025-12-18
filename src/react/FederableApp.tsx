@@ -10,6 +10,7 @@ import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterP
 import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
 import ZenkoUI from './ZenkoUI';
 import AuthLoadingProvider from './AuthLoadingProvider';
+import ErrorProvider from './ErrorProvider';
 
 import { ShellHooksProvider, useBasenameRelativeNavigate, useCurrentApp } from '@scality/module-federation';
 import React, { useEffect, useMemo } from 'react';
@@ -79,9 +80,11 @@ const FederableApp = (props) => {
                   <AccessibleAccountsAdapterProvider>
                     <MetricsAdapterProvider>
                       <ToastProvider>
-                        <AuthLoadingProvider>
-                          <ZenkoUI />
-                        </AuthLoadingProvider>
+                        <ErrorProvider>
+                          <AuthLoadingProvider>
+                            <ZenkoUI />
+                          </AuthLoadingProvider>
+                        </ErrorProvider>
                       </ToastProvider>
                       <ReactQueryDevtools initialIsOpen={false} />
                     </MetricsAdapterProvider>

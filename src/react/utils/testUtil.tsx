@@ -33,6 +33,7 @@ import { ZenkoProvider } from '../ZenkoProvider';
 import zenkoUIReducer from '../reducers';
 import Activity from '../ui-elements/Activity';
 import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
+import ErrorProvider from '../ErrorProvider';
 import ReauthDialog from '../ui-elements/ReauthDialog';
 import { ShellHooksProvider } from '@scality/module-federation';
 
@@ -270,42 +271,44 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <ShellHooksProvider
-          shellHooks={mockShellHooks}
-          shellAlerts={mockShellAlerts}
-        >
-          <ThemeProvider theme={theme}>
-            <MemoryRouter>
-              <_ConfigContext.Provider
-                //@ts-expect-error fix this when you are working on it
-                value={zenkoUITestConfig}
-              >
-                <_DataServiceRoleContext.Provider
+        <ErrorProvider>
+          <ShellHooksProvider
+            shellHooks={mockShellHooks}
+            shellAlerts={mockShellAlerts}
+          >
+            <ThemeProvider theme={theme}>
+              <MemoryRouter>
+                <_ConfigContext.Provider
                   //@ts-expect-error fix this when you are working on it
-                  value={{ role, setRole: jest.fn() }}
+                  value={zenkoUITestConfig}
                 >
-                  <_ManagementContext.Provider
-                    value={{
-                      managementClient: TEST_MANAGEMENT_CLIENT,
-                    }}
+                  <_DataServiceRoleContext.Provider
+                    //@ts-expect-error fix this when you are working on it
+                    value={{ role, setRole: jest.fn() }}
                   >
-                    <LocationAdapterProvider>
-                      <MetricsAdapterProvider>
-                        <AccountsLocationsEndpointsAdapterProvider>
-                          <AccessibleAccountsAdapterProvider>
-                            <TestProvidersWrapper>
-                              {children}
-                            </TestProvidersWrapper>
-                          </AccessibleAccountsAdapterProvider>
-                        </AccountsLocationsEndpointsAdapterProvider>
-                      </MetricsAdapterProvider>
-                    </LocationAdapterProvider>
-                  </_ManagementContext.Provider>
-                </_DataServiceRoleContext.Provider>
-              </_ConfigContext.Provider>
-            </MemoryRouter>
-          </ThemeProvider>
-        </ShellHooksProvider>
+                    <_ManagementContext.Provider
+                      value={{
+                        managementClient: TEST_MANAGEMENT_CLIENT,
+                      }}
+                    >
+                      <LocationAdapterProvider>
+                        <MetricsAdapterProvider>
+                          <AccountsLocationsEndpointsAdapterProvider>
+                            <AccessibleAccountsAdapterProvider>
+                              <TestProvidersWrapper>
+                                {children}
+                              </TestProvidersWrapper>
+                            </AccessibleAccountsAdapterProvider>
+                          </AccountsLocationsEndpointsAdapterProvider>
+                        </MetricsAdapterProvider>
+                      </LocationAdapterProvider>
+                    </_ManagementContext.Provider>
+                  </_DataServiceRoleContext.Provider>
+                </_ConfigContext.Provider>
+              </MemoryRouter>
+            </ThemeProvider>
+          </ShellHooksProvider>
+        </ErrorProvider>
       </Provider>
     </QueryClientProvider>
   );
@@ -377,23 +380,59 @@ export const WrapperAsStorageManager = ({
 
 export const reduxRender = (component: JSX.Element, testState?: unknown) => {
   const store = realStoreWithInitState(testState);
+  const role = {
+    roleArn: TEST_ROLE_ARN,
+  };
 
   return {
     component: render(
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>
-          <ToastProvider>
-            <Wrapper>
-              <>
-                {component}
-                <Activity />
-                <ErrorHandlerModal />
-                <ReauthDialog />
-              </>
-            </Wrapper>
-          </ToastProvider>
-        </Provider>
-      </ThemeProvider>,
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <ErrorProvider>
+              <ShellHooksProvider
+                shellHooks={mockShellHooks}
+                shellAlerts={mockShellAlerts}
+              >
+                <ToastProvider>
+                  <MemoryRouter>
+                    <_ConfigContext.Provider
+                      //@ts-expect-error fix this when you are working on it
+                      value={zenkoUITestConfig}
+                    >
+                      <_DataServiceRoleContext.Provider
+                        //@ts-expect-error fix this when you are working on it
+                        value={{ role, setRole: jest.fn() }}
+                      >
+                        <_ManagementContext.Provider
+                          value={{
+                            managementClient: TEST_MANAGEMENT_CLIENT,
+                          }}
+                        >
+                          <LocationAdapterProvider>
+                            <MetricsAdapterProvider>
+                              <AccountsLocationsEndpointsAdapterProvider>
+                                <AccessibleAccountsAdapterProvider>
+                                  <TestProvidersWrapper>
+                                    {component}
+                                    <Activity />
+                                    <ErrorHandlerModal />
+                                    <ReauthDialog />
+                                  </TestProvidersWrapper>
+                                </AccessibleAccountsAdapterProvider>
+                              </AccountsLocationsEndpointsAdapterProvider>
+                            </MetricsAdapterProvider>
+                          </LocationAdapterProvider>
+                        </_ManagementContext.Provider>
+                      </_DataServiceRoleContext.Provider>
+                    </_ConfigContext.Provider>
+                  </MemoryRouter>
+                </ToastProvider>
+              </ShellHooksProvider>
+            </ErrorProvider>
+          </Provider>
+        </ThemeProvider>
+      </QueryClientProvider>,
     ),
   };
 };
@@ -514,14 +553,14 @@ export function renderWithRouterMatch(
                         <MetricsAdapterProvider>
                           <AccountsLocationsEndpointsAdapterProvider>
                             <AccessibleAccountsAdapterProvider>
-                              <TestProvidersWrapper>
-                                <Routes>
-                                  <Route path={path} element={component} />
-                                </Routes>
-                                {/* FIXME We are going to manage error differently
-                              I keep it here to pass some tests */}
-                                <ErrorHandlerModal />
-                              </TestProvidersWrapper>
+                              <ErrorProvider>
+                                <TestProvidersWrapper>
+                                  <Routes>
+                                    <Route path={path} element={component} />
+                                  </Routes>
+                                  <ErrorHandlerModal />
+                                </TestProvidersWrapper>
+                              </ErrorProvider>
                             </AccessibleAccountsAdapterProvider>
                           </AccountsLocationsEndpointsAdapterProvider>
                         </MetricsAdapterProvider>
@@ -575,14 +614,14 @@ export const renderWithCustomRoute = (
                         <MetricsAdapterProvider>
                           <AccountsLocationsEndpointsAdapterProvider>
                             <AccessibleAccountsAdapterProvider>
-                              <ToastProvider>
-                                <TestProvidersWrapper>
-                                  {component}
-                                  {/* FIXME We are going to manage error differently
-                              I keep it here to pass some tests */}
-                                  <ErrorHandlerModal />
-                                </TestProvidersWrapper>
-                              </ToastProvider>
+                              <ErrorProvider>
+                                <ToastProvider>
+                                  <TestProvidersWrapper>
+                                    {component}
+                                    <ErrorHandlerModal />
+                                  </TestProvidersWrapper>
+                                </ToastProvider>
+                              </ErrorProvider>
                             </AccessibleAccountsAdapterProvider>
                           </AccountsLocationsEndpointsAdapterProvider>
                         </MetricsAdapterProvider>
@@ -647,12 +686,12 @@ export const NewWrapper =
                         <MetricsAdapterProvider>
                           <AccountsLocationsEndpointsAdapterProvider>
                             <AccessibleAccountsAdapterProvider>
-                              <TestProvidersWrapper>
-                                {children}
-                                {/* FIXME We are going to manage error differently
-                              I keep it here to pass some tests */}
-                                <ErrorHandlerModal />
-                              </TestProvidersWrapper>
+                              <ErrorProvider>
+                                <TestProvidersWrapper>
+                                  {children}
+                                  <ErrorHandlerModal />
+                                </TestProvidersWrapper>
+                              </ErrorProvider>
                             </AccessibleAccountsAdapterProvider>
                           </AccountsLocationsEndpointsAdapterProvider>
                         </MetricsAdapterProvider>

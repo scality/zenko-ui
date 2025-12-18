@@ -1,29 +1,22 @@
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { Wrap } from '@scality/core-ui/dist/spacing';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppState } from '../../types/state';
-import { clearError } from '../actions';
 import { CustomModal as Modal } from './Modal';
 import { JSX } from 'react';
+import { useModalError } from '../ErrorProvider';
 
 const ErrorHandlerModal = () => {
-  const showError = useSelector(
-    (state: AppState) =>
-      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal',
-  );
-  const errorMessage = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
-  const dispatch = useDispatch();
+  const { modalError, clearModalError } = useModalError();
 
-  const close = () => dispatch(clearError());
-
-  if (!showError) {
+  if (!modalError) {
     return null;
   }
 
   return (
-    <DumbErrorModal errorMessage={errorMessage} isOpen={true} close={close} />
+    <DumbErrorModal
+      errorMessage={modalError}
+      isOpen={true}
+      close={clearModalError}
+    />
   );
 };
 

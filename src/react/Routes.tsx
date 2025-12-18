@@ -442,7 +442,7 @@ function InternalRoutes() {
         <RemoveTrailingSlash />
         <ManagementProvider>
           <STSProvider>
-            <PrivateRoutes hideSideBar={hideSideBar} />
+          <PrivateRoutes hideSideBar={hideSideBar} />
           </STSProvider>
         </ManagementProvider>
       </AppContainer>

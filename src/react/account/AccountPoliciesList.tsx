@@ -16,7 +16,9 @@ import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
 import IAMClient from '../../js/IAMClient';
 import { useDispatch } from 'react-redux';
-import { handleApiError, handleClientError } from '../actions';
+import { handleClientError } from '../actions';
+import { useModalError } from '../ErrorProvider';
+import { errorParser } from '../utils';
 import { ApiError } from '../../types/actions';
 import { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
 import { ListPoliciesResponse, Policy } from 'aws-sdk/clients/iam';
@@ -208,6 +210,7 @@ const DeletePolicyAction = ({
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
+  const { showModalError } = useModalError();
   const isInternalPolicy = path.includes('scality-internal');
   const deletePolicyMutation = useMutation(
     async (arn: string) => {
@@ -238,7 +241,7 @@ const DeletePolicyAction = ({
         try {
           dispatch(handleClientError(error));
         } catch (err) {
-          dispatch(handleApiError(err as ApiError, 'byModal'));
+          showModalError(errorParser(err as ApiError).message);
         }
       },
     },

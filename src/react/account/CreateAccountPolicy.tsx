@@ -3,7 +3,9 @@ import { useMutation, useQueryClient } from 'react-query';
 import { getListPoliciesQuery } from '../queries';
 import { useIAMClient } from '../IAMProvider';
 
-import { handleApiError, handleClientError } from '../actions';
+import { handleClientError } from '../actions';
+import { useModalError } from '../ErrorProvider';
+import { errorParser } from '../utils';
 import { useDispatch } from 'react-redux';
 import { ApiError } from '../../types/actions';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
@@ -24,6 +26,7 @@ const CreateAccountPolicy = () => {
   const currentAccount = useCurrentAccount();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+  const { showModalError } = useModalError();
   const defaultValues = {
     policyName: '',
     policyDocument: `{
@@ -70,7 +73,7 @@ const CreateAccountPolicy = () => {
           //@ts-expect-error fix this when you are working on it
           dispatch(handleClientError(error));
         } catch (err) {
-          dispatch(handleApiError(err as ApiError, 'byModal'));
+          showModalError(errorParser(err as ApiError).message);
         }
       },
     },

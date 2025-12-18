@@ -19,7 +19,9 @@ import { CellProps } from 'react-table';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
 import IAMClient from '../../js/IAMClient';
 import { useDispatch } from 'react-redux';
-import { handleApiError, handleClientError } from '../actions';
+import { handleClientError } from '../actions';
+import { useModalError } from '../ErrorProvider';
+import { errorParser } from '../utils';
 import { ApiError } from '../../types/actions';
 import { User } from 'aws-sdk/clients/iam';
 import { FormattedDateTime, Icon, spacing } from '@scality/core-ui';
@@ -187,6 +189,7 @@ const DeleteUserAction = ({
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
+  const { showModalError } = useModalError();
   const { data: accessKeysResult, status: accessKeyStatus } =
     useAwsPaginatedEntities(
       getUserAccessKeysQuery(userName, IAMClient),
@@ -225,7 +228,7 @@ const DeleteUserAction = ({
           //@ts-expect-error fix this when you are working on it
           dispatch(handleClientError(error));
         } catch (err) {
-          dispatch(handleApiError(err as ApiError, 'byModal'));
+          showModalError(errorParser(err as ApiError).message);
         }
       },
     },

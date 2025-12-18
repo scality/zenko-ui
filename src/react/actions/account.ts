@@ -1,16 +1,7 @@
-import { Account, AccountKey } from '../../types/account';
-import {
-  DispatchFunction,
-  GetStateFunction,
-  SelectAccountAction,
-  ThunkStatePromisedAction,
-} from '../../types/actions';
+import { Account } from '../../types/account';
+import { SelectAccountAction, ThunkStatePromisedAction } from '../../types/actions';
 import { AuthUser } from '../../types/auth';
 import { getClients } from '../utils/actions';
-import {
-  handleApiError,
-  handleClientError,
-} from './error';
 import { networkEnd, networkStart } from './network';
 
 export function selectAccount(account: Account): SelectAccountAction {
@@ -24,7 +15,8 @@ export function createAccountAccessKey(
   accountName: string,
   roleArn: string,
   user: AuthUser,
-  onSuccess: (key: AccountKey) => void,
+  onSuccess: (key: { userName: string; accessKey: string; secretKey: string }) => void,
+  onError?: (message: string) => void,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -42,8 +34,11 @@ export function createAccountAccessKey(
           secretKey: resp.secretKey,
         });
       })
-      .catch((error) => dispatch(handleClientError(error)))
-      .catch((error) => dispatch(handleApiError(error, 'byModal')))
+      .catch((error) => {
+        if (onError) {
+          onError(error.message || 'Failed to create access key');
+        }
+      })
       .finally(() => dispatch(networkEnd()));
   };
 }

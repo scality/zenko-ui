@@ -10,6 +10,7 @@ import { useShellHooks } from '@scality/module-federation';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { loadAppConfig } from './actions';
 import { AppState } from '../types/state';
+import { useComponentError } from './ErrorProvider';
 
 type AuthLoadingContextValue = {
   isConfigLoaded: boolean;
@@ -47,9 +48,8 @@ const AuthLoadingProvider = ({ children }: { children: JSX.Element }) => {
   const configFailure = useSelector(
     (state: AppState) => state.auth.configFailure,
   );
-  const configFailureErrorMessage = useSelector((state: AppState) =>
-    state.uiErrors.errorType === 'byComponent' ? state.uiErrors.errorMsg : '',
-  );
+  const { componentError } = useComponentError();
+  const configFailureErrorMessage = componentError || '';
 
   useEffect(() => {
     if (userData?.original?.profile?.sub && config && !isConfigLoaded) {

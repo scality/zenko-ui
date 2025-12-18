@@ -1,7 +1,8 @@
 import { MouseEvent, useRef } from 'react';
-import { clearError, handleErrorMessage, networkEnd } from '../actions';
+import { networkEnd } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../types/state';
+import { useComponentError, useModalError } from '../ErrorProvider';
 import {
   Banner,
   Form,
@@ -39,6 +40,7 @@ const AccountUpdateUser = () => {
   const navigate = useNavigate();
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
+  const { showModalError } = useModalError();
   const { IAMUserName, accountName } = useParams<{
     IAMUserName: string;
     accountName: string;
@@ -82,7 +84,7 @@ const AccountUpdateUser = () => {
             );
         })
         .catch((err) => {
-          dispatch(handleErrorMessage(`${err}`, 'byModal'));
+          showModalError(`${err}`);
         })
         .finally(() => {
           dispatch(networkEnd());
@@ -95,16 +97,9 @@ const AccountUpdateUser = () => {
     },
   );
 
-  /**
-   * This part has to be handle
-   */
-  const hasError = useSelector(
-    (state: AppState) =>
-      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
-  );
-  const errorMessage = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
+  const { componentError, clearComponentError } = useComponentError();
+  const hasError = !!componentError;
+  const errorMessage = componentError;
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
@@ -125,7 +120,7 @@ const AccountUpdateUser = () => {
 
   const clearServerError = () => {
     if (hasError) {
-      dispatch(clearError());
+      clearComponentError();
     }
   };
 

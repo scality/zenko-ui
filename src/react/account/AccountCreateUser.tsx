@@ -16,12 +16,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import { AppState } from '../../types/state';
-import {
-  clearError,
-  handleErrorMessage,
-  networkEnd,
-  networkStart,
-} from '../actions';
+import { networkEnd, networkStart } from '../actions';
+import { useComponentError, useModalError } from '../ErrorProvider';
 import {
   useCurrentAccount,
   useDataServiceRole,
@@ -47,6 +43,7 @@ const AccountCreateUser = () => {
   const baseNameRelativeNavigate = useBasenameRelativeNavigate();
   const { accountName } = useParams<{ accountName: string }>();
   const IAMClient = useIAMClient();
+  const { showModalError } = useModalError();
   const {
     register,
     handleSubmit,
@@ -78,22 +75,14 @@ const AccountCreateUser = () => {
         baseNameRelativeNavigate(`/accounts/${targetAccountName}/users`);
       },
       onError: () => {
-        const str = 'An error occurred during the user creation.';
-        dispatch(handleErrorMessage(str, 'byModal'));
+        showModalError('An error occurred during the user creation.');
       },
     },
   );
 
-  /**
-   * This part has to be handle
-   */
-  const hasError = useSelector(
-    (state: AppState) =>
-      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
-  );
-  const errorMessage = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
+  const { componentError, clearComponentError } = useComponentError();
+  const hasError = !!componentError;
+  const errorMessage = componentError;
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
@@ -116,7 +105,7 @@ const AccountCreateUser = () => {
 
   const clearServerError = () => {
     if (hasError) {
-      dispatch(clearError());
+      clearComponentError();
     }
   };
 

@@ -4,21 +4,22 @@ import { CustomModal as Modal } from './Modal';
 import { useLocation } from 'react-router';
 import { Wrap } from '@scality/core-ui';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
+import { useAuthError } from '../ErrorProvider';
+
 const DEFAULT_MESSAGE = 'We need to log you in.';
 
 const ReauthDialog = () => {
   const { pathname } = useLocation();
+  const { authError } = useAuthError();
   const needReauth = useSelector(
     (state: AppState) => state.networkActivity.authFailure,
   );
-  const errorMessage = useSelector((state: AppState) => {
-    if (state.uiErrors.errorType === 'byAuth') {
-      return pathname.indexOf('/accounts') !== -1
-        ? 'Access denied'
-        : state.uiErrors.errorMsg;
-    }
-    return null;
-  });
+
+  const errorMessage = authError
+    ? pathname.indexOf('/accounts') !== -1
+      ? 'Access denied'
+      : authError
+    : null;
 
   if (!needReauth) {
     return null;

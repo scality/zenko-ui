@@ -14,12 +14,9 @@ import { Account, WebIdentityRoles } from '../../types/iam';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useDataServiceRole } from '../DataServiceRoleProvider';
 import { useShellHooks } from '@scality/module-federation';
-import {
-  handleApiError,
-  handleClientError,
-  networkEnd,
-  networkStart,
-} from '../actions';
+import { handleClientError, networkEnd, networkStart } from '../actions';
+import { useModalError } from '../ErrorProvider';
+import { errorParser } from '.';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useAwsPaginatedEntities } from './IAMhooks';
 
@@ -167,6 +164,7 @@ export const SCALITY_IAM_ROLES = [
 
 const reduxBasedEventDispatcher = () => {
   const dispatch = useDispatch();
+  const { showModalError } = useModalError();
   return {
     notifyLoadingAccounts: () => dispatch(networkStart('Loading accounts...')),
     notifyEnd: () => dispatch(networkEnd()),
@@ -174,7 +172,7 @@ const reduxBasedEventDispatcher = () => {
       try {
         dispatch(handleClientError(error));
       } catch (err) {
-        dispatch(handleApiError(err as ApiError, 'byModal'));
+        showModalError(errorParser(err as ApiError).message);
       }
     },
   };
