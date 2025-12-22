@@ -7,8 +7,17 @@ import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { renderWithRouterMatch, TEST_API_BASE_URL } from '../../utils/testUtil';
-import { PauseAndResume, _resetLoadingStates } from '../PauseAndResume';
+import { PauseAndResume } from '../PauseAndResume';
+import { ReplicationControlProvider } from '../contexts/ReplicationControlContext';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+
+const renderPauseAndResume = (locationName: string) => {
+  return renderWithRouterMatch(
+    <ReplicationControlProvider>
+      <PauseAndResume locationName={locationName} />
+    </ReplicationControlProvider>,
+  );
+};
 
 describe('PauseAndResume', () => {
   const locationName = 'someLocation';
@@ -25,10 +34,6 @@ describe('PauseAndResume', () => {
 
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
-  });
-
-  beforeEach(() => {
-    _resetLoadingStates();
   });
 
   afterEach(() => {
@@ -56,7 +61,7 @@ describe('PauseAndResume', () => {
           ),
       ),
     );
-    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+    renderPauseAndResume(locationName);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -84,7 +89,7 @@ describe('PauseAndResume', () => {
           ),
       ),
     );
-    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+    renderPauseAndResume(locationName);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -109,7 +114,7 @@ describe('PauseAndResume', () => {
           ),
       ),
     );
-    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+    renderPauseAndResume(locationName);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -138,7 +143,7 @@ describe('PauseAndResume', () => {
       ),
     );
 
-    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+    renderPauseAndResume(locationName);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -182,7 +187,7 @@ describe('PauseAndResume', () => {
       const resumeButtonSelector = () =>
         screen.getByRole('button', { name: /resume/i });
 
-      renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+      renderPauseAndResume(locationName);
 
       await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
         timeout: 8000,
@@ -246,7 +251,7 @@ describe('PauseAndResume', () => {
       ),
     );
 
-    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+    renderPauseAndResume(locationName);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -271,7 +276,7 @@ describe('PauseAndResume', () => {
           ),
       ),
     );
-    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+    renderPauseAndResume(locationName);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -300,7 +305,7 @@ describe('PauseAndResume', () => {
       ),
     );
 
-    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+    renderPauseAndResume(locationName);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -310,7 +315,7 @@ describe('PauseAndResume', () => {
   });
 
   it('should render the spinner component when loading', async () => {
-    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
+    renderPauseAndResume(locationName);
 
     expect(screen.getByText('Loading')).toBeInTheDocument();
   });

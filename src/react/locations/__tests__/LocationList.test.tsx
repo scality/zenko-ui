@@ -21,6 +21,7 @@ import {
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import { LocationsList } from '../LocationsList';
 import { _DataServiceRoleContext } from '../../DataServiceRoleProvider';
+import { ReplicationControlProvider } from '../contexts/ReplicationControlContext';
 
 jest.setTimeout(30_000);
 
@@ -88,7 +89,9 @@ describe('LocationList', () => {
           assumedRole: undefined,
         }}
       >
-        <LocationsList />
+        <ReplicationControlProvider>
+          <LocationsList />
+        </ReplicationControlProvider>
       </_DataServiceRoleContext.Provider>
     );
     
