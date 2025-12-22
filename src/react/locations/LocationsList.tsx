@@ -9,7 +9,7 @@ import {
   spacing,
 } from '@scality/core-ui';
 import { useEffect, useMemo, useState } from 'react';
-import { useIsFetching, useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { CellProps, CoreUIColumn } from 'react-table';
 
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
@@ -52,7 +52,7 @@ const TooltipList = styled.ul`
 const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
   const { name: locationName } = rowValues;
   const navigate = useBasenameRelativeNavigate();
-  const { bucketList: buckets } = useBucketList();
+  const { bucketList: buckets, status: bucketListStatus } = useBucketList();
   const [showModal, setShowModal] = useState(false);
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -117,7 +117,9 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
     buckets,
     accountsLocationsAndEndpoints?.endpoints || [],
   );
-  const isDeletionDisabled = isBuiltin || hasBucket || hasEndpoint;
+  // Disable deletion while bucket list is still loading to prevent incorrect state
+  const isDataLoading = bucketListStatus === 'loading' || bucketListStatus === 'idle';
+  const isDeletionDisabled = isBuiltin || hasBucket || hasEndpoint || isDataLoading;
 
   const TooltipOverlay = () => {
     return isDeletionDisabled ? (
@@ -216,14 +218,10 @@ export function LocationsList() {
     accountsLocationsEndpointsAdapter,
   });
 
-  const { bucketList: buckets } = useBucketList();
-
   const data = useMemo(() => {
     if (locations.status === 'success') return Object.values(locations.value);
     else return [];
   }, [locations]);
-  const isFetching = useIsFetching();
-  const loadingBuckets = isFetching > 0;
 
   const { basePath } = useConfig();
 
@@ -334,12 +332,7 @@ export function LocationsList() {
       },
     });
     return columns;
-  }, [
-    locations,
-    buckets,
-    accountsLocationsAndEndpoints?.endpoints,
-    loadingBuckets,
-  ]);
+  }, [locations]);
 
   if (locations.status === 'loading' || locations.status === 'unknown') {
     return (

@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { renderWithRouterMatch, TEST_API_BASE_URL } from '../../utils/testUtil';
-import { PauseAndResume } from '../PauseAndResume';
+import { PauseAndResume, _resetLoadingStates } from '../PauseAndResume';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
 describe('PauseAndResume', () => {
@@ -25,6 +25,18 @@ describe('PauseAndResume', () => {
 
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
+  });
+
+  beforeEach(() => {
+    _resetLoadingStates();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
+
+  afterAll(() => {
+    server.close();
   });
 
   it('should render the component with pause label when ingestion is enabled', async () => {

@@ -1,42 +1,123 @@
 import { Icon, Loader, spacing } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { useMemo, useRef, useState } from 'react';
-import { useMutation } from 'react-query';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { useZenkoClient } from '../ZenkoProvider';
-import { useInstanceStatusQuery } from '../queries/instanceStatusQuery';
+import {
+  INSTANCE_STATUS_QUERY_KEY,
+  useInstanceStatusQuery,
+} from '../queries/instanceStatusQuery';
 
-export const PauseAndResume = ({ locationName }: { locationName: string }) => {
-  const [isPollingEnabled, setIsPollingEnabled] = useState(false);
-  const previousStatusRef = useRef<{
+const POLLING_INTERVAL_MS = 1_000;
+const POLLING_TIMEOUT_MS = 15_000;
+
+// Store loading states outside component to persist across remounts
+type LoadingState = {
+  isWaiting: boolean;
+  previous: {
     replication: 'enabled' | 'disabled' | null;
     ingestion: 'enabled' | 'disabled' | null;
-  } | null>(null);
+  } | null;
+};
+const loadingStatesMap = new Map<string, LoadingState>();
+
+const getLoadingState = (locationName: string): LoadingState => {
+  if (!loadingStatesMap.has(locationName)) {
+    loadingStatesMap.set(locationName, { isWaiting: false, previous: null });
+  }
+  return loadingStatesMap.get(locationName)!;
+};
+
+/** @internal Exported for testing only */
+export const _resetLoadingStates = () => {
+  loadingStatesMap.clear();
+};
+
+const setLoadingState = (
+  locationName: string,
+  state: Partial<LoadingState>,
+) => {
+  const current = getLoadingState(locationName);
+  loadingStatesMap.set(locationName, { ...current, ...state });
+};
+
+export const PauseAndResume = ({ locationName }: { locationName: string }) => {
+  const externalState = getLoadingState(locationName);
+  const [, forceUpdate] = useState(0);
+  const pollingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const zenkoClient = useZenkoClient();
+  const queryClient = useQueryClient();
 
-  const pauseReplicationSiteMutation = useMutation((locationName: string) => {
-    return zenkoClient.pauseCrrSite(locationName);
+  const setIsWaitingForUpdate = (value: boolean) => {
+    setLoadingState(locationName, { isWaiting: value });
+    forceUpdate((c) => c + 1);
+  };
+
+  const setPreviousStatus = (
+    value: {
+      replication: 'enabled' | 'disabled' | null;
+      ingestion: 'enabled' | 'disabled' | null;
+    } | null,
+  ) => {
+    setLoadingState(locationName, { previous: value });
+  };
+
+  const isWaitingForUpdate = externalState.isWaiting;
+  const previousStatus = externalState.previous;
+
+  const { data: instanceStatus, isLoading } = useInstanceStatusQuery();
+
+  const forceRefetch = async () => {
+    await queryClient.refetchQueries([INSTANCE_STATUS_QUERY_KEY], {
+      exact: false,
+    });
+    forceUpdate((c) => c + 1);
+  };
+
+  const stopPolling = () => {
+    loadingStatesMap.delete(locationName);
+    forceUpdate((c) => c + 1);
+    if (pollingTimerRef.current) {
+      clearTimeout(pollingTimerRef.current);
+      pollingTimerRef.current = null;
+    }
+    if (timeoutTimerRef.current) {
+      clearTimeout(timeoutTimerRef.current);
+      timeoutTimerRef.current = null;
+    }
+  };
+
+  const startPolling = () => {
+    setIsWaitingForUpdate(true);
+    pollingTimerRef.current = setTimeout(() => forceRefetch(), 500);
+    timeoutTimerRef.current = setTimeout(stopPolling, POLLING_TIMEOUT_MS);
+  };
+
+  const pauseReplicationSiteMutation = useMutation({
+    mutationFn: (locationName: string) =>
+      zenkoClient.pauseCrrSite(locationName),
+    onError: stopPolling,
   });
 
-  const resumeReplicationSiteMutation = useMutation((locationName: string) => {
-    return zenkoClient.resumeCrrSite(locationName);
+  const resumeReplicationSiteMutation = useMutation({
+    mutationFn: (locationName: string) =>
+      zenkoClient.resumeCrrSite(locationName),
+    onError: stopPolling,
   });
 
-  const pauseIngestionSiteMutation = useMutation((locationName: string) =>
-    zenkoClient.pauseIngestionSite(locationName),
-  );
+  const pauseIngestionSiteMutation = useMutation({
+    mutationFn: (locationName: string) =>
+      zenkoClient.pauseIngestionSite(locationName),
+    onError: stopPolling,
+  });
 
-  const resumeIngestionSiteMutation = useMutation((locationName: string) =>
-    zenkoClient.resumeIngestionSite(locationName),
-  );
-
-  const {
-    data: instanceStatus,
-    status,
-    isFetching: loadingStatus,
-  } = useInstanceStatusQuery({
-    refetchInterval: isPollingEnabled ? 1_000 : false,
+  const resumeIngestionSiteMutation = useMutation({
+    mutationFn: (locationName: string) =>
+      zenkoClient.resumeIngestionSite(locationName),
+    onError: stopPolling,
   });
 
   const ingestionLocationsStatuses =
@@ -52,30 +133,45 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
       replicationLocationsStatuses[locationName]) ||
     null;
 
-  //the previous replication or ingestion could be null, so we should ignore it while computing the polling.
-  useMemo(() => {
-    if (
-      previousStatusRef.current &&
-      previousStatusRef.current.ingestion !== ingestionStatus &&
-      previousStatusRef.current.replication !== replicationStatus
-    ) {
-      setIsPollingEnabled(false);
-    } else if (
-      previousStatusRef.current &&
-      previousStatusRef.current.ingestion !== ingestionStatus &&
-      previousStatusRef.current.replication === null
-    ) {
-      setIsPollingEnabled(false);
-    } else if (
-      previousStatusRef.current &&
-      previousStatusRef.current.replication !== ingestionStatus &&
-      previousStatusRef.current.ingestion === null
-    ) {
-      setIsPollingEnabled(false);
+  useEffect(() => {
+    if (!isWaitingForUpdate || !previousStatus) {
+      return;
     }
-  }, [replicationStatus, ingestionStatus]);
 
-  if (status === 'loading' || status === 'idle') {
+    const prev = previousStatus;
+    const replicationChanged =
+      prev.replication !== null &&
+      replicationStatus !== null &&
+      prev.replication !== replicationStatus;
+    const ingestionChanged =
+      prev.ingestion !== null &&
+      ingestionStatus !== null &&
+      prev.ingestion !== ingestionStatus;
+
+    if (replicationChanged || ingestionChanged) {
+      stopPolling();
+      return;
+    }
+
+    pollingTimerRef.current = setTimeout(() => {
+      forceRefetch();
+    }, POLLING_INTERVAL_MS);
+
+    return () => {
+      if (pollingTimerRef.current) {
+        clearTimeout(pollingTimerRef.current);
+      }
+    };
+  }, [isWaitingForUpdate, replicationStatus, ingestionStatus, previousStatus]);
+
+  useEffect(() => {
+    return () => {
+      if (pollingTimerRef.current) clearTimeout(pollingTimerRef.current);
+      if (timeoutTimerRef.current) clearTimeout(timeoutTimerRef.current);
+    };
+  }, []);
+
+  if (isLoading) {
     return (
       <Box display="flex">
         <Loader
@@ -86,8 +182,6 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
       </Box>
     );
   }
-
-  const isLoadingButton = loadingStatus || isPollingEnabled;
 
   const tooltip = (
     <Box>
@@ -103,25 +197,25 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
       <Box display="flex">
         <Button
           size="inline"
-          disabled={isLoadingButton}
-          icon={isLoadingButton ? <Loader /> : <Icon name="Pause-circle" />}
+          disabled={isWaitingForUpdate}
+          icon={isWaitingForUpdate ? <Loader /> : <Icon name="Pause-circle" />}
           tooltip={{
             overlay: tooltip,
             placement: 'top',
           }}
           label="Pause"
           onClick={() => {
-            previousStatusRef.current = {
+            setPreviousStatus({
               replication: replicationStatus,
               ingestion: ingestionStatus,
-            };
+            });
             if (replicationStatus === 'enabled') {
               pauseReplicationSiteMutation.mutate(locationName);
             }
             if (ingestionStatus === 'enabled') {
               pauseIngestionSiteMutation.mutate(locationName);
             }
-            setIsPollingEnabled(true);
+            startPolling();
           }}
           variant="secondary"
           type="button"
@@ -135,8 +229,8 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
       <Box display="flex">
         <Button
           size="inline"
-          disabled={isLoadingButton}
-          icon={isLoadingButton ? <Loader /> : <Icon name="Play-circle" />}
+          disabled={isWaitingForUpdate}
+          icon={isWaitingForUpdate ? <Loader /> : <Icon name="Play-circle" />}
           tooltip={{
             overlay: tooltip,
             placement: 'top',
@@ -144,17 +238,17 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
           type="button"
           label="Resume"
           onClick={() => {
-            previousStatusRef.current = {
+            setPreviousStatus({
               replication: replicationStatus,
               ingestion: ingestionStatus,
-            };
+            });
             if (replicationStatus === 'disabled') {
               resumeReplicationSiteMutation.mutate(locationName);
             }
             if (ingestionStatus === 'disabled') {
               resumeIngestionSiteMutation.mutate(locationName);
             }
-            setIsPollingEnabled(true);
+            startPolling();
           }}
           variant="secondary"
         />

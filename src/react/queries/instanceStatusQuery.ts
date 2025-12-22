@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useManagementClient } from '../ManagementProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
@@ -37,7 +38,9 @@ export const useInstanceStatusQuery = (options?: InstanceStatusQueryOptions) => 
     onError: options?.onError ?? handleClientError,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-    staleTime: 30_000, // 30 seconds - similar to previous Redux 30s polling
+    // When polling is enabled (refetchInterval set), use staleTime: 0 to force fresh data
+    // Otherwise use 30s staleTime for normal caching
+    staleTime: options?.refetchInterval ? 0 : 30_000,
     refetchInterval: options?.refetchInterval,
     enabled: options?.enabled,
   });
@@ -45,21 +48,30 @@ export const useInstanceStatusQuery = (options?: InstanceStatusQueryOptions) => 
 
 /**
  * Hook to get bucket list from instance status.
- * Used to check if a location has associated buckets (for deletion validation).
+ * Uses useMemo to stabilize reference across re-renders.
  */
 export const useBucketList = () => {
   const { data, status, isFetching } = useInstanceStatusQuery();
-  const bucketList = data?.metrics?.['item-counts']?.bucketList || [];
+  const rawBucketList = data?.metrics?.['item-counts']?.bucketList;
+
+  const bucketList = useMemo(() => {
+    return rawBucketList || [];
+  }, [JSON.stringify(rawBucketList)]);
+
   return { bucketList, status, isFetching };
 };
 
 /**
  * Hook to get instance capabilities.
- * Used to determine available location types.
+ * Uses useMemo to stabilize reference across re-renders.
  */
 export const useCapabilities = () => {
   const { data, status } = useInstanceStatusQuery();
-  const capabilities = data?.state?.capabilities as Capabilities | undefined;
+  const rawCapabilities = data?.state?.capabilities;
+
+  const capabilities = useMemo(() => {
+    return rawCapabilities as Capabilities | undefined;
+  }, [JSON.stringify(rawCapabilities)]);
+
   return { capabilities, status };
 };
-
