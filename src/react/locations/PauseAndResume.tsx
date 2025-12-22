@@ -1,15 +1,10 @@
 import { Icon, Loader, spacing } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useMemo, useRef, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useManagementClient } from '../ManagementProvider';
+import { useMutation } from 'react-query';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
-import { useErrorHandler } from '../ErrorProvider';
-import { ApiError } from '../../types/actions';
-import { useShellHooks } from '@scality/module-federation';
 import { useZenkoClient } from '../ZenkoProvider';
+import { useInstanceStatusQuery } from '../queries/instanceStatusQuery';
 
 export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const [isPollingEnabled, setIsPollingEnabled] = useState(false);
@@ -17,11 +12,6 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
     replication: 'enabled' | 'disabled' | null;
     ingestion: 'enabled' | 'disabled' | null;
   } | null>(null);
-  const { handleClientError } = useErrorHandler();
-  const instanceId = useInstanceId();
-  const managementClient = useManagementClient();
-  const { useAuth } = useShellHooks();
-  const { getToken } = useAuth();
 
   const zenkoClient = useZenkoClient();
 
@@ -45,19 +35,8 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
     data: instanceStatus,
     status,
     isFetching: loadingStatus,
-  } = useQuery({
-    queryKey: ['instanceStatus', instanceId],
-    queryFn: async () => {
-      const client = notFalsyTypeGuard(managementClient);
-      client.setToken(await getToken());
-      return managementClient.getLatestInstanceStatus(instanceId);
-    },
-    onError: (error: ApiError) => {
-      handleClientError(error);
-    },
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchInterval: isPollingEnabled ? 1_000 : Infinity,
+  } = useInstanceStatusQuery({
+    refetchInterval: isPollingEnabled ? 1_000 : false,
   });
 
   const ingestionLocationsStatuses =

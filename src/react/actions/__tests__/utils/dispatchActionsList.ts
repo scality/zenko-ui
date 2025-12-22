@@ -4,7 +4,6 @@ import {
   CloseEndpointDeleteDialogAction,
   ConfigAuthFailureAction,
   HandleErrorAction,
-  InstanceStatusAction,
   LoadClientsSuccessAction,
   LoadConfigSuccessAction,
   NetworkActivityAuthFailureAction,
@@ -15,12 +14,7 @@ import {
   SetSTSClientAction,
 } from '../../../../types/actions';
 import { Hostname } from '../../../../types/config';
-import {
-  APP_CONFIG,
-  INSTANCE_ID,
-  INSTANCE_STATUS_RUNNINGv1,
-  INSTANCE_STATUS_RUNNINGv2,
-} from './testUtil';
+import { APP_CONFIG, INSTANCE_ID } from './testUtil';
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction = {
   type: 'SET_MANAGEMENT_CLIENT',
@@ -86,12 +80,3 @@ export const CLOSE_ENDPOINT_DELETE_DIALOG_ACTION: CloseEndpointDeleteDialogActio
   {
     type: 'CLOSE_ENDPOINT_DELETE_DIALOG',
   };
-// instance status actions
-export const INSTANCE_STATUS_ACTION_RUNNINGv1: InstanceStatusAction = {
-  type: 'INSTANCE_STATUS',
-  status: INSTANCE_STATUS_RUNNINGv1,
-};
-export const INSTANCE_STATUS_ACTION_RUNNINGv2: InstanceStatusAction = {
-  type: 'INSTANCE_STATUS',
-  status: INSTANCE_STATUS_RUNNINGv2,
-};

@@ -18,10 +18,7 @@ import DataServiceRoleProvider, {
 import ManagementProvider from './ManagementProvider';
 import STSProvider from './STSProvider';
 import { useAuthLoading } from './AuthLoadingProvider';
-import {
-  loadInstanceLatestStatus,
-  setManagementClient,
-} from './actions';
+import { setManagementClient } from './actions';
 import ReauthDialog from './ui-elements/ReauthDialog';
 
 import { useConfig } from './next-architecture/ui/ConfigProvider';
@@ -100,7 +97,6 @@ export function PrivateRoutes({
   const { isClientsLoaded } = useAuthLoading();
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
-  const user = userData?.original;
   const config = useConfig();
 
   const managementEndpoint = useSelector(
@@ -116,21 +112,6 @@ export function PrivateRoutes({
       dispatch(setManagementClient(managementClient));
     }
   }, [dispatch, managementEndpoint, userData?.token]);
-
-  useEffect(() => {
-    if (isClientsLoaded && user) {
-      const refreshIntervalStatsUnit = setInterval(() => {
-        const currentTime = Math.floor(Date.now() / 1000);
-
-        if (user.expires_at && user.expires_at >= currentTime) {
-          dispatch(loadInstanceLatestStatus());
-        }
-      }, 30000);
-      return () => {
-        clearInterval(refreshIntervalStatsUnit);
-      };
-    }
-  }, [dispatch, isClientsLoaded, user?.profile?.sub]);
 
   if (!isClientsLoaded) {
     return (

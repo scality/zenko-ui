@@ -10,13 +10,11 @@ import { Button, Input, Select } from '@scality/core-ui/dist/next';
 
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
-import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import { LocationV1 } from '../../js/managementClient/api';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { LocationTypeKey } from '../../types/config';
-import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
@@ -38,6 +36,7 @@ import {
   newLocationDetails,
   newLocationForm,
 } from './utils';
+import { useCapabilities } from '../queries/instanceStatusQuery';
 import { Loader as LoaderCoreUI } from '@scality/core-ui';
 import { useShellHooks } from '@scality/module-federation';
 
@@ -76,9 +75,7 @@ function LocationEditor() {
   const locationEditing = locations?.find(
     (location) => location.name === locationName,
   );
-  const capabilities = useSelector(
-    (state: AppState) => state.instanceStatus.latest.state.capabilities,
-  );
+  const { capabilities } = useCapabilities();
   const editingExisting = !!(locationEditing && locationEditing.id);
   const [location, setLocation] = useState(
     convertToForm({ ...newLocationDetails(), ...locationEditing }),

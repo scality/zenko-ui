@@ -14,11 +14,7 @@ import { AuthUser } from '../../types/auth';
 import { AppConfig, InstanceId } from '../../types/entities';
 import { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 import { STSClient as STSClientInterface } from '../../types/sts';
-import {
-  handleErrorMessage,
-  loadInstanceLatestStatus,
-  networkAuthFailure,
-} from './index';
+import { handleErrorMessage, networkAuthFailure } from './index';
 export function setManagementClient(
   managementClient: ManagementClientInterface,
 ): SetManagementClientAction {
@@ -105,14 +101,7 @@ export function loadClients(user?: AuthUser): ThunkStatePromisedAction {
     );
 
     dispatch(setManagementClient(managementClient));
-    return dispatch(loadInstanceLatestStatus())
-      .then(() => dispatch(loadClientsSuccess()))
-      .catch((error) => {
-        if (error.message) {
-          dispatch(handleErrorMessage(error.message, 'byAuth'));
-        }
-
-        dispatch(networkAuthFailure());
-      });
+    dispatch(loadClientsSuccess());
+    return Promise.resolve();
   };
 }

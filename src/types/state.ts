@@ -1,6 +1,5 @@
 import { Account } from './account';
 import { AppConfig, InstanceId } from './entities';
-import { BucketList, InstanceStatus } from './stats';
 import { Hostname } from './config';
 import { ErrorViewType } from './ui';
 import { ManagementClient as ManagementClientInterface } from './managementClient';
@@ -26,14 +25,8 @@ export type ErrorsUIState = {
 export type InstancesState = {
   readonly selectedId: InstanceId | null;
 };
-export type InstanceStatusState = {
-  readonly latest: InstanceStatus;
-};
 export type NetworkActivityState = {
   readonly authFailure: boolean;
-};
-export type StatsState = {
-  readonly bucketList: BucketList;
 };
 export type EndpointsUIState = {
   showDelete: Hostname;
@@ -41,9 +34,7 @@ export type EndpointsUIState = {
 export type AppState = {
   readonly auth: AuthState;
   readonly instances: InstancesState;
-  readonly instanceStatus: InstanceStatusState;
   readonly networkActivity: NetworkActivityState;
   readonly uiErrors: ErrorsUIState;
   readonly uiEndpoints: EndpointsUIState;
-  readonly stats: StatsState;
 };

@@ -17,13 +17,19 @@ import {
   selectClick,
 } from '../../utils/testUtil';
 import { setupServer } from 'msw/node';
-import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import {
+  getConfigOverlay,
+  getInstanceStatus,
+} from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 
 jest.setTimeout(60_000);
-const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
+const server = setupServer(
+  getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
+  getInstanceStatus(TEST_API_BASE_URL, INSTANCE_ID),
+);
 
 beforeAll(() => {
   server.listen();

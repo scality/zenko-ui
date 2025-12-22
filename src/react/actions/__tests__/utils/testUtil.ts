@@ -10,14 +10,12 @@ import {
   account,
   accountAccessKey,
   accountSecretKey,
-  instanceStatus,
   latestOverlay,
   location,
   userName,
 } from '../../../../js/mock/managementClient';
 import { ManagementClient } from '../../../../types/managementClient';
 import { AppState } from '../../../../types/state';
-import { EnabledState } from '../../../../types/stats';
 import zenkoUIReducer from '../../../reducers';
 import { initialFullState } from '../../../reducers/initialConstants';
 import { waitFor } from '@testing-library/react';
@@ -63,7 +61,6 @@ export const AWS_CLIENT_ERROR = awsErrorObject(
   AWS_CLIENT_ERROR_MSG,
   'InternalError',
 );
-export const SITE = 'ring-s3-loc';
 export const LATEST_OVERLAY = latestOverlay;
 export const ACCOUNT = account;
 export const LOCATION = location;
@@ -71,14 +68,6 @@ export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
 export const ACCOUNT_NAME = userName;
 export const ACCOUNT_ACCESS_KEY = accountAccessKey;
 export const ACCOUNT_SECRET_KEY = accountSecretKey;
-export const INSTANCE_STATUS_RUNNINGv1 = {
-  ...instanceStatus,
-  state: { ...instanceStatus.state, runningConfigurationVersion: 1 },
-};
-export const INSTANCE_STATUS_RUNNINGv2 = {
-  ...instanceStatus,
-  state: { ...instanceStatus.state, runningConfigurationVersion: 2 },
-};
 
 export function errorManagementState(): AppState {
   const state = initState;
@@ -124,46 +113,11 @@ export const TEST_USER = {
           path: '/',
     },
   };
-export function storeStateWithRunningConfigurationVersion2(): AppState {
-  return {
-    ...initState,
-    instanceStatus: {
-      ...initState.instanceStatus,
-      latest: {
-        ...initState.instanceStatus.latest,
-        state: {
-          ...initState.instanceStatus.latest.state,
-          runningConfigurationVersion: 2,
-        },
-      },
-    },
-  };
-}
 export function storeStateWithManagementClient(
   state: AppState,
   client: ManagementClient,
 ): AppState {
   return { ...state, auth: { ...state.auth, managementClient: client } };
-}
-export function storeStateWithIngestion(state: EnabledState): AppState {
-  return {
-    ...initState,
-    instanceStatus: {
-      ...initState.instanceStatus,
-      latest: {
-        ...initState.instanceStatus.latest,
-        metrics: {
-          ...initState.instanceStatus.latest.metrics,
-          'ingest-schedule': {
-            schedules: {},
-            states: {
-              [SITE]: state,
-            },
-          },
-        },
-      },
-    },
-  };
 }
 
 /**

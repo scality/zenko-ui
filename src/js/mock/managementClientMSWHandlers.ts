@@ -185,6 +185,45 @@ export const getConfigOverlay = (baseUrl: string, instanceId: string) => {
   );
 };
 
+export const getInstanceStatus = (baseUrl: string, instanceId: string) => {
+  return rest.get(
+    `${baseUrl}/api/v1/instance/${instanceId}/status`,
+    (req, res, ctx) =>
+      res(
+        ctx.json({
+          state: {
+            capabilities: {
+              secureChannel: true,
+              locationTypeS3Custom: true,
+              locationTypeDigitalOcean: true,
+              locationTypeHyperdriveV2: true,
+              locationTypeLocal: true,
+              locationTypeNFS: true,
+              locationTypeCephRadosGW: true,
+              locationTypeSproxyd: true,
+              s3cIngestLocation: true,
+              nfsIngestLocation: true,
+              cephIngestLocation: true,
+            },
+            lastSeen: new Date().toISOString(),
+            serverVersion: '1.0.0',
+          },
+          metrics: {
+            'item-counts': {
+              bucketList: [],
+              buckets: 0,
+              versions: 0,
+              objects: 0,
+              dataManaged: { total: { curr: 0, prev: 0 }, byLocation: {} },
+            },
+            'crr-schedule': { states: {}, schedules: {} },
+            'ingest-schedule': { states: {}, schedules: {} },
+          },
+        }),
+      ),
+  );
+};
+
 export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
   //Config overlay mock below
   getConfigOverlay(baseUrl, instanceId),

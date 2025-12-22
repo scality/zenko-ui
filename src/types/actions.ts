@@ -2,7 +2,6 @@ import { Hostname } from './config';
 import { AppConfig, InstanceId } from './entities';
 import { ManagementClient } from './managementClient';
 import { AppState } from './state';
-import { InstanceStatus } from './stats';
 import { STSClient } from './sts';
 export type DispatchFunction = (arg0: Action) => any;
 export type GetStateFunction = () => AppState;
@@ -76,12 +75,6 @@ export type NetworkActivityAction =
   | NetworkActivityAuthFailureAction
   | NetworkActivityAuthResetAction
   | LoadClientsSuccessAction;
-// instance status actions
-export type InstanceStatusAction = {
-  readonly type: 'INSTANCE_STATUS';
-  readonly status?: InstanceStatus;
-};
-export type StatsAction = InstanceStatusAction;
 
 export type OpenEndpointDeleteDialogAction = {
   readonly type: 'OPEN_ENDPOINT_DELETE_DIALOG';
@@ -101,6 +94,4 @@ export type Action =
   | EndpointsUIAction
   | ErrorsUIAction
   | SelectInstanceAction
-  | NetworkActivityAction
-  | InstanceStatusAction
-  | StatsAction;
+  | NetworkActivityAction;

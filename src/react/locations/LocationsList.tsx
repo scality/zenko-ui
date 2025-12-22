@@ -10,12 +10,10 @@ import {
 } from '@scality/core-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useMutation, useQueryClient } from 'react-query';
-import { useSelector } from 'react-redux';
 import { CellProps, CoreUIColumn } from 'react-table';
 
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
-import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import {
@@ -34,6 +32,7 @@ import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { getLocationType } from '../utils/storageOptions';
 import { PauseAndResume } from './PauseAndResume';
 import { getLocationDeletionBlocker } from './utils';
+import { useBucketList } from '../queries/instanceStatusQuery';
 import styled from 'styled-components';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -53,7 +52,7 @@ const TooltipList = styled.ul`
 const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
   const { name: locationName } = rowValues;
   const navigate = useBasenameRelativeNavigate();
-  const buckets = useSelector((state: AppState) => state.stats.bucketList);
+  const { bucketList: buckets } = useBucketList();
   const [showModal, setShowModal] = useState(false);
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -217,7 +216,7 @@ export function LocationsList() {
     accountsLocationsEndpointsAdapter,
   });
 
-  const buckets = useSelector((state: AppState) => state.stats.bucketList);
+  const { bucketList: buckets } = useBucketList();
 
   const data = useMemo(() => {
     if (locations.status === 'success') return Object.values(locations.value);
