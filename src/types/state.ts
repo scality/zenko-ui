@@ -3,7 +3,6 @@ import { AppConfig, InstanceId } from './entities';
 import { BucketList, InstanceStatus } from './stats';
 import { Hostname } from './config';
 import { ErrorViewType } from './ui';
-import { List } from 'immutable';
 import { ManagementClient as ManagementClientInterface } from './managementClient';
 import { STSClient } from './sts';
 export type AuthState = {
@@ -31,9 +30,7 @@ export type InstanceStatusState = {
   readonly latest: InstanceStatus;
 };
 export type NetworkActivityState = {
-  readonly counter: number;
   readonly authFailure: boolean;
-  readonly messages: List<string>;
 };
 export type StatsState = {
   readonly bucketList: BucketList;

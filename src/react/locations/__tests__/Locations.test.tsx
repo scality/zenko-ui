@@ -13,7 +13,6 @@ import {
   getByRole,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import { List } from 'immutable';
 import {
   ACCOUNT_ID,
   getColdStorageHandlers,
@@ -157,8 +156,7 @@ describe.skip('Locations', () => {
     try {
       reduxRender(<LocationsList />, {
         networkActivity: {
-          counter: 0,
-          messages: List.of(),
+          authFailure: false,
         },
         instances: {
           selectedId: instanceId,
@@ -356,8 +354,7 @@ describe.skip('Locations', () => {
 
       reduxRender(<LocationsList />, {
         networkActivity: {
-          counter: 0,
-          messages: List.of(),
+          authFailure: false,
         },
         instances: {
           selectedId: instanceId,
@@ -435,8 +432,7 @@ describe.skip('Locations', () => {
 
       reduxRender(<LocationsList />, {
         networkActivity: {
-          counter: 0,
-          messages: List.of(),
+          authFailure: false,
         },
         instances: {
           selectedId: instanceId,
@@ -493,8 +489,7 @@ describe.skip('Locations', () => {
     try {
       reduxRender(<LocationsList />, {
         networkActivity: {
-          counter: 0,
-          messages: List.of(),
+          authFailure: false,
         },
         instances: {
           selectedId: instanceId,
@@ -553,8 +548,7 @@ describe.skip('Locations', () => {
     try {
       reduxRender(<LocationsList />, {
         networkActivity: {
-          counter: 0,
-          messages: List.of(),
+          authFailure: false,
         },
         instances: {
           selectedId: instanceId,
@@ -630,8 +624,7 @@ describe.skip('Locations', () => {
     );
     reduxRender(<LocationsList />, {
       networkActivity: {
-        counter: 0,
-        messages: List.of(),
+        authFailure: false,
       },
       instances: {
         selectedId: instanceId,

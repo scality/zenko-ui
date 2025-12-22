@@ -13,10 +13,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { MouseEvent, MouseEventHandler, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from 'react-query';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
-import { AppState } from '../../types/state';
-import { networkEnd, networkStart } from '../actions';
 import { useComponentError, useModalError } from '../ErrorProvider';
 import {
   useCurrentAccount,
@@ -38,7 +35,6 @@ const schema = Joi.object({
 });
 
 const AccountCreateUser = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const baseNameRelativeNavigate = useBasenameRelativeNavigate();
   const { accountName } = useParams<{ accountName: string }>();
@@ -59,12 +55,7 @@ const AccountCreateUser = () => {
   const { roleArn } = useDataServiceRole();
 
   const createUserMutation = useMutation(
-    (userName: string) => {
-      dispatch(networkStart('Creating User'));
-      return IAMClient.createUser(userName).finally(() => {
-        dispatch(networkEnd());
-      });
-    },
+    (userName: string) => IAMClient.createUser(userName),
     {
       onSuccess: async () => {
         const targetAccountName = accountName || account.Name;
@@ -83,9 +74,7 @@ const AccountCreateUser = () => {
   const { componentError, clearComponentError } = useComponentError();
   const hasError = !!componentError;
   const errorMessage = componentError;
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
+  const loading = createUserMutation.isLoading;
 
   const onSubmit = ({ name }: { name: string }) => {
     clearServerError();

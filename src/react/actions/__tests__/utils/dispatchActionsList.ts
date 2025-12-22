@@ -8,10 +8,7 @@ import {
   LoadClientsSuccessAction,
   LoadConfigSuccessAction,
   NetworkActivityAuthFailureAction,
-  NetworkActivityEndAction,
-  NetworkActivityStartAction,
   OpenEndpointDeleteDialogAction,
-  SelectAccountAction,
   SelectInstanceAction,
   SetAppConfigAction,
   SetManagementClientAction,
@@ -19,7 +16,6 @@ import {
 } from '../../../../types/actions';
 import { Hostname } from '../../../../types/config';
 import {
-  ACCOUNT,
   APP_CONFIG,
   INSTANCE_ID,
   INSTANCE_STATUS_RUNNINGv1,
@@ -53,10 +49,6 @@ export const LOAD_CLIENTS_SUCCESS_ACTION: LoadClientsSuccessAction = {
 export const CONFIG_AUTH_FAILURE_ACTION: ConfigAuthFailureAction = {
   type: 'CONFIG_AUTH_FAILURE',
 };
-export const SELECT_ACCOUNT_ACTION: SelectAccountAction = {
-  type: 'SELECT_ACCOUNT',
-  account: ACCOUNT,
-};
 // * error action
 export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {
   return {
@@ -80,15 +72,6 @@ export function HANDLE_ERROR_SPEC_ACTION(errorMsg: string): HandleErrorAction {
   };
 }
 // * network actions
-export const NETWORK_START_ACTION = (
-  msg: string,
-): NetworkActivityStartAction => ({
-  type: 'NETWORK_START',
-  message: msg,
-});
-export const NETWORK_END_ACTION: NetworkActivityEndAction = {
-  type: 'NETWORK_END',
-};
 export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction = {
   type: 'NETWORK_AUTH_FAILURE',
 };

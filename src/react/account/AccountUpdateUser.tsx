@@ -1,7 +1,4 @@
 import { MouseEvent, useRef } from 'react';
-import { networkEnd } from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppState } from '../../types/state';
 import { useComponentError, useModalError } from '../ErrorProvider';
 import {
   Banner,
@@ -36,7 +33,6 @@ const schema = Joi.object({
 
 //TODO this component is duplicated ith AccountCreateUser...
 const AccountUpdateUser = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
@@ -57,42 +53,38 @@ const AccountUpdateUser = () => {
   const updateUserMutation = useMutation(
     (newUserName: string) => {
       const oldUserName = IAMUserName;
-      return IAMClient.updateUser(newUserName, oldUserName)
-        .then(() => {
-          const olddata = queryClient.getQueryData(
+      return IAMClient.updateUser(newUserName, oldUserName).then(() => {
+        const olddata = queryClient.getQueryData(
+          getListUsersQuery(accountName, IAMClient).queryKey,
+        );
+        olddata &&
+          queryClient.setQueryData<InfiniteData<ListUsersResponse>>(
             getListUsersQuery(accountName, IAMClient).queryKey,
+            (old) => {
+              const pages = notFalsyTypeGuard(old).pages.map((page) => {
+                const users = page.Users;
+                const index = users.findIndex(
+                  (user) => user.UserName === oldUserName,
+                );
+                if (index !== -1) {
+                  users[index].UserName = newUserName;
+                }
+                return page;
+              });
+              return {
+                ...notFalsyTypeGuard(old),
+                pages,
+              };
+            },
           );
-          olddata &&
-            queryClient.setQueryData<InfiniteData<ListUsersResponse>>(
-              getListUsersQuery(accountName, IAMClient).queryKey,
-              (old) => {
-                const pages = notFalsyTypeGuard(old).pages.map((page) => {
-                  const users = page.Users;
-                  const index = users.findIndex(
-                    (user) => user.UserName === oldUserName,
-                  );
-                  if (index !== -1) {
-                    users[index].UserName = newUserName;
-                  }
-                  return page;
-                });
-                return {
-                  ...notFalsyTypeGuard(old),
-                  pages,
-                };
-              },
-            );
-        })
-        .catch((err) => {
-          showModalError(`${err}`);
-        })
-        .finally(() => {
-          dispatch(networkEnd());
-        });
+      });
     },
     {
       onSuccess: () => {
         navigate(-1);
+      },
+      onError: (err) => {
+        showModalError(`${err}`);
       },
     },
   );
@@ -100,9 +92,7 @@ const AccountUpdateUser = () => {
   const { componentError, clearComponentError } = useComponentError();
   const hasError = !!componentError;
   const errorMessage = componentError;
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
+  const loading = updateUserMutation.isLoading;
 
   const onSubmit = ({ name }: { name: string }) => {
     clearServerError();

@@ -1,8 +1,7 @@
 /* eslint-disable */
 import { Loader, Stack, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { useSelector } from 'react-redux';
-import { AppState } from '../../types/state';
+import { useIsMutating } from 'react-query';
 import { CustomModal as Modal } from './Modal';
 type Props = {
   approve: () => void;
@@ -19,13 +18,12 @@ const DeleteConfirmation = ({
   titleText,
   isLoading,
 }: Props) => {
+  const isMutating = useIsMutating();
+  const loading = isMutating > 0;
+
   if (!show) {
     return null;
   }
-
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
 
   return (
     <Modal

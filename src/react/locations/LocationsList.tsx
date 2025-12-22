@@ -9,7 +9,7 @@ import {
   spacing,
 } from '@scality/core-ui';
 import { useEffect, useMemo, useState } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { useIsFetching, useMutation, useQueryClient } from 'react-query';
 import { useSelector } from 'react-redux';
 import { CellProps, CoreUIColumn } from 'react-table';
 
@@ -223,9 +223,8 @@ export function LocationsList() {
     if (locations.status === 'success') return Object.values(locations.value);
     else return [];
   }, [locations]);
-  const loadingBuckets = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
+  const isFetching = useIsFetching();
+  const loadingBuckets = isFetching > 0;
 
   const { basePath } = useConfig();
 

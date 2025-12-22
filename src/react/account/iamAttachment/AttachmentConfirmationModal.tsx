@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { CustomModal as Modal, ModalBody } from '../../ui-elements/Modal';
-import { useMutation, useQueryClient } from 'react-query';
+import { useIsMutating, useMutation, useQueryClient } from 'react-query';
 import { useIAMClient } from '../../IAMProvider';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { AppState } from '../../../types/state';
 import {
   AttachmentOperation,
   AttachmentAction,
@@ -70,9 +68,8 @@ function AttachmentConfirmationModal({
   const navigate = useBasenameRelativeNavigate();
   const queryClient = useQueryClient();
   const { account } = useCurrentAccount();
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
+  const isMutating = useIsMutating();
+  const loading = isMutating > 0;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 

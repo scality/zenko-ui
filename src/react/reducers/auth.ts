@@ -24,9 +24,6 @@ export default function auth(
     case 'LOAD_CLIENTS_SUCCESS':
       return { ...state, isClientsLoaded: true };
 
-    case 'SELECT_ACCOUNT':
-      return { ...state, selectedAccount: action.account };
-
     default:
       return state;
   }

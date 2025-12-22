@@ -1,6 +1,5 @@
 import {
   ApiError,
-  ClearErrorAction,
   DispatchFunction,
   HandleErrorAction,
   ThunkNonStateAction,
@@ -17,12 +16,6 @@ export function handleErrorMessage(
     type: 'HANDLE_ERROR',
     errorMsg: error,
     errorType,
-  };
-}
-
-export function clearError(): ClearErrorAction {
-  return {
-    type: 'CLEAR_ERROR',
   };
 }
 

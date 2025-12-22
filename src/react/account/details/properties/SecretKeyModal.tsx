@@ -1,18 +1,19 @@
 import { Account, AccountKey } from '../../../../types/account';
 import { CustomModal as Modal, ModalBody } from '../../../ui-elements/Modal';
 import Table, * as T from '../../../ui-elements/TableKeyValue';
-import { createAccountAccessKey } from '../../../actions';
-import { useDispatch } from 'react-redux';
 import { Banner, Icon, Stack, Wrap, spacing } from '@scality/core-ui';
 import { Button, CopyButton, Box } from '@scality/core-ui/dist/next';
 import { useShellHooks } from '@scality/module-federation';
-import { useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 
 import { HideCredential } from '../../../ui-elements/Hide';
 
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import { ACCESS_KEYS_QUERY_KEY } from './useAccessKeysQuery';
 import { useModalError } from '../../../ErrorProvider';
+import { useManagementClient } from '../../../ManagementProvider';
+import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
+import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 
 import styled from 'styled-components';
 type Props = {
@@ -29,29 +30,35 @@ const StyledCopybutton = styled(CopyButton)({
 });
 
 function SecretKeyModal({ account, isOpen, accountKey, onClose, onKeyCreated }: Props) {
-  const dispatch = useDispatch();
   const { useAuth } = useShellHooks();
-  const { userData } = useAuth();
+  const { getToken } = useAuth();
   const { roleArn } = useDataServiceRole();
   const queryClient = useQueryClient();
   const { showModalError } = useModalError();
+  const managementClient = useManagementClient();
+  const instanceId = useInstanceId();
+
+  const createAccessKeyMutation = useMutation({
+    mutationFn: async () => {
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
+      return client.generateKeyConfigurationOverlayUser(instanceId, account.Name);
+    },
+    onSuccess: (resp) => {
+      onKeyCreated({
+        userName: resp.userName,
+        accessKey: resp.accessKey,
+        secretKey: resp.secretKey,
+      });
+      queryClient.invalidateQueries([ACCESS_KEYS_QUERY_KEY, roleArn]);
+    },
+    onError: (error: Error) => {
+      showModalError(error.message || 'Failed to create access key');
+    },
+  });
 
   const handleAccessKeyCreate = () => {
-    const user = userData?.original;
-    if (user) {
-      dispatch(
-        createAccountAccessKey(
-          account.Name,
-          roleArn,
-          user,
-          (key) => {
-            onKeyCreated(key);
-            queryClient.invalidateQueries([ACCESS_KEYS_QUERY_KEY, roleArn]);
-          },
-          showModalError,
-        ),
-      );
-    }
+    createAccessKeyMutation.mutate();
   };
 
   const modalFooter = (key: AccountKey | null) => {

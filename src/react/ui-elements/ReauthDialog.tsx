@@ -1,19 +1,15 @@
-import { useSelector } from 'react-redux';
-import { AppState } from '../../types/state';
 import { CustomModal as Modal } from './Modal';
 import { useLocation } from 'react-router';
 import { Wrap } from '@scality/core-ui';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
-import { useAuthError } from '../ErrorProvider';
+import { useAuthError, useAuthFailure } from '../ErrorProvider';
 
 const DEFAULT_MESSAGE = 'We need to log you in.';
 
 const ReauthDialog = () => {
   const { pathname } = useLocation();
   const { authError } = useAuthError();
-  const needReauth = useSelector(
-    (state: AppState) => state.networkActivity.authFailure,
-  );
+  const { authFailure: needReauth } = useAuthFailure();
 
   const errorMessage = authError
     ? pathname.indexOf('/accounts') !== -1

@@ -1,4 +1,3 @@
-import { Account } from './account';
 import { Hostname } from './config';
 import { AppConfig, InstanceId } from './entities';
 import { ManagementClient } from './managementClient';
@@ -24,9 +23,6 @@ export type ThunkNonStatePromisedAction = (
 ) => Promise<void>;
 export type ThunkNonStateAction = (arg0: DispatchFunction) => void;
 // error action
-export type ClearErrorAction = {
-  readonly type: 'CLEAR_ERROR';
-};
 export type HandleErrorAction = {
   readonly type: 'HANDLE_ERROR';
   readonly errorMsg: string | void;
@@ -34,7 +30,6 @@ export type HandleErrorAction = {
 };
 export type ErrorsUIAction =
   | HandleErrorAction
-  | ClearErrorAction
   | NetworkActivityAuthResetAction;
 // auth actions
 export type SetSTSClientAction = {
@@ -58,18 +53,13 @@ export type LoadConfigSuccessAction = {
 export type LoadClientsSuccessAction = {
   readonly type: 'LOAD_CLIENTS_SUCCESS';
 };
-export type SelectAccountAction = {
-  readonly type: 'SELECT_ACCOUNT';
-  readonly account: Account;
-};
 export type AuthAction =
   | SetSTSClientAction
   | SetManagementClientAction
   | SetAppConfigAction
   | ConfigAuthFailureAction
   | LoadConfigSuccessAction
-  | LoadClientsSuccessAction
-  | SelectAccountAction;
+  | LoadClientsSuccessAction;
 // instances actions
 export type SelectInstanceAction = {
   readonly type: 'SELECT_INSTANCE';
@@ -79,20 +69,11 @@ export type SelectInstanceAction = {
 export type NetworkActivityAuthFailureAction = {
   readonly type: 'NETWORK_AUTH_FAILURE';
 };
-export type NetworkActivityStartAction = {
-  readonly type: 'NETWORK_START';
-  readonly message: string;
-};
-export type NetworkActivityEndAction = {
-  readonly type: 'NETWORK_END';
-};
 export type NetworkActivityAuthResetAction = {
   readonly type: 'NETWORK_AUTH_RESET';
 };
 export type NetworkActivityAction =
   | NetworkActivityAuthFailureAction
-  | NetworkActivityStartAction
-  | NetworkActivityEndAction
   | NetworkActivityAuthResetAction
   | LoadClientsSuccessAction;
 // instance status actions

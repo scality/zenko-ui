@@ -1,5 +1,4 @@
 import { screen, waitFor } from '@testing-library/react';
-import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
@@ -208,8 +207,7 @@ describe('Accounts', () => {
     renderWithRouterMatch(<Accounts />, undefined, {
       uiErrors: initialErrorsUIState,
       networkActivity: {
-        counter: 0,
-        messages: List.of(),
+        authFailure: false,
       },
       auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
     });

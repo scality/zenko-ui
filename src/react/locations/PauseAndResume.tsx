@@ -2,12 +2,11 @@ import { Icon, Loader, spacing } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
-import { useDispatch } from 'react-redux';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
-import { handleClientError } from '../actions';
+import { useErrorHandler } from '../ErrorProvider';
 import { ApiError } from '../../types/actions';
 import { useShellHooks } from '@scality/module-federation';
 import { useZenkoClient } from '../ZenkoProvider';
@@ -18,7 +17,7 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
     replication: 'enabled' | 'disabled' | null;
     ingestion: 'enabled' | 'disabled' | null;
   } | null>(null);
-  const dispatch = useDispatch();
+  const { handleClientError } = useErrorHandler();
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
   const { useAuth } = useShellHooks();
@@ -54,7 +53,7 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
       return managementClient.getLatestInstanceStatus(instanceId);
     },
     onError: (error: ApiError) => {
-      dispatch(handleClientError(error));
+      handleClientError(error);
     },
     refetchOnMount: false,
     refetchOnWindowFocus: false,
