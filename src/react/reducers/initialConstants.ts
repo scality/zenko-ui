@@ -6,7 +6,6 @@ import {
   NetworkActivityState,
 } from '../../types/state';
 
-import { List } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 
@@ -105,10 +104,8 @@ export const initialInstanceStatus: InstanceStatusState = {
 export const initialEndpointsUIState = {
   showDelete: '',
 };
-//@ts-expect-error fix this when you are working on it
 export const initialNetworkActivityState: NetworkActivityState = {
-  counter: 0,
-  messages: List(),
+  authFailure: false,
 };
 export const initialStatsState = {
   bucketList: [],

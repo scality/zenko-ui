@@ -15,9 +15,7 @@ import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
 import IAMClient from '../../js/IAMClient';
-import { useDispatch } from 'react-redux';
-import { handleClientError } from '../actions';
-import { useModalError } from '../ErrorProvider';
+import { useErrorHandler } from '../ErrorProvider';
 import { errorParser } from '../utils';
 import { ApiError } from '../../types/actions';
 import { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
@@ -206,11 +204,10 @@ const DeletePolicyAction = ({
   accountName: string;
   attachments: number;
 }) => {
-  const dispatch = useDispatch();
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
-  const { showModalError } = useModalError();
+  const { handleClientError, showModalError } = useErrorHandler();
   const isInternalPolicy = path.includes('scality-internal');
   const deletePolicyMutation = useMutation(
     async (arn: string) => {
@@ -239,7 +236,7 @@ const DeletePolicyAction = ({
         ),
       onError: (error: ApiError) => {
         try {
-          dispatch(handleClientError(error));
+          handleClientError(error);
         } catch (err) {
           showModalError(errorParser(err as ApiError).message);
         }

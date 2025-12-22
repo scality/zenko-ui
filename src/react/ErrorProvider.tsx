@@ -23,6 +23,9 @@ type ErrorContextValue = {
   showAuthError: (message: string) => void;
   showComponentError: (message: string) => void;
   clearError: () => void;
+  authFailure: boolean;
+  setAuthFailure: () => void;
+  resetAuthFailure: () => void;
 };
 
 const noop = () => undefined;
@@ -32,6 +35,9 @@ const fallbackContext: ErrorContextValue = {
   showAuthError: (msg) => console.error('[ErrorProvider not found]', msg),
   showComponentError: (msg) => console.error('[ErrorProvider not found]', msg),
   clearError: noop,
+  authFailure: false,
+  setAuthFailure: noop,
+  resetAuthFailure: noop,
 };
 
 const ErrorContext = createContext<ErrorContextValue | null>(null);
@@ -69,11 +75,67 @@ export const useComponentError = () => {
   };
 };
 
+export const useAuthFailure = () => {
+  const { authFailure, setAuthFailure, resetAuthFailure } = useError();
+  return { authFailure, setAuthFailure, resetAuthFailure };
+};
+
+type ApiError = { status?: number; statusCode?: number; code?: string; message?: string };
+
+export const useErrorHandler = () => {
+  const { showAuthError, showModalError, setAuthFailure } = useError();
+
+  const handleClientError = useCallback(
+    (error: ApiError) => {
+      switch (error.status) {
+        case 401:
+        case 403:
+          setAuthFailure();
+          break;
+        case 400:
+          if (error.message?.includes('token has expired')) {
+            showAuthError(error.message);
+            setAuthFailure();
+          } else {
+            throw error;
+          }
+          break;
+        default:
+          throw error;
+      }
+    },
+    [showAuthError, setAuthFailure],
+  );
+
+  const handleAWSError = useCallback(
+    (error: ApiError) => {
+      if (error.code === 'ExpiredToken') {
+        showAuthError(error.message || 'Token expired');
+        setAuthFailure();
+      } else {
+        switch (error.statusCode) {
+          case 401:
+          case 403:
+            showAuthError(error.message || 'Authentication failed');
+            setAuthFailure();
+            break;
+          default:
+            throw error;
+        }
+      }
+    },
+    [showAuthError, setAuthFailure],
+  );
+
+  return { handleClientError, handleAWSError, showModalError };
+};
+
 const ErrorProvider = ({ children }: { children: JSX.Element }) => {
   const [error, setError] = useState<ErrorState>({
     message: null,
     type: null,
   });
+  const [authFailure, setAuthFailureState] = useState(false);
 
   // Sync Redux uiErrors state (temporary, remove after full migration)
   const reduxErrorType = useSelector(
@@ -81,6 +143,9 @@ const ErrorProvider = ({ children }: { children: JSX.Element }) => {
   );
   const reduxErrorMsg = useSelector(
     (state: AppState) => state.uiErrors.errorMsg,
+  );
+  const reduxAuthFailure = useSelector(
+    (state: AppState) => state.networkActivity.authFailure,
   );
 
   useEffect(() => {
@@ -96,6 +161,10 @@ const ErrorProvider = ({ children }: { children: JSX.Element }) => {
       });
     }
   }, [reduxErrorType, reduxErrorMsg]);
+
+  useEffect(() => {
+    setAuthFailureState(reduxAuthFailure);
+  }, [reduxAuthFailure]);
 
   const showModalError = useCallback((message: string) => {
     setError({ message, type: 'modal' });
@@ -113,6 +182,14 @@ const ErrorProvider = ({ children }: { children: JSX.Element }) => {
     setError({ message: null, type: null });
   }, []);
 
+  const setAuthFailure = useCallback(() => {
+    setAuthFailureState(true);
+  }, []);
+
+  const resetAuthFailure = useCallback(() => {
+    setAuthFailureState(false);
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       error,
@@ -120,8 +197,11 @@ const ErrorProvider = ({ children }: { children: JSX.Element }) => {
       showAuthError,
       showComponentError,
       clearError,
+      authFailure,
+      setAuthFailure,
+      resetAuthFailure,
     }),
-    [error, showModalError, showAuthError, showComponentError, clearError],
+    [error, showModalError, showAuthError, showComponentError, clearError, authFailure, setAuthFailure, resetAuthFailure],
   );
 
   return (

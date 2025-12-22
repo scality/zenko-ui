@@ -5,7 +5,6 @@ import {
   UseQueryResult,
   useQuery,
 } from 'react-query';
-import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
@@ -14,8 +13,7 @@ import { Account, WebIdentityRoles } from '../../types/iam';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useDataServiceRole } from '../DataServiceRoleProvider';
 import { useShellHooks } from '@scality/module-federation';
-import { handleClientError, networkEnd, networkStart } from '../actions';
-import { useModalError } from '../ErrorProvider';
+import { useErrorHandler } from '../ErrorProvider';
 import { errorParser } from '.';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useAwsPaginatedEntities } from './IAMhooks';
@@ -162,15 +160,16 @@ export const SCALITY_IAM_ROLES = [
   DATA_ACCESSOR_ROLE,
 ];
 
-const reduxBasedEventDispatcher = () => {
-  const dispatch = useDispatch();
-  const { showModalError } = useModalError();
+const defaultEventDispatcher = () => {
+  const { handleClientError, showModalError } = useErrorHandler();
   return {
-    notifyLoadingAccounts: () => dispatch(networkStart('Loading accounts...')),
-    notifyEnd: () => dispatch(networkEnd()),
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    notifyLoadingAccounts: () => {},
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    notifyEnd: () => {},
     notifyError: (error: ApiError) => {
       try {
-        dispatch(handleClientError(error));
+        handleClientError(error);
       } catch (err) {
         showModalError(errorParser(err as ApiError).message);
       }
@@ -195,7 +194,7 @@ export const useAccounts = (
     notifyLoadingAccounts: () => void;
     notifyEnd: () => void;
     notifyError: (error: ApiError) => void;
-  } = reduxBasedEventDispatcher,
+  } = defaultEventDispatcher,
 ) => {
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();

@@ -14,7 +14,6 @@ export default function uiErrors(
       };
 
     case 'NETWORK_AUTH_RESET':
-    case 'CLEAR_ERROR':
       return { ...state, errorMsg: null, errorType: null };
 
     default:

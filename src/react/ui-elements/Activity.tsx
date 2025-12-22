@@ -1,9 +1,16 @@
 import { Loader } from '@scality/core-ui/dist/components/loader/Loader.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { useSelector } from 'react-redux';
+import { useIsFetching } from 'react-query';
 import styled from 'styled-components';
-import { AppState } from '../../types/state';
-export const DEFAULT_MESSAGE = 'Working...';
+
+// TODO: Re-enable Activity spinner after confirming display conditions.
+// Previously used Redux networkActivity.counter to show spinner only for specific operations.
+// Current implementation uses useIsFetching() which triggers on ALL React Query fetches.
+// Need to determine: which operations should show global spinner vs local loading states.
+const ACTIVITY_ENABLED = false;
+
+export const DEFAULT_MESSAGE = 'Loading...';
+
 const ActivityContainer = styled.div`
   position: fixed;
   bottom: 0px;
@@ -28,21 +35,16 @@ const ActivityContainer = styled.div`
 `;
 
 const Activity = () => {
-  const working = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
-  const message = useSelector((state: AppState) =>
-    state.networkActivity.messages.first(),
-  );
+  const isFetching = useIsFetching();
 
-  if (!working) {
+  if (!ACTIVITY_ENABLED || isFetching === 0) {
     return null;
   }
 
   return (
     <ActivityContainer id="activity-message">
       <Loader size="base" />
-      {message || DEFAULT_MESSAGE}
+      {DEFAULT_MESSAGE}
     </ActivityContainer>
   );
 };

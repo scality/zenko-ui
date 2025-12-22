@@ -3,10 +3,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { getListPoliciesQuery } from '../queries';
 import { useIAMClient } from '../IAMProvider';
 
-import { handleClientError } from '../actions';
-import { useModalError } from '../ErrorProvider';
+import { useErrorHandler } from '../ErrorProvider';
 import { errorParser } from '../utils';
-import { useDispatch } from 'react-redux';
 import { ApiError } from '../../types/actions';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
@@ -24,9 +22,8 @@ const CreateAccountPolicy = () => {
   const basenameNavigate = useBasenameRelativeNavigate();
   const navigate = useNavigate();
   const currentAccount = useCurrentAccount();
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
-  const { showModalError } = useModalError();
+  const { handleClientError, showModalError } = useErrorHandler();
   const defaultValues = {
     policyName: '',
     policyDocument: `{
@@ -70,8 +67,7 @@ const CreateAccountPolicy = () => {
       },
       onError: (error) => {
         try {
-          //@ts-expect-error fix this when you are working on it
-          dispatch(handleClientError(error));
+          handleClientError(error as ApiError);
         } catch (err) {
           showModalError(errorParser(err as ApiError).message);
         }
