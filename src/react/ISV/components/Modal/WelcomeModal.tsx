@@ -3,8 +3,6 @@ import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.compo
 import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { InternalRouter } from '../../../FederableApp';
-
 import { useAccounts, useAuthGroups } from '../../../utils/hooks';
 import { setSessionState } from '../../../utils/localStorage';
 import { ArtescaLogo } from '../ArtescaLogo';
@@ -289,11 +287,9 @@ export default function WelcomeModal(props: NavbarUpdaterComponentProps) {
       shellHooks={props.shellHooks}
       shellAlerts={props.shellAlerts}
     >
-      <InternalRouter>
-        <AlertProvider>
-          <WelcomeModalInternal {...props} />
-        </AlertProvider>
-      </InternalRouter>
+      <AlertProvider>
+        <WelcomeModalInternal {...props} />
+      </AlertProvider>
     </ShellHooksProvider>
   );
 }

@@ -14,10 +14,6 @@ import React, { useEffect } from 'react';
 import { ArtescaLibraryProvider } from './next-architecture/ui/ArtescaLibraryProvider';
 import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
 
-export const InternalRouter = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>;
-};
-
 const HistoryPushEventListener = () => {
   const navigate = useBasenameRelativeNavigate();
   useEffect(() => {
