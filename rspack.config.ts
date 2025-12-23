@@ -128,6 +128,7 @@ const config: Configuration = {
       filename: `static/js/remoteEntry.${revision}.js`,
       exposes: {
         './FederableApp': './src/react/FederableApp.tsx',
+        './ExportApp': './src/react/ExportApp.tsx',
         './WelcomeModal': './src/react/ISV/components/Modal/WelcomeModal.tsx',
         './SelectAccountIAMRole':
           './src/react/ui-elements/SelectAccountIAMRole.tsx',
