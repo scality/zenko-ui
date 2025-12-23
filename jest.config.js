@@ -1,18 +1,12 @@
 module.exports = {
   testEnvironment: 'jsdom',
   testMatch: ['**/?(*.)+(test).ts?(x)'],
-  // Temporarily ignore the test; wait until the overall migration is complete before fixing it.
   testPathIgnorePatterns: [
-    'src/react/databrowser/',
-    'src/react/workflow/',
-    'src/react/next-architecture/domain/business/buckets.test.tsx',
-    'src/react/ui-elements/__tests__/EmptyBucket.test.tsx',
+    'src/react/ISV/hooks/useGetS3ServicePoint.test.ts',
     'src/react/ISV/modules/veeam/components/VeeamCapacityOverviewRow.test.tsx',
     'src/react/ISV/modules/veeam/components/VeeamCapacityModal.test.tsx',
     'src/react/ISV/components/__tests__/ISVSummary.test.tsx',
-    'src/react/ISV/hooks/useGetS3ServicePoint.test.ts',
     'src/react/ui-elements/__tests__/SelectAccountIAMRole.test.tsx',
-    'src/js/mutations.test.ts',
   ],
   transformIgnorePatterns: [
     '/node_modules/(?!(vega-lite|@scality|pretty-bytes|uuid)/)',
