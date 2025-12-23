@@ -3,7 +3,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import {
-  reduxRender,
+  testRender,
   themeMount as mount,
   selectClick,
 } from '../../../utils/testUtil';
@@ -34,7 +34,7 @@ describe('class <LocationDetailsAzure />', () => {
     const onChange = jest.fn();
     const {
       component: { container },
-    } = reduxRender(
+    } = testRender(
       <LocationDetailsAzure
         locationType="location-azure-v1"
         //@ts-expect-error

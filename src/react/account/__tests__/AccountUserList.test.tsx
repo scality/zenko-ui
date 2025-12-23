@@ -10,7 +10,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
-  reduxRender,
+  testRender,
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 
@@ -56,7 +56,7 @@ afterAll(() => server.close());
 describe('AccountUserList', () => {
   it('should render a table with users', async () => {
     //E
-    reduxRender(<AccountUserList accountName="account" />);
+    testRender(<AccountUserList accountName="account" />);
     //V
     //Loading state
     expect(screen.getAllByText('Loading users...')).toHaveLength(2);
@@ -89,7 +89,7 @@ describe('AccountUserList', () => {
     ).toBeInTheDocument();
   });
   it('should render header buttons and column names', async () => {
-    reduxRender(<AccountUserList accountName="account" />);
+    testRender(<AccountUserList accountName="account" />);
 
     /**********           Number of columns :         ************/
 
@@ -117,7 +117,7 @@ describe('AccountUserList', () => {
       ),
     );
 
-    reduxRender(<AccountUserList accountName="account" />);
+    testRender(<AccountUserList accountName="account" />);
 
     await waitFor(() =>
       screen.getByText(

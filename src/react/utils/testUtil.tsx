@@ -276,7 +276,7 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
   );
 };
 
-export const reduxMount = (component: React.ReactNode) => {
+export const testMount = (component: React.ReactNode) => {
   return {
     component: render(
       <ThemeProvider theme={theme}>
@@ -337,7 +337,7 @@ export const WrapperAsStorageManager = ({
   );
 };
 
-export const reduxRender = (component: JSX.Element) => {
+export const testRender = (component: JSX.Element) => {
   const role = {
     roleArn: TEST_ROLE_ARN,
   };
@@ -393,7 +393,7 @@ export const reduxRender = (component: JSX.Element) => {
   };
 };
 
-export async function reduxMountAct(component) {
+export async function testMountAct(component) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {

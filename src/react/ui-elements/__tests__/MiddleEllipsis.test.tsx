@@ -1,7 +1,7 @@
 /* eslint-disable */
 import MiddleEllipsis, { ellipseNode } from '../MiddleEllipsis';
 import React from 'react';
-import { reduxMount } from '../../utils/testUtil';
+import { testMount } from '../../utils/testUtil';
 describe('MiddleEllipsis', () => {
   const container = {
     offsetWidth: 50,
@@ -17,7 +17,7 @@ describe('MiddleEllipsis', () => {
   it('middle ellipsis event listener add/remove', () => {
     jest.spyOn(window, 'addEventListener');
     jest.spyOn(window, 'removeEventListener');
-    const { component } = reduxMount(<MiddleEllipsis text={'text'} />);
+    const { component } = testMount(<MiddleEllipsis text={'text'} />);
     expect(window.addEventListener).toHaveBeenCalled();
     component.unmount();
     expect(window.removeEventListener).toHaveBeenCalled();

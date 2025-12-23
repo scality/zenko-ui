@@ -3,7 +3,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
-  reduxRender,
+  testRender,
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 import CreateAccountPolicy from '../CreateAccountPolicy';
@@ -44,7 +44,7 @@ afterAll(() => server.close());
 
 describe('CreateAccountPolicy', () => {
   it('should display all fields for CreateAccountPolicy form', async () => {
-    reduxRender(<CreateAccountPolicy />);
+    testRender(<CreateAccountPolicy />);
     expect(screen.getByText('Policy Creation')).toBeInTheDocument();
     expect(screen.getByText('* are required fields')).toBeInTheDocument();
     expect(
@@ -66,7 +66,7 @@ describe('CreateAccountPolicy', () => {
     expect(cancelButton).toBeInTheDocument();
   });
   it('should disable Create button if policy name input and policy document textarea are empty', async () => {
-    reduxRender(<CreateAccountPolicy />);
+    testRender(<CreateAccountPolicy />);
     const policyNameInput = screen.getByRole('textbox', {
       name: /Policy name/i,
     });
@@ -78,7 +78,7 @@ describe('CreateAccountPolicy', () => {
     expect(createButton).toBeDisabled();
   });
   it('should check if create button is disabled when no policy name is provided', async () => {
-    reduxRender(<CreateAccountPolicy />);
+    testRender(<CreateAccountPolicy />);
     const policyNameInput = screen.getByRole('textbox', {
       name: /Policy name/i,
     });
@@ -92,7 +92,7 @@ describe('CreateAccountPolicy', () => {
     expect(createButton).toBeDisabled();
   });
   it('should check if Copy button is enabled if policy document is not empty', async () => {
-    reduxRender(<CreateAccountPolicy />);
+    testRender(<CreateAccountPolicy />);
 
     const copyButton = screen.getByRole('button', { name: /copy policy/i });
 

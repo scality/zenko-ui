@@ -3,7 +3,7 @@ import { accountAccessKeys } from '../../../../../js/mock/IAMClient';
 
 import {
   mockOffsetSize,
-  reduxRender,
+  testRender,
   renderWithRouterMatch,
 } from '../../../../utils/testUtil';
 import AccountKeys from '../AccountKeys';
@@ -86,7 +86,7 @@ describe('AccountKeys', () => {
       error: null,
     } as any);
 
-    const { component } = reduxRender(
+    const { component } = testRender(
       <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
     );
 

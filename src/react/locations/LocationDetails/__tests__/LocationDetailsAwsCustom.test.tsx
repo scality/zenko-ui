@@ -4,7 +4,7 @@ import { JAGUAR_S3_LOCATION_KEY } from '../../../../types/config';
 import { InstanceStateSnapshot } from '../../../../types/stats';
 import {
   NewWrapper,
-  reduxMountAct,
+  testMountAct,
   updateInputText,
 } from '../../../utils/testUtil';
 import LocationDetailsAwsCustom from '../LocationDetailsAwsCustom';
@@ -27,7 +27,7 @@ const props = {
 describe('class <LocationDetailsAwsCustom />', () => {
   it('should call onChange on mount', async () => {
     const onChangeFn = jest.fn();
-    await reduxMountAct(
+    await testMountAct(
       //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} onChange={onChangeFn} />,
     );
@@ -40,7 +40,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
     });
   });
   it('should show custom details for empty details', async () => {
-    const component = await reduxMountAct(
+    const component = await testMountAct(
       // @ts-expect-error
       <LocationDetailsAwsCustom {...props} />,
     );
@@ -66,7 +66,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
       bucketName: 'bn',
       bucketMatch: true,
     };
-    const component = await reduxMountAct(
+    const component = await testMountAct(
       // @ts-expect-error
       <LocationDetailsAwsCustom {...props} details={locationDetails} />,
     );
@@ -93,7 +93,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
       bucketMatch: false,
     };
     let location = {};
-    const { container } = await reduxMountAct(
+    const { container } = await testMountAct(
       //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} onChange={(l) => (location = l)} />,
     );
@@ -104,7 +104,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
     expect(location).toEqual(refLocation);
   });
   it('should display truststore link for non-Ring S3 Reseller locations and an HTTPS endpoint', async () => {
-    const component = await reduxMountAct(
+    const component = await testMountAct(
       <LocationDetailsAwsCustom
         {...props}
         locationType="location-scality-artesca-s3-v1"
@@ -132,7 +132,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
     expect(truststoreLink).toHaveAttribute('target', '_blank');
   });
   it('should not display truststore link for Ring S3 Reseller locations', async () => {
-    const component = await reduxMountAct(
+    const component = await testMountAct(
       <LocationDetailsAwsCustom
         {...props}
         locationType={JAGUAR_S3_LOCATION_KEY}

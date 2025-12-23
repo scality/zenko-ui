@@ -6,7 +6,7 @@ import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import {
   TEST_API_BASE_URL,
-  reduxRender,
+  testRender,
   renderWithRouterMatch,
 } from '../../utils/testUtil';
 import AccountCreate from '../AccountCreate';
@@ -154,7 +154,7 @@ describe('AccountCreate', () => {
   ];
   tests.forEach((t) => {
     it(`Simulate click: ${t.description}`, async () => {
-      await reduxRender(<AccountCreate />);
+      await testRender(<AccountCreate />);
       if (t.name) {
         await userEvent.type(
           screen.getByRole('textbox', { name: /name/i }),

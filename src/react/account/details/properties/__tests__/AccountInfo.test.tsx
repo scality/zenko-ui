@@ -1,6 +1,6 @@
 import * as T from '../../../../ui-elements/TableKeyValue';
 import {
-  reduxMount,
+  testMount,
   testTableRow,
   TEST_API_BASE_URL,
   TEST_ROLE_PATH_NAME,
@@ -71,7 +71,7 @@ describe('AccountInfo', () => {
   });
 
   it('should render AccountInfo component', () => {
-    reduxMount(<AccountInfo account={account1} />);
+    testMount(<AccountInfo account={account1} />);
 
     expect(screen.getByRole('table')).toBeInTheDocument();
 

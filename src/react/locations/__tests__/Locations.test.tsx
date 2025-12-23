@@ -3,7 +3,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
-  reduxRender,
+  testRender,
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 import { XDM_FEATURE } from '../../../js/config';
@@ -154,7 +154,7 @@ afterAll(() => server.close());
 describe.skip('Locations', () => {
   it('should render Locations component alphabetically sorted', async () => {
     try {
-      reduxRender(<LocationsList />);
+      testRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -341,7 +341,7 @@ describe.skip('Locations', () => {
         ),
       );
 
-      reduxRender(<LocationsList />);
+      testRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -408,7 +408,7 @@ describe.skip('Locations', () => {
         ),
       );
 
-      reduxRender(<LocationsList />);
+      testRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -452,7 +452,7 @@ describe.skip('Locations', () => {
   });
   it('should disable delete location button if location is attached to a bucket', async () => {
     try {
-      reduxRender(<LocationsList />);
+      testRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -492,7 +492,7 @@ describe.skip('Locations', () => {
   });
   it('should disable delete location button if location is being used for endpoint', async () => {
     try {
-      reduxRender(<LocationsList />);
+      testRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -557,7 +557,7 @@ describe.skip('Locations', () => {
       }),
       ...getColdStorageHandlers(TEST_API_BASE_URL, instanceId),
     );
-    reduxRender(<LocationsList />);
+    testRender(<LocationsList />);
 
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],

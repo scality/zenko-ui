@@ -3,7 +3,7 @@ import { ResponseResolver, rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
-  reduxRender,
+  testRender,
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 import AccountPoliciesList from '../AccountPoliciesList';
@@ -119,7 +119,7 @@ afterAll(() => server.close());
 describe('AccountPoliciesList', () => {
   it('should render header buttons and a table with user policies', async () => {
     try {
-      reduxRender(<AccountPoliciesList accountName="account" />);
+      testRender(<AccountPoliciesList accountName="account" />);
 
       expect(screen.getAllByText('Loading policies...')).toHaveLength(2);
 
@@ -149,7 +149,7 @@ describe('AccountPoliciesList', () => {
     }
   });
   it('should render enabled Attach button', async () => {
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
     //E
     await waitFor(() => screen.getAllByText(/Edit/i));
     //V
@@ -159,7 +159,7 @@ describe('AccountPoliciesList', () => {
     expect(attachButton).not.toBeDisabled();
   });
   it('should render Edit button for Non Scality internal Policy', async () => {
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
     //E
     await waitFor(() => screen.getAllByText('Edit'));
     //V
@@ -170,7 +170,7 @@ describe('AccountPoliciesList', () => {
     expect(editButton).toBeInTheDocument();
   });
   it('should render view button for Scality internal Policies', async () => {
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
     //E
     await waitFor(() => screen.getAllByText('Edit'));
     //V
@@ -181,7 +181,7 @@ describe('AccountPoliciesList', () => {
     expect(viewButton).toBeInTheDocument();
   });
   it('should render enabled Copy ARN button', async () => {
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
     //E
     await waitFor(() => screen.getAllByText(/Copy ARN/i));
     //V
@@ -191,7 +191,7 @@ describe('AccountPoliciesList', () => {
     expect(arnButton).not.toBeDisabled();
   });
   it('should render disabled Delete button for Scality internal policy', async () => {
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
 
     await waitFor(() => screen.getAllByText(/Edit/i));
     const deleteButton = screen.getByRole('button', {
@@ -221,7 +221,7 @@ describe('AccountPoliciesList', () => {
       }),
     );
 
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
 
     // E
     await waitFor(() => screen.getAllByText(/Edit/i));
@@ -288,7 +288,7 @@ describe('AccountPoliciesList', () => {
       }),
     );
 
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
     //E
     await waitFor(() => screen.getAllByText('View'));
     //V
@@ -323,7 +323,7 @@ describe('AccountPoliciesList', () => {
       }),
     );
 
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
 
     // E
     await waitFor(() => screen.getAllByText(/Edit/i));
@@ -456,7 +456,7 @@ describe('AccountPoliciesList', () => {
       }),
     );
 
-    reduxRender(<AccountPoliciesList accountName="account" />);
+    testRender(<AccountPoliciesList accountName="account" />);
 
     // E
     await waitFor(() => screen.getAllByText(/Edit/i));

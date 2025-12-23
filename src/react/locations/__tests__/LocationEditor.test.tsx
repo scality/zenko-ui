@@ -13,7 +13,7 @@ import {
   TEST_API_BASE_URL,
   Wrapper,
   mockOffsetSize,
-  reduxRender,
+  testRender,
   selectClick,
 } from '../../utils/testUtil';
 import { setupServer } from 'msw/node';
@@ -71,7 +71,7 @@ describe('LocationEditor', () => {
   it('should display storageOptions expect hidden options', async () => {
     const {
       component: { container },
-    } = reduxRender(<LocationEditor />);
+    } = testRender(<LocationEditor />);
 
     await waitForElementToBeRemoved(() =>
       screen.getByText('Loading location...'),
@@ -161,7 +161,7 @@ describe('LocationEditor', () => {
   it('should not display a banner when fewer than 6 locations exist', async () => {
     setupLocations(5);
 
-    reduxRender(<LocationEditor />);
+    testRender(<LocationEditor />);
     await waitForElementToBeRemoved(() => selectors.loadingLocation());
 
     expect(
@@ -175,7 +175,7 @@ describe('LocationEditor', () => {
   it('should display a warning banner when 6-9 locations exist', async () => {
     setupLocations(8);
 
-    reduxRender(<LocationEditor />);
+    testRender(<LocationEditor />);
     await waitForElementToBeRemoved(() => selectors.loadingLocation());
 
     await waitFor(() => {
@@ -194,7 +194,7 @@ describe('LocationEditor', () => {
   it('should display a danger banner when 10 or more locations exist', async () => {
     setupLocations(12);
 
-    reduxRender(<LocationEditor />);
+    testRender(<LocationEditor />);
     await waitForElementToBeRemoved(() => selectors.loadingLocation());
 
     await waitFor(() => {
@@ -211,7 +211,7 @@ describe('LocationEditor', () => {
   });
 
   it(`test if each location display correctly`, async () => {
-    reduxRender(<LocationEditor />);
+    testRender(<LocationEditor />);
 
     await waitForElementToBeRemoved(() =>
       screen.getByText('Loading location...'),

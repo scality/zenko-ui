@@ -1,6 +1,6 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { reduxRender } from '../../../utils/testUtil';
+import { testRender } from '../../../utils/testUtil';
 import LocationDetailsTapeMiria from '../LocationDetailsTapeMiria';
 
 describe('LocationDetailsTapeMiria', () => {
@@ -13,7 +13,7 @@ describe('LocationDetailsTapeMiria', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}
@@ -45,7 +45,7 @@ describe('LocationDetailsTapeMiria', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}
@@ -77,7 +77,7 @@ describe('LocationDetailsTapeMiria', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}
@@ -106,7 +106,7 @@ describe('LocationDetailsTapeMiria', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}
@@ -137,7 +137,7 @@ describe('LocationDetailsTapeMiria', () => {
       username: '',
       password: '',
     };
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}
@@ -162,7 +162,7 @@ describe('LocationDetailsTapeMiria', () => {
       username: '',
       password: '',
     };
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}
@@ -201,7 +201,7 @@ describe('LocationDetailsTapeMiria', () => {
       password: 'hashedPassword',
       editingExisting: true,
     };
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}
@@ -234,7 +234,7 @@ describe('LocationDetailsTapeMiria', () => {
       editingExisting: false,
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}
@@ -259,7 +259,7 @@ describe('LocationDetailsTapeMiria', () => {
       password: '',
     };
 
-    reduxRender(
+    testRender(
       <LocationDetailsTapeMiria
         locationType="location-miria-v1"
         details={sampleDetails}

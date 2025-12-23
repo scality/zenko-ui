@@ -15,7 +15,7 @@ import {
   defaultUserData,
   mockOffsetSize,
   mockShellHooks,
-  reduxRender,
+  testRender,
   renderWithRouterMatch,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
@@ -94,9 +94,9 @@ describe('Accounts', () => {
         res(ctx.status(500, 'error')),
       ),
     );
-    // FIXME Move reduxRender to the new render later
+    // FIXME Move testRender to the new render later
     //E
-    reduxRender(<Accounts />);
+    testRender(<Accounts />);
     //V
 
     //Wait for error
@@ -126,9 +126,9 @@ describe('Accounts', () => {
         ),
       ),
     );
-    // FIXME Move reduxRender to the new render later
+    // FIXME Move testRender to the new render later
     //E
-    reduxRender(<Accounts />);
+    testRender(<Accounts />);
     //V
 
     //Wait for error
@@ -217,7 +217,7 @@ describe('Accounts', () => {
 
   it('should display Create Account Button for Storage Manager', async () => {
     //E
-    reduxRender(
+    testRender(
       <WrapperAsStorageManager isStorageManager={true}>
         <Accounts />
       </WrapperAsStorageManager>,
@@ -301,7 +301,7 @@ describe('Accounts', () => {
     });
 
     //E
-    reduxRender(
+    testRender(
       <WrapperAsStorageManager isStorageManager>
         <Accounts />
       </WrapperAsStorageManager>,

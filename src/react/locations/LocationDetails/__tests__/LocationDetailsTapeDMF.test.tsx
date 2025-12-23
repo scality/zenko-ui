@@ -1,6 +1,6 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { reduxRender } from '../../../utils/testUtil';
+import { testRender } from '../../../utils/testUtil';
 import LocationDetailsTapeDMF from '../LocationDetailsTapeDMF';
 
 describe('LocationDetailsTapeDMF', () => {
@@ -14,7 +14,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
@@ -45,7 +45,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
@@ -76,7 +76,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
@@ -107,7 +107,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
@@ -159,7 +159,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
@@ -190,7 +190,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    reduxRender(
+    testRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
