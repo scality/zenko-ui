@@ -83,6 +83,14 @@ export const useLocationReplicationControl = (locationName: string) => {
     onError: handleMutationError,
   });
 
+  /**
+   * Detects when replication/ingestion status has changed after a mutation.
+   *
+   * When a pause/resume mutation is triggered, we start polling the instance status.
+   * This effect compares the current status against the status captured before the mutation
+   * (previousStatus). Once either replication or ingestion status changes from the previous
+   * value, we stop polling and clear the timeout - indicating the mutation has taken effect.
+   */
   useEffect(() => {
     if (!isWaitingForUpdate || !previousStatus) {
       return;

@@ -51,14 +51,14 @@ export const useInstanceStatusQuery = (options?: InstanceStatusQueryOptions) => 
  * Uses useMemo to stabilize reference across re-renders.
  */
 export const useBucketList = () => {
-  const { data, status, isFetching } = useInstanceStatusQuery();
+  const { data, status, isFetching, error } = useInstanceStatusQuery();
   const rawBucketList = data?.metrics?.['item-counts']?.bucketList;
 
   const bucketList = useMemo(() => {
     return rawBucketList || [];
   }, [JSON.stringify(rawBucketList)]);
 
-  return { bucketList, status, isFetching };
+  return { bucketList, status, isFetching, error };
 };
 
 /**
@@ -66,12 +66,12 @@ export const useBucketList = () => {
  * Uses useMemo to stabilize reference across re-renders.
  */
 export const useCapabilities = () => {
-  const { data, status } = useInstanceStatusQuery();
+  const { data, status, error } = useInstanceStatusQuery();
   const rawCapabilities = data?.state?.capabilities;
 
   const capabilities = useMemo(() => {
     return rawCapabilities as Capabilities | undefined;
   }, [JSON.stringify(rawCapabilities)]);
 
-  return { capabilities, status };
+  return { capabilities, status, error };
 };
