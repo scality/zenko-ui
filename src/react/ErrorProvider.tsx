@@ -4,11 +4,8 @@ import {
   useState,
   useCallback,
   useMemo,
-  useEffect,
   JSX,
 } from 'react';
-import { useSelector } from 'react-redux';
-import { AppState } from '../types/state';
 
 type ErrorType = 'modal' | 'auth' | 'component';
 
@@ -130,41 +127,12 @@ export const useErrorHandler = () => {
   return { handleClientError, handleAWSError, showModalError };
 };
 
-const ErrorProvider = ({ children }: { children: JSX.Element }) => {
+const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<ErrorState>({
     message: null,
     type: null,
   });
   const [authFailure, setAuthFailureState] = useState(false);
-
-  // Sync Redux uiErrors state (temporary, remove after full migration)
-  const reduxErrorType = useSelector(
-    (state: AppState) => state.uiErrors.errorType,
-  );
-  const reduxErrorMsg = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
-  const reduxAuthFailure = useSelector(
-    (state: AppState) => state.networkActivity.authFailure,
-  );
-
-  useEffect(() => {
-    if (reduxErrorType && reduxErrorMsg) {
-      const typeMap: Record<string, ErrorType> = {
-        byModal: 'modal',
-        byAuth: 'auth',
-        byComponent: 'component',
-      };
-      setError({
-        message: reduxErrorMsg,
-        type: typeMap[reduxErrorType] || 'modal',
-      });
-    }
-  }, [reduxErrorType, reduxErrorMsg]);
-
-  useEffect(() => {
-    setAuthFailureState(reduxAuthFailure);
-  }, [reduxAuthFailure]);
 
   const showModalError = useCallback((message: string) => {
     setError({ message, type: 'modal' });

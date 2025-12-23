@@ -3,14 +3,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useState,
   JSX,
 } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useShellHooks } from '@scality/module-federation';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
-import { loadAppConfig } from './actions';
-import { AppState } from '../types/state';
-import { useComponentError } from './ErrorProvider';
+import { useAuthError, useAuthFailure } from './ErrorProvider';
 
 type AuthLoadingContextValue = {
   isConfigLoaded: boolean;
@@ -34,28 +32,39 @@ export const useAuthLoading = () => {
 };
 
 const AuthLoadingProvider = ({ children }: { children: JSX.Element }) => {
-  const dispatch = useDispatch();
   const config = useConfig();
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
+  const { showAuthError } = useAuthError();
+  const { setAuthFailure } = useAuthFailure();
 
-  const isConfigLoaded = useSelector(
-    (state: AppState) => state.auth.isConfigLoaded,
-  );
-  const isClientsLoaded = useSelector(
-    (state: AppState) => state.auth.isClientsLoaded,
-  );
-  const configFailure = useSelector(
-    (state: AppState) => state.auth.configFailure,
-  );
-  const { componentError } = useComponentError();
-  const configFailureErrorMessage = componentError || '';
+  const [isConfigLoaded, setIsConfigLoaded] = useState(false);
+  const [isClientsLoaded, setIsClientsLoaded] = useState(false);
+  const [configFailure, setConfigFailure] = useState(false);
+  const [configFailureErrorMessage, setConfigFailureErrorMessage] = useState('');
 
   useEffect(() => {
-    if (userData?.original?.profile?.sub && config && !isConfigLoaded) {
-      dispatch(loadAppConfig(config, userData));
+    if (!userData?.original?.profile?.sub || !config) {
+      return;
     }
-  }, [dispatch, config, userData?.original?.profile?.sub, isConfigLoaded]);
+
+    if (isConfigLoaded) {
+      return;
+    }
+
+    const instanceIds = userData?.original?.profile?.instanceIds;
+    if (!instanceIds || instanceIds.length === 0) {
+      const errorMessage = 'missing the "instanceIds" claim in ID token';
+      showAuthError(errorMessage);
+      setAuthFailure();
+      setConfigFailure(true);
+      setConfigFailureErrorMessage(errorMessage);
+      return;
+    }
+
+    setIsConfigLoaded(true);
+    setIsClientsLoaded(true);
+  }, [config, userData?.original?.profile?.sub, isConfigLoaded, showAuthError, setAuthFailure]);
 
   const contextValue = useMemo(
     () => ({

@@ -1,15 +1,10 @@
-import auth from './auth';
 import { combineReducers } from 'redux';
-import instances from './instances';
-import networkActivity from './networkActivity';
-import uiErrors from './uiErrors';
+
+const placeholderReducer = (state = {}) => state;
 
 const zenkoUIReducer = () =>
   combineReducers({
-    auth,
-    instances,
-    networkActivity,
-    uiErrors,
+    _placeholder: placeholderReducer,
   });
 
 export default zenkoUIReducer;

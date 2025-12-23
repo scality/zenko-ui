@@ -19,7 +19,6 @@ import { UiFacingApiWrapper } from '../../js/managementClient';
 import { Configuration } from '../../js/managementClient/configuration';
 import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
 import { _ManagementContext } from '../ManagementProvider';
-import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
 import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { _AuthContext } from '../next-architecture/ui/AuthProvider';
@@ -65,7 +64,6 @@ export const theme = coreUIAvailableThemes.darkRebrand;
 export const newTestStore = (state) => {
   const store = configureStore([thunk])({
     ...initialFullState,
-    ...authenticatedUserState(),
     ...(state || {}),
   });
   return store;
@@ -75,13 +73,8 @@ export const TEST_API_BASE_URL = 'http://testendpoint';
 export const realStoreWithInitState = (state) => {
   const tmpState = {
     ...initialFullState,
-    ...authenticatedUserState(),
     ...(state || {}),
   };
-  tmpState.auth.managementClient = TEST_MANAGEMENT_CLIENT;
-  if (!state?.auth?.config?.features) {
-    tmpState.auth.config.features = [VEEAM_FEATURE];
-  }
   const store = createStore(
     zenkoUIReducer(),
     tmpState,

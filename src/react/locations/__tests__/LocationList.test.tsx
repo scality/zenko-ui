@@ -18,7 +18,7 @@ import {
   zenkoUITestConfig,
   TEST_ROLE_PATH_NAME,
 } from '../../utils/testUtil';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { LocationsList } from '../LocationsList';
 import { _DataServiceRoleContext } from '../../DataServiceRoleProvider';
 import { ReplicationControlProvider } from '../contexts/ReplicationControlContext';

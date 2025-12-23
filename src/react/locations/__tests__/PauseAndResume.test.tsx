@@ -9,7 +9,7 @@ import { setupServer } from 'msw/node';
 import { renderWithRouterMatch, TEST_API_BASE_URL } from '../../utils/testUtil';
 import { PauseAndResume } from '../PauseAndResume';
 import { ReplicationControlProvider } from '../contexts/ReplicationControlContext';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 
 const renderPauseAndResume = (locationName: string) => {
   return renderWithRouterMatch(

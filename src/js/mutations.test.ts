@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { INSTANCE_ID } from '../react/actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from './mock/managementClientMSWHandlers';
 import {
   GET_VEEAM_IMMUTABLE_POLICY,
   VEEAM_IMMUTABLE_POLICY_NAME,

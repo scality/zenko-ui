@@ -1,92 +1,114 @@
+import { render, screen } from '@testing-library/react';
+import { ThemeProvider } from 'styled-components';
+import { MemoryRouter } from 'react-router';
 import ReauthDialog from '../ReauthDialog';
-import { reduxMount, renderWithRouterMatch } from '../../utils/testUtil';
-import { screen } from '@testing-library/react';
+import { theme } from '../../utils/testUtil';
+import ErrorProvider, { useAuthError, useAuthFailure, useModalError } from '../../ErrorProvider';
+import { useEffect } from 'react';
+
+jest.mock('../../account/AccountRoleSelectButtonAndModal', () => ({
+  __esModule: true,
+  default: () => <button>Switch Account</button>,
+}));
+
+const TestWrapper = ({
+  children,
+  initialRoute = '/',
+}: {
+  children: React.ReactNode;
+  initialRoute?: string;
+}) => (
+  <ThemeProvider theme={theme}>
+    <MemoryRouter initialEntries={[initialRoute]}>
+      <ErrorProvider>{children}</ErrorProvider>
+    </MemoryRouter>
+  </ThemeProvider>
+);
+
+const TriggerAuthFailure = () => {
+  const { setAuthFailure } = useAuthFailure();
+  useEffect(() => {
+    setAuthFailure();
+  }, [setAuthFailure]);
+  return null;
+};
+
+const TriggerAuthError = ({ message }: { message: string }) => {
+  const { showAuthError } = useAuthError();
+  const { setAuthFailure } = useAuthFailure();
+  useEffect(() => {
+    showAuthError(message);
+    setAuthFailure();
+  }, [message, showAuthError, setAuthFailure]);
+  return null;
+};
+
 const defaultMessage = 'We need to log you in.';
+const modalTitle = 'Authentication Error';
 
-describe('class <ReauthDialog />', () => {
-  const modalTitle = 'Authentication Error';
-
-  it('should not render the ReauthDialog component if the network activity authFailure is false', () => {
-    renderWithRouterMatch(<ReauthDialog />, undefined, {
-      networkActivity: {
-        authFailure: false,
-      },
-      router: {
-        location: {
-          pathname: '/',
-        },
-      },
-    });
+describe('ReauthDialog', () => {
+  it('should not render when authFailure is false', () => {
+    render(
+      <TestWrapper>
+        <ReauthDialog />
+      </TestWrapper>,
+    );
     expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
-  it('should not render the ReauthDialog component if the network activity authFailure is false even if error is of type byAuth', () => {
-    renderWithRouterMatch(<ReauthDialog />, undefined, {
-      networkActivity: {
-        authFailure: false,
-      },
-      uiErrors: {
-        errorMsg: 'error message test',
-        errorType: 'byAuth',
-      },
-      router: {
-        location: {
-          pathname: '/',
-        },
-      },
-    });
-    expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
-  });
-  it('should render the ReauthDialog component with default message if the network activity authFailure is true', () => {
-    renderWithRouterMatch(<ReauthDialog />, undefined, {
-      networkActivity: {
-        authFailure: true,
-      },
-      router: {
-        location: {
-          pathname: '/',
-        },
-      },
-    });
+
+  it('should render with default message when authFailure is true', () => {
+    render(
+      <TestWrapper>
+        <TriggerAuthFailure />
+        <ReauthDialog />
+      </TestWrapper>,
+    );
 
     expect(screen.getByText(modalTitle)).toBeInTheDocument();
     expect(screen.getByText(defaultMessage)).toBeInTheDocument();
   });
-  it('should render the ReauthDialog component with provided error message if the network activity authFailure is true and error is of type byAuth', () => {
+
+  it('should render with provided error message when authFailure is true and authError is set', () => {
     const errorMessage = 'test error message';
-    renderWithRouterMatch(<ReauthDialog />, undefined, {
-      networkActivity: {
-        authFailure: true,
-      },
-      uiErrors: {
-        errorMsg: errorMessage,
-        errorType: 'byAuth',
-      },
-      router: {
-        location: {
-          pathname: '/',
-        },
-      },
-    });
+    render(
+      <TestWrapper>
+        <TriggerAuthError message={errorMessage} />
+        <ReauthDialog />
+      </TestWrapper>,
+    );
     expect(screen.getByText(modalTitle)).toBeInTheDocument();
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
-  it('should render the ReauthDialog component with default message if the network activity authFailure is true and error is of type byModal', () => {
-    const errorMessage = 'test error message';
-    renderWithRouterMatch(<ReauthDialog />, undefined, {
-      networkActivity: {
-        authFailure: true,
-      },
-      uiErrors: {
-        errorMsg: errorMessage,
-        errorType: 'byModal',
-      },
-      router: {
-        location: {
-          pathname: '/',
-        },
-      },
-    });
 
+  it('should show "Access denied" when on accounts path with authError', () => {
+    const errorMessage = 'some error';
+    render(
+      <TestWrapper initialRoute="/accounts/test-account">
+        <TriggerAuthError message={errorMessage} />
+        <ReauthDialog />
+      </TestWrapper>,
+    );
+    expect(screen.getByText(modalTitle)).toBeInTheDocument();
+    expect(screen.getByText('Access denied')).toBeInTheDocument();
+  });
+
+  it('should render with default message when authFailure is true but error is modal type (not auth)', () => {
+    const TriggerModalErrorAndAuthFailure = () => {
+      const { showModalError } = useModalError();
+      const { setAuthFailure } = useAuthFailure();
+      useEffect(() => {
+        showModalError('some modal error');
+        setAuthFailure();
+      }, [showModalError, setAuthFailure]);
+      return null;
+    };
+
+    render(
+      <TestWrapper>
+        <TriggerModalErrorAndAuthFailure />
+        <ReauthDialog />
+      </TestWrapper>,
+    );
     expect(screen.getByText(modalTitle)).toBeInTheDocument();
     expect(screen.getByText(defaultMessage)).toBeInTheDocument();
   });

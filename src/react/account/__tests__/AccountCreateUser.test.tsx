@@ -3,7 +3,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { Route, Routes } from 'react-router';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import {
   mockOffsetSize,
   renderWithCustomRoute,

@@ -5,7 +5,7 @@ import {
 } from '@testing-library/react';
 import { setupServer } from 'msw/node';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import {
   TEST_API_BASE_URL,
   renderWithRouterMatch,

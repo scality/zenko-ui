@@ -167,6 +167,11 @@ jest.mock('./src/react/next-architecture/ui/XCoreLibraryProvider', () => {
 });
 
 jest.mock('@module-federation/enhanced/runtime', () => {}, { virtual: true });
+
+jest.mock('./src/react/account/AccountRoleSelectButtonAndModal', () => ({
+  __esModule: true,
+  default: () => <button>Switch Account</button>,
+}));
 jest.mock('@scality/module-federation', () => {
   const router = jest.requireActual('react-router');
   return {

@@ -6,19 +6,15 @@ import {
   Loader,
   Sidebar,
 } from '@scality/core-ui';
-import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback, useState } from 'react';
 import { Navigate, Route, Routes, matchPath, useLocation } from 'react-router';
 
-import makeMgtClient from '../js/managementClient';
-import { AppState } from '../types/state';
 import DataServiceRoleProvider, {
   useCurrentAccount,
 } from './DataServiceRoleProvider';
 import ManagementProvider from './ManagementProvider';
 import STSProvider from './STSProvider';
 import { useAuthLoading } from './AuthLoadingProvider';
-import { setManagementClient } from './actions';
 import ReauthDialog from './ui-elements/ReauthDialog';
 
 import { useConfig } from './next-architecture/ui/ConfigProvider';
@@ -31,7 +27,7 @@ import AccountCreate from './account/AccountCreate';
 import AccountContent from './account/AccountContent';
 import DataBrowser from './databrowser/DataBrowser';
 import LocationEditor from './locations/LocationEditor';
-import { useBasenameRelativeNavigate, useShellHooks } from '@scality/module-federation';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import Attachments from './account/iamAttachment/Attachments';
 import AccountUpdateUser from './account/AccountUpdateUser';
 import UpdateAccountPolicy from './account/UpdateAccountPolicy';
@@ -93,25 +89,8 @@ export function PrivateRoutes({
 }: {
   hideSideBar?: boolean;
 }) {
-  const dispatch = useDispatch();
   const { isClientsLoaded } = useAuthLoading();
-  const { useAuth } = useShellHooks();
-  const { userData } = useAuth();
   const config = useConfig();
-
-  const managementEndpoint = useSelector(
-    (state: AppState) => state.auth?.config?.managementEndpoint,
-  );
-
-  useEffect(() => {
-    if (managementEndpoint && userData?.token) {
-      const managementClient = makeMgtClient(
-        managementEndpoint,
-        userData.token,
-      );
-      dispatch(setManagementClient(managementClient));
-    }
-  }, [dispatch, managementEndpoint, userData?.token]);
 
   if (!isClientsLoaded) {
     return (

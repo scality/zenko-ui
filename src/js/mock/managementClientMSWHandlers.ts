@@ -11,6 +11,7 @@ import { LatestUsedCapacity } from '../../react/next-architecture/domain/entitie
 export const ACCOUNT_ID = '718643629313';
 export const BUCKET_NAME = 'test-bucket';
 export const azureblobstorage = 'azureblobstorage';
+export const INSTANCE_ID = '3d49e1f9-fa2f-40aa-b2d4-c7a8b04c6cde';
 
 export const COLD_LOCATION_NAME = 'europe25-myroom-cold';
 

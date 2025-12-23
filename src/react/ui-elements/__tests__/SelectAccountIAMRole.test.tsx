@@ -17,7 +17,7 @@ import {
   USERS,
   getConfigOverlay,
 } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../../react/actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { ToastProvider } from '@scality/core-ui';
 import { coreUIAvailableThemes } from '@scality/core-ui/src/lib/style/theme';
 import { ThemeProvider } from 'styled-components';

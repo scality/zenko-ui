@@ -6,9 +6,8 @@ import {
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
-import { initialErrorsUIState } from '../../reducers/initialConstants';
 import {
   FAKE_TOKEN,
   TEST_API_BASE_URL,
@@ -204,13 +203,7 @@ describe('Accounts', () => {
     );
 
     //E
-    renderWithRouterMatch(<Accounts />, undefined, {
-      uiErrors: initialErrorsUIState,
-      networkActivity: {
-        authFailure: false,
-      },
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-    });
+    renderWithRouterMatch(<Accounts />);
 
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
 

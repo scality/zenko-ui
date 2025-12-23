@@ -1,40 +1,12 @@
-import { AppState } from '../types/state';
 import IAM from 'aws-sdk/clients/iam';
 import type { AwsCredentialIdentity } from '@aws-sdk/types';
 import {
   IAMClient as IAMClientInterface,
   WebIdentityRoles,
 } from '../types/iam';
-import { AuthUser } from '../types/auth';
-import { getClients } from '../react/utils/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { policyDocumentType } from 'aws-sdk/clients/iam';
 import { genClientEndpoint } from '../react/utils';
-
-export function getAssumeRoleWithWebIdentityIAM(
-  state: AppState,
-  roleArn: string,
-  user: AuthUser,
-): Promise<IAMClient> {
-  const { auth } = state;
-  const { stsClient } = getClients(state);
-
-  const assumeRoleParams = {
-    idToken: user.id_token,
-    roleArn: roleArn,
-    RoleSessionName: `ui-${user.profile.sub}`,
-  };
-
-  return stsClient.assumeRoleWithWebIdentity(assumeRoleParams).then((creds) => {
-    const iamClient = new IAMClient(auth.config.iamEndpoint);
-    iamClient.login({
-      accessKeyId: creds.Credentials.AccessKeyId,
-      secretAccessKey: creds.Credentials.SecretAccessKey,
-      sessionToken: creds.Credentials.SessionToken,
-    });
-    return iamClient;
-  });
-}
 
 export function getRolesForWebIdentity(
   endpoint: string,

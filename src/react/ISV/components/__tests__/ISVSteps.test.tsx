@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, renderHook } from '@testing-library/react';
 import * as React from 'react';
 import { ISVStepperContext, useISVStepper } from '../ISVStepperContext';
 import { Veeam } from '../../modules/veeam';
@@ -16,35 +16,31 @@ jest.mock('../ISVSteps', () => {
   };
 });
 
-// Mock dependencies
 jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useSearchParams: jest.fn(),
 }));
 
-// Import React hooks correctly
 const { useContext } = React;
 
-// Test the useISVStepper hook
 describe('useISVStepper', () => {
   it('should throw an error when used outside of the Provider', () => {
-    const TestComponent = () => {
-      useISVStepper();
-      return null;
-    };
+    const originalError = console.error;
+    console.error = jest.fn();
 
-    expect(() => render(<TestComponent />)).toThrow(
-      'useISVStepper must be used within ISVStepperProvider',
-    );
+    expect(() => {
+      renderHook(() => useISVStepper());
+    }).toThrow('useISVStepper must be used within ISVStepperProvider');
+
+    console.error = originalError;
   });
 });
 
-// Test the ISVSteps component
 describe('ISVSteps', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  // Component to access context for testing
   const ContextReader = () => {
     const context = useContext(ISVStepperContext);
     if (!context) return null;
@@ -58,7 +54,6 @@ describe('ISVSteps', () => {
     );
   };
 
-  // Set up mock implementation in each test
   const setupMockISVSteps = (platformId: string | null) => {
     const { ISVSteps } = require('../ISVSteps');
 
@@ -89,7 +84,6 @@ describe('ISVSteps', () => {
       );
     });
 
-    // Configure useSearchParams mock
     const { useSearchParams } = require('react-router');
     useSearchParams.mockReturnValue([
       new URLSearchParams(platformId ? `?platform=${platformId}` : ''),
@@ -97,7 +91,6 @@ describe('ISVSteps', () => {
     ]);
   };
 
-  // Helper to render component with theme and context reader
   const renderWithThemeAndContextReader = () => {
     const { ISVSteps } = require('../ISVSteps');
 
@@ -116,7 +109,6 @@ describe('ISVSteps', () => {
       setupMockISVSteps(platformId);
       renderWithThemeAndContextReader();
 
-      // Check platform ID in context
       expect(screen.getByTestId('platform-id')).toHaveTextContent(
         platformId || 'no-platform',
       );
@@ -127,11 +119,9 @@ describe('ISVSteps', () => {
     setupMockISVSteps('veeam-vbr');
     renderWithThemeAndContextReader();
 
-    // Check UI components
     expect(screen.getByTestId('isv-steps')).toBeInTheDocument();
     expect(screen.getByTestId('stepper')).toBeInTheDocument();
 
-    // Check step labels
     expect(screen.getByTestId('step-0')).toHaveTextContent('Configure');
     expect(screen.getByTestId('step-1')).toHaveTextContent('Apply Actions');
     expect(screen.getByTestId('step-2')).toHaveTextContent('Summary');

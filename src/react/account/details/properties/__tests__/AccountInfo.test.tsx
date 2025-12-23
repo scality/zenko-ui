@@ -13,7 +13,7 @@ import AccountInfo from '../AccountInfo';
 import Table from '../../../../ui-elements/TableKeyValue';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { INSTANCE_ID } from '../../../../actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from '../../../../../js/mock/managementClientMSWHandlers';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router';

@@ -21,7 +21,7 @@ import {
   getConfigOverlay,
   getInstanceStatus,
 } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 
