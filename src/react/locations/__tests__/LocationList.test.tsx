@@ -95,19 +95,7 @@ describe('LocationList', () => {
       </_DataServiceRoleContext.Provider>
     );
     
-    renderWithRouterMatch(<Component />, {}, {
-      auth: {
-        config: {
-          iamEndpoint: TEST_API_BASE_URL,
-        },
-        selectedAccount: {
-          id: ACCOUNT_ID,
-        },
-      },
-      instances: {
-        selectedId: INSTANCE_ID,
-      },
-    });
+    renderWithRouterMatch(<Component />, {});
     //E
 
     const loading = await screen.findByText(/Loading/i);

@@ -1,5 +1,4 @@
 import { screen, waitFor } from '@testing-library/react';
-import { useDispatch, useSelector } from 'react-redux';
 import InternalRoutes, { PrivateRoutes } from './Routes';
 import {
   FAKE_TOKEN,
@@ -8,12 +7,6 @@ import {
 } from './utils/testUtil';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { useAuthLoading } from './AuthLoadingProvider';
-
-jest.mock('react-redux', () => ({
-  ...jest.requireActual('react-redux'),
-  useSelector: jest.fn(),
-  useDispatch: jest.fn(),
-}));
 
 jest.mock('./next-architecture/ui/ConfigProvider', () => ({
   useConfig: jest.fn(),
@@ -24,8 +17,6 @@ jest.mock('./AuthLoadingProvider', () => ({
 }));
 
 describe('Routes component', () => {
-  const mockUseSelector = useSelector as jest.Mock;
-  const mockUseDispatch = useDispatch as jest.Mock;
   const mockUseConfig = useConfig as jest.Mock;
   const mockUseAuthLoading = useAuthLoading as jest.Mock;
   const selectors = {
@@ -41,30 +32,12 @@ describe('Routes component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Default mock implementations
-    mockUseDispatch.mockReturnValue(jest.fn());
-
     // Default mock for useAuthLoading - clients loaded
     mockUseAuthLoading.mockReturnValue({
       isConfigLoaded: true,
       isClientsLoaded: true,
       configFailure: false,
       configFailureErrorMessage: '',
-    });
-
-    // Setup the default state for useSelector
-    mockUseSelector.mockImplementation((selector) => {
-      // Create a mock state that has the necessary fields
-      const mockState = {
-        auth: {
-          isClientsLoaded: true,
-          config: {
-            managementEndpoint: 'http://test-endpoint.com',
-          },
-        },
-      };
-      // Pass the mock state to the selector function
-      return selector(mockState);
     });
   });
 
@@ -75,18 +48,6 @@ describe('Routes component', () => {
       isClientsLoaded: false,
       configFailure: false,
       configFailureErrorMessage: '',
-    });
-
-    mockUseSelector.mockImplementation((selector) => {
-      const mockState = {
-        auth: {
-          isClientsLoaded: false,
-          config: {
-            managementEndpoint: 'http://test-endpoint.com',
-          },
-        },
-      };
-      return selector(mockState);
     });
 
     // Render the PrivateRoutes component

@@ -25,7 +25,6 @@ export const AccessibleAccountsAdapterProvider = ({
   /**
    * DoNotChangePropsWithEventDispatcher is a static props.
    * When set, it must not be changed, otherwise it will break the hook rules.
-   * To be removed when we remove redux.
    */
   DoNotChangePropsWithEventDispatcher = true,
 }: {

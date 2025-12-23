@@ -20,7 +20,6 @@ describe('LocationDetailsTapeDMF', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     //E
@@ -52,7 +51,6 @@ describe('LocationDetailsTapeDMF', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     //E
@@ -84,7 +82,6 @@ describe('LocationDetailsTapeDMF', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     //E
@@ -116,7 +113,6 @@ describe('LocationDetailsTapeDMF', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     //V
@@ -169,7 +165,6 @@ describe('LocationDetailsTapeDMF', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     //E
@@ -201,7 +196,6 @@ describe('LocationDetailsTapeDMF', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     //E

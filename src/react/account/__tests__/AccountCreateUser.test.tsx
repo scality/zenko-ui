@@ -201,9 +201,6 @@ describe('AccountCreateUser', () => {
         />
       </Routes>,
       `/accounts/${ACCOUNT_NAME}/users`,
-      {
-        instances: { selectedId: INSTANCE_ID },
-      },
     );
 
     await waitFor(() => screen.getByText('User List'));

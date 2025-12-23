@@ -19,7 +19,6 @@ describe('LocationDetailsTapeMiria', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     // E
@@ -52,7 +51,6 @@ describe('LocationDetailsTapeMiria', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     // E
@@ -85,7 +83,6 @@ describe('LocationDetailsTapeMiria', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     // E
@@ -115,7 +112,6 @@ describe('LocationDetailsTapeMiria', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     // E
@@ -147,7 +143,6 @@ describe('LocationDetailsTapeMiria', () => {
         details={sampleDetails}
         onChange={jest.fn()}
       />,
-      {},
     );
 
     // E
@@ -173,7 +168,6 @@ describe('LocationDetailsTapeMiria', () => {
         details={sampleDetails}
         onChange={jest.fn()}
       />,
-      {},
     );
 
     // E - trigger validation by blurring fields
@@ -214,7 +208,6 @@ describe('LocationDetailsTapeMiria', () => {
         onChange={jest.fn()}
         editingExisting={true}
       />,
-      {},
     );
 
     // V
@@ -247,7 +240,6 @@ describe('LocationDetailsTapeMiria', () => {
         details={sampleDetails}
         onChange={onChange}
       />,
-      {},
     );
 
     // E
@@ -273,7 +265,6 @@ describe('LocationDetailsTapeMiria', () => {
         details={sampleDetails}
         onChange={jest.fn()}
       />,
-      {},
     );
 
     // V

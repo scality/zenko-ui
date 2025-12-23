@@ -7,7 +7,6 @@ describe('AccountHead', () => {
   it('should render AccountHead component with the passed accountName', () => {
     const { component } = reduxRender(
       <AccountHead accountName={accountNameTest} />,
-      {},
     );
 
     expect(component.getByText(accountNameTest)).toHaveTextContent(

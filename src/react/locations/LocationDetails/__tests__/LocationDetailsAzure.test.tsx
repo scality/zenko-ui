@@ -41,7 +41,6 @@ describe('class <LocationDetailsAzure />', () => {
         details={details || {}}
         onChange={onChange}
       />,
-      {},
     );
     const endpoint = 'https://ep';
     const targetBucket = 'targetBucket';

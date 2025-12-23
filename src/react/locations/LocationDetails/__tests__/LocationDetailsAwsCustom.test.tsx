@@ -27,7 +27,6 @@ const props = {
 describe('class <LocationDetailsAwsCustom />', () => {
   it('should call onChange on mount', async () => {
     const onChangeFn = jest.fn();
-    //@ts-expect-error fix this when you are working on it
     await reduxMountAct(
       //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} onChange={onChangeFn} />,
@@ -44,7 +43,6 @@ describe('class <LocationDetailsAwsCustom />', () => {
     const component = await reduxMountAct(
       // @ts-expect-error
       <LocationDetailsAwsCustom {...props} />,
-      {},
     );
 
     expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
@@ -71,7 +69,6 @@ describe('class <LocationDetailsAwsCustom />', () => {
     const component = await reduxMountAct(
       // @ts-expect-error
       <LocationDetailsAwsCustom {...props} details={locationDetails} />,
-      {},
     );
 
     expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
@@ -96,7 +93,6 @@ describe('class <LocationDetailsAwsCustom />', () => {
       bucketMatch: false,
     };
     let location = {};
-    //@ts-expect-error fix this when you are working on it
     const { container } = await reduxMountAct(
       //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} onChange={(l) => (location = l)} />,
@@ -123,9 +119,6 @@ describe('class <LocationDetailsAwsCustom />', () => {
           } as Pick<InstanceStateSnapshot, 'capabilities'>
         }
       />,
-      {
-        wrapper: NewWrapper(),
-      },
     );
 
     expect(
@@ -151,9 +144,6 @@ describe('class <LocationDetailsAwsCustom />', () => {
           } as Pick<InstanceStateSnapshot, 'capabilities'>
         }
       />,
-      {
-        wrapper: NewWrapper(),
-      },
     );
     expect(
       component.queryByText(/when using an https endpoint/i),

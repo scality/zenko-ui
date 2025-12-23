@@ -1,9 +1,6 @@
 import { ToastProvider } from '@scality/core-ui';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { Provider } from 'react-redux';
-import { applyMiddleware, compose, createStore } from 'redux';
 
-import thunk from 'redux-thunk';
 import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsLocationsEndpointsAdapterProvider } from './next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
@@ -13,26 +10,12 @@ import AuthLoadingProvider from './AuthLoadingProvider';
 import ErrorProvider from './ErrorProvider';
 
 import { ShellHooksProvider, useBasenameRelativeNavigate, useCurrentApp } from '@scality/module-federation';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { ArtescaLibraryProvider } from './next-architecture/ui/ArtescaLibraryProvider';
 import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
-import zenkoUIReducer from './reducers';
-
-//@ts-expect-error fix this when you are working on it
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 export const InternalRouter = ({ children }: { children: React.ReactNode }) => {
-  const store = useMemo(
-    () =>
-      createStore(zenkoUIReducer(), composeEnhancers(applyMiddleware(thunk))),
-    [],
-  );
-
-  return (
-    <Provider store={store}>
-      <>{children}</>
-    </Provider>
-  );
+  return <>{children}</>;
 };
 
 const HistoryPushEventListener = () => {
@@ -72,27 +55,25 @@ const FederableApp = (props) => {
     >
       <XCoreLibraryProvider>
         <ArtescaLibraryProvider>
-          <InternalRouter>
-            <HistoryPushEventListener />
-            <ZenkoUIGuard>
-              <AccountsLocationsEndpointsAdapterProvider>
-                <LocationAdapterProvider>
-                  <AccessibleAccountsAdapterProvider>
-                    <MetricsAdapterProvider>
-                      <ToastProvider>
-                        <ErrorProvider>
-                          <AuthLoadingProvider>
-                            <ZenkoUI />
-                          </AuthLoadingProvider>
-                        </ErrorProvider>
-                      </ToastProvider>
-                      <ReactQueryDevtools initialIsOpen={false} />
-                    </MetricsAdapterProvider>
-                  </AccessibleAccountsAdapterProvider>
-                </LocationAdapterProvider>
-              </AccountsLocationsEndpointsAdapterProvider>
-            </ZenkoUIGuard>
-          </InternalRouter>
+          <HistoryPushEventListener />
+          <ZenkoUIGuard>
+            <AccountsLocationsEndpointsAdapterProvider>
+              <LocationAdapterProvider>
+                <AccessibleAccountsAdapterProvider>
+                  <MetricsAdapterProvider>
+                    <ToastProvider>
+                      <ErrorProvider>
+                        <AuthLoadingProvider>
+                          <ZenkoUI />
+                        </AuthLoadingProvider>
+                      </ErrorProvider>
+                    </ToastProvider>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                  </MetricsAdapterProvider>
+                </AccessibleAccountsAdapterProvider>
+              </LocationAdapterProvider>
+            </AccountsLocationsEndpointsAdapterProvider>
+          </ZenkoUIGuard>
         </ArtescaLibraryProvider>
       </XCoreLibraryProvider>
     </ShellHooksProvider>

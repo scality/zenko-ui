@@ -154,18 +154,7 @@ afterAll(() => server.close());
 describe.skip('Locations', () => {
   it('should render Locations component alphabetically sorted', async () => {
     try {
-      reduxRender(<LocationsList />, {
-        networkActivity: {
-          authFailure: false,
-        },
-        instances: {
-          selectedId: instanceId,
-        },
-        auth: {
-          config: { features: [] },
-          selectedAccount: { id: accountId },
-        },
-      });
+      reduxRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -352,18 +341,7 @@ describe.skip('Locations', () => {
         ),
       );
 
-      reduxRender(<LocationsList />, {
-        networkActivity: {
-          authFailure: false,
-        },
-        instances: {
-          selectedId: instanceId,
-        },
-        auth: {
-          config: { features: [] },
-          selectedAccount: { id: accountId },
-        },
-      });
+      reduxRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -430,20 +408,7 @@ describe.skip('Locations', () => {
         ),
       );
 
-      reduxRender(<LocationsList />, {
-        networkActivity: {
-          authFailure: false,
-        },
-        instances: {
-          selectedId: instanceId,
-        },
-        auth: {
-          config: {
-            features: [XDM_FEATURE],
-          },
-          selectedAccount: { id: accountId },
-        },
-      });
+      reduxRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -487,26 +452,7 @@ describe.skip('Locations', () => {
   });
   it('should disable delete location button if location is attached to a bucket', async () => {
     try {
-      reduxRender(<LocationsList />, {
-        networkActivity: {
-          authFailure: false,
-        },
-        instances: {
-          selectedId: instanceId,
-        },
-        auth: {
-          config: { features: [] },
-          selectedAccount: { id: accountId },
-        },
-        stats: {
-          bucketList: [
-            {
-              name: 'bucket1',
-              location: 'location-aws-s3',
-            },
-          ],
-        },
-      });
+      reduxRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -546,18 +492,7 @@ describe.skip('Locations', () => {
   });
   it('should disable delete location button if location is being used for endpoint', async () => {
     try {
-      reduxRender(<LocationsList />, {
-        networkActivity: {
-          authFailure: false,
-        },
-        instances: {
-          selectedId: instanceId,
-        },
-        auth: {
-          config: { features: [] },
-          selectedAccount: { id: accountId },
-        },
-      });
+      reduxRender(<LocationsList />);
 
       await waitForElementToBeRemoved(
         () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
@@ -622,18 +557,7 @@ describe.skip('Locations', () => {
       }),
       ...getColdStorageHandlers(TEST_API_BASE_URL, instanceId),
     );
-    reduxRender(<LocationsList />, {
-      networkActivity: {
-        authFailure: false,
-      },
-      instances: {
-        selectedId: instanceId,
-      },
-      auth: {
-        config: { features: [], iamEndpoint: TEST_API_BASE_URL },
-        selectedAccount: { id: ACCOUNT_ID },
-      },
-    });
+    reduxRender(<LocationsList />);
 
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],

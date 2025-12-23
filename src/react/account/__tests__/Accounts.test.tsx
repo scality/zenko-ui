@@ -221,9 +221,6 @@ describe('Accounts', () => {
       <WrapperAsStorageManager isStorageManager={true}>
         <Accounts />
       </WrapperAsStorageManager>,
-      {
-        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-      },
     );
     //V
     //Wait for account to be loaded
@@ -308,9 +305,6 @@ describe('Accounts', () => {
       <WrapperAsStorageManager isStorageManager>
         <Accounts />
       </WrapperAsStorageManager>,
-      {
-        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-      },
     );
 
     //V

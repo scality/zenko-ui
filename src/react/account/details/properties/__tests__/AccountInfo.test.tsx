@@ -105,9 +105,7 @@ describe('AccountInfo', () => {
       };
     });
     //S+E
-    renderWithRouterMatch(<AccountInfo account={account1} />, undefined, {
-      instances: { selectedId: INSTANCE_ID },
-    });
+    renderWithRouterMatch(<AccountInfo account={account1} />, undefined);
     //V
     expect(
       screen.queryByRole('button', { name: /Delete Account/i }),
@@ -133,9 +131,6 @@ describe('AccountInfo', () => {
         <Route path="/accounts" element={<div>Account Page</div>}></Route>
       </Routes>,
       '/',
-      {
-        instances: { selectedId: INSTANCE_ID },
-      },
     );
 
     //E
@@ -165,9 +160,7 @@ describe('AccountInfo', () => {
       ),
     );
     //E
-    renderWithRouterMatch(<AccountInfo account={account1} />, undefined, {
-      instances: { selectedId: INSTANCE_ID },
-    });
+    renderWithRouterMatch(<AccountInfo account={account1} />, undefined);
 
     await userEvent.click(
       screen.getByRole('button', { name: /Delete Account/i }),
