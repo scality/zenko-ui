@@ -135,7 +135,7 @@ type MutationDef = SingleMutation | LoopMutation;
 interface SingleMutation {
   id: string;
   label: string;
-  action: string;  // Built-in action name
+  action: ActionName;  // Type-safe action name from registry
   variables: VariablesConfig;
   when?: (form: FormData) => boolean;
 }
@@ -149,7 +149,7 @@ interface LoopMutation {
 interface LoopStep {
   id: string;
   label: string;  // Supports template syntax: {{name}}, {{capacity}}
-  action: string;
+  action: ActionName;  // Type-safe action name from registry
   variables: LoopVariablesConfig;
   when?: (form: FormData, item: any) => boolean;
 }
@@ -163,7 +163,33 @@ type LoopVariablesConfig =
   (form: FormData, prev: PreviousResults, item: any, index: number) => Record<string, any>;
 ```
 
-### 3.4 Summary Configuration
+### 3.4 Runtime Context
+
+System-injected fields are explicitly typed via `RuntimeContext`:
+
+```typescript
+// types/template.ts
+interface RuntimeContext {
+  /** Whether SOS API is available (from useCheckSOSAPIStatus) */
+  _sosApiAvailable: boolean;
+  /** Selected existing account's role ARN (from account selection) */
+  _existingAccountArn?: string;
+  /** Selected existing account's ID (from account selection) */
+  _existingAccountId?: string;
+  /** IAM user type: 'create' or 'existing' (from IAM user selection) */
+  _iamUserType?: 'create' | 'existing';
+}
+
+// FormData includes both user input and runtime context
+type FormData<T extends Record<string, any> = Record<string, any>> = T & RuntimeContext;
+```
+
+This ensures:
+- **Type safety**: Typos like `form._sosApiAvaialble` are caught at compile time
+- **Discoverability**: IDE autocomplete shows all available context fields
+- **Explicit contract**: Template authors can see exactly what's injected
+
+### 3.5 Summary Configuration
 
 ```typescript
 interface SummaryConfig {
@@ -190,7 +216,39 @@ interface SummaryConfig {
 
 ---
 
-## 4. Built-in Actions
+## 4. Action Registry
+
+Actions are defined in a central registry, providing type safety and a single source of truth:
+
+```typescript
+// engine/actions.ts
+export const ACTION_REGISTRY = {
+  enableSOSAPI: useEnableSOSAPIMutation,
+  createAccount: useCreateAccountMutation,
+  refetchConfig: useRefetchConfig,
+  assumeRole: useAssumeRole,
+  createBucket: useCreateBucket,
+  tagBucket: useSetBucketTagging,
+  putObject: usePutObject,
+  createIAMUser: useCreateIAMUserMutation,
+  createAccessKey: useCreateUserAccessKeyMutation,
+  createPolicy: useCreateOrAddBucketToPolicyMutation,
+  attachPolicy: useAttachPolicyToUserMutation,
+} as const;
+
+// Type automatically derived from registry
+export type ActionName = keyof typeof ACTION_REGISTRY;
+```
+
+**Benefits:**
+- **Compile-time safety**: Typos like `'createAcount'` are caught at build time
+- **IDE autocomplete**: Full IntelliSense support for action names
+- **Single source of truth**: Adding a new action to the registry automatically updates the type
+- **No sync issues**: The type and implementation can never get out of sync
+
+---
+
+## 5. Built-in Actions
 
 The execution engine provides these built-in actions that map to existing mutation hooks:
 
@@ -210,9 +268,9 @@ The execution engine provides these built-in actions that map to existing mutati
 
 ---
 
-## 5. Mutation Execution Mechanism
+## 6. Mutation Execution Mechanism
 
-### 5.1 Compilation Phase
+### 6.1 Compilation Phase
 
 The Template Compiler transforms the declarative mutation array into the format required by `useChainedMutations`:
 
@@ -249,7 +307,7 @@ mutations: [
 }
 ```
 
-### 5.2 Loop Expansion
+### 6.2 Loop Expansion
 
 Loop mutations (`LoopMutation`) are expanded **per item**, meaning all steps for one item complete before moving to the next:
 
@@ -269,7 +327,7 @@ Loop mutations (`LoopMutation`) are expanded **per item**, meaning all steps for
 4. tagBucket-1 (backup-2)
 ```
 
-### 5.3 Execution Phase
+### 6.3 Execution Phase
 
 Execution is handled by `useChainedMutations`:
 
@@ -278,7 +336,7 @@ Execution is handled by `useChainedMutations`:
 3. **Error Handling**: On failure, stops execution and enables retry
 4. **Result Passing**: Previous results are available via `PreviousResults`
 
-### 5.4 Accessing Previous Results
+### 6.4 Accessing Previous Results
 
 The `prev` parameter in variables resolvers provides access to completed mutation results:
 
@@ -305,7 +363,7 @@ variables: (form, prev) => ({
 })
 ```
 
-### 5.5 Conditional Execution
+### 6.5 Conditional Execution
 
 Use `when` to control whether a mutation executes:
 
@@ -332,7 +390,7 @@ Use `when` to control whether a mutation executes:
 }
 ```
 
-### 5.6 Label Templates
+### 6.6 Label Templates
 
 Loop mutation labels support template syntax for dynamic text:
 
@@ -356,22 +414,23 @@ Loop mutation labels support template syntax for dynamic text:
 
 ---
 
-## 6. Runtime Context Injection
+## 7. Runtime Context Injection
 
-Some values are injected at runtime before form submission:
+Runtime context fields (defined in `RuntimeContext` interface, see [Section 3.4](#34-runtime-context)) are injected into `FormData` before mutation execution.
 
-| Field | Description | Source |
-|-------|-------------|--------|
-| `_sosApiAvailable` | Whether SOS API is available | `useCheckSOSAPIStatus` |
-| `_existingAccountArn` | Selected existing account's role ARN | Account selection |
-| `_existingAccountId` | Selected existing account's ID | Account selection |
-| `_iamUserType` | 'create' or 'existing' | IAM user selection |
+**Injection timing:**
+1. User completes form input
+2. System evaluates runtime conditions (SOS API status, account selection, etc.)
+3. Context fields are merged into form data
+4. Mutations execute with the complete `FormData`
 
-These are prefixed with `_` to indicate they are system-injected, not user input.
+**Convention:**
+- All injected fields are prefixed with `_` to distinguish from user input
+- Fields are fully typed - IDE autocomplete and compile-time checks are available
 
 ---
 
-## 7. Complete Example: Veeam
+## 8. Complete Example: Veeam
 
 ```typescript
 import Joi from 'joi';
@@ -682,7 +741,7 @@ export const VeeamTemplate: ISVTemplate = {
 
 ---
 
-## 8. Comparison with Current System
+## 9. Comparison with Current System
 
 | Aspect | Current System | New Template System |
 |--------|----------------|---------------------|
@@ -696,9 +755,9 @@ export const VeeamTemplate: ISVTemplate = {
 
 ---
 
-## 9. Implementation Plan
+## 10. Implementation Plan
 
-### 9.1 Directory Structure
+### 10.1 Directory Structure
 
 ```
 src/react/ISV/
@@ -709,7 +768,7 @@ src/react/ISV/
 │   └── commvault.tsx
 ├── engine/                       # NEW: Template engine
 │   ├── compiler.ts               # Compiles template to mutations
-│   ├── actions.ts                # Action -> Hook mapping
+│   ├── actions.ts                # Action registry with type-safe ActionName
 │   ├── FormRenderer.tsx          # Renders fields to UI
 │   └── useTemplateMutations.ts   # Wrapper around useChainedMutations
 ├── components/
@@ -721,7 +780,7 @@ src/react/ISV/
     └── template.ts               # Template type definitions
 ```
 
-### 9.2 Migration Steps
+### 10.2 Migration Steps
 
 1. **Phase 1**: Create type definitions and template engine
 2. **Phase 2**: Implement FormRenderer for field rendering
@@ -730,7 +789,7 @@ src/react/ISV/
 5. **Phase 5**: Migrate remaining platforms
 6. **Phase 6**: Remove legacy code
 
-### 9.3 Compatibility
+### 10.3 Compatibility
 
 - New system can coexist with old system
 - Platforms can be migrated one by one
@@ -739,9 +798,9 @@ src/react/ISV/
 
 ---
 
-## 10. Error Handling
+## 11. Error Handling
 
-### 10.1 Compilation Errors
+### 11.1 Compilation Errors
 
 Detected at compile/render time:
 
@@ -750,7 +809,7 @@ Detected at compile/render time:
 - Invalid field type
 - Loop over non-array field
 
-### 10.2 Runtime Errors
+### 11.2 Runtime Errors
 
 Handled by `useChainedMutations`:
 
@@ -758,7 +817,7 @@ Handled by `useChainedMutations`:
 - Variables resolver throws → Shows error, enables retry
 - Network errors → Caught and displayed
 
-### 10.3 Retry Mechanism
+### 11.3 Retry Mechanism
 
 Each step has a `retry` function that:
 
@@ -769,11 +828,11 @@ Each step has a `retry` function that:
 
 ---
 
-## 11. Composable Template Pattern
+## 12. Composable Template Pattern
 
 To avoid code duplication across platforms, we use a **Composition Pattern** with reusable blocks.
 
-### 11.1 Block Types
+### 12.1 Block Types
 
 ```typescript
 // ============ Block Type Definitions ============
@@ -789,7 +848,7 @@ interface MutationBlock {
 type Block = FieldBlock | MutationBlock | (FieldBlock & MutationBlock);
 ```
 
-### 11.2 Pre-built Blocks
+### 12.2 Pre-built Blocks
 
 ```typescript
 // ============ blocks/account.ts ============
@@ -981,7 +1040,7 @@ export const BucketsBlock: FieldBlock & MutationBlock = {
 };
 ```
 
-### 11.3 Compose Function
+### 12.3 Compose Function
 
 ```typescript
 // ============ engine/composeTemplate.ts ============
@@ -1104,7 +1163,7 @@ function mergeFields(base: FieldDef[], overrides: FieldDef[]): FieldDef[] {
 }
 ```
 
-### 11.4 Platform Definitions (Minimal Code)
+### 12.4 Platform Definitions (Minimal Code)
 
 ```typescript
 // ============ templates/veeam-vbr.ts ============
@@ -1261,7 +1320,7 @@ export const VeeamVBOTemplate = composeTemplate(
 );
 ```
 
-### 11.5 Code Comparison
+### 12.5 Code Comparison
 
 | Platform | Without Composition | With Composition | Reduction |
 |----------|---------------------|------------------|-----------|
@@ -1269,7 +1328,7 @@ export const VeeamVBOTemplate = composeTemplate(
 | Commvault | ~200 lines | ~20 lines | **90%** |
 | Veeam VBO | ~220 lines | ~25 lines | **89%** |
 
-### 11.6 Block Responsibility
+### 12.6 Block Responsibility
 
 | Block | Fields | Validation | Mutations |
 |-------|--------|------------|-----------|
@@ -1277,7 +1336,7 @@ export const VeeamVBOTemplate = composeTemplate(
 | `IAMBlock` | IAMUserName, generateKey | IAM user rules | createIAMUser, createAccessKey, createPolicy, attachPolicy |
 | `BucketsBlock` | buckets, enableImmutableBackup | Bucket name rules | createBucket, tagBucket (loop) |
 
-### 11.7 Directory Structure
+### 12.7 Directory Structure
 
 ```
 src/react/ISV/
