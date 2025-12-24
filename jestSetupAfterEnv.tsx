@@ -186,3 +186,65 @@ jest.mock('@scality/module-federation', () => {
     FederatedComponent: () => mockComponent(),
   };
 });
+
+jest.mock('@scality/data-browser-library');
+
+let clipboardContent = '';
+
+class MockClipboardItem {
+  private data: Record<string, Blob | string>;
+  types: string[];
+
+  constructor(items: Record<string, Blob | string>) {
+    this.data = items;
+    this.types = Object.keys(items);
+  }
+
+  async getType(type: string): Promise<Blob> {
+    if (this.data[type]) {
+      const data = this.data[type];
+      if (typeof data === 'string') {
+        return new Blob([data], { type });
+      }
+      return data as Blob;
+    }
+    return Promise.reject(
+      new Error(`${type} is not one of the available MIME types on this item.`),
+    );
+  }
+}
+
+//@ts-expect-error Mocking ClipboardItem for tests
+global.ClipboardItem = MockClipboardItem;
+
+Object.assign(navigator, {
+  clipboard: {
+    writeText: jest.fn().mockImplementation((text: string) => {
+      clipboardContent = text;
+      return Promise.resolve();
+    }),
+    readText: jest.fn().mockImplementation(() => {
+      return Promise.resolve(clipboardContent);
+    }),
+    write: jest.fn().mockImplementation(async (items: ClipboardItem[]) => {
+      if (items[0]) {
+        const item = items[0];
+        const types = item.types;
+        if (types && types.length > 0) {
+          const type = types.includes('text/plain') ? 'text/plain' : types[0];
+          try {
+            const blob = await item.getType(type);
+            if (blob instanceof Blob) {
+              clipboardContent = await blob.text();
+            } else if (typeof blob === 'string') {
+              clipboardContent = blob;
+            }
+          } catch (e) {
+            console.error('Clipboard write error:', e);
+          }
+        }
+      }
+      return Promise.resolve();
+    }),
+  },
+});

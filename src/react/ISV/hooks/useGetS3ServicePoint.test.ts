@@ -1,17 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
-import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
-
-jest.mock('../../next-architecture/domain/business/accounts', () => ({
-  useAccountsLocationsAndEndpoints: jest.fn(),
-}));
-
-jest.mock('../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider', () => ({
-  useAccountsLocationsEndpointsAdapter: jest.fn(() => ({})),
-}));
-
-const mockUseAccountsLocationsAndEndpoints =
-  useAccountsLocationsAndEndpoints as jest.Mock;
+import * as accountsModule from '../../next-architecture/domain/business/accounts';
+import * as adapterModule from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 const MOCK_ACCOUNTS_LOCATIONS_ENDPOINTS = {
   accounts: [],
@@ -31,8 +21,27 @@ const MOCK_ACCOUNTS_LOCATIONS_ENDPOINTS = {
 };
 
 describe('useGetS3ServicePoint', () => {
+  let mockUseAccountsLocationsEndpointsAdapter: jest.SpyInstance;
+  let mockUseAccountsLocationsAndEndpoints: jest.SpyInstance;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseAccountsLocationsEndpointsAdapter = jest.spyOn(
+      adapterModule,
+      'useAccountsLocationsEndpointsAdapter',
+    );
+    mockUseAccountsLocationsAndEndpoints = jest.spyOn(
+      accountsModule,
+      'useAccountsLocationsAndEndpoints',
+    );
+
+    mockUseAccountsLocationsEndpointsAdapter.mockReturnValue({
+      listAccountsLocationsAndEndpoints: jest.fn(),
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('should return s3 endpoint if there is one', () => {

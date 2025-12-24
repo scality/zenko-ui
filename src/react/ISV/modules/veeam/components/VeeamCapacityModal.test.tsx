@@ -1,31 +1,14 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
-import { NewWrapper, TEST_API_BASE_URL } from '../../../../utils/testUtil';
+import { NewWrapper } from '../../../../utils/testUtil';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
-import { VEEAM_XML_PREFIX } from '../../../constants';
 import userEvent from '@testing-library/user-event';
+import { usePutObject } from '@scality/data-browser-library';
 
+const mockUsePutObject = usePutObject as jest.Mock;
 const bucketName = 'test-bucket';
 
 describe('VeeamCapacityModal', () => {
   const mockMutate = jest.fn();
-  const server = setupServer(
-    rest.put(
-      `${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}/capacity.xml`,
-      (req, res, ctx) => {
-        mockMutate(req.body);
-        return res(ctx.status(200));
-      },
-    ),
-  );
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: 'error' });
-  });
-  afterEach(() => {
-    server.resetHandlers();
-  });
-  afterAll(() => server.close());
 
   const selectors = {
     modalTitle: () => screen.getByText('Edit max repository capacity'),
@@ -37,6 +20,24 @@ describe('VeeamCapacityModal', () => {
   };
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    mockUsePutObject.mockReturnValue({
+      mutate: mockMutate.mockImplementation((_, options) => {
+        if (options?.onSuccess) {
+          options.onSuccess();
+        }
+      }),
+      mutateAsync: jest.fn(),
+      status: 'idle',
+      isIdle: true,
+      isLoading: false,
+      isSuccess: false,
+      isError: false,
+      data: undefined,
+      error: null,
+      reset: jest.fn(),
+    });
+
     render(
       <VeeamCapacityModal
         bucketName={bucketName}
@@ -75,20 +76,35 @@ describe('VeeamCapacityModal', () => {
 
     await waitFor(async () => {
       expect(mockMutate).toHaveBeenCalledWith(
-        '<?xml version="1.0" encoding="utf-8" ?><CapacityInfo><Capacity>214748364800</Capacity><Available>0</Available><Used>0</Used></CapacityInfo>',
+        expect.objectContaining({
+          Bucket: bucketName,
+          Body: '<?xml version="1.0" encoding="utf-8" ?><CapacityInfo><Capacity>214748364800</Capacity><Available>0</Available><Used>0</Used></CapacityInfo>',
+          ContentType: 'text/xml',
+        }),
+        expect.any(Object),
       );
     });
   });
   it('should validate capacity value correctly : number less than 1', async () => {
-    fireEvent.click(selectors.editBtn());
-    fireEvent.change(selectors.capacityInput(), { target: { value: '0' } });
-
-    await waitFor(async () => {
-      expect(selectors.editModalBtn()).toBeDisabled();
-      expect(
-        screen.getByText(/"capacity" must be larger than or equal to 1/i),
-      ).toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(selectors.editBtn());
+    await waitFor(() => {
+      expect(selectors.modalTitle()).toBeInTheDocument();
     });
+
+    const capacityInput = selectors.capacityInput();
+    await user.clear(capacityInput);
+    await user.type(capacityInput, '0');
+
+    await waitFor(
+      () => {
+        expect(selectors.editModalBtn()).toBeDisabled();
+        expect(
+          screen.getByText(/"capacity" must be greater than or equal to 1/i),
+        ).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
   });
   it('should validate capacity value correctly : number greater than 1024', async () => {
     fireEvent.click(selectors.editBtn());
@@ -129,19 +145,12 @@ describe('VeeamCapacityModal', () => {
   });
 
   it('should display error toast if mutation failed', async () => {
-    server.use(
-      rest.put(
-        `${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}/capacity.xml`,
-        (req, res, ctx) => {
-          return res(
-            ctx.status(404),
-            ctx.xml(
-              `<?xml version="1.0" encoding="UTF-8"?><Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist.</Message><Resource></Resource><RequestId>a60426d7934a9fa05118</RequestId></Error>`,
-            ),
-          );
-        },
-      ),
-    );
+    mockMutate.mockImplementation((_, options) => {
+      if (options?.onError) {
+        options.onError(new Error('The specified bucket does not exist.'));
+      }
+    });
+
     fireEvent.click(selectors.editBtn());
     fireEvent.change(selectors.capacityInput(), { target: { value: '200' } });
 

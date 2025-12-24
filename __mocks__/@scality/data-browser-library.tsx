@@ -55,3 +55,23 @@ export const usePutObject = jest.fn(() => ({
   error: null,
   reset: jest.fn(),
 }));
+
+export const useGetBucketTagging = jest.fn(() => ({
+  data: { TagSet: [] },
+  status: 'success',
+  isLoading: false,
+  isSuccess: true,
+  isError: false,
+  error: null,
+  refetch: jest.fn(),
+}));
+
+export const useGetObject = jest.fn(() => ({
+  data: undefined,
+  status: 'idle',
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+  error: null,
+  refetch: jest.fn(),
+}));

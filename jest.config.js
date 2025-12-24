@@ -1,14 +1,6 @@
 module.exports = {
   testEnvironment: 'jsdom',
   testMatch: ['**/?(*.)+(test).ts?(x)'],
-  // TODO: Remove ignore patterns once the tests are updated to use the data-browser-library
-  testPathIgnorePatterns: [
-    'src/react/ISV/hooks/useGetS3ServicePoint.test.ts',
-    'src/react/ISV/modules/veeam/components/VeeamCapacityOverviewRow.test.tsx',
-    'src/react/ISV/modules/veeam/components/VeeamCapacityModal.test.tsx',
-    'src/react/ISV/components/__tests__/ISVSummary.test.tsx',
-    'src/react/ui-elements/__tests__/SelectAccountIAMRole.test.tsx',
-  ],
   transformIgnorePatterns: [
     '/node_modules/(?!(vega-lite|@scality|pretty-bytes|uuid)/)',
   ],

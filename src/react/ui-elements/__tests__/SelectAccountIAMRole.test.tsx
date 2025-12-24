@@ -29,63 +29,83 @@ const testAccountId2 = '377232323695';
 
 jest.setTimeout(30_000);
 
+jest.mock('../../DataServiceRoleProvider', () => {
+  const actual = jest.requireActual('../../DataServiceRoleProvider');
+  const { IAMProvider } = jest.requireActual('../../IAMProvider');
+  const { ZenkoProvider } = jest.requireActual('../../ZenkoProvider');
+  const React = require('react');
+
+  return {
+    ...actual,
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) => {
+      const [role, setRoleState] = React.useState({ roleArn: '' });
+      const credentials = {
+        accessKeyId: 'TEST_ACCESS_KEY',
+        secretAccessKey: 'TEST_SECRET_KEY',
+        sessionToken: 'TEST_SESSION_TOKEN',
+      };
+
+      return (
+        <actual._DataServiceRoleContext.Provider
+          value={{
+            role,
+            setRole: (newRole: { roleArn: string }) => setRoleState(newRole),
+            setRolePromise: jest.fn().mockResolvedValue({}),
+            assumedRole: {
+              AssumedRoleUser: {
+                Arn: `arn:aws:sts::${role.roleArn ? role.roleArn.match(/:(\d+):/)?.[1] || '064609833007' : '064609833007'}:assumed-role/storage-manager-role/ui-test`,
+                AssumedRoleId: 'TEST:ui-test',
+              },
+              Credentials: {
+                AccessKeyId: 'TEST_ACCESS_KEY',
+                SecretAccessKey: 'TEST_SECRET_KEY',
+                SessionToken: 'TEST_SESSION_TOKEN',
+                Expiration: new Date('2099-12-31T23:59:59Z'),
+              },
+            },
+          }}
+        >
+          <IAMProvider credentials={credentials}>
+            <ZenkoProvider credentials={credentials}>{children}</ZenkoProvider>
+          </IAMProvider>
+        </actual._DataServiceRoleContext.Provider>
+      );
+    },
+  };
+});
+
 const commonIAMHandlers = (getPayloadFn: jest.Mock, req, res, ctx) => {
   //@ts-ignore
   const params = new URLSearchParams(req.body);
   getPayloadFn(params);
 
   if (params.get('Action') === 'AssumeRoleWithWebIdentity') {
-    const accountId = extractAccountIdFromARN(params.get('RoleArn'));
+    const accountId = extractAccountIdFromARN(params.get('RoleArn')) || '000000000000';
 
-    if (accountId === testAccountId1) {
-      return res(
-        ctx.status(200),
-        ctx.xml(`
-            <AssumeRoleWithWebIdentityResponse
-            xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-            <AssumeRoleWithWebIdentityResult>
-              <AssumedRoleUser>
-                <Arn>arn:aws:sts::${testAccountId1}:assumed-role/storage-manager-role/ui-9160673b-2c2a-4a6f-a1ef-a3cb6ce25d7f</Arn>
-                <AssumedRoleId>OES3SPDIYW4L92S8K1QE6MINE31LQG04:ui-9160673b-2c2a-4a6f-a1ef-a3cb6ce25d7f</AssumedRoleId>
-              </AssumedRoleUser>
-              <Credentials>
-                <SecretAccessKey>v/0Nq1YMw4nNbvtgQlgi0l6m/PXWjlk1VLmn2I5q</SecretAccessKey>
-                <AccessKeyId>72SPRZFF71WPWXXUG6XF</AccessKeyId>
-                <SessionToken>eyJzYWx0IjoicVIvVGdIdS9FVjJ4TjN5RmtXSnVLZGE0M0krK0g1L3lFVDU5UkV0enpYYz0iLCJ0YWciOiI4d05WRTIwTlQxWTVKbWtZemo2ZGJ3PT0iLCJjaXBoZXJ0ZXh0IjoiQVNIanI0M0VZc3dzK0QwWDFkVXRXQ2JMbzlFOVZ5SzF5WWt6a21lRjRXOUpCU3hwbmNxS21zWnpIU3ZvYlZEYjNKaDRNTm16bW1yVUd6dTU1bmRwMTk0eTVlVjFSVWMzaHZnSTFxZTRuYmJxNHBPdit5V3VZQ3RtSExUbE5BTHpDK3VhYW1tZDdzWk9BVXNKQlhRcmVHUG5sTFphb0kySTFveXJjbk10QlVpb1AvYnNjNUd6RHFqdTFWMjVQRE9PQWgzM2JFSktHdmorbEoyL2lWV0x5UHBQU1pLZmdZUnd1QjRXczdGaG81dHhaem9uWWhpaG9ocnFtdmFnNUJSNytiN2lGN3ZxZjBVSnFPZXI5Wm9ldDk1dlpqL01qTU04aGhGQXI1MmZnTHpzOHAzVlN3dHV0OENFSTBoVEJJNlVycUY4SWxiUmhFOUtlaHo0cnRiZHRKQzVmVHFRSkVPZWltb0RIbGpZZXZqOVlIZzZPVFhDR2ZhVzRIWDc3T0g5M1BRa0dHc1RCSjVpRTEyZEdYQjhYWWdSM1VackIwUzdQejdLQnpvSUVodTZOWUkrK1NPZ2pwMlFaUmhaWGtkbDdDdU5EMWg2UE9qN2twREY0QXhHbWdwcjBMbmpOdVp1UzJaWlJTck5OZG1WL3B5dWpUM3BtcFNJNUZkNW5Wby9SV1dTSGhoR0FVcWRJS0EyV00xdVJ2TkVFS25rb25keWNuVHRrSHpDVUwrN0RtTXNuL202eTcyZjFReHY2VFQyejRzRVFSUDFhWUcwdnBWSTlXbUpWdW5yTFFVNmxSUmpsb1VFSFVkZ2xCMGd1eTZGZTNYR29YQjdVc1J5UUpxbEJ0elpvdFdkR1AvSjZaMllNODFDSy8zZjJZTXVnNTZlbXQxTmJJZ0hrVWxnaGxpclRsNVdrckVRbG5XTW4zT2dzRk9wMjJKSTV1UGoxSENUMlNhTlBXZEQrY0VCcTZycC9tc1FDOW02Q3prSkMwTWMyclZ0RmdnZitaSEV5dVZvdEVzeUFtY1V5QTdFZzJtY3BXd1pnbHZrYkZQQmI5M2NDN0ZhZGhpNEUzQ0hQbm9BczF5eVNKNkxIOTZZTHJoaXk1Q1h3VWloSTlRdmxuSDNlV3EwaElBZTFGc2N6bThzVWRCTGU2SWlVc3ZJVDlpMjJzcTZnaVpmdld5czVlaU9NZzRQMFBaZCtPK0VDRmdmd3dxdUhYcFdEL1F5RnR1RENVb0xxblNyMU9lOHdCQ2lXNDFYaGtacmEzWTdtVW1QYXlNWTN6MXpOZm1XRllJV0dWZzlBNVFUaUZLWGlZTngxdUtWZGJ3Qk54SmowVmxlTTE4azlDNFR3Z2U3dVYyKzEzcWVkTW5xOUpLa2Uwa1NsNmMxMWM5N1RUbGJ4TUx5YS9WY1JLWkNkbHJaTGZNK0hjSTJWaGdkSzNzWHJIVEN6UENFRC9lMVBRTkg1RVZBVThLRlNHWGEzb1dPWm9VcmlSYlk1L3R5eTQvbHRKTkVhNnV3R2hra0ljR3JLMjltUndkaDJHSE94R1laYmdGL0VVUDYreUs5cjQrVzc5Y1RYc3NRcEpSM1M1bkZpUHE2bHR6NXM1ZlNYalNkcUxSM0gvTVZlcXV6K3RON0czMk1ieW9halZvcVJxcks2WjZIVm1vM3pDZ1M4TURQQk9jVkY3Ymc0QmhXaXFUTjc5a0ZqV0xkWWZSVlB5Qk1VaXBHNmZCcGlBdUZCZEV1S2lLMHBwVkhQNUpZL0h5ZXRBbVgxMzdVK1U5d3prbmw3eXhyOEQ0TkdNL05yaVhBT21hSDN4YVEifQ==</SessionToken>
-                <Expiration>2023-11-28T10:16:13Z</Expiration>
-              </Credentials>
-              <Provider>www.scality.com</Provider>
-            </AssumeRoleWithWebIdentityResult>
-            <ResponseMetadata>
-              <RequestId>8e94c64ebf4486567b0e</RequestId>
-            </ResponseMetadata>
-          </AssumeRoleWithWebIdentityResponse>`),
-      );
-    } else if (accountId === testAccountId2) {
-      return res(
-        ctx.status(200),
-        ctx.xml(`
-            <AssumeRoleWithWebIdentityResponse
-            xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-            <AssumeRoleWithWebIdentityResult>
-              <AssumedRoleUser>
-                <Arn>arn:aws:sts::${testAccountId2}:assumed-role/storage-manager-role/ui-9160673b-2c2a-4a6f-a1ef-a3cb6ce25d7f</Arn>
-                <AssumedRoleId>OES3SPDIYW4L92S8K1QE6MINE31LQG04:ui-9160673b-2c2a-4a6f-a1ef-a3cb6ce25d7f</AssumedRoleId>
-              </AssumedRoleUser>
-              <Credentials>
-                <SecretAccessKey>v/0Nq1YMw4nNbvtgQlgi0l6m/PXWjlk1VLmn2I5q</SecretAccessKey>
-                <AccessKeyId>72SPRZFF71WPWXXUG6XF</AccessKeyId>
-                <SessionToken>eyJzYWx0IjoicVIvVGdIdS9FVjJ4TjN5RmtXSnVLZGE0M0krK0g1L3lFVDU5UkV0enpYYz0iLCJ0YWciOiI4d05WRTIwTlQxWTVKbWtZemo2ZGJ3PT0iLCJjaXBoZXJ0ZXh0IjoiQVNIanI0M0VZc3dzK0QwWDFkVXRXQ2JMbzlFOVZ5SzF5WWt6a21lRjRXOUpCU3hwbmNxS21zWnpIU3ZvYlZEYjNKaDRNTm16bW1yVUd6dTU1bmRwMTk0eTVlVjFSVWMzaHZnSTFxZTRuYmJxNHBPdit5V3VZQ3RtSExUbE5BTHpDK3VhYW1tZDdzWk9BVXNKQlhRcmVHUG5sTFphb0kySTFveXJjbk10QlVpb1AvYnNjNUd6RHFqdTFWMjVQRE9PQWgzM2JFSktHdmorbEoyL2lWV0x5UHBQU1pLZmdZUnd1QjRXczdGaG81dHhaem9uWWhpaG9ocnFtdmFnNUJSNytiN2lGN3ZxZjBVSnFPZXI5Wm9ldDk1dlpqL01qTU04aGhGQXI1MmZnTHpzOHAzVlN3dHV0OENFSTBoVEJJNlVycUY4SWxiUmhFOUtlaHo0cnRiZHRKQzVmVHFRSkVPZWltb0RIbGpZZXZqOVlIZzZPVFhDR2ZhVzRIWDc3T0g5M1BRa0dHc1RCSjVpRTEyZEdYQjhYWWdSM1VackIwUzdQejdLQnpvSUVodTZOWUkrK1NPZ2pwMlFaUmhaWGtkbDdDdU5EMWg2UE9qN2twREY0QXhHbWdwcjBMbmpOdVp1UzJaWlJTck5OZG1WL3B5dWpUM3BtcFNJNUZkNW5Wby9SV1dTSGhoR0FVcWRJS0EyV00xdVJ2TkVFS25rb25keWNuVHRrSHpDVUwrN0RtTXNuL202eTcyZjFReHY2VFQyejRzRVFSUDFhWUcwdnBWSTlXbUpWdW5yTFFVNmxSUmpsb1VFSFVkZ2xCMGd1eTZGZTNYR29YQjdVc1J5UUpxbEJ0elpvdFdkR1AvSjZaMllNODFDSy8zZjJZTXVnNTZlbXQxTmJJZ0hrVWxnaGxpclRsNVdrckVRbG5XTW4zT2dzRk9wMjJKSTV1UGoxSENUMlNhTlBXZEQrY0VCcTZycC9tc1FDOW02Q3prSkMwTWMyclZ0RmdnZitaSEV5dVZvdEVzeUFtY1V5QTdFZzJtY3BXd1pnbHZrYkZQQmI5M2NDN0ZhZGhpNEUzQ0hQbm9BczF5eVNKNkxIOTZZTHJoaXk1Q1h3VWloSTlRdmxuSDNlV3EwaElBZTFGc2N6bThzVWRCTGU2SWlVc3ZJVDlpMjJzcTZnaVpmdld5czVlaU9NZzRQMFBaZCtPK0VDRmdmd3dxdUhYcFdEL1F5RnR1RENVb0xxblNyMU9lOHdCQ2lXNDFYaGtacmEzWTdtVW1QYXlNWTN6MXpOZm1XRllJV0dWZzlBNVFUaUZLWGlZTngxdUtWZGJ3Qk54SmowVmxlTTE4azlDNFR3Z2U3dVYyKzEzcWVkTW5xOUpLa2Uwa1NsNmMxMWM5N1RUbGJ4TUx5YS9WY1JLWkNkbHJaTGZNK0hjSTJWaGdkSzNzWHJIVEN6UENFRC9lMVBRTkg1RVZBVThLRlNHWGEzb1dPWm9VcmlSYlk1L3R5eTQvbHRKTkVhNnV3R2hra0ljR3JLMjltUndkaDJHSE94R1laYmdGL0VVUDYreUs5cjQrVzc5Y1RYc3NRcEpSM1M1bkZpUHE2bHR6NXM1ZlNYalNkcUxSM0gvTVZlcXV6K3RON0czMk1ieW9halZvcVJxcks2WjZIVm1vM3pDZ1M4TURQQk9jVkY3Ymc0QmhXaXFUTjc5a0ZqV0xkWWZSVlB5Qk1VaXBHNmZCcGlBdUZCZEV1S2lLMHBwVkhQNUpZL0h5ZXRBbVgxMzdVK1U5d3prbmw3eXhyOEQ0TkdNL05yaVhBT21hSDN4YVEifQ==</SessionToken>
-                <Expiration>2023-11-28T10:16:13Z</Expiration>
-              </Credentials>
-              <Provider>www.scality.com</Provider>
-            </AssumeRoleWithWebIdentityResult>
-            <ResponseMetadata>
-              <RequestId>8e94c64ebf4486567b0e</RequestId>
-            </ResponseMetadata>
-          </AssumeRoleWithWebIdentityResponse>`),
-      );
-    }
+    return res(
+      ctx.status(200),
+      ctx.xml(`
+          <AssumeRoleWithWebIdentityResponse
+          xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+          <AssumeRoleWithWebIdentityResult>
+            <AssumedRoleUser>
+              <Arn>arn:aws:sts::${accountId}:assumed-role/storage-manager-role/ui-9160673b-2c2a-4a6f-a1ef-a3cb6ce25d7f</Arn>
+              <AssumedRoleId>OES3SPDIYW4L92S8K1QE6MINE31LQG04:ui-9160673b-2c2a-4a6f-a1ef-a3cb6ce25d7f</AssumedRoleId>
+            </AssumedRoleUser>
+            <Credentials>
+              <SecretAccessKey>v/0Nq1YMw4nNbvtgQlgi0l6m/PXWjlk1VLmn2I5q</SecretAccessKey>
+              <AccessKeyId>72SPRZFF71WPWXXUG6XF</AccessKeyId>
+              <SessionToken>eyJzYWx0IjoicVIvVGdIdS9FVjJ4TjN5RmtXSnVLZGE0M0krK0g1L3lFVDU5UkV0enpYYz0iLCJ0YWciOiI4d05WRTIwTlQxWTVKbWtZemo2ZGJ3PT0iLCJjaXBoZXJ0ZXh0IjoiQVNIanI0M0VZc3dzK0QwWDFkVXRXQ2JMbzlFOVZ5SzF5WWt6a21lRjRXOUpCU3hwbmNxS21zWnpIU3ZvYlZEYjNKaDRNTm16bW1yVUd6dTU1bmRwMTk0eTVlVjFSVWMzaHZnSTFxZTRuYmJxNHBPdit5V3VZQ3RtSExUbE5BTHpDK3VhYW1tZDdzWk9BVXNKQlhRcmVHUG5sTFphb0kySTFveXJjbk10QlVpb1AvYnNjNUd6RHFqdTFWMjVQRE9PQWgzM2JFSktHdmorbEoyL2lWV0x5UHBQU1pLZmdZUnd1QjRXczdGaG81dHhaem9uWWhpaG9ocnFtdmFnNUJSNytiN2lGN3ZxZjBVSnFPZXI5Wm9ldDk1dlpqL01qTU04aGhGQXI1MmZnTHpzOHAzVlN3dHV0OENFSTBoVEJJNlVycUY4SWxiUmhFOUtlaHo0cnRiZHRKQzVmVHFRSkVPZWltb0RIbGpZZXZqOVlIZzZPVFhDR2ZhVzRIWDc3T0g5M1BRa0dHc1RCSjVpRTEyZEdYQjhYWWdSM1VackIwUzdQejdLQnpvSUVodTZOWUkrK1NPZ2pwMlFaUmhaWGtkbDdDdU5EMWg2UE9qN2twREY0QXhHbWdwcjBMbmpOdVp1UzJaWlJTck5OZG1WL3B5dWpUM3BtcFNJNUZkNW5Wby9SV1dTSGhoR0FVcWRJS0EyV00xdVJ2TkVFS25rb25keWNuVHRrSHpDVUwrN0RtTXNuL202eTcyZjFReHY2VFQyejRzRVFSUDFhWUcwdnBWSTlXbUpWdW5yTFFVNmxSUmpsb1VFSFVkZ2xCMGd1eTZGZTNYR29YQjdVc1J5UUpxbEJ0elpvdFdkR1AvSjZaMllNODFDSy8zZjJZTXVnNTZlbXQxTmJJZ0hrVWxnaGxpclRsNVdrckVRbG5XTW4zT2dzRk9wMjJKSTV1UGoxSENUMlNhTlBXZEQrY0VCcTZycC9tc1FDOW02Q3prSkMwTWMyclZ0RmdnZitaSEV5dVZvdEVzeUFtY1V5QTdFZzJtY3BXd1pnbHZrYkZQQmI5M2NDN0ZhZGhpNEUzQ0hQbm9BczF5eVNKNkxIOTZZTHJoaXk1Q1h3VWloSTlRdmxuSDNlV3EwaElBZTFGc2N6bThzVWRCTGU2SWlVc3ZJVDlpMjJzcTZnaVpmdld5czVlaU9NZzRQMFBaZCtPK0VDRmdmd3dxdUhYcFdEL1F5RnR1RENVb0xxblNyMU9lOHdCQ2lXNDFYaGtacmEzWTdtVW1QYXlNWTN6MXpOZm1XRllJV0dWZzlBNVFUaUZLWGlZTngxdUtWZGJ3Qk54SmowVmxlTTE4azlDNFR3Z2U3dVYyKzEzcWVkTW5xOUpLa2Uwa1NsNmMxMWM5N1RUbGJ4TUx5YS9WY1JLWkNkbHJaTGZNK0hjSTJWaGdkSzNzWHJIVEN6UENFRC9lMVBRTkg1RVZBVThLRlNHWGEzb1dPWm9VcmlSYlk1L3R5eTQvbHRKTkVhNnV3R2hra0ljR3JLMjltUndkaDJHSE94R1laYmdGL0VVUDYreUs5cjQrVzc5Y1RYc3NRcEpSM1M1bkZpUHE2bHR6NXM1ZlNYalNkcUxSM0gvTVZlcXV6K3RON0czMk1ieW9halZvcVJxcks2WjZIVm1vM3pDZ1M4TURQQk9jVkY3Ymc0QmhXaXFUTjc5a0ZqV0xkWWZSVlB5Qk1VaXBHNmZCcGlBdUZCZEV1S2lLMHBwVkhQNUpZL0h5ZXRBbVgxMzdVK1U5d3prbmw3eXhyOEQ0TkdNL05yaVhBT21hSDN4YVEifQ==</SessionToken>
+              <Expiration>2023-11-28T10:16:13Z</Expiration>
+            </Credentials>
+            <Provider>www.scality.com</Provider>
+          </AssumeRoleWithWebIdentityResult>
+          <ResponseMetadata>
+            <RequestId>8e94c64ebf4486567b0e</RequestId>
+          </ResponseMetadata>
+        </AssumeRoleWithWebIdentityResponse>`),
+    );
   }
   if (params.get('Action') === 'ListRoles') {
     return res(

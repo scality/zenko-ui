@@ -1,59 +1,64 @@
 import { render, waitFor, screen } from '@testing-library/react';
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
 import {
   NewWrapper,
-  TEST_API_BASE_URL,
   mockOffsetSize,
 } from '../../../../utils/testUtil';
 import { VeeamCapacityOverviewRow } from './VeeamCapacityOverviewRow';
-import { VEEAM_XML_PREFIX } from '../../../constants';
+import {
+  useGetBucketTagging,
+  useGetObject,
+} from '@scality/data-browser-library';
+import { VeeamApplicationType } from '../../../constants';
+
+const mockUseGetBucketTagging = useGetBucketTagging as jest.Mock;
+const mockUseGetObject = useGetObject as jest.Mock;
 
 const bucketName = 'test-bucket';
 
 describe('VeeamCapacityOverviewRow', () => {
-  const server = setupServer(
-    rest.get(`${TEST_API_BASE_URL}/${bucketName}`, (req, res, ctx) => {
-      return res(
-        ctx.xml(`
-          <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <Tagging>
-              <TagSet>
-                <Tag>
-                  <Key>X-Scality-Veeam-Application</Key>
-                  <Value>Veeam Backup &amp;#38; Replication</Value>
-                </Tag>
-              </TagSet>
-            </Tagging>
-          `),
-      );
-    }),
-    rest.get(
-      `${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}/capacity.xml`,
-      (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.xml(`
-        <?xml version="1.0" encoding="UTF-8" ?>
+  beforeAll(() => {
+    mockOffsetSize(200, 100);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should render the VeeamCapacityOverviewRow', async () => {
+    mockUseGetBucketTagging.mockReturnValue({
+      data: {
+        TagSet: [
+          {
+            Key: 'X-Scality-Veeam-Application',
+            Value: VeeamApplicationType.VEEAM_BACKUP_REPLICATION,
+          },
+        ],
+      },
+      status: 'success',
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    });
+
+    mockUseGetObject.mockReturnValue({
+      data: {
+        Body: Buffer.from(`<?xml version="1.0" encoding="UTF-8" ?>
           <CapacityInfo>
             <Capacity>107374182400</Capacity>
             <Available>107374182400</Available>
             <Used>0</Used>
-        </CapacityInfo>`),
-        );
+          </CapacityInfo>`),
       },
-    ),
-  );
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: 'error' });
-    mockOffsetSize(200, 100);
-  });
-  afterEach(() => {
-    server.resetHandlers();
-  });
-  afterAll(() => server.close());
+      status: 'success',
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    });
 
-  it('should render the VeeamCapacityOverviewRow', async () => {
     render(<VeeamCapacityOverviewRow bucketName={bucketName} />, {
       wrapper: NewWrapper(),
     });
@@ -66,23 +71,29 @@ describe('VeeamCapacityOverviewRow', () => {
   });
 
   it('should not render the row if SOSAPI is not enabled', () => {
-    server.use(
-      rest.get(`${TEST_API_BASE_URL}/${bucketName}`, (req, res, ctx) => {
-        return res(
-          ctx.xml(`
-            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-              <Tagging>
-                <TagSet>
-                  <Tag>
-                    <Key>X-Scality-Veeam-Application</Key>
-                    <Value>Test Application</Value>
-                  </Tag>
-                </TagSet>
-              </Tagging>
-            `),
-        );
-      }),
-    );
+    mockUseGetBucketTagging.mockReturnValue({
+      data: {
+        TagSet: [
+          {
+            Key: 'X-Scality-Veeam-Application',
+            Value: 'Test Application',
+          },
+        ],
+      },
+      status: 'success',
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    });
+
+    mockUseGetObject.mockReturnValue({
+      data: undefined,
+      status: 'idle',
+      isLoading: false,
+      isSuccess: false,
+      isError: false,
+    });
+
     render(<VeeamCapacityOverviewRow bucketName={bucketName} />, {
       wrapper: NewWrapper(),
     });
@@ -92,14 +103,29 @@ describe('VeeamCapacityOverviewRow', () => {
   });
 
   it('should display loading state', async () => {
-    server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}/capacity.xml`,
-        (req, res, ctx) => {
-          return res(ctx.status(400));
-        },
-      ),
-    );
+    mockUseGetBucketTagging.mockReturnValue({
+      data: {
+        TagSet: [
+          {
+            Key: 'X-Scality-Veeam-Application',
+            Value: VeeamApplicationType.VEEAM_BACKUP_REPLICATION,
+          },
+        ],
+      },
+      status: 'success',
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    });
+
+    mockUseGetObject.mockReturnValue({
+      data: undefined,
+      status: 'loading',
+      isLoading: true,
+      isSuccess: false,
+      isError: false,
+    });
+
     render(<VeeamCapacityOverviewRow bucketName={bucketName} />, {
       wrapper: NewWrapper(),
     });
@@ -112,14 +138,30 @@ describe('VeeamCapacityOverviewRow', () => {
   });
 
   it('should display error state', async () => {
-    server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}/capacity.xml`,
-        (req, res, ctx) => {
-          return res(ctx.status(404));
-        },
-      ),
-    );
+    mockUseGetBucketTagging.mockReturnValue({
+      data: {
+        TagSet: [
+          {
+            Key: 'X-Scality-Veeam-Application',
+            Value: VeeamApplicationType.VEEAM_BACKUP_REPLICATION,
+          },
+        ],
+      },
+      status: 'success',
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    });
+
+    mockUseGetObject.mockReturnValue({
+      data: undefined,
+      status: 'error',
+      isLoading: false,
+      isSuccess: false,
+      isError: true,
+      error: new Error('Not found'),
+    });
+
     render(<VeeamCapacityOverviewRow bucketName={bucketName} />, {
       wrapper: NewWrapper(),
     });

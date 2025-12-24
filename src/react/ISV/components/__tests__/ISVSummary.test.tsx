@@ -1,5 +1,5 @@
 import { Stepper } from '@scality/core-ui';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { DEFAULT_REGION, ISVSummary, ISVSummaryProps } from '../ISVSummary';
 import userEvent from '@testing-library/user-event';
@@ -25,13 +25,11 @@ const useAuth = mockShellHooks.useAuth;
 const useDeployedApps = mockShellHooks.useDeployedApps;
 const useConfigRetriever = mockShellHooks.useConfigRetriever;
 
-jest.mock('../../hooks/useGetS3ServicePoint', () => ({
-  useGetS3ServicePoint: () => {
-    return {
-      s3ServicePoint: SERVICE_POINT,
-    };
-  },
-}));
+import * as useGetS3ServicePointModule from '../../hooks/useGetS3ServicePoint';
+jest.spyOn(useGetS3ServicePointModule, 'useGetS3ServicePoint').mockReturnValue({
+  s3ServicePoint: 's3.test.local',
+});
+
 
 const mockAuthUserData = {
   userData: {
@@ -123,6 +121,15 @@ jest.setTimeout(10000);
 const platformName = 'Veeam';
 
 describe('ISVSummary', () => {
+  let writeTextSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    writeTextSpy = jest.spyOn(navigator.clipboard, 'writeText');
+  });
+
+  afterEach(() => {
+    writeTextSpy.mockRestore();
+  });
   const selectors = {
     title: (platformName) => screen.getByText(SUMMARY_TITLE(platformName)),
     informationSection: (platformName) =>
@@ -146,10 +153,6 @@ describe('ISVSummary', () => {
     secretKeyOutput: () => screen.queryByLabelText(/Secret Access key/i),
     accessKeysOutput: () => screen.queryAllByText(/Access key ID/),
   };
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('should render Summary', async () => {
     //S
@@ -509,33 +512,25 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
 
-      const user = userEvent.setup();
       // Verify the copy buttons
-      await user.click(selectors.copyServiceEndpointButton());
-      await expect(navigator.clipboard.readText()).resolves.toBe(SERVICE_POINT);
-      await user.click(selectors.copyAccessKeyButton());
-      await expect(navigator.clipboard.readText()).resolves.toBe(ACCESS_KEY);
-      await user.click(selectors.copySecretKeyButton());
-      await expect(navigator.clipboard.readText()).resolves.toBe(SECRET_KEY);
-      await user.click(selectors.copyBucketNameButton());
-      await expect(navigator.clipboard.readText()).resolves.toBe(BUCKET_NAME);
-      await user.click(selectors.copyRegionButton());
-      await expect(navigator.clipboard.readText()).resolves.toBe(
-        DEFAULT_REGION,
-      );
-      await user.click(selectors.copyAllButton());
+      fireEvent.click(selectors.copyServiceEndpointButton());
+      expect(writeTextSpy).toHaveBeenLastCalledWith(SERVICE_POINT);
+      fireEvent.click(selectors.copyAccessKeyButton());
+      expect(writeTextSpy).toHaveBeenLastCalledWith(ACCESS_KEY);
+      fireEvent.click(selectors.copySecretKeyButton());
+      expect(writeTextSpy).toHaveBeenLastCalledWith(SECRET_KEY);
+      fireEvent.click(selectors.copyBucketNameButton());
+      expect(writeTextSpy).toHaveBeenLastCalledWith(BUCKET_NAME);
+      fireEvent.click(selectors.copyRegionButton());
+      expect(writeTextSpy).toHaveBeenLastCalledWith(DEFAULT_REGION);
+      fireEvent.click(selectors.copyAllButton());
 
-      await expect(navigator.clipboard.readText()).resolves.toBe(
-        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
-      );
-      await user.click(selectors.copyAllButton());
-
-      await expect(navigator.clipboard.readText()).resolves.toBe(
+      expect(writeTextSpy).toHaveBeenLastCalledWith(
         `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
       );
     });
 
-    it('should copy all information to the clipboard when clicking on the copy all button in multiple bucket case', async () => {
+    it('should copy all information to the clipboard when clicking on the copy all button in multiple bucket case', () => {
       //S
       render(
         <ISVStepperContext.Provider value={mockStepperContext}>
@@ -553,14 +548,13 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
 
-      const user = userEvent.setup();
       // Verify the copy buttons
-      await user.click(selectors.copyAllButton());
-      await expect(navigator.clipboard.readText()).resolves.toBe(
+      fireEvent.click(selectors.copyAllButton());
+      expect(writeTextSpy).toHaveBeenLastCalledWith(
         `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}, bucket-name-2`,
       );
     });
-    it('should copy all data when displaying access keys for existing account', async () => {
+    it('should copy all data when displaying access keys for existing account', () => {
       //S
       render(
         <ISVStepperContext.Provider value={mockStepperContext}>
@@ -578,10 +572,9 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
 
-      const user = userEvent.setup();
       // Verify the copy buttons
-      await user.click(selectors.copyAllButton());
-      await expect(navigator.clipboard.readText()).resolves.toBe(
+      fireEvent.click(selectors.copyAllButton());
+      expect(writeTextSpy).toHaveBeenLastCalledWith(
         `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key IDs\taccess-key-1, access-key-2\nBucket names\t${BUCKET_NAME}`,
       );
     });
@@ -683,11 +676,9 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
 
-      const user = userEvent.setup();
-      await user.click(selectors.copyAllButton());
-
       //E+V
-      await expect(navigator.clipboard.readText()).resolves.toBe(
+      fireEvent.click(selectors.copyAllButton());
+      expect(writeTextSpy).toHaveBeenLastCalledWith(
         `Service Host\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
       );
     });
