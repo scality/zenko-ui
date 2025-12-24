@@ -139,9 +139,6 @@ const config: Configuration = {
           }
         : undefined,
       shared: {
-        ...Object.fromEntries(
-          Object.entries(deps).map(([key, version]) => [key, {}]),
-        ),
         '@scality/core-ui': {
           singleton: true,
         },
@@ -160,6 +157,9 @@ const config: Configuration = {
           singleton: true,
           requiredVersion: deps['react-dom'],
         },
+      },
+      bridge: {
+        enableBridgeRouter: true,
       },
     }),
     new rspack.CopyRspackPlugin({
