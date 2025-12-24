@@ -94,7 +94,6 @@ describe('Accounts', () => {
         res(ctx.status(500, 'error')),
       ),
     );
-    // FIXME Move testRender to the new render later
     //E
     testRender(<Accounts />);
     //V
@@ -126,7 +125,6 @@ describe('Accounts', () => {
         ),
       ),
     );
-    // FIXME Move testRender to the new render later
     //E
     testRender(<Accounts />);
     //V

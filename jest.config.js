@@ -1,6 +1,7 @@
 module.exports = {
   testEnvironment: 'jsdom',
   testMatch: ['**/?(*.)+(test).ts?(x)'],
+  // TODO: Remove ignore patterns once the tests are updated to use the data-browser-library
   testPathIgnorePatterns: [
     'src/react/ISV/hooks/useGetS3ServicePoint.test.ts',
     'src/react/ISV/modules/veeam/components/VeeamCapacityOverviewRow.test.tsx',
