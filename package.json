@@ -68,6 +68,7 @@
     "@scality/core-ui": "0.187.0",
     "@scality/data-browser-library": "1.0.0-preview.17",
     "@scality/module-federation": "^1.5.0",
+    "@scality/react-chained-query": "^2.0.1",
     "@types/react-table": "^7.7.10",
     "@types/react-virtualized": "^9.21.20",
     "@types/react-window": "^1.8.5",

@@ -159,6 +159,12 @@ const config: Configuration = {
           singleton: true,
           requiredVersion: deps['react-dom'],
         },
+        'react-hook-form': {
+          singleton: true,
+        },
+        '@hookform/resolvers': {
+          singleton: true,
+        },
       },
     }),
     new rspack.CopyRspackPlugin({
