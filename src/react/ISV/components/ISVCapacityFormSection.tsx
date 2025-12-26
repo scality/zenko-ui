@@ -5,9 +5,14 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { useEffect } from 'react';
 import { useXcoreRuntimeConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useShellHooks } from '@scality/module-federation';
-import { ListItem } from './ISVApplyActions';
 import { unitChoices } from '../constants';
 import { useCapacityUnit } from '../hooks/useCapacityUnit';
+import styled from 'styled-components';
+
+const ListItem = styled.li`
+  list-style-type: disc;
+  margin-left: 1rem;
+`;
 
 type XCoreConfig = {
   spec: {
