@@ -434,7 +434,6 @@ const usePatchZenkoConfigurationMutation = <T>(
             );
             if (
               deploymentCondition &&
-              deploymentCondition.status === 'True' &&
               new Date(deploymentCondition.lastTransitionTime).getTime() >=
                 patchTimestamp
             ) {
