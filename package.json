@@ -70,7 +70,7 @@
     "@hookform/resolvers": "^2.8.8",
     "@monaco-editor/react": "^4.4.5",
     "@scality/certchain": "1.4.0",
-    "@scality/core-ui": "0.187.0",
+    "@scality/core-ui": "0.193.0",
     "@scality/module-federation": "^1.5.0",
     "@scality/react-chained-query": "^2.0.1",
     "@types/react-table": "^7.7.10",
