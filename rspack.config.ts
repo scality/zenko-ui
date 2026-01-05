@@ -157,6 +157,9 @@ const config: Configuration = {
           singleton: true,
           requiredVersion: deps['react-dom'],
         },
+        zustand: {
+          singleton: true,
+        },
       },
       bridge: {
         enableBridgeRouter: true,

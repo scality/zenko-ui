@@ -1,56 +1,61 @@
 
 import { createBridgeComponent } from '@module-federation/bridge-react/v18';
-import { ShellHooksProvider, useShellHooks } from '@scality/module-federation';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
+import { useStore } from 'zustand';
 
+
+const DebugConfigurationStore = ({ store }: { store: any }) => {
+  // console.log('DEBUG configurationStore', configurationStore.getState());
+  // useStore(propsStore, (state) => {
+  //   console.log('DEBUG state propsStore', state);
+  // });
+  const myState = useStore(store, (state) => {
+    console.log('DEBUG state zenko store', state);
+    return state;
+  });
+  return <div>ConfigurationStore:
+    {/* <button type="button" onClick={() => {
+      propsStore.getState().incrementCounter();
+    }}>Click me {propsStore.getState().counter}</button> */}
+    <button type="button" onClick={() => {
+      myState.decrementCounter();
+    }}>Click me zenko decrement {myState.counter}</button>
+  </div>;
+};
 const Home = (props: any) => {
-  // const { useLinkOpener } = useShellHooks();
-  // const { openLink } = useLinkOpener();
   const { shellNavigate } = props;
   return (
     <div>
       Home
-      {/* <button onClick={() => {
-        openLink({
-          view: {
-            path: '/platform/alerts',
-            label: {
-              en: 'Platform Alerts',
-              fr: 'Alerts de la plateforme',
-            },
-            module: './FederableApp',
-            scope: 'zenko',
-          },
-          app: {
-            kind: 'metalk8s-ui',
-            name: 'metalk8s-ui.eu-west-1',
-            version: 'local-dev',
-            url: 'http://127.0.0.1:8383/metalk8s',
-          },
-          isFederated: true,
-        });
-      }} type="button">Platform Alerts</button> */}
       <button onClick={() => {
         shellNavigate('/platform/alerts');
       }} type="button">Platform Alerts</button>
+      {props.store && <DebugConfigurationStore store={props.store} />}
       <Link to="/platform/alerts">Platform Alerts</Link>
     </div >
   );
 };
 
+
+
+
+const ConfigProvider = (props: any) => {
+  const { config } = props;
+  return props.children
+};
+
+
 const ExportApp = (props: any) => {
-  const { basename, shellNavigate } = props;
+  const { basename, shellNavigate, config, store } = props;
+
   return (
     <BrowserRouter basename={basename}>
-      <ShellHooksProvider
-        shellHooks={props.shellHooks}
-        shellAlerts={props.shellAlerts}
-      >
+      <ConfigProvider config={config}>
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<Home shellNavigate={shellNavigate} />} />
+          <Route path="/home" element={<Home shellNavigate={shellNavigate} store={store} />} />
         </Routes>
-      </ShellHooksProvider>
+      </ConfigProvider>
     </BrowserRouter>
   );
 };
