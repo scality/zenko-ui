@@ -18,7 +18,7 @@ import {
 } from '../../../../utils/testUtil';
 import Overview from '../Overview';
 import * as bucketsMutation from '../../../../../react/next-architecture/domain/business/buckets';
-import { VEEAM_VBO_APPLICATION } from '../../../../ISV/modules/veeam-vbo';
+import { VEEAM_VBO_APPLICATION } from '../../../../ISV/constants';
 import { Bucket } from '../../../../next-architecture/domain/entities/bucket';
 
 const bucketTest: Bucket = {

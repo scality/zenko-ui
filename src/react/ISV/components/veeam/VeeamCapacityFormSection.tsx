@@ -3,11 +3,11 @@ import { Input, Select } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { useEffect } from 'react';
-import { useXcoreRuntimeConfig } from '../../../../next-architecture/ui/ConfigProvider';
+import { useXcoreRuntimeConfig } from '../../../next-architecture/ui/ConfigProvider';
 import { useShellHooks } from '@scality/module-federation';
-import { ListItem } from '../..';
-import { unitChoices } from '../../../constants';
-import { useCapacityUnit } from '../../../hooks/useCapacityUnit';
+import { unitChoices } from '../../constants';
+import { useCapacityUnit } from '../../hooks/useCapacityUnit';
+import { VeeamCapacityTooltip } from '../shared/PlatformTooltips';
 
 type XCoreConfig = {
   spec: {
@@ -27,23 +27,6 @@ type UseClusterCapacityHooks = (
   clusterCapacity: number;
   clusterCapacityStatus: ClusterCapacityStatus;
 };
-
-const VeeamCapacityTooltip = () => (
-  <ul>
-    <ListItem>
-      Set your ARTESCA storage capacity limit to be monitored by Veeam (via
-      Smart Object Storage API).
-    </ListItem>
-    <ListItem>
-      Keep in mind, going over this limit has no effect on ARTESCA itself, but
-      it does trigger a warning in the Veeam UI and can potentially stop backup
-      activities.
-    </ListItem>
-    <ListItem>
-      Prefilled at 80% of the ARTESCA platform's capacity (recommended).
-    </ListItem>
-  </ul>
-);
 
 export const VeeamCapacityFormWithXcore = ({
   useClusterCapacity,
@@ -110,9 +93,9 @@ export const VeeamCapacityFormSection = ({
                       value={value}
                       size="1/3"
                     >
-                      {Object.entries(unitChoices).map(([key, value]) => {
+                      {Object.entries(unitChoices).map(([key]) => {
                         return (
-                          <Select.Option key={key} value={`${value}`}>
+                          <Select.Option key={key} value={key}>
                             {key}
                           </Select.Option>
                         );

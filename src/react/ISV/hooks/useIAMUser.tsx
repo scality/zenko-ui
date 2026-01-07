@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useIAMClient } from '../../IAMProvider';
 import { useAssumeRoleQuery } from '../../next-architecture/ui/S3ClientProvider';
 
-interface IAMUser {
+export interface IAMUser {
   id: string;
   name: string;
 }

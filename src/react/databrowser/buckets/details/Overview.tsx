@@ -33,7 +33,7 @@ import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
 import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
-import { VeeamCapacityOverviewRow } from '../../../ISV/modules/veeam/components/VeeamCapacityOverviewRow';
+import { VeeamCapacityOverviewRow } from '../../../ISV/components/veeam/VeeamCapacityOverviewRow';
 
 import { maybePluralize } from '../../../utils';
 import {
@@ -49,7 +49,7 @@ import {
   VEEAM_BACKUP_REPLICATION,
 } from '../../../ISV/constants';
 import { VeeamApplicationType } from '../../../ISV/constants';
-import { VEEAM_VBO_APPLICATION } from '../../../ISV/modules/veeam-vbo';
+import { VEEAM_VBO_APPLICATION } from '../../../ISV/constants';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {

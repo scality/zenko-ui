@@ -1,17 +1,17 @@
 import { useQuery } from 'react-query';
 
-import { useBucketTagging } from '../../../../next-architecture/domain/business/buckets';
+import { useBucketTagging } from '../../../next-architecture/domain/business/buckets';
 
-import { useS3Client } from '../../../../next-architecture/ui/S3ClientProvider';
-import { getObjectQuery } from '../../../../queries';
-import * as T from '../../../../ui-elements/TableKeyValue2';
+import { useS3Client } from '../../../next-architecture/ui/S3ClientProvider';
+import { getObjectQuery } from '../../../queries';
+import * as T from '../../../ui-elements/TableKeyValue2';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import {
   BUCKET_TAG_APPLICATION,
   BUCKET_TAG_VEEAM_APPLICATION,
   VEEAM_OBJECT_KEY,
   VeeamApplicationType,
-} from '../../../constants';
+} from '../../constants';
 import { PrettyBytes } from '@scality/core-ui';
 
 export const VeeamCapacityOverviewRow = ({

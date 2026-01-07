@@ -14,20 +14,20 @@ import { AWSError } from 'aws-sdk';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
-import { usePutObjectMutation } from '../../../../../js/mutations';
+import { usePutObjectMutation } from '../../../../js/mutations';
 
 import {
   GET_CAPACITY_XML_CONTENT,
   VEEAM_OBJECT_KEY,
   VEEAM_XML_PREFIX,
-} from '../../../constants';
+} from '../../constants';
 import {
   getCapacityBytes,
   useCapacityUnit,
-} from '../../../hooks/useCapacityUnit';
+} from '../../hooks/useCapacityUnit';
 
 import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
-import { checkDecimals } from '../..';
+import { checkDecimals } from '../../engine/validators';
 
 const schema = Joi.object({
   capacity: Joi.number()
