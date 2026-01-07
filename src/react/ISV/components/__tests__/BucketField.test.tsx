@@ -18,7 +18,6 @@ const TestWrapper = ({ children }) => {
       buckets: [
         {
           name: '',
-          tag: '',
           capacity: '0',
           capacityUnit: 'TiB',
         },

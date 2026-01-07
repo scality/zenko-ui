@@ -12,6 +12,7 @@ type CardProps = {
   onChange?: (value: React.SetStateAction<string>) => void;
   link: string;
   disabledMessage?: React.ReactNode;
+  disabled?: boolean;
 };
 
 const CardContent = (props: {
@@ -73,9 +74,9 @@ const StyledDiv = styled.div`
   }
 `;
 export const CardISV = (props: CardProps) => {
-  const { logo, name, application, onChange, selected, link, disabledMessage } =
+  const { logo, name, application, onChange, selected, link, disabledMessage, disabled } =
     props;
-  const isDisabled = !!disabledMessage;
+  const isDisabled = disabled ?? false;
 
   return (
     <StyledDiv>

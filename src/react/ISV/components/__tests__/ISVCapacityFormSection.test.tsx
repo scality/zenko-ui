@@ -61,7 +61,7 @@ describe('CapacityFormSection', () => {
       <Wrapper>
         <FormWrapper
           defaultValues={{
-            buckets: [{ capacity: 100, capacityUnit: String(unitChoices.GiB) }],
+            buckets: [{ capacity: 100, capacityUnit: 'GiB' }],
           }}
         >
           <CapacityFormSection index={0} />
@@ -85,7 +85,7 @@ describe('CapacityFormSection', () => {
       <Wrapper>
         <FormWrapper
           defaultValues={{
-            buckets: [{ capacity: 100, capacityUnit: String(unitChoices.GiB) }],
+            buckets: [{ capacity: 100, capacityUnit: 'GiB' }],
           }}
         >
           <CapacityFormSection index={0} />
@@ -107,7 +107,7 @@ describe('CapacityFormWithXcore', () => {
 
     (useCapacityUnit as jest.Mock).mockReturnValue({
       capacityValue: '80',
-      capacityUnit: String(unitChoices.TiB),
+      capacityUnit: 'TiB',
     });
 
     mockUseClusterCapacity.mockReturnValue({
@@ -145,7 +145,7 @@ describe('CapacityFormWithXcore', () => {
       expect(setValueMock).toHaveBeenCalledWith('buckets.0.capacity', '80');
       expect(setValueMock).toHaveBeenCalledWith(
         'buckets.0.capacityUnit',
-        String(unitChoices.TiB),
+        'TiB',
       );
     });
 
@@ -247,7 +247,7 @@ describe('CapacityFormWithXcore', () => {
 
     (useCapacityUnit as jest.Mock).mockReturnValue({
       capacityValue: '20',
-      capacityUnit: String(unitChoices.TiB),
+      capacityUnit: 'TiB',
     });
 
     render(
@@ -274,7 +274,7 @@ describe('CapacityFormWithXcore', () => {
       expect(setValueMock).toHaveBeenCalledWith('buckets.0.capacity', '20');
       expect(setValueMock).toHaveBeenCalledWith(
         'buckets.0.capacityUnit',
-        String(unitChoices.TiB),
+        'TiB',
       );
     });
   });

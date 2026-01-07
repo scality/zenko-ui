@@ -23,7 +23,7 @@ import {
 } from 'shell/compiled-types/src/hooks/useShellHooks';
 import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
 import { ISVList } from '../../ISVList';
-import { VeeamInfo } from '../../modules/veeam';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
 import { ArtescaPlusLogo } from '../ArtescaPLusLogo';
 import VeeamLogo from './Logos/VeeamLogo';
 
@@ -171,7 +171,7 @@ const useWelcomeModal = (defaultISV?: ISVCardConfig) => {
 };
 
 const VeeamOnlyModalComponent = () => {
-  const veeamISV = ISVList.find((isv) => isv.id === VeeamInfo.id);
+  const veeamISV = ISVList.find((isv) => isv.id === VeeamVBRPlatform.id);
   const { isOpen, handleContinueClick, handleSkipClick } =
     useWelcomeModal(veeamISV);
   return (

@@ -2,7 +2,7 @@ import { spacing, Stepper } from '@scality/core-ui';
 import { createContext, useContext, useMemo } from 'react';
 import { ISVConfiguration } from './ISVConfiguration';
 
-import { ISVPlatformConfig } from '../types';
+import { ISVPlatform } from '../engine/types';
 
 import { useTheme } from 'styled-components';
 import { Box } from '@scality/core-ui/dist/next';
@@ -10,8 +10,7 @@ import { ISVSummary } from './ISVSummary';
 import ISVApplyActions from './ISVApplyActions';
 
 import { useSearchParams } from 'react-router';
-import { isvModules } from '../modules';
-
+import { getPlatformById } from '../platforms';
 
 export enum ISVStepsIndexes {
   Configuration,
@@ -20,7 +19,7 @@ export enum ISVStepsIndexes {
 }
 
 export type ISVStepperContextType = {
-  platform: ISVPlatformConfig;
+  template: ISVPlatform;
 };
 
 export const ISVStepperContext = createContext<
@@ -55,15 +54,15 @@ export const ISVSteps = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('platform');
 
-  const platform = useMemo(() => {
-    return isvModules().find((p) => p.id === id);
+  const template = useMemo(() => {
+    return id ? getPlatformById(id) : undefined;
   }, [id]);
 
   const contextValue = useMemo(
     () => ({
-      platform,
+      template,
     }),
-    [platform],
+    [template],
   );
 
   return (

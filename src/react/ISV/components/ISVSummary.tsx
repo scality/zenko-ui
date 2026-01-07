@@ -16,7 +16,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
-import { ISVConfig, ISVPlatformConfig } from '../types';
+import { ISVPlatform, FormData, BucketItem } from '../engine/types';
 import { queries } from '../../next-architecture/domain/business/buckets';
 import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
 import { useAssumedRole } from '../../DataServiceRoleProvider';
@@ -50,10 +50,10 @@ const Separator = styled.div`
   height: ${spacing.r32};
 `;
 
-export type ISVSummaryProps = ISVConfig & {
+export type ISVSummaryProps = FormData & {
   accessKey: string;
   secretKey: string;
-  platform: ISVPlatformConfig;
+  template: ISVPlatform;
   accessKeys?: string[];
 };
 
@@ -69,38 +69,48 @@ export const ISVSummary = ({
   const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
-  const { platform } = useISVStepper();
+  const { template } = useISVStepper();
   const assumedRole = useAssumedRole();
   const s3Client = useS3Client();
   const queryClient = useQueryClient();
 
-  const immutableSectionInfos = platform.immutabilitySummaryOverride({
-    isImmutable: enableImmutableBackup,
-    application: application,
-  });
+  // Get immutability section info from template summary
+  const immutabilityConfig = template.summary.immutability;
+  const immutableSectionInfos = {
+    label: immutabilityConfig?.label || 'Object-lock',
+    helpText: immutabilityConfig?.helpText?.(enableImmutableBackup),
+  };
 
   const shouldHideImmutableSection = application === VEEAM_OFFICE_365;
 
   const finish = useCallback(() => {
     const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
+    const bucketItems = buckets as BucketItem[];
+    const firstBucket = bucketItems[0];
     queryClient
       .resetQueries(queries.listBuckets(s3Client, assumedRoleArn).queryKey)
-      .then(() =>
-        navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`),
-      );
+      .then(() => {
+        if (firstBucket) {
+          navigate(`/accounts/${accountName}/buckets/${firstBucket.name}`);
+        } else {
+          navigate(`/accounts/${accountName}`);
+        }
+      });
   }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
 
-  const serviceEndpointLabel = platform.serviceEndpointLabel || 'Service point';
+  const serviceEndpointLabel =
+    template.summary.serviceEndpointLabel || 'Service point';
 
+  const bucketItems = buckets as BucketItem[];
   const textToCopy = `${serviceEndpointLabel}\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
     accessKey ? 'Access key ID' : 'Access key IDs'
-  }\t${accessKey ? accessKey : accessKeys.join(', ')}\n${
+  }\t${accessKey ? accessKey : accessKeys?.join(', ')}\n${
     secretKey ? `Secret Access key\t${secretKey}\n` : ''
-  }Bucket names\t${buckets.map((bucket) => bucket.name).join(', ')}`;
+  }Bucket names\t${bucketItems.map((bucket) => bucket.name).join(', ')}`;
   return (
     <Form
       layout={{
-        title: `${platform.name} Repository preparation summary`,
+        title: `${template.name} Repository preparation summary`,
         kind: 'page',
       }}
       requireMode="all"
@@ -115,9 +125,9 @@ export const ISVSummary = ({
     >
       <Text isEmphazed>
         Your ARTESCA is now configured and ready to integrate with{' '}
-        {platform.name}. <br />
+        {template.name}. <br />
         The next steps involve managing Certificates and entering specific
-        ARTESCA details within the {platform.name} application.
+        ARTESCA details within the {template.name} application.
       </Text>
 
       {isPlatformAdmin ? (
@@ -158,7 +168,7 @@ export const ISVSummary = ({
         <Wrap>
           <Text isEmphazed>{`${
             isPlatformAdmin ? '2. ' : ''
-          }Information for the ${platform.name} configuration`}</Text>
+          }Information for the ${template.name} configuration`}</Text>
           <CopyButton
             textToCopy={textToCopy}
             label="all"
@@ -281,9 +291,13 @@ export const ISVSummary = ({
         )}
         <Separator />
 
-        {platform.summaryBucketBanner ? platform.summaryBucketBanner : <></>}
+        {template.summary.bucketBanner ? (
+          <>{template.summary.bucketBanner}</>
+        ) : (
+          <></>
+        )}
         <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
-          {buckets.map((bucket, index) => (
+          {bucketItems.map((bucket, index) => (
             <FormGroup
               key={bucket.name}
               id="buckets-name"

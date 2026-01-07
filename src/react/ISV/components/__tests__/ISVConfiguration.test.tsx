@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { ISVConfiguration } from '../ISVConfiguration';
 import { ISVStepperContext } from '../ISVSteps';
 import { useListAccounts } from '../../../next-architecture/domain/business/accounts';
-import { Veeam } from '../../modules/veeam';
-import { Commvault } from '../../modules/commvault';
-import { VeeamVBO } from '../../modules/veeam-vbo';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { CommvaultPlatform } from '../../platforms/commvault';
+import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
 import { VEEAM_OFFICE_365 } from '../../constants';
 import { renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
 
@@ -103,12 +103,12 @@ describe('ISVConfiguration', () => {
     ],
   };
 
-  const renderComponent = (platform = Veeam) => {
+  const renderComponent = (template = VeeamVBRPlatform) => {
     return render(
       <Wrapper>
         <ISVStepperContext.Provider
           value={{
-            platform,
+            template,
           }}
         >
           <ISVConfiguration />
@@ -161,7 +161,7 @@ describe('ISVConfiguration', () => {
   });
 
   it('should navigate to next step when Continue button is clicked', async () => {
-    renderComponent(Commvault);
+    renderComponent(CommvaultPlatform);
 
     await userEvent.type(
       screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
@@ -183,7 +183,7 @@ describe('ISVConfiguration', () => {
   });
 
   it('should navigate to next step when add mutiple buckets and remove one', async () => {
-    renderComponent(Commvault);
+    renderComponent(CommvaultPlatform);
 
     const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
 
@@ -269,7 +269,7 @@ describe('ISVConfiguration', () => {
       renderWithCustomRoute(
         <ISVStepperContext.Provider
           value={{
-            platform: Veeam,
+            template: VeeamVBRPlatform,
           }}
         >
           <ISVConfiguration />
@@ -285,7 +285,7 @@ describe('ISVConfiguration', () => {
       renderWithCustomRoute(
         <ISVStepperContext.Provider
           value={{
-            platform: Veeam,
+            template: VeeamVBRPlatform,
           }}
         >
           <ISVConfiguration />
@@ -302,7 +302,7 @@ describe('ISVConfiguration', () => {
   describe('Platform Specific Features', () => {
     describe('Veeam', () => {
       it('should render correct config for Veeam', async () => {
-        renderComponent(Veeam);
+        renderComponent(VeeamVBRPlatform);
 
         // Verify Veeam has no application dropdown
         expect(screen.queryByText('Veeam application')).not.toBeInTheDocument();
@@ -327,11 +327,11 @@ describe('ISVConfiguration', () => {
       });
     });
 
-    describe('Commvault', () => {
-      it('should render correct config for Commvault', async () => {
-        renderComponent(Commvault);
+    describe('CommvaultPlatform', () => {
+      it('should render correct config for CommvaultPlatform', async () => {
+        renderComponent(CommvaultPlatform);
 
-        // Verify Commvault has no Veeam application field
+        // Verify CommvaultPlatform has no Veeam application field
         expect(screen.queryByText('Veeam application')).not.toBeInTheDocument();
 
         // Complete the form but don't check for immutable backup
@@ -350,7 +350,7 @@ describe('ISVConfiguration', () => {
 
     describe('Veeam VBO', () => {
       it('should render correct config for Veeam VBO', async () => {
-        renderComponent(VeeamVBO);
+        renderComponent(VeeamVBOPlatform);
 
         // Verify application selection is present
         await waitFor(() => {
@@ -370,7 +370,7 @@ describe('ISVConfiguration', () => {
       });
 
       it('should show immutable backup toggle for VBO v8+', async () => {
-        renderComponent(VeeamVBO);
+        renderComponent(VeeamVBOPlatform);
 
         // Open the dropdown
         const applicationInput = screen.getByRole('textbox', {
@@ -389,7 +389,7 @@ describe('ISVConfiguration', () => {
       });
 
       it('should handle VBO application selection', async () => {
-        renderComponent(VeeamVBO);
+        renderComponent(VeeamVBOPlatform);
 
         // Open application dropdown
         const applicationInput = screen.getByRole('textbox', {
@@ -408,7 +408,7 @@ describe('ISVConfiguration', () => {
 
   describe('Form Validation', () => {
     it('should disable continue button when form is invalid', async () => {
-      renderComponent(VeeamVBO);
+      renderComponent(VeeamVBOPlatform);
 
       expect(selectors.continueButton()).toBeDisabled();
 

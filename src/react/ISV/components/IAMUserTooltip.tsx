@@ -1,5 +1,5 @@
 import { Stack } from '@scality/core-ui';
-import { ListItem } from '../modules';
+import { ListItem } from './shared/StyledComponents';
 
 export const IAMUSerTooltip = ({ platform }: { platform: string }) => {
   return (

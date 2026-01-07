@@ -1,5 +1,5 @@
-import { VeeamVBOCardInfo } from './modules/veeam-vbo';
 import { ISVCardConfig } from './types';
+import { platformRegistry } from './platforms/registry';
 import CohesityLogo from './components/Modal/Logos/CohesityLogo';
 import CteraLogo from './components/Modal/Logos/CteraLogo';
 import HycuLogo from './components/Modal/Logos/HycuLogo';
@@ -7,14 +7,10 @@ import RubrikLogo from './components/Modal/Logos/RubrikLogo';
 import SplunkLogo from './components/Modal/Logos/SplunkLogo';
 import VeritasLogo from './components/Modal/Logos/VeritasLogo';
 import ZertoLogo from './components/Modal/Logos/ZertoLogo';
-import { VeeamCardInfo } from './modules/veeam';
-import { CommvaultCardInfo } from './modules/commvault';
 import { VeeamKastenLogo } from './components/Modal/Logos/VeeamKastenLogo';
 
 export const ISVList: ISVCardConfig[] = [
-  VeeamCardInfo,
-  VeeamVBOCardInfo,
-  CommvaultCardInfo,
+  ...platformRegistry,
   {
     id: 'kasten',
     name: 'Kasten',
@@ -29,7 +25,6 @@ export const ISVList: ISVCardConfig[] = [
     documentationLink:
       '/artesca/docs/partner_applications/backup_and_archives/rubrik_security_cloud.html',
   },
-
   {
     id: 'zerto',
     name: 'Zerto',
@@ -41,7 +36,6 @@ export const ISVList: ISVCardConfig[] = [
     id: 'splunk',
     name: 'Splunk',
     logo: <SplunkLogo />,
-
     documentationLink:
       '/artesca/docs/partner_applications/backup_and_archives/splunk.html',
   },
@@ -59,7 +53,6 @@ export const ISVList: ISVCardConfig[] = [
     documentationLink:
       '/artesca/docs/partner_applications/cloud_and_edge_storage/ctera/index.html',
   },
-
   {
     id: 'veritas',
     name: 'Veritas NetBackup',
@@ -67,7 +60,6 @@ export const ISVList: ISVCardConfig[] = [
     documentationLink:
       '/artesca/docs/partner_applications/backup_and_archives/veritas_netbackup.html',
   },
-
   {
     id: 'cohesity',
     name: 'Cohesity',

@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { ISVStepperContext, useISVStepper } from '../ISVSteps';
-import { Veeam } from '../../modules/veeam';
-import { Commvault } from '../../modules/commvault';
-import { VeeamVBO } from '../../modules/veeam-vbo';
-import { ISVPlatformConfig } from '../../types';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { CommvaultPlatform } from '../../platforms/commvault';
+import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
+import { ISVPlatform } from '../../engine/types';
 import { Wrapper } from '../../../utils/testUtil';
 
 jest.mock('../ISVSteps', () => {
@@ -16,15 +16,12 @@ jest.mock('../ISVSteps', () => {
   };
 });
 
-// Mock dependencies
 jest.mock('react-router', () => ({
   useSearchParams: jest.fn(),
 }));
 
-// Import React hooks correctly
 const { useContext } = React;
 
-// Test the useISVStepper hook
 describe('useISVStepper', () => {
   it('should throw an error when used outside of the Provider', () => {
     const TestComponent = () => {
@@ -38,42 +35,39 @@ describe('useISVStepper', () => {
   });
 });
 
-// Test the ISVSteps component
 describe('ISVSteps', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  // Component to access context for testing
   const ContextReader = () => {
     const context = useContext(ISVStepperContext);
     if (!context) return null;
 
     return (
       <div>
-        <div data-testid="platform-id">
-          {context.platform?.id || 'no-platform'}
+        <div data-testid="template-id">
+          {context.template?.id || 'no-template'}
         </div>
       </div>
     );
   };
 
-  // Set up mock implementation in each test
   const setupMockISVSteps = (platformId: string | null) => {
     const { ISVSteps } = require('../ISVSteps');
 
     ISVSteps.mockImplementation(({ children }) => {
-      let platform: ISVPlatformConfig | undefined;
+      let template: ISVPlatform | undefined;
 
       if (platformId === 'veeam-vbr') {
-        platform = Veeam;
+        template = VeeamVBRPlatform;
       } else if (platformId === 'commvault') {
-        platform = Commvault;
+        template = CommvaultPlatform;
       } else if (platformId === 'veeam-vbo') {
-        platform = VeeamVBO;
+        template = VeeamVBOPlatform;
       }
 
-      const contextValue = { platform };
+      const contextValue = { template };
 
       return (
         <ISVStepperContext.Provider value={contextValue}>
@@ -89,7 +83,6 @@ describe('ISVSteps', () => {
       );
     });
 
-    // Configure useSearchParams mock
     const { useSearchParams } = require('react-router');
     useSearchParams.mockReturnValue([
       new URLSearchParams(platformId ? `?platform=${platformId}` : ''),
@@ -97,7 +90,6 @@ describe('ISVSteps', () => {
     ]);
   };
 
-  // Helper to render component with theme and context reader
   const renderWithThemeAndContextReader = () => {
     const { ISVSteps } = require('../ISVSteps');
 
@@ -116,9 +108,8 @@ describe('ISVSteps', () => {
       setupMockISVSteps(platformId);
       renderWithThemeAndContextReader();
 
-      // Check platform ID in context
-      expect(screen.getByTestId('platform-id')).toHaveTextContent(
-        platformId || 'no-platform',
+      expect(screen.getByTestId('template-id')).toHaveTextContent(
+        platformId || 'no-template',
       );
     },
   );
@@ -127,11 +118,9 @@ describe('ISVSteps', () => {
     setupMockISVSteps('veeam-vbr');
     renderWithThemeAndContextReader();
 
-    // Check UI components
     expect(screen.getByTestId('isv-steps')).toBeInTheDocument();
     expect(screen.getByTestId('stepper')).toBeInTheDocument();
 
-    // Check step labels
     expect(screen.getByTestId('step-0')).toHaveTextContent('Configure');
     expect(screen.getByTestId('step-1')).toHaveTextContent('Apply Actions');
     expect(screen.getByTestId('step-2')).toHaveTextContent('Summary');
