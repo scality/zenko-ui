@@ -1,0 +1,28 @@
+import { UseFormReturn } from 'react-hook-form';
+import { BucketArrayFieldDef, FormData } from '../../engine/types';
+import BucketField from '../BucketField';
+
+type BucketArrayFieldProps = {
+  field: BucketArrayFieldDef;
+  formMethods: UseFormReturn<FormData>;
+  platform: string;
+};
+
+/**
+ * Wrapper component for BucketField that integrates with the template system.
+ * Determines whether to show capacity fields based on itemFields configuration.
+ */
+export const BucketArrayField: React.FC<BucketArrayFieldProps> = ({
+  field,
+  platform,
+}) => {
+  const hasCapacityField = field.itemFields?.some((f) => f.name === 'capacity');
+
+  return (
+    <BucketField
+      platform={platform}
+      bucketNameTooltip={field.tooltip as React.ReactElement}
+      showCapacity={hasCapacityField}
+    />
+  );
+};
