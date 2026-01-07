@@ -21,7 +21,7 @@ type ISVConfigurationInnerProps = {
 };
 
 const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
-  const { template } = useISVStepper();
+  const { platform } = useISVStepper();
   const { next } = useStepper(ISVStepsIndexes.Configuration);
   const navigate = useBasenameRelativeNavigate();
 
@@ -38,7 +38,7 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
     }
     next({
       ...data,
-      template,
+      platform,
       buckets: data.buckets.map((bucket) => ({
         ...bucket,
         capacityBytes: getCapacityBytes(
@@ -65,8 +65,8 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
         exitAction={() =>
           navigate(`${paramsAccountName ? '/buckets' : '/accounts'}`)
         }
-        title={`Exit ${template.name} assistant?`}
-        modalContent={<>{template.skipModalContent}</>}
+        title={`Exit ${platform.name} assistant?`}
+        modalContent={<>{platform.skipModalContent}</>}
       />
       <Form
         onSubmit={handleSubmit(onSubmit)}
@@ -96,14 +96,14 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
         }
       >
         <FormSection forceLabelWidth={280}>
-          {template.description && (
-            <Box style={{ paddingBottom: '1rem' }}>{template.description}</Box>
+          {platform.description && (
+            <Box style={{ paddingBottom: '1rem' }}>{platform.description}</Box>
           )}
 
           <FormRenderer
-            fields={template.fields}
+            fields={platform.fields}
             formMethods={formMethods}
-            context={{ platform: template.id }}
+            context={{ platform: platform.id }}
           />
         </FormSection>
       </Form>
@@ -112,7 +112,7 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
 };
 
 const getDefaultFormValues = (
-  template: ISVPlatform,
+  platform: ISVPlatform,
   paramsAccountName: string | null,
   isVeeamVBROnly: boolean,
   isAutoRepoFeatureEnabled: boolean,
@@ -142,7 +142,7 @@ const getDefaultFormValues = (
 };
 
 export const ISVConfiguration = () => {
-  const { template } = useISVStepper();
+  const { platform } = useISVStepper();
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
   const isVeeamVBROnly = useIsVeeamVBROnly();
@@ -151,17 +151,17 @@ export const ISVConfiguration = () => {
   const formMethods = useForm<FormData>({
     mode: 'all',
     defaultValues: getDefaultFormValues(
-      template,
+      platform,
       paramsAccountName,
       isVeeamVBROnly,
       isAutoRepoFeatureEnabled,
     ),
-    resolver: joiResolver(template.validator),
+    resolver: joiResolver(platform.validator),
     shouldUnregister: false,
   });
 
   return (
-    <ISVFormProvider template={template} formMethods={formMethods}>
+    <ISVFormProvider platform={platform} formMethods={formMethods}>
       <ISVConfigurationInner formMethods={formMethods} />
     </ISVFormProvider>
   );

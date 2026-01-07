@@ -103,12 +103,12 @@ describe('ISVConfiguration', () => {
     ],
   };
 
-  const renderComponent = (template = VeeamVBRPlatform) => {
+  const renderComponent = (platform = VeeamVBRPlatform) => {
     return render(
       <Wrapper>
         <ISVStepperContext.Provider
           value={{
-            template,
+            platform,
           }}
         >
           <ISVConfiguration />
@@ -269,7 +269,7 @@ describe('ISVConfiguration', () => {
       renderWithCustomRoute(
         <ISVStepperContext.Provider
           value={{
-            template: VeeamVBRPlatform,
+            platform: VeeamVBRPlatform,
           }}
         >
           <ISVConfiguration />
@@ -285,7 +285,7 @@ describe('ISVConfiguration', () => {
       renderWithCustomRoute(
         <ISVStepperContext.Provider
           value={{
-            template: VeeamVBRPlatform,
+            platform: VeeamVBRPlatform,
           }}
         >
           <ISVConfiguration />

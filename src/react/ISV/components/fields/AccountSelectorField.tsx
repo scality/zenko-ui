@@ -13,7 +13,7 @@ export const AccountSelectorField = ({
   formMethods,
 }: AccountSelectorFieldProps) => {
   const {
-    template,
+    platform,
     accounts,
     accountsStatus,
     isAccountExist,
@@ -29,7 +29,7 @@ export const AccountSelectorField = ({
       isExist={isAccountExist}
       status={accountsStatus}
       options={accounts}
-      platform={template.id}
+      platform={platform.id}
       type={accountNameType}
       fieldName="accountName"
       label={field.label || 'Account'}

@@ -101,7 +101,7 @@ describe('ISVApplyActions', () => {
     accountName: 'test-account',
     accountNameType: 'create' as const,
     application: 'Test App',
-    template: VeeamVBRPlatform,
+    platform: VeeamVBRPlatform,
     account: null,
     accessKey: 'test-access-key',
     secretKey: 'test-secret-key',
@@ -114,7 +114,7 @@ describe('ISVApplyActions', () => {
 
   it('renders the configuration title correctly', () => {
     render(<Wrapper><ISVApplyActions {...mockProps} /></Wrapper>);
-    expect(screen.getByText(`Configure ARTESCA for ${mockProps.template.name}`)).toBeInTheDocument();
+    expect(screen.getByText(`Configure ARTESCA for ${mockProps.platform.name}`)).toBeInTheDocument();
   });
 
   it('shows success state when all steps complete successfully', () => {

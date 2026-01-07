@@ -46,7 +46,7 @@ function buildSummary(config: PlatformConfig): SummaryConfig {
 }
 
 /**
- * Define an ISV platform template
+ * Define an ISV platform configuration
  *
  * This is the main API for creating platform configurations.
  * It generates fields, validators, and mutations based on the config.

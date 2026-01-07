@@ -9,7 +9,7 @@ type BucketArrayFieldProps = {
 };
 
 /**
- * Wrapper component for BucketField that integrates with the template system.
+ * Wrapper component for BucketField that integrates with the platform system.
  * Determines whether to show capacity fields based on itemFields configuration.
  */
 export const BucketArrayField: React.FC<BucketArrayFieldProps> = ({

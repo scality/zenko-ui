@@ -53,7 +53,7 @@ const Separator = styled.div`
 export type ISVSummaryProps = FormData & {
   accessKey: string;
   secretKey: string;
-  template: ISVPlatform;
+  platform: ISVPlatform;
   accessKeys?: string[];
 };
 
@@ -69,13 +69,13 @@ export const ISVSummary = ({
   const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
-  const { template } = useISVStepper();
+  const { platform } = useISVStepper();
   const assumedRole = useAssumedRole();
   const s3Client = useS3Client();
   const queryClient = useQueryClient();
 
-  // Get immutability section info from template summary
-  const immutabilityConfig = template.summary.immutability;
+  // Get immutability section info from platform summary
+  const immutabilityConfig = platform.summary.immutability;
   const immutableSectionInfos = {
     label: immutabilityConfig?.label || 'Object-lock',
     helpText: immutabilityConfig?.helpText?.(enableImmutableBackup),
@@ -99,7 +99,7 @@ export const ISVSummary = ({
   }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
 
   const serviceEndpointLabel =
-    template.summary.serviceEndpointLabel || 'Service point';
+    platform.summary.serviceEndpointLabel || 'Service point';
 
   const bucketItems = buckets as BucketItem[];
   const textToCopy = `${serviceEndpointLabel}\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
@@ -110,7 +110,7 @@ export const ISVSummary = ({
   return (
     <Form
       layout={{
-        title: `${template.name} Repository preparation summary`,
+        title: `${platform.name} Repository preparation summary`,
         kind: 'page',
       }}
       requireMode="all"
@@ -125,9 +125,9 @@ export const ISVSummary = ({
     >
       <Text isEmphazed>
         Your ARTESCA is now configured and ready to integrate with{' '}
-        {template.name}. <br />
+        {platform.name}. <br />
         The next steps involve managing Certificates and entering specific
-        ARTESCA details within the {template.name} application.
+        ARTESCA details within the {platform.name} application.
       </Text>
 
       {isPlatformAdmin ? (
@@ -168,7 +168,7 @@ export const ISVSummary = ({
         <Wrap>
           <Text isEmphazed>{`${
             isPlatformAdmin ? '2. ' : ''
-          }Information for the ${template.name} configuration`}</Text>
+          }Information for the ${platform.name} configuration`}</Text>
           <CopyButton
             textToCopy={textToCopy}
             label="all"
@@ -291,8 +291,8 @@ export const ISVSummary = ({
         )}
         <Separator />
 
-        {template.summary.bucketBanner ? (
-          <>{template.summary.bucketBanner}</>
+        {platform.summary.bucketBanner ? (
+          <>{platform.summary.bucketBanner}</>
         ) : (
           <></>
         )}

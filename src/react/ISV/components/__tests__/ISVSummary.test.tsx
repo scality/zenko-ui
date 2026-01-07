@@ -56,11 +56,11 @@ const ACCESS_KEY = 'access-key';
 const SECRET_KEY = 'secret-access-key';
 
 const mockStepperContext: ISVStepperContextType = {
-  template: VeeamVBRPlatform,
+  platform: VeeamVBRPlatform,
 };
 
 const mockSummaryProps: ISVSummaryProps = {
-  template: VeeamVBRPlatform,
+  platform: VeeamVBRPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
   accountNameType: 'create',
   accessKey: ACCESS_KEY,
@@ -71,7 +71,7 @@ const mockSummaryProps: ISVSummaryProps = {
 };
 
 const mockExistingAccountSummaryProps: ISVSummaryProps = {
-  template: VeeamVBRPlatform,
+  platform: VeeamVBRPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
   accountNameType: 'existing',
   accessKey: undefined as unknown as string,
@@ -83,7 +83,7 @@ const mockExistingAccountSummaryProps: ISVSummaryProps = {
 };
 
 const mockMultiBucketSummaryProps: ISVSummaryProps = {
-  template: VeeamVBRPlatform,
+  platform: VeeamVBRPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
   accountNameType: 'create',
   accessKey: ACCESS_KEY,
@@ -231,7 +231,7 @@ describe('ISVSummary', () => {
     render(
       <ISVStepperContext.Provider
         value={{
-          template: VeeamVBRPlatform,
+          platform: VeeamVBRPlatform,
         }}
       >
         <Stepper
@@ -261,7 +261,7 @@ describe('ISVSummary', () => {
     render(
       <ISVStepperContext.Provider
         value={{
-          template: VeeamVBRPlatform,
+          platform: VeeamVBRPlatform,
         }}
       >
         <Stepper
@@ -291,7 +291,7 @@ describe('ISVSummary', () => {
     render(
       <ISVStepperContext.Provider
         value={{
-          template: VeeamVBRPlatform,
+          platform: VeeamVBRPlatform,
         }}
       >
         <Stepper
@@ -404,7 +404,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            template: VeeamVBRPlatform,
+            platform: VeeamVBRPlatform,
           }}
         >
           <Stepper
@@ -414,7 +414,7 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      template={VeeamVBRPlatform}
+                      platform={VeeamVBRPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -443,7 +443,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            template: VeeamVBRPlatform,
+            platform: VeeamVBRPlatform,
           }}
         >
           <Stepper
@@ -453,7 +453,7 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      template={VeeamVBRPlatform}
+                      platform={VeeamVBRPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -577,7 +577,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            template: CommvaultPlatform,
+            platform: CommvaultPlatform,
           }}
         >
           <Stepper
@@ -587,7 +587,7 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      template={CommvaultPlatform}
+                      platform={CommvaultPlatform}
                       accountName="commvault-account"
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -613,7 +613,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            template: CommvaultPlatform,
+            platform: CommvaultPlatform,
           }}
         >
           <Stepper
@@ -623,7 +623,7 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      template={CommvaultPlatform}
+                      platform={CommvaultPlatform}
                       accountName="commvault-account"
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -655,7 +655,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            template: CommvaultPlatform,
+            platform: CommvaultPlatform,
           }}
         >
           <Stepper
@@ -665,7 +665,7 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      template={CommvaultPlatform}
+                      platform={CommvaultPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -715,7 +715,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            template: VeeamVBOPlatform,
+            platform: VeeamVBOPlatform,
           }}
         >
           <Stepper
@@ -725,7 +725,7 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      template={VeeamVBOPlatform}
+                      platform={VeeamVBOPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -752,7 +752,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            template: VeeamVBOPlatform,
+            platform: VeeamVBOPlatform,
           }}
         >
           <Stepper
@@ -762,7 +762,7 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      template={VeeamVBOPlatform}
+                      platform={VeeamVBOPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}

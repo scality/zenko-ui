@@ -25,7 +25,7 @@ const StatusBox = styled(Box)`
 `;
 
 type ISVApplyActionsProps = FormData & {
-  template: ISVPlatform;
+  platform: ISVPlatform;
   account: Account | null;
   accessKey?: string;
   secretKey?: string;
@@ -66,7 +66,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
     enableImmutableBackup,
     accountName,
     application,
-    template,
+    platform,
     accessKey,
     accessKeys,
   } = props;
@@ -112,12 +112,12 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
         isOpen={confirmCancel}
         close={() => setConfirmCancel(false)}
         exitAction={() => navigate('/')}
-        title={`Exit ${template.name} Assistant Configuration`}
-        modalContent={<>{template.skipModalContent}</>}
+        title={`Exit ${platform.name} Assistant Configuration`}
+        modalContent={<>{platform.skipModalContent}</>}
       />
       <Form
         layout={{
-          title: `Configure ARTESCA for ${template.name}`,
+          title: `Configure ARTESCA for ${platform.name}`,
           kind: 'page',
         }}
         requireMode="all"
@@ -202,7 +202,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     buckets = [],
     enableImmutableBackup,
     accountName,
-    template,
+    platform,
     IAMUserNameType,
     IAMUserName,
     account,
@@ -227,7 +227,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
 
   // Build runtime context
   const context = buildRuntimeContext({
-    template,
+    platform,
     account: account
       ? {
           id: account.id,
@@ -243,7 +243,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
 
   // Use the mutation executor to get mutations and variable resolvers
   const { mutations, variables } = useMutationExecutor({
-    template,
+    platform,
     formData,
     context,
   });

@@ -19,7 +19,7 @@ export enum ISVStepsIndexes {
 }
 
 export type ISVStepperContextType = {
-  template: ISVPlatform;
+  platform: ISVPlatform;
 };
 
 export const ISVStepperContext = createContext<
@@ -54,15 +54,15 @@ export const ISVSteps = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('platform');
 
-  const template = useMemo(() => {
+  const platform = useMemo(() => {
     return id ? getPlatformById(id) : undefined;
   }, [id]);
 
   const contextValue = useMemo(
     () => ({
-      template,
+      platform,
     }),
-    [template],
+    [platform],
   );
 
   return (

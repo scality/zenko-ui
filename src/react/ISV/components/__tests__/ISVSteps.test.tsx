@@ -46,8 +46,8 @@ describe('ISVSteps', () => {
 
     return (
       <div>
-        <div data-testid="template-id">
-          {context.template?.id || 'no-template'}
+        <div data-testid="platform-id">
+          {context.platform?.id || 'no-platform'}
         </div>
       </div>
     );
@@ -57,17 +57,17 @@ describe('ISVSteps', () => {
     const { ISVSteps } = require('../ISVSteps');
 
     ISVSteps.mockImplementation(({ children }) => {
-      let template: ISVPlatform | undefined;
+      let platform: ISVPlatform | undefined;
 
       if (platformId === 'veeam-vbr') {
-        template = VeeamVBRPlatform;
+        platform = VeeamVBRPlatform;
       } else if (platformId === 'commvault') {
-        template = CommvaultPlatform;
+        platform = CommvaultPlatform;
       } else if (platformId === 'veeam-vbo') {
-        template = VeeamVBOPlatform;
+        platform = VeeamVBOPlatform;
       }
 
-      const contextValue = { template };
+      const contextValue = { platform };
 
       return (
         <ISVStepperContext.Provider value={contextValue}>
@@ -108,8 +108,8 @@ describe('ISVSteps', () => {
       setupMockISVSteps(platformId);
       renderWithThemeAndContextReader();
 
-      expect(screen.getByTestId('template-id')).toHaveTextContent(
-        platformId || 'no-template',
+      expect(screen.getByTestId('platform-id')).toHaveTextContent(
+        platformId || 'no-platform',
       );
     },
   );

@@ -1,7 +1,7 @@
 /**
  * Mutation Executor Hook
  *
- * Converts template mutations (MutationDef[]) into the format expected
+ * Converts platform mutations (MutationDef[]) into the format expected
  * by useChainedMutations (MutationConfig[] + VariablesResolvers).
  */
 
@@ -61,7 +61,7 @@ const useAssumeRole = () => {
 };
 
 type UseMutationExecutorOptions = {
-  template: ISVPlatform;
+  platform: ISVPlatform;
   formData: FormData;
   context: FullContext;
 };
@@ -72,7 +72,7 @@ type UseMutationExecutorResult = {
 };
 
 /**
- * useMutationExecutor converts template mutations into the format
+ * useMutationExecutor converts platform mutations into the format
  * expected by useChainedMutations.
  *
  * This hook:
@@ -82,7 +82,7 @@ type UseMutationExecutorResult = {
  * 4. Generates variable resolvers for each mutation
  */
 export function useMutationExecutor({
-  template,
+  platform,
   formData,
   context,
 }: UseMutationExecutorOptions): UseMutationExecutorResult {
@@ -134,7 +134,7 @@ export function useMutationExecutor({
   const expandedMutations = useMemo((): SingleMutationDef[] => {
     const result: SingleMutationDef[] = [];
 
-    for (const mutation of template.mutations) {
+    for (const mutation of platform.mutations) {
       if (isLoopMutation(mutation)) {
         // Expand loop mutation into individual steps
         const expanded = expandLoopMutation(mutation, formData, context);
@@ -145,7 +145,7 @@ export function useMutationExecutor({
     }
 
     return result;
-  }, [template.mutations, formData, context]);
+  }, [platform.mutations, formData, context]);
 
   // Filter mutations based on `when` conditions and build MutationConfig[]
   const { mutations, variables } = useMemo(() => {
@@ -190,14 +190,14 @@ export function useMutationExecutor({
  * Build the full runtime context from form data and runtime information
  */
 export function buildRuntimeContext(params: {
-  template: ISVPlatform;
+  platform: ISVPlatform;
   account: { id: string; name: string; roleArn: string } | null;
   IAMUserNameType?: 'create' | 'existing';
   generateKey?: boolean;
   sosApiStatus: SOSAPIStatus;
   instanceId: string;
 }): FullContext {
-  const { template, account, IAMUserNameType, generateKey, sosApiStatus, instanceId } =
+  const { platform, account, IAMUserNameType, generateKey, sosApiStatus, instanceId } =
     params;
 
   const isNewAccount = !account;
@@ -213,8 +213,8 @@ export function buildRuntimeContext(params: {
           roleArn: account.roleArn,
         }
       : null,
-    _platformId: template.id,
-    _bucketTag: template.bucketTag,
+    _platformId: platform.id,
+    _bucketTag: platform.bucketTag,
     _instanceId: instanceId,
     isNewAccount,
     needsIAMUser,

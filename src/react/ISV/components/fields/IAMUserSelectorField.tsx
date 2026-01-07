@@ -18,7 +18,7 @@ export const IAMUserSelectorField = ({
   formMethods,
 }: IAMUserSelectorFieldProps) => {
   const {
-    template,
+    platform,
     iamUsers,
     iamUsersStatus,
     isIAMUserExist,
@@ -59,7 +59,7 @@ export const IAMUserSelectorField = ({
             options={iamUsers}
             selectRef={selectRef}
             type={IAMUserNameType}
-            platform={template.id}
+            platform={platform.id}
             tooltip={field.tooltip as React.ReactElement}
             fieldName="IAMUserName"
             label="IAM User Management"

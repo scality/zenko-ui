@@ -20,8 +20,8 @@ import { ISVPlatform, FormData } from '../engine/types';
 type AccountsStatus = 'idle' | 'loading' | 'success' | 'error';
 
 type ISVFormContextValue = {
-  // Template
-  template: ISVPlatform;
+  // Platform
+  platform: ISVPlatform;
 
   // Account state
   accounts: Account[];
@@ -59,13 +59,13 @@ export const useISVFormContext = (): ISVFormContextValue => {
 };
 
 type ISVFormProviderProps = {
-  template: ISVPlatform;
+  platform: ISVPlatform;
   formMethods: UseFormReturn<FormData>;
   children: ReactNode;
 };
 
 export const ISVFormProvider = ({
-  template,
+  platform,
   formMethods,
   children,
 }: ISVFormProviderProps) => {
@@ -193,7 +193,7 @@ export const ISVFormProvider = ({
   );
 
   const value: ISVFormContextValue = {
-    template,
+    platform,
     accounts,
     accountsStatus,
     selectedAccount,
