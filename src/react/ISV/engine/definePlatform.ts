@@ -42,6 +42,7 @@ function buildSummary(config: PlatformConfig): SummaryConfig {
       label: config.summary?.immutabilityLabel ?? 'Immutable Backup',
       helpText: config.summary?.immutabilityHelpText,
     },
+    customRender: config.summary?.customRender,
   };
 }
 

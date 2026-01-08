@@ -60,7 +60,6 @@ const mockStepperContext: ISVStepperContextType = {
 };
 
 const mockSummaryProps: ISVSummaryProps = {
-  platform: VeeamVBRPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
   accountNameType: 'create',
   accessKey: ACCESS_KEY,
@@ -71,7 +70,6 @@ const mockSummaryProps: ISVSummaryProps = {
 };
 
 const mockExistingAccountSummaryProps: ISVSummaryProps = {
-  platform: VeeamVBRPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
   accountNameType: 'existing',
   accessKey: undefined as unknown as string,
@@ -83,7 +81,6 @@ const mockExistingAccountSummaryProps: ISVSummaryProps = {
 };
 
 const mockMultiBucketSummaryProps: ISVSummaryProps = {
-  platform: VeeamVBRPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
   accountNameType: 'create',
   accessKey: ACCESS_KEY,
@@ -414,7 +411,6 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={VeeamVBRPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -453,7 +449,6 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={VeeamVBRPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -587,7 +582,6 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={CommvaultPlatform}
                       accountName="commvault-account"
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -623,7 +617,6 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={CommvaultPlatform}
                       accountName="commvault-account"
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -665,7 +658,6 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={CommvaultPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -725,7 +717,6 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={VeeamVBOPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}
@@ -762,7 +753,6 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={VeeamVBOPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
                       accountNameType="create"
                       accessKey={ACCESS_KEY}

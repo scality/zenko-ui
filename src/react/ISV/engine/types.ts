@@ -252,6 +252,14 @@ export type MutationDef = SingleMutationDef | LoopMutationDef;
 // Summary Configuration
 // ============================================================================
 
+export type SummaryRenderProps = {
+  formData: FormData;
+  accessKey: string;
+  secretKey: string;
+  accessKeys?: string[];
+  onFinish: () => void;
+};
+
 export type SummaryConfig = {
   serviceEndpointLabel?: string;
   bucketBanner?: ReactNode;
@@ -259,6 +267,7 @@ export type SummaryConfig = {
     label?: string;
     helpText?: (enabled: boolean) => string | undefined;
   };
+  customRender?: ComponentType<SummaryRenderProps>;
 };
 
 // ============================================================================
@@ -351,6 +360,7 @@ export type PlatformConfig = {
     bucketBanner?: ReactNode;
     immutabilityLabel?: string;
     immutabilityHelpText?: (enabled: boolean) => string | undefined;
+    customRender?: ComponentType<SummaryRenderProps>;
   };
 
   // Other

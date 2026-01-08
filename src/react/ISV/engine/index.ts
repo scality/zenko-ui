@@ -34,6 +34,7 @@ export type {
   // Template (output)
   ISVPlatform,
   SummaryConfig,
+  SummaryRenderProps,
 
   // Field definitions
   FieldDef,

@@ -16,7 +16,11 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
-import { ISVPlatform, FormData, BucketItem } from '../engine/types';
+import {
+  FormData,
+  BucketItem,
+  SummaryRenderProps,
+} from '../engine/types';
 import { queries } from '../../next-architecture/domain/business/buckets';
 import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
 import { useAssumedRole } from '../../DataServiceRoleProvider';
@@ -53,28 +57,33 @@ const Separator = styled.div`
 export type ISVSummaryProps = FormData & {
   accessKey: string;
   secretKey: string;
-  platform: ISVPlatform;
   accessKeys?: string[];
 };
 
-export const ISVSummary = ({
-  accountName,
-  buckets,
-  enableImmutableBackup,
+/**
+ * Default ISV Summary component
+ *
+ * @remarks
+ * Must be used within ISVStepperContext as it relies on useISVStepper() hook.
+ * For custom summary implementations, import this component for fallback scenarios.
+ */
+export const DefaultISVSummary = ({
+  formData,
   accessKey,
   secretKey,
   accessKeys,
-  application,
-}: ISVSummaryProps) => {
-  const navigate = useBasenameRelativeNavigate();
+  onFinish,
+}: SummaryRenderProps) => {
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform } = useISVStepper();
-  const assumedRole = useAssumedRole();
-  const s3Client = useS3Client();
-  const queryClient = useQueryClient();
 
-  // Get immutability section info from platform summary
+  const {
+    buckets,
+    enableImmutableBackup,
+    application,
+  } = formData;
+
   const immutabilityConfig = platform.summary.immutability;
   const immutableSectionInfos = {
     label: immutabilityConfig?.label || 'Object-lock',
@@ -82,21 +91,6 @@ export const ISVSummary = ({
   };
 
   const shouldHideImmutableSection = application === VEEAM_OFFICE_365;
-
-  const finish = useCallback(() => {
-    const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
-    const bucketItems = buckets as BucketItem[];
-    const firstBucket = bucketItems[0];
-    queryClient
-      .resetQueries(queries.listBuckets(s3Client, assumedRoleArn).queryKey)
-      .then(() => {
-        if (firstBucket) {
-          navigate(`/accounts/${accountName}/buckets/${firstBucket.name}`);
-        } else {
-          navigate(`/accounts/${accountName}`);
-        }
-      });
-  }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
 
   const serviceEndpointLabel =
     platform.summary.serviceEndpointLabel || 'Service point';
@@ -107,6 +101,7 @@ export const ISVSummary = ({
   }\t${accessKey ? accessKey : accessKeys?.join(', ')}\n${
     secretKey ? `Secret Access key\t${secretKey}\n` : ''
   }Bucket names\t${bucketItems.map((bucket) => bucket.name).join(', ')}`;
+
   return (
     <Form
       layout={{
@@ -119,7 +114,7 @@ export const ISVSummary = ({
           variant="primary"
           type="button"
           label="Finish"
-          onClick={finish}
+          onClick={onFinish}
         />
       }
     >
@@ -130,7 +125,7 @@ export const ISVSummary = ({
         ARTESCA details within the {platform.name} application.
       </Text>
 
-      {isPlatformAdmin ? (
+      {isPlatformAdmin && (
         <Level4FormSection title={{ name: '1. Certificates' }}>
           <InfoMessage
             title={'How to manage Certificates?'}
@@ -158,10 +153,8 @@ export const ISVSummary = ({
             label="ARTESCA built-in Certificate Authority"
             content={<CertificateDownloadButton />}
             required
-          ></FormGroup>
+          />
         </Level4FormSection>
-      ) : (
-        <></>
       )}
 
       <Level4FormSection>
@@ -267,10 +260,10 @@ export const ISVSummary = ({
               a list of Access keys that can be used for this user:
             </Banner>
             <FormSection forceLabelWidth={150}>
-              {accessKeys.map((accessKey) => (
+              {accessKeys.map((accessKey, index) => (
                 <FormGroup
                   key={accessKey}
-                  id="access-key"
+                  id={`access-key-${index}`}
                   label="Access key ID"
                   required
                   content={
@@ -291,20 +284,16 @@ export const ISVSummary = ({
         )}
         <Separator />
 
-        {platform.summary.bucketBanner ? (
-          <>{platform.summary.bucketBanner}</>
-        ) : (
-          <></>
-        )}
+        {platform.summary.bucketBanner && <>{platform.summary.bucketBanner}</>}
         <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
           {bucketItems.map((bucket, index) => (
             <FormGroup
               key={bucket.name}
-              id="buckets-name"
+              id={`bucket-${index}`}
               label={`Bucket #${index + 1}`}
               required
               content={
-                <WrapperWithWidth key={bucket.name}>
+                <WrapperWithWidth>
                   <Text>{bucket.name}</Text>
                   <CopyButton
                     textToCopy={bucket.name}
@@ -321,7 +310,7 @@ export const ISVSummary = ({
             <FormGroup
               id="immutable"
               required
-              label={immutableSectionInfos.label || 'Object-lock'}
+              label={immutableSectionInfos.label}
               helpErrorPosition="bottom"
               help={immutableSectionInfos.helpText}
               content={
@@ -333,4 +322,69 @@ export const ISVSummary = ({
       </Level4FormSection>
     </Form>
   );
+};
+
+export const ISVSummary = ({
+  accountName,
+  accountNameType,
+  buckets,
+  enableImmutableBackup,
+  accessKey,
+  secretKey,
+  accessKeys,
+  application,
+  IAMUserName,
+  IAMUserNameType,
+  generateKey,
+  autoCreateRepository,
+  immutablePeriodDays,
+}: ISVSummaryProps) => {
+  const navigate = useBasenameRelativeNavigate();
+  const { platform } = useISVStepper();
+  const assumedRole = useAssumedRole();
+  const s3Client = useS3Client();
+  const queryClient = useQueryClient();
+
+  const formData: FormData = {
+    accountName,
+    accountNameType,
+    buckets,
+    enableImmutableBackup,
+    application,
+    IAMUserName,
+    IAMUserNameType,
+    generateKey,
+    autoCreateRepository,
+    immutablePeriodDays,
+  };
+
+  const onFinish = useCallback(() => {
+    const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
+    const bucketItems = buckets as BucketItem[];
+    const firstBucket = bucketItems[0];
+    queryClient
+      .resetQueries(queries.listBuckets(s3Client, assumedRoleArn).queryKey)
+      .then(() => {
+        if (firstBucket) {
+          navigate(`/accounts/${accountName}/buckets/${firstBucket.name}`);
+        } else {
+          navigate(`/accounts/${accountName}`);
+        }
+      });
+  }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
+
+  const summaryProps: SummaryRenderProps = {
+    formData,
+    accessKey,
+    secretKey,
+    accessKeys,
+    onFinish,
+  };
+
+  if (platform.summary.customRender) {
+    const CustomRender = platform.summary.customRender;
+    return <CustomRender {...summaryProps} />;
+  }
+
+  return <DefaultISVSummary {...summaryProps} />;
 };
