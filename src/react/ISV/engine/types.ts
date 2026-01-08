@@ -373,5 +373,9 @@ export type PlatformConfig = {
   // Explicit mutations (overrides auto-generated mutations)
   // Use this for full control over mutation order and composition
   mutations?: MutationDef[];
+
+  // Extra mutations to append after auto-generated mutations
+  // Use this when you want the standard flow + additional steps at the end
+  extraMutations?: MutationDef[];
 };
 

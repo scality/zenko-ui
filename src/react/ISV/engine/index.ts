@@ -48,6 +48,11 @@ export type {
   SOSAPIStatus,
   PreviousResults,
 
+  // Mutation types (for custom orchestration)
+  MutationDef,
+  SingleMutationDef,
+  LoopMutationDef,
+
   // Disabled message
   DisabledMessageProps,
   DisabledMessageComponent,
@@ -64,3 +69,14 @@ export {
   VeeamVBRValidator,
   VeeamVBOValidator,
 } from './validators';
+
+// Mutation builders (for custom mutation orchestration)
+export {
+  buildSOSAPIMutation,
+  buildAccountMutations,
+  buildBucketLoopMutation,
+  buildIAMMutations,
+  STANDARD_BUCKET_STEPS,
+  isLoopMutation,
+  expandLoopMutation,
+} from './builders';

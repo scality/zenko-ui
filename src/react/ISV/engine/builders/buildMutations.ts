@@ -237,6 +237,12 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
  * 9. attachPolicy
  */
 export function buildMutations(config: PlatformConfig): MutationDef[] {
+  // Full override mode - use explicit mutations if provided
+  if (config.mutations) {
+    return config.mutations;
+  }
+
+  // Auto-generate standard mutation sequence
   const mutations: MutationDef[] = [];
 
   // 1. SOS API (optional)
@@ -253,6 +259,9 @@ export function buildMutations(config: PlatformConfig): MutationDef[] {
 
   // 6-9. IAM mutations
   mutations.push(...buildIAMMutations(config));
+
+  // 10. Extra mutations (appended after auto-generated)
+  mutations.push(...(config.extraMutations ?? []));
 
   return mutations;
 }
