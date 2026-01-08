@@ -130,15 +130,24 @@ const getDefaultFormValues = (
     ],
   };
 
+  const fieldDefaults = platform.fields.reduce<Record<string, unknown>>((acc, field) => {
+    if ('defaultValue' in field && field.defaultValue !== undefined) {
+      acc[field.name] = field.defaultValue;
+    }
+    return acc;
+  }, {});
+
+  const defaults = { ...fieldDefaults, ...baseDefaults };
+
   if (isVeeamVBROnly && isAutoRepoFeatureEnabled) {
     return {
-      ...baseDefaults,
+      ...defaults,
       autoCreateRepository: true,
       immutablePeriodDays: DEFAULT_IMMUTABLE_PERIOD_DAYS,
     };
   }
 
-  return baseDefaults;
+  return defaults;
 };
 
 export const ISVConfiguration = () => {

@@ -36,7 +36,7 @@ describe('VeeamVBOPlatform', () => {
       expect(accountField?.label).toBe('Account');
     });
 
-    it('should generate application field after account', () => {
+    it('should generate application field after IAMUserName (Advanced Settings)', () => {
       const appField = VeeamVBOPlatform.fields.find(
         (f) => f.name === 'application'
       );
@@ -50,11 +50,10 @@ describe('VeeamVBOPlatform', () => {
         expect(appField.options[1].value).toBe(VEEAM_OFFICE_365_V8);
       }
 
-      // Verify application field comes after accountName in field order
       const fieldNames = VeeamVBOPlatform.fields.map((f) => f.name);
-      const accountIndex = fieldNames.indexOf('accountName');
+      const iamIndex = fieldNames.indexOf('IAMUserName');
       const appIndex = fieldNames.indexOf('application');
-      expect(appIndex).toBeGreaterThan(accountIndex);
+      expect(appIndex).toBeGreaterThan(iamIndex);
     });
 
     it('should generate buckets field without capacity', () => {

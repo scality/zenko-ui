@@ -89,8 +89,8 @@ function buildBucketItemFields(config: PlatformConfig): BucketItemFieldDef[] {
  *
  * Field order:
  * 1. Account selector
- * 2. [insertFields.afterAccount]
- * 3. IAM selector (shown in Advanced Settings for existing accounts)
+ * 2. IAM selector (shown in Advanced Settings for existing accounts)
+ * 3. [insertFields.afterAccount]
  * 4. Buckets array
  * 5. Immutable toggle
  * 6. [insertFields.afterImmutable]
@@ -108,12 +108,7 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
     ),
   } as FieldDef);
 
-  // 2. Insert after account
-  if (config.insertFields?.afterAccount) {
-    fields.push(...config.insertFields.afterAccount);
-  }
-
-  // 3. IAM User selector (shown in Advanced Settings for existing accounts)
+  // 2. IAM User selector (shown in Advanced Settings for existing accounts)
   fields.push({
     name: 'IAMUserName',
     type: 'iamUserSelector',
@@ -122,6 +117,11 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
       config.fieldOverrides?.IAMUserName
     ),
   } as FieldDef);
+
+  // 3. Insert after account (and after Advanced Settings)
+  if (config.insertFields?.afterAccount) {
+    fields.push(...config.insertFields.afterAccount);
+  }
 
   // 4. Buckets array
   fields.push({
