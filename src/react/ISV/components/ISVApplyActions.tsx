@@ -208,6 +208,10 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     account,
     generateKey,
     application,
+    accessKey,
+    secretKey,
+    accessKeys,
+    ...restFormData
   } = props;
 
   const sosApiStatus = useCheckSOSAPIStatus();
@@ -223,6 +227,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     application,
     enableImmutableBackup,
     buckets: buckets as BucketItem[],
+    ...restFormData,
   };
 
   // Build runtime context
