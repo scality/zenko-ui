@@ -2,14 +2,14 @@ import {
   useGetBucketTagging,
   useGetObject,
 } from '@scality/data-browser-library';
-import * as T from '../../../../ui-elements/TableKeyValue2';
+import * as T from '../../../ui-elements/TableKeyValue2';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import {
   BUCKET_TAG_APPLICATION,
   BUCKET_TAG_VEEAM_APPLICATION,
   VEEAM_OBJECT_KEY,
   VeeamApplicationType,
-} from '../../../constants';
+} from '../../constants';
 import { PrettyBytes } from '@scality/core-ui';
 
 const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {

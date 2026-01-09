@@ -1,5 +1,5 @@
 import { Stepper } from '@scality/core-ui';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { DEFAULT_REGION, ISVSummary, ISVSummaryProps } from '../ISVSummary';
 import userEvent from '@testing-library/user-event';
@@ -17,9 +17,10 @@ import {
   Wrapper,
 } from '../../../utils/testUtil';
 import { ISVStepperContext, ISVStepperContextType } from '../ISVStepperContext';
-import { ISVPlatformConfig } from '../../types';
 import { Route, Routes, useParams } from 'react-router';
-import { Veeam } from '../../modules/veeam';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { CommvaultPlatform } from '../../platforms/commvault';
+import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
 
 const useAuth = mockShellHooks.useAuth;
 const useDeployedApps = mockShellHooks.useDeployedApps;
@@ -53,58 +54,44 @@ const mockAuthUserData = {
   },
 };
 
-const mockVeeamPlatform: ISVPlatformConfig = {
-  name: 'Veeam',
-  logo: <div />,
-  id: 'veeam-vbr',
-  description: 'Veeam Backup & Replication',
-  bucketTag: 'veeam',
-  fieldOverrides: [],
-  getPolicy: jest.fn(),
-  immutabilitySummaryOverride: jest.fn().mockReturnValue({
-    isImmutable: true,
-    application: VEEAM_BACKUP_REPLICATION,
-    helpText: 'Ensure "Make recent backups immutable"',
-  }),
-};
 const BUCKET_NAME = 'bucket-name';
 const SERVICE_POINT = 's3.test.local';
 const ACCESS_KEY = 'access-key';
 const SECRET_KEY = 'secret-access-key';
 
 const mockStepperContext: ISVStepperContextType = {
-  platform: mockVeeamPlatform,
+  platform: VeeamVBRPlatform,
 };
 
 const mockSummaryProps: ISVSummaryProps = {
-  platform: mockVeeamPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
+  accountNameType: 'create',
   accessKey: ACCESS_KEY,
   secretKey: SECRET_KEY,
-  buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
+  buckets: [{ name: BUCKET_NAME }],
   enableImmutableBackup: true,
   application: VEEAM_BACKUP_REPLICATION,
 };
 
 const mockExistingAccountSummaryProps: ISVSummaryProps = {
-  platform: mockVeeamPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
-  accessKey: undefined,
-  secretKey: undefined,
+  accountNameType: 'existing',
+  accessKey: undefined as unknown as string,
+  secretKey: undefined as unknown as string,
   accessKeys: ['access-key-1', 'access-key-2'],
-  buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
+  buckets: [{ name: BUCKET_NAME }],
   enableImmutableBackup: true,
   application: VEEAM_BACKUP_REPLICATION,
 };
 
 const mockMultiBucketSummaryProps: ISVSummaryProps = {
-  platform: mockVeeamPlatform,
   accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
+  accountNameType: 'create',
   accessKey: ACCESS_KEY,
   secretKey: SECRET_KEY,
   buckets: [
-    { name: BUCKET_NAME, tag: 'veeam' },
-    { name: 'bucket-name-2', tag: 'veeam' },
+    { name: BUCKET_NAME },
+    { name: 'bucket-name-2' },
   ],
   enableImmutableBackup: true,
   application: VEEAM_BACKUP_REPLICATION,
@@ -140,7 +127,7 @@ describe('ISVSummary', () => {
     certificateButton: () =>
       screen.queryByRole('button', { name: /Download/i }),
     copyServiceEndpointButton: () =>
-      screen.getByRole('button', { name: /copy service (point|host)/i }),
+      screen.getByRole('button', { name: /copy service (endpoint|point|host)/i }),
     copySecretKeyButton: () =>
       screen.getByRole('button', { name: /copy secret access key/i }),
     copyAccessKeyButton: () =>
@@ -250,10 +237,7 @@ describe('ISVSummary', () => {
     render(
       <ISVStepperContext.Provider
         value={{
-          platform: {
-            ...mockVeeamPlatform,
-            summaryBucketBanner: Veeam.summaryBucketBanner,
-          },
+          platform: VeeamVBRPlatform,
         }}
       >
         <Stepper
@@ -283,7 +267,7 @@ describe('ISVSummary', () => {
     render(
       <ISVStepperContext.Provider
         value={{
-          platform: mockVeeamPlatform,
+          platform: VeeamVBRPlatform,
         }}
       >
         <Stepper
@@ -313,7 +297,7 @@ describe('ISVSummary', () => {
     render(
       <ISVStepperContext.Provider
         value={{
-          platform: mockVeeamPlatform,
+          platform: VeeamVBRPlatform,
         }}
       >
         <Stepper
@@ -389,7 +373,9 @@ describe('ISVSummary', () => {
 
     await userEvent.click(finishButton);
 
-    expect(screen.getByText(/Account Name: Veeam/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Account Name: Veeam/i)).toBeInTheDocument();
+    });
     expect(screen.getByText(/Bucket Name: bucket-name/i)).toBeInTheDocument();
     //V
   });
@@ -424,7 +410,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            platform: mockVeeamPlatform,
+            platform: VeeamVBRPlatform,
           }}
         >
           <Stepper
@@ -434,11 +420,11 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={mockVeeamPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accountNameType="create"
                       accessKey={ACCESS_KEY}
                       secretKey={SECRET_KEY}
-                      buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
+                      buckets={[{ name: BUCKET_NAME }]}
                       enableImmutableBackup={true}
                       application={VEEAM_BACKUP_REPLICATION}
                     />
@@ -462,7 +448,7 @@ describe('ISVSummary', () => {
       render(
         <ISVStepperContext.Provider
           value={{
-            platform: mockVeeamPlatform,
+            platform: VeeamVBRPlatform,
           }}
         >
           <Stepper
@@ -472,11 +458,11 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={mockVeeamPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accountNameType="create"
                       accessKey={ACCESS_KEY}
                       secretKey={SECRET_KEY}
-                      buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
+                      buckets={[{ name: BUCKET_NAME }]}
                       enableImmutableBackup={true}
                       application={VEEAM_BACKUP_REPLICATION}
                     />
@@ -526,7 +512,7 @@ describe('ISVSummary', () => {
       fireEvent.click(selectors.copyAllButton());
 
       expect(writeTextSpy).toHaveBeenLastCalledWith(
-        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
+        `Service Endpoint\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
       );
     });
 
@@ -551,7 +537,7 @@ describe('ISVSummary', () => {
       // Verify the copy buttons
       fireEvent.click(selectors.copyAllButton());
       expect(writeTextSpy).toHaveBeenLastCalledWith(
-        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}, bucket-name-2`,
+        `Service Endpoint\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}, bucket-name-2`,
       );
     });
     it('should copy all data when displaying access keys for existing account', () => {
@@ -575,31 +561,17 @@ describe('ISVSummary', () => {
       // Verify the copy buttons
       fireEvent.click(selectors.copyAllButton());
       expect(writeTextSpy).toHaveBeenLastCalledWith(
-        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key IDs\taccess-key-1, access-key-2\nBucket names\t${BUCKET_NAME}`,
+        `Service Endpoint\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key IDs\taccess-key-1, access-key-2\nBucket names\t${BUCKET_NAME}`,
       );
     });
   });
 
   describe('Service Endpoint Label', () => {
     it('should render "Service Host" label for Commvault', async () => {
-      //S
-      const mockCommvaultPlatform: ISVPlatformConfig = {
-        name: 'Commvault',
-        logo: <div />,
-        id: 'commvault',
-        description: 'Commvault',
-        bucketTag: 'commvault',
-        fieldOverrides: [],
-        getPolicy: jest.fn(),
-        serviceEndpointLabel: 'Service Host',
-        immutabilitySummaryOverride: jest.fn().mockReturnValue({
-          label: 'WORM Storage lock',
-        }),
-      };
       render(
         <ISVStepperContext.Provider
           value={{
-            platform: mockCommvaultPlatform,
+            platform: CommvaultPlatform,
           }}
         >
           <Stepper
@@ -609,11 +581,11 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={mockCommvaultPlatform}
                       accountName="commvault-account"
+                      accountNameType="create"
                       accessKey={ACCESS_KEY}
                       secretKey={SECRET_KEY}
-                      buckets={[{ name: BUCKET_NAME, tag: 'commvault' }]}
+                      buckets={[{ name: BUCKET_NAME }]}
                       enableImmutableBackup={true}
                       application={'Commvault'}
                     />
@@ -626,30 +598,15 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
 
-      //E+V
       expect(screen.getByText('Service Host')).toBeInTheDocument();
       expect(screen.queryByText('Service point')).not.toBeInTheDocument();
     });
 
     it('should copy "Service Host" label for Commvault when copying all', async () => {
-      //S
-      const mockCommvaultPlatform: ISVPlatformConfig = {
-        name: 'Commvault',
-        logo: <div />,
-        id: 'commvault',
-        description: 'Commvault',
-        bucketTag: 'commvault',
-        fieldOverrides: [],
-        getPolicy: jest.fn(),
-        serviceEndpointLabel: 'Service Host',
-        immutabilitySummaryOverride: jest.fn().mockReturnValue({
-          label: 'WORM Storage lock',
-        }),
-      };
       render(
         <ISVStepperContext.Provider
           value={{
-            platform: mockCommvaultPlatform,
+            platform: CommvaultPlatform,
           }}
         >
           <Stepper
@@ -659,11 +616,11 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={mockCommvaultPlatform}
                       accountName="commvault-account"
+                      accountNameType="create"
                       accessKey={ACCESS_KEY}
                       secretKey={SECRET_KEY}
-                      buckets={[{ name: BUCKET_NAME, tag: 'commvault' }]}
+                      buckets={[{ name: BUCKET_NAME }]}
                       enableImmutableBackup={true}
                       application={'Commvault'}
                     />
@@ -686,24 +643,10 @@ describe('ISVSummary', () => {
 
   describe('Immutability Section', () => {
     it('should render WORM storage lock for Commvault', async () => {
-      //S
-      const mockCommvaultPlatform: ISVPlatformConfig = {
-        name: 'COMMVAULT',
-        logo: <div />,
-        id: 'commvault',
-        description: 'Commvault',
-        bucketTag: 'commvault',
-        fieldOverrides: [],
-        getPolicy: jest.fn(),
-        immutabilitySummaryOverride: jest.fn().mockReturnValue({
-          isImmutable: true,
-          application: 'Commvault',
-        }),
-      };
       render(
         <ISVStepperContext.Provider
           value={{
-            platform: mockCommvaultPlatform,
+            platform: CommvaultPlatform,
           }}
         >
           <Stepper
@@ -713,11 +656,11 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={mockCommvaultPlatform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accountNameType="create"
                       accessKey={ACCESS_KEY}
                       secretKey={SECRET_KEY}
-                      buckets={[{ name: BUCKET_NAME, tag: 'commvault' }]}
+                      buckets={[{ name: BUCKET_NAME }]}
                       enableImmutableBackup={true}
                       application={'Commvault'}
                     />
@@ -730,13 +673,11 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
 
-      //E+V
       expect(
         screen.getByText((content) => /worm|storage|lock/i.test(content)),
       ).toBeInTheDocument();
     });
     it('should render Immutability Section with help text for Veeam Backup & Replication', async () => {
-      //S
       useAuth.mockImplementation(() => {
         return mockAuthUserData;
       });
@@ -755,32 +696,16 @@ describe('ISVSummary', () => {
         </ISVStepperContext.Provider>,
         { wrapper: Wrapper },
       );
-      //E+V
       expect(screen.queryAllByText(/immutable/i).length).toBeGreaterThan(0);
       expect(
         screen.getByText(/Ensure "Make recent backups immutable"/i),
       ).toBeInTheDocument();
     });
     it('should render Immutability Section with help text for Veeam VBO V8', async () => {
-      //S
-      const mockVeeamVBOV8Platform: ISVPlatformConfig = {
-        name: 'Veeam',
-        logo: <div />,
-        id: 'veeam-vbo',
-        description: 'Veeam Backup for Microsoft Office 365 V8',
-        bucketTag: 'veeam',
-        fieldOverrides: [],
-        getPolicy: jest.fn(),
-        immutabilitySummaryOverride: jest.fn().mockReturnValue({
-          isImmutable: true,
-          application: VEEAM_OFFICE_365_V8,
-          helpText: 'Ensure "Make backups immutable"',
-        }),
-      };
       render(
         <ISVStepperContext.Provider
           value={{
-            platform: mockVeeamVBOV8Platform,
+            platform: VeeamVBOPlatform,
           }}
         >
           <Stepper
@@ -790,11 +715,11 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={mockVeeamVBOV8Platform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accountNameType="create"
                       accessKey={ACCESS_KEY}
                       secretKey={SECRET_KEY}
-                      buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
+                      buckets={[{ name: BUCKET_NAME }]}
                       enableImmutableBackup={true}
                       application={VEEAM_OFFICE_365_V8}
                     />
@@ -806,33 +731,17 @@ describe('ISVSummary', () => {
         </ISVStepperContext.Provider>,
         { wrapper: Wrapper },
       );
-      //E+V
       expect(screen.queryAllByText(/immutable/i).length).toBeGreaterThan(0);
       expect(
-        screen.getByText(/Ensure "Make backups immutable"/i),
+        screen.getByText(/Ensure "Make recent backups immutable"/i),
       ).toBeInTheDocument();
     });
     
     it('should hide Immutability Section for Veeam Office 365', async () => {
-      //S
-      const mockVeeamO365Platform: ISVPlatformConfig = {
-        name: 'Veeam',
-        logo: <div />,
-        id: 'veeam-vbo',
-        description: 'Veeam Backup for Microsoft Office 365',
-        bucketTag: 'veeam',
-        fieldOverrides: [],
-        getPolicy: jest.fn(),
-        immutabilitySummaryOverride: jest.fn().mockReturnValue({
-          isImmutable: true,
-          application: VEEAM_OFFICE_365,
-          helpText: 'This text should not be displayed',
-        }),
-      };
       render(
         <ISVStepperContext.Provider
           value={{
-            platform: mockVeeamO365Platform,
+            platform: VeeamVBOPlatform,
           }}
         >
           <Stepper
@@ -842,11 +751,11 @@ describe('ISVSummary', () => {
                 Component: ({ children }: { children: React.ReactNode }) => {
                   return (
                     <ISVSummary
-                      platform={mockVeeamO365Platform}
                       accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accountNameType="create"
                       accessKey={ACCESS_KEY}
                       secretKey={SECRET_KEY}
-                      buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
+                      buckets={[{ name: BUCKET_NAME }]}
                       enableImmutableBackup={true}
                       application={VEEAM_OFFICE_365}
                     />
@@ -858,12 +767,9 @@ describe('ISVSummary', () => {
         </ISVStepperContext.Provider>,
         { wrapper: Wrapper },
       );
-      //E+V
       expect(screen.queryByText('Option')).not.toBeInTheDocument();
       expect(screen.queryByText('Object-lock')).not.toBeInTheDocument();
       expect(screen.queryByText('Active')).not.toBeInTheDocument();
-      // The help text from immutabilitySummaryOverride should not be visible
-      expect(screen.queryByText('This text should not be displayed')).not.toBeInTheDocument();
     });
   });
 });

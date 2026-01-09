@@ -2,13 +2,13 @@ import { render, waitFor, screen } from '@testing-library/react';
 import {
   NewWrapper,
   mockOffsetSize,
-} from '../../../../utils/testUtil';
+} from '../../../utils/testUtil';
 import { VeeamCapacityOverviewRow } from './VeeamCapacityOverviewRow';
 import {
   useGetBucketTagging,
   useGetObject,
 } from '@scality/data-browser-library';
-import { VeeamApplicationType } from '../../../constants';
+import { VeeamApplicationType } from '../../constants';
 
 const mockUseGetBucketTagging = useGetBucketTagging as jest.Mock;
 const mockUseGetObject = useGetObject as jest.Mock;

@@ -1,10 +1,10 @@
 import { render, screen, renderHook } from '@testing-library/react';
 import * as React from 'react';
 import { ISVStepperContext, useISVStepper } from '../ISVStepperContext';
-import { Veeam } from '../../modules/veeam';
-import { Commvault } from '../../modules/commvault';
-import { VeeamVBO } from '../../modules/veeam-vbo';
-import { ISVPlatformConfig } from '../../types';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { CommvaultPlatform } from '../../platforms/commvault';
+import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
+import { ISVPlatform } from '../../engine/types';
 import { Wrapper } from '../../../utils/testUtil';
 
 jest.mock('../ISVSteps', () => {
@@ -58,14 +58,14 @@ describe('ISVSteps', () => {
     const { ISVSteps } = require('../ISVSteps');
 
     ISVSteps.mockImplementation(({ children }) => {
-      let platform: ISVPlatformConfig | undefined;
+      let platform: ISVPlatform | undefined;
 
       if (platformId === 'veeam-vbr') {
-        platform = Veeam;
+        platform = VeeamVBRPlatform;
       } else if (platformId === 'commvault') {
-        platform = Commvault;
+        platform = CommvaultPlatform;
       } else if (platformId === 'veeam-vbo') {
-        platform = VeeamVBO;
+        platform = VeeamVBOPlatform;
       }
 
       const contextValue = { platform };

@@ -16,7 +16,11 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVStepperContext';
-import { ISVConfig, ISVPlatformConfig } from '../types';
+import {
+  FormData,
+  BucketItem,
+  SummaryRenderProps,
+} from '../engine/types';
 import { useCallback } from 'react';
 import { VEEAM_OFFICE_365 } from '../constants';
 
@@ -46,45 +50,54 @@ const Separator = styled.div`
   height: ${spacing.r32};
 `;
 
-export type ISVSummaryProps = ISVConfig & {
+export type ISVSummaryProps = FormData & {
   accessKey: string;
   secretKey: string;
-  platform: ISVPlatformConfig;
   accessKeys?: string[];
 };
 
-export const ISVSummary = ({
-  accountName,
-  buckets,
-  enableImmutableBackup,
+/**
+ * Default ISV Summary component
+ *
+ * @remarks
+ * Must be used within ISVStepperContext as it relies on useISVStepper() hook.
+ * For custom summary implementations, import this component for fallback scenarios.
+ */
+export const DefaultISVSummary = ({
+  formData,
   accessKey,
   secretKey,
   accessKeys,
-  application,
-}: ISVSummaryProps) => {
-  const navigate = useBasenameRelativeNavigate();
+  onFinish,
+}: SummaryRenderProps) => {
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform } = useISVStepper();
 
-  const immutableSectionInfos = platform.immutabilitySummaryOverride({
-    isImmutable: enableImmutableBackup,
-    application: application,
-  });
+  const {
+    buckets,
+    enableImmutableBackup,
+    application,
+  } = formData;
+
+  const immutabilityConfig = platform.summary.immutability;
+  const immutableSectionInfos = {
+    label: immutabilityConfig?.label || 'Object-lock',
+    helpText: immutabilityConfig?.helpText?.(enableImmutableBackup),
+  };
 
   const shouldHideImmutableSection = application === VEEAM_OFFICE_365;
 
-  const finish = useCallback(() => {
-    navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`);
-  }, [accountName, buckets, navigate]);
+  const serviceEndpointLabel =
+    platform.summary.serviceEndpointLabel || 'Service point';
 
-  const serviceEndpointLabel = platform.serviceEndpointLabel || 'Service point';
-
+  const bucketItems = buckets as BucketItem[];
   const textToCopy = `${serviceEndpointLabel}\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
     accessKey ? 'Access key ID' : 'Access key IDs'
-  }\t${accessKey ? accessKey : accessKeys.join(', ')}\n${
+  }\t${accessKey ? accessKey : accessKeys?.join(', ')}\n${
     secretKey ? `Secret Access key\t${secretKey}\n` : ''
-  }Bucket names\t${buckets.map((bucket) => bucket.name).join(', ')}`;
+  }Bucket names\t${bucketItems.map((bucket) => bucket.name).join(', ')}`;
+
   return (
     <Form
       layout={{
@@ -97,7 +110,7 @@ export const ISVSummary = ({
           variant="primary"
           type="button"
           label="Finish"
-          onClick={finish}
+          onClick={onFinish}
         />
       }
     >
@@ -108,7 +121,7 @@ export const ISVSummary = ({
         ARTESCA details within the {platform.name} application.
       </Text>
 
-      {isPlatformAdmin ? (
+      {isPlatformAdmin && (
         <Level4FormSection title={{ name: '1. Certificates' }}>
           <InfoMessage
             title={'How to manage Certificates?'}
@@ -136,10 +149,8 @@ export const ISVSummary = ({
             label="ARTESCA built-in Certificate Authority"
             content={<CertificateDownloadButton />}
             required
-          ></FormGroup>
+          />
         </Level4FormSection>
-      ) : (
-        <></>
       )}
 
       <Level4FormSection>
@@ -245,10 +256,10 @@ export const ISVSummary = ({
               a list of Access keys that can be used for this user:
             </Banner>
             <FormSection forceLabelWidth={150}>
-              {accessKeys.map((accessKey) => (
+              {accessKeys.map((accessKey, index) => (
                 <FormGroup
                   key={accessKey}
-                  id="access-key"
+                  id={`access-key-${index}`}
                   label="Access key ID"
                   required
                   content={
@@ -269,16 +280,16 @@ export const ISVSummary = ({
         )}
         <Separator />
 
-        {platform.summaryBucketBanner ? platform.summaryBucketBanner : <></>}
+        {platform.summary.bucketBanner && <>{platform.summary.bucketBanner}</>}
         <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
-          {buckets.map((bucket, index) => (
+          {bucketItems.map((bucket, index) => (
             <FormGroup
               key={bucket.name}
-              id="buckets-name"
+              id={`bucket-${index}`}
               label={`Bucket #${index + 1}`}
               required
               content={
-                <WrapperWithWidth key={bucket.name}>
+                <WrapperWithWidth>
                   <Text>{bucket.name}</Text>
                   <CopyButton
                     textToCopy={bucket.name}
@@ -295,7 +306,7 @@ export const ISVSummary = ({
             <FormGroup
               id="immutable"
               required
-              label={immutableSectionInfos.label || 'Object-lock'}
+              label={immutableSectionInfos.label}
               helpErrorPosition="bottom"
               help={immutableSectionInfos.helpText}
               content={
@@ -307,4 +318,61 @@ export const ISVSummary = ({
       </Level4FormSection>
     </Form>
   );
+};
+
+export const ISVSummary = ({
+  accountName,
+  accountNameType,
+  buckets,
+  enableImmutableBackup,
+  accessKey,
+  secretKey,
+  accessKeys,
+  application,
+  IAMUserName,
+  IAMUserNameType,
+  generateKey,
+  autoCreateRepository,
+  immutablePeriodDays,
+}: ISVSummaryProps) => {
+  const navigate = useBasenameRelativeNavigate();
+  const { platform } = useISVStepper();
+
+  const formData: FormData = {
+    accountName,
+    accountNameType,
+    buckets,
+    enableImmutableBackup,
+    application,
+    IAMUserName,
+    IAMUserNameType,
+    generateKey,
+    autoCreateRepository,
+    immutablePeriodDays,
+  };
+
+  const onFinish = useCallback(() => {
+    const bucketItems = buckets as BucketItem[];
+    const firstBucket = bucketItems[0];
+    if (firstBucket) {
+      navigate(`/accounts/${accountName}/buckets/${firstBucket.name}`);
+    } else {
+      navigate(`/accounts/${accountName}`);
+    }
+  }, [accountName, buckets, navigate]);
+
+  const summaryProps: SummaryRenderProps = {
+    formData,
+    accessKey,
+    secretKey,
+    accessKeys,
+    onFinish,
+  };
+
+  if (platform.summary.customRender) {
+    const CustomRender = platform.summary.customRender;
+    return <CustomRender {...summaryProps} />;
+  }
+
+  return <DefaultISVSummary {...summaryProps} />;
 };

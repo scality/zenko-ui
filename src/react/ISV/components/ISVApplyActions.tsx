@@ -2,46 +2,21 @@ import { Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import Table, * as T from '../../ui-elements/Table';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { useCallback, useMemo, memo, useState } from 'react';
-import { useQueryClient, useMutation } from 'react-query';
+import { useCallback, memo, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import styled, { useTheme } from 'styled-components';
-import {
-  useBasenameRelativeNavigate,
-  useShellHooks,
-} from '@scality/module-federation';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
 import { ISVSkipModal } from './ISVSkipModal';
-import { ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
-import {
-  useChainedMutations,
-  MutationConfig,
-  VariablesResolvers,
-  PreviousResults,
-} from '@scality/react-chained-query';
-import {
-  useAttachPolicyToUserMutation,
-  useCreateAccountMutation,
-  useCreateIAMUserMutation,
-  useCreateUserAccessKeyMutation,
-  useCreateOrAddBucketToPolicyMutation,
-  useEnableSOSAPIMutation,
-} from '../../../js/mutations';
-import {
-  useCreateBucket,
-  useSetBucketTagging,
-  usePutObject,
-} from '@scality/data-browser-library';
-import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
-import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
+import { useChainedMutations } from '@scality/react-chained-query';
 import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
+import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import {
-  VEEAM_XML_PREFIX,
-  SYSTEM_XML_CONTENT,
-  GET_CAPACITY_XML_CONTENT,
-} from '../constants';
+  useMutationExecutor,
+  buildRuntimeContext,
+} from '../hooks/useMutationExecutor';
+import { ISVPlatform, FormData, BucketItem } from '../engine/types';
 
 const StatusBox = styled(Box)`
   display: flex;
@@ -49,35 +24,12 @@ const StatusBox = styled(Box)`
   align-items: center;
 `;
 
-type ISVApplyActionsProps = ISVConfig & {
-  platform: ISVPlatformConfig;
-  account: null | Account;
-  accessKey: string;
-  secretKey: string;
+type ISVApplyActionsProps = FormData & {
+  platform: ISVPlatform;
+  account: Account | null;
+  accessKey?: string;
+  secretKey?: string;
   accessKeys?: string[];
-};
-
-// ============================================================================
-// Custom hooks that need special handling
-// ============================================================================
-
-const useRefetchConfig = () => {
-  const adapter = useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter: adapter,
-    });
-  return refetchAccountsLocationsEndpointsMutation;
-};
-
-const useAssumeRole = () => {
-  const setRolePromise = useSetAssumedRolePromise();
-  return useMutation({
-    mutationFn: async ({ roleArn }: { roleArn: string }) => {
-      const s3Config = await setRolePromise({ roleArn });
-      return s3Config;
-    },
-  });
 };
 
 // ============================================================================
@@ -121,7 +73,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
 
   const accessKeyData = getResult<{
     AccessKey: { AccessKeyId: string; SecretAccessKey: string };
-  }>('createUserAccessKey');
+  }>('createAccessKey');
   const finalAccessKey =
     accessKey || accessKeyData?.AccessKey?.AccessKeyId || '';
   const finalSecretKey = accessKeyData?.AccessKey?.SecretAccessKey || '';
@@ -161,7 +113,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
         close={() => setConfirmCancel(false)}
         exitAction={() => navigate('/')}
         title={`Exit ${platform.name} Assistant Configuration`}
-        modalContent={platform.skipModalContent}
+        modalContent={<>{platform.skipModalContent}</>}
       />
       <Form
         layout={{
@@ -255,241 +207,51 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     IAMUserName,
     account,
     generateKey,
+    application,
+    accessKey,
+    secretKey,
+    accessKeys,
+    ...restFormData
   } = props;
 
-  const instanceId = useInstanceId();
-  const { useAuth } = useShellHooks();
-  const { userData } = useAuth();
   const sosApiStatus = useCheckSOSAPIStatus();
+  const instanceId = useInstanceId();
 
-  const shouldEnableSOSAPI =
-    sosApiStatus === 'available' && platform.id === 'veeam-vbr';
-  const isVeeamVBR = platform.id === 'veeam-vbr';
-  const needsIAMUser = !account || IAMUserNameType === 'create';
-  const needsAccessKey =
-    needsIAMUser || (IAMUserNameType === 'existing' && generateKey);
-
-  const enableSOSAPIMutation = useEnableSOSAPIMutation();
-  const createAccountMutation = useCreateAccountMutation();
-  const refetchConfigMutation = useRefetchConfig();
-  const assumeRoleMutation = useAssumeRole();
-  const createIAMUserMutation = useCreateIAMUserMutation();
-  const createUserAccessKeyMutation = useCreateUserAccessKeyMutation();
-  const createPolicyMutation = useCreateOrAddBucketToPolicyMutation();
-  const attachPolicyToUserMutation = useAttachPolicyToUserMutation();
-
-  const mutations = useMemo((): MutationConfig[] => {
-    const result: MutationConfig[] = [];
-
-    if (shouldEnableSOSAPI) {
-      result.push({
-        id: 'enableSOSAPI',
-        label: 'Enable Veeam Smart Object Storage API',
-        mutation: enableSOSAPIMutation,
-      });
-    }
-
-    if (!account) {
-      result.push({
-        id: 'createAccount',
-        label: 'Create an Account',
-        mutation: createAccountMutation,
-      });
-      result.push({
-        id: 'refetchConfig',
-        label: 'Update Configuration',
-        mutation: refetchConfigMutation,
-      });
-    }
-
-    result.push({
-      id: 'assumeRole',
-      label: 'Assume Account Role',
-      mutation: assumeRoleMutation,
-    });
-
-    // Dynamic bucket operations using data-browser-library hooks
-    buckets.forEach((bucket) => {
-      result.push({
-        id: `createBucket-${bucket.name}`,
-        label: `Create Bucket: ${bucket.name}`,
-        hook: useCreateBucket,
-      });
-      result.push({
-        id: `tagBucket-${bucket.name}`,
-        label: `Tag Bucket: ${bucket.name}`,
-        hook: useSetBucketTagging,
-      });
-      if (isVeeamVBR) {
-        result.push({
-          id: `veeamFolder-${bucket.name}`,
-          label: 'Prepare Veeam repository',
-          hook: usePutObject,
-        });
-        result.push({
-          id: `veeamSystem-${bucket.name}`,
-          label: 'Enforce Veeam repository',
-          hook: usePutObject,
-        });
-        result.push({
-          id: `veeamCapacity-${bucket.name}`,
-          label: 'Set repository capacity',
-          hook: usePutObject,
-        });
-      }
-    });
-
-    if (needsIAMUser) {
-      result.push({
-        id: 'createIAMUser',
-        label: 'Create a User',
-        mutation: createIAMUserMutation,
-      });
-    }
-    if (needsAccessKey) {
-      result.push({
-        id: 'createUserAccessKey',
-        label: 'Generate Access key and Secret key',
-        mutation: createUserAccessKeyMutation,
-      });
-    }
-
-    result.push({
-      id: 'createPolicy',
-      label: needsIAMUser ? 'Create Policy' : 'Update Policy',
-      mutation: createPolicyMutation,
-    });
-    result.push({
-      id: 'attachPolicyToUser',
-      label: 'Attach Policy to User',
-      mutation: attachPolicyToUserMutation,
-    });
-
-    return result;
-  }, [
-    shouldEnableSOSAPI,
-    !!account,
-    buckets,
-    isVeeamVBR,
-    needsIAMUser,
-    needsAccessKey,
-    enableSOSAPIMutation.status,
-    createAccountMutation.status,
-    refetchConfigMutation.status,
-    assumeRoleMutation.status,
-    createIAMUserMutation.status,
-    createUserAccessKeyMutation.status,
-    createPolicyMutation.status,
-    attachPolicyToUserMutation.status,
-  ]);
-
-  const variables = useMemo((): VariablesResolvers => {
-    const resolvers: VariablesResolvers = {
-      enableSOSAPI: () => ({}),
-      createAccount: () => ({
-        user: {
-          userName: accountName,
-          email: `${accountName}${userData?.email}`,
-        },
-        instanceId,
-      }),
-      refetchConfig: () => ({}),
-      assumeRole: (prev: PreviousResults) => {
-        if (account) {
-          return { roleArn: account.preferredAssumableRoleArn };
-        }
-        const acc = prev.createAccount?.data as { id: string } | undefined;
-        if (!acc?.id) {
-          throw new Error('Account creation failed - cannot assume role');
-        }
-        return {
-          roleArn: `arn:aws:iam::${acc.id}:role/scality-internal/storage-manager-role`,
-        };
-      },
-      createIAMUser: () => ({ userName: IAMUserName || accountName }),
-      createUserAccessKey: () => ({ userName: IAMUserName || accountName }),
-      createPolicy: (prev: PreviousResults) => {
-        const policyName = `${IAMUserName || accountName}-${platform.id}-${
-          enableImmutableBackup ? 'immutable' : 'non-immutable'
-        }`;
-        const acc = prev.createAccount?.data as { id: string } | undefined;
-        const accountId = account?.id || acc?.id;
-        if (!accountId) {
-          throw new Error('Account ID not available - cannot create policy');
-        }
-        return {
-          policyName,
-          bucketsName: buckets.map((b) => b.name),
-          isImmutable: enableImmutableBackup,
-          policyArn: `arn:aws:iam::${accountId}:policy/${policyName}`,
-          getPolicy: platform.getPolicy,
-        };
-      },
-      attachPolicyToUser: (prev: PreviousResults) => {
-        const user = prev.createIAMUser?.data as
-          | { User: { UserName: string } }
-          | undefined;
-        const acc = prev.createAccount?.data as { id: string } | undefined;
-        const userName = IAMUserName || user?.User?.UserName || accountName;
-        const accountId = account?.id || acc?.id;
-        return {
-          userName,
-          policyArn: `arn:aws:iam::${accountId}:policy/${userName}-${
-            platform.id
-          }-${enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
-        };
-      },
-    };
-
-    // Bucket operations using data-browser-library (no s3Client needed - uses context)
-    buckets.forEach((bucket) => {
-      resolvers[`createBucket-${bucket.name}`] = () => ({
-        Bucket: bucket.name,
-        ObjectLockEnabledForBucket: enableImmutableBackup,
-      });
-
-      resolvers[`tagBucket-${bucket.name}`] = () => ({
-        Bucket: bucket.name,
-        Tagging: {
-          TagSet: [{ Key: 'X-Scality-Application', Value: platform.bucketTag }],
-        },
-      });
-
-      if (isVeeamVBR) {
-        resolvers[`veeamFolder-${bucket.name}`] = () => ({
-          Bucket: bucket.name,
-          Key: `${VEEAM_XML_PREFIX}/`,
-          Body: '',
-        });
-        resolvers[`veeamSystem-${bucket.name}`] = () => ({
-          Bucket: bucket.name,
-          Key: `${VEEAM_XML_PREFIX}/system.xml`,
-          Body: SYSTEM_XML_CONTENT,
-          ContentType: 'text/xml',
-        });
-        resolvers[`veeamCapacity-${bucket.name}`] = () => ({
-          Bucket: bucket.name,
-          Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
-          Body: GET_CAPACITY_XML_CONTENT(
-            bucket.capacityBytes?.toString() || '0',
-          ),
-          ContentType: 'text/xml',
-        });
-      }
-    });
-
-    return resolvers;
-  }, [
+  // Build form data for mutation executor
+  const formData: FormData = {
     accountName,
-    userData?.email,
-    instanceId,
-    account,
+    accountNameType: account ? 'existing' : 'create',
     IAMUserName,
-    platform,
+    IAMUserNameType,
+    generateKey,
+    application,
     enableImmutableBackup,
-    buckets,
-    isVeeamVBR,
-  ]);
+    buckets: buckets as BucketItem[],
+    ...restFormData,
+  };
+
+  // Build runtime context
+  const context = buildRuntimeContext({
+    platform,
+    account: account
+      ? {
+          id: account.id,
+          name: account.name,
+          roleArn: account.preferredAssumableRoleArn,
+        }
+      : null,
+    IAMUserNameType,
+    generateKey,
+    sosApiStatus,
+    instanceId,
+  });
+
+  // Use the mutation executor to get mutations and variable resolvers
+  const { mutations, variables } = useMutationExecutor({
+    platform,
+    formData,
+    context,
+  });
 
   const { Slots, steps, isComplete, hasError, getResult } = useChainedMutations(
     {

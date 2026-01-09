@@ -1,16 +1,13 @@
 import { spacing, Stepper } from '@scality/core-ui';
 import { useMemo } from 'react';
 import { ISVConfiguration } from './ISVConfiguration';
-
 import { useTheme } from 'styled-components';
 import { Box } from '@scality/core-ui/dist/next';
 import { ISVSummary } from './ISVSummary';
 import ISVApplyActions from './ISVApplyActions';
-
 import { useSearchParams } from 'react-router';
-import { isvModules } from '../modules';
+import { getPlatformById } from '../platforms';
 import { ISVStepperContext } from './ISVStepperContext';
-
 
 export enum ISVStepsIndexes {
   Configuration,
@@ -39,7 +36,7 @@ export const ISVSteps = () => {
   const id = searchParams.get('platform');
 
   const platform = useMemo(() => {
-    return isvModules().find((p) => p.id === id);
+    return id ? getPlatformById(id) : undefined;
   }, [id]);
 
   const contextValue = useMemo(

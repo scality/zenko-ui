@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ISVApplyActions from '../ISVApplyActions';
 import { Wrapper } from '../../../utils/testUtil';
-import { ISVPlatformConfig } from '../../types';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
 import {
   useChainedMutations,
   ChainedMutationsResult,
@@ -96,19 +96,12 @@ const createMockChainedMutations = (
 
 describe('ISVApplyActions', () => {
   const mockProps = {
-    buckets: [{ name: 'test-bucket', tag: 'test-tag' }],
+    buckets: [{ name: 'test-bucket' }],
     enableImmutableBackup: false,
     accountName: 'test-account',
+    accountNameType: 'create' as const,
     application: 'Test App',
-    platform: {
-      id: 'veeam-vbr',
-      name: 'Test Platform',
-      logo: <div>Test Logo</div>,
-      skipModalContent: <div>skip</div>,
-      description: 'Test description',
-      bucketTag: 'Test Tag',
-      getPolicy: jest.fn(),
-    } as unknown as ISVPlatformConfig,
+    platform: VeeamVBRPlatform,
     account: null,
     accessKey: 'test-access-key',
     secretKey: 'test-secret-key',

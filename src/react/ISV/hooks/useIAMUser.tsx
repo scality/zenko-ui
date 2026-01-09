@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useIAMClient } from '../../IAMProvider';
 import { useAssumeRoleQuery } from '../../DataServiceRoleProvider';
 
-interface IAMUser {
+export interface IAMUser {
   id: string;
   name: string;
 }

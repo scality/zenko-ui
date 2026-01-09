@@ -2,7 +2,7 @@ import {
   useGetBucketTagging,
   useBucketOverviewContext,
 } from '@scality/data-browser-library';
-import { VeeamCapacityOverviewRow } from '../../ISV/modules/veeam/components/VeeamCapacityOverviewRow';
+import { VeeamCapacityOverviewRow } from '../../ISV/components/veeam/VeeamCapacityOverviewRow';
 import { Row, Key, Value } from '../../ui-elements/TableKeyValue2';
 import { detectBucketApplication } from '../utils/bucketApplicationDetector';
 

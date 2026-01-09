@@ -3,9 +3,9 @@ import {
   BUCKET_TAG_VEEAM_APPLICATION,
   COMMVAULT_APPLICATION,
   VEEAM_BACKUP_REPLICATION,
+  VeeamApplicationType,
+  VEEAM_VBO_APPLICATION,
 } from '../../ISV/constants';
-import { VeeamApplicationType } from '../../ISV/constants';
-import { VEEAM_VBO_APPLICATION } from '../../ISV/modules/veeam-vbo';
 
 /**
  * Bucket application detection result

@@ -78,6 +78,7 @@ const useBucketCountManager = ({
 interface BucketFieldProps {
   bucketNameTooltip?: React.ReactElement;
   platform?: string;
+  showCapacity?: boolean;
 }
 
 interface BucketField {
@@ -145,6 +146,7 @@ const BucketNameFormGroup: React.FC<{
 const BucketField: React.FC<BucketFieldProps> = ({
   bucketNameTooltip = defaultBucketNameTooltip,
   platform,
+  showCapacity,
 }) => {
   const bucketNumberInputRef = useRef<HTMLInputElement>(null);
   const shouldFocusRef = useRef(false);
@@ -181,9 +183,8 @@ const BucketField: React.FC<BucketFieldProps> = ({
       } else {
         const newFields = Array(targetNumber - fields.length).fill({
           name: '',
-          tag: platform,
           capacity: '0',
-          capacityUnit: unitChoices.TiB.toString(),
+          capacityUnit: 'TiB',
         });
         append(newFields);
       }
@@ -215,9 +216,11 @@ const BucketField: React.FC<BucketFieldProps> = ({
       ? { useClusterCapacity: undefined }
       : xCoreLibrary;
 
+  const shouldShowCapacity = showCapacity ?? platform === 'veeam-vbr';
+
   const renderCapacitySection = useCallback(
     (index: number) => {
-      if (platform !== 'veeam-vbr') {
+      if (!shouldShowCapacity) {
         return null;
       }
 
@@ -231,7 +234,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
         <CapacityFormSection index={index} />
       );
     },
-    [platform, useClusterCapacity, fields.length],
+    [shouldShowCapacity, useClusterCapacity, fields.length],
   );
 
   const renderBucketNameFormSection = useMemo(() => {

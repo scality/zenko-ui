@@ -49,6 +49,36 @@ const ModalFooter = styled(Box)`
   align-items: center;
 `;
 
+const ISVCardWrapper = ({
+  isv,
+  selectedISV,
+  setSelectedISV,
+}: {
+  isv: ISVCardConfig;
+  selectedISV: ISVCardConfig;
+  setSelectedISV: (value: ISVCardConfig) => void;
+}) => {
+  const DisabledMessage = isv.disabledMessage;
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  return (
+    <CardISV
+      name={isv.name}
+      logo={isv.logo}
+      application={isv.application}
+      link={isv.documentationLink}
+      disabledMessage={
+        DisabledMessage ? (
+          <DisabledMessage onDisabledChange={setIsDisabled} />
+        ) : null
+      }
+      disabled={isDisabled}
+      selected={selectedISV?.id === isv.id}
+      onChange={() => setSelectedISV(isv)}
+    />
+  );
+};
+
 export const ISVModalContent = ({
   selectedISV,
   setSelectedISV,
@@ -78,19 +108,14 @@ export const ISVModalContent = ({
             Automatic configuration via assistant
           </Text>
           <StyledGrid>
-            {ISVList.filter((isv) => isv.assistant === true).map((isv) => {
-              return (
-                <CardISV
-                  name={isv.name}
-                  logo={isv.logo}
-                  application={isv.application}
-                  link={isv.documentationLink}
-                  disabledMessage={isv.getDisabledMessage?.()}
-                  selected={selectedISV?.id === isv.id}
-                  onChange={() => setSelectedISV(isv)}
-                ></CardISV>
-              );
-            })}
+            {ISVList.filter((isv) => isv.assistant === true).map((isv) => (
+              <ISVCardWrapper
+                key={isv.id}
+                isv={isv}
+                selectedISV={selectedISV}
+                setSelectedISV={setSelectedISV}
+              />
+            ))}
           </StyledGrid>
           <Text isEmphazed color="textPrimary">
             Manual configuration
@@ -99,6 +124,7 @@ export const ISVModalContent = ({
             {ISVList.filter((isv) => isv.assistant !== true).map((isv) => {
               return (
                 <CardISV
+                  key={isv.id}
                   name={isv.name}
                   logo={isv.logo}
                   application={isv.application}

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { NewWrapper } from '../../../../utils/testUtil';
+import { NewWrapper } from '../../../utils/testUtil';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import userEvent from '@testing-library/user-event';
 import { usePutObject } from '@scality/data-browser-library';

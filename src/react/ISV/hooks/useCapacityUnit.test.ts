@@ -11,7 +11,7 @@ describe('useCapacityUnit', () => {
     const { result } = renderHook(() => useCapacityUnit(1073741824));
 
     expect(result.current.capacityValue).toBe('1');
-    expect(result.current.capacityUnit).toBe(BYTES_IN_GIB);
+    expect(result.current.capacityUnit).toBe('GiB');
   });
 
   it('should correctly convert bytes to TiB unit', () => {
@@ -19,7 +19,7 @@ describe('useCapacityUnit', () => {
     const { result } = renderHook(() => useCapacityUnit(1099511627776));
 
     expect(result.current.capacityValue).toBe('1');
-    expect(result.current.capacityUnit).toBe(BYTES_IN_TIB);
+    expect(result.current.capacityUnit).toBe('TiB');
   });
 
   it('should correctly convert bytes to PiB unit', () => {
@@ -27,7 +27,7 @@ describe('useCapacityUnit', () => {
     const { result } = renderHook(() => useCapacityUnit(1125899906842624));
 
     expect(result.current.capacityValue).toBe('1');
-    expect(result.current.capacityUnit).toBe(BYTES_IN_PIB);
+    expect(result.current.capacityUnit).toBe('PiB');
   });
 
   it('should correctly handle small values', () => {
@@ -35,7 +35,7 @@ describe('useCapacityUnit', () => {
     const { result } = renderHook(() => useCapacityUnit(1610612736));
 
     expect(result.current.capacityValue).toBe('1.5');
-    expect(result.current.capacityUnit).toBe(BYTES_IN_GIB);
+    expect(result.current.capacityUnit).toBe('GiB');
   });
 });
 
@@ -63,5 +63,25 @@ describe('getCapacityBytes', () => {
   it('should handle decimal inputs correctly', () => {
     const result = getCapacityBytes('2.25', BYTES_IN_TIB);
     expect(result).toBe('2473901162496');
+  });
+
+  it('should accept unit string "GiB" and convert to bytes', () => {
+    const result = getCapacityBytes('1', 'GiB');
+    expect(result).toBe(BYTES_IN_GIB);
+  });
+
+  it('should accept unit string "TiB" and convert to bytes', () => {
+    const result = getCapacityBytes('1', 'TiB');
+    expect(result).toBe(BYTES_IN_TIB);
+  });
+
+  it('should accept unit string "PiB" and convert to bytes', () => {
+    const result = getCapacityBytes('1', 'PiB');
+    expect(result).toBe(BYTES_IN_PIB);
+  });
+
+  it('should handle decimal values with unit strings', () => {
+    const result = getCapacityBytes('1.5', 'GiB');
+    expect(result).toBe('1610612736');
   });
 });

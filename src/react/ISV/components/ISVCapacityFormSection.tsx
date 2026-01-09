@@ -7,12 +7,7 @@ import { useXcoreRuntimeConfig } from '../../next-architecture/ui/ConfigProvider
 import { useShellHooks } from '@scality/module-federation';
 import { unitChoices } from '../constants';
 import { useCapacityUnit } from '../hooks/useCapacityUnit';
-import styled from 'styled-components';
-
-const ListItem = styled.li`
-  list-style-type: disc;
-  margin-left: 1rem;
-`;
+import { CapacityTooltip } from './shared/PlatformTooltips';
 
 type XCoreConfig = {
   spec: {
@@ -32,20 +27,6 @@ type UseClusterCapacityHooks = (
   clusterCapacity: number;
   clusterCapacityStatus: ClusterCapacityStatus;
 };
-
-const CapacityTooltip = () => (
-  <ul>
-    <ListItem>
-      Set your ARTESCA storage capacity limit to be monitored by Veeam (via
-      Smart Object Storage API).
-    </ListItem>
-    <ListItem>
-      Keep in mind, going over this limit has no effect on ARTESCA itself, but
-      it does trigger a warning in the Veeam UI and can potentially stop backup
-      activities.
-    </ListItem>
-  </ul>
-);
 
 export const CapacityFormWithXcore = ({
   useClusterCapacity,
@@ -137,9 +118,9 @@ export const CapacityFormSection = ({
                     value={value}
                     size="1/3"
                   >
-                    {Object.entries(unitChoices).map(([key, value]) => {
+                    {Object.entries(unitChoices).map(([key]) => {
                       return (
-                        <Select.Option key={key} value={`${value}`}>
+                        <Select.Option key={key} value={key}>
                           {key}
                         </Select.Option>
                       );
