@@ -71,7 +71,7 @@ export type RuntimeContext = {
   _platformId: string;
   _bucketTag: string;
   _instanceId: string;
-  _s3ServicePoint: string;
+  _s3ServicePoint?: string;
 };
 
 export type RuntimeHelpers = {
@@ -215,7 +215,8 @@ export type ActionName =
   | 'createIAMUser'
   | 'createAccessKey'
   | 'createPolicy'
-  | 'attachPolicy';
+  | 'attachPolicy'
+  | 'createVeeamRepository';
 
 export type SingleMutationDef = {
   id: string;

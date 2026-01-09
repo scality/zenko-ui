@@ -40,6 +40,7 @@ import {
   isLoopMutation,
   expandLoopMutation,
 } from '../engine/builders/buildMutations';
+import { useCreateVeeamRepository } from './useCreateVeeamRepository';
 
 /**
  * Custom hook for refetching accounts/locations/endpoints configuration
@@ -104,6 +105,7 @@ export function useMutationExecutor({
   const createUserAccessKeyMutation = useCreateUserAccessKeyMutation();
   const createPolicyMutation = useCreateOrAddBucketToPolicyMutation();
   const attachPolicyToUserMutation = useAttachPolicyToUserMutation();
+  const createVeeamRepositoryMutation = useCreateVeeamRepository();
 
   // Action to mutation/hook mapping
   // Using Partial<MutationConfig> to allow either mutation or hook property
@@ -123,6 +125,7 @@ export function useMutationExecutor({
       createAccessKey: { mutation: createUserAccessKeyMutation },
       createPolicy: { mutation: createPolicyMutation },
       attachPolicy: { mutation: attachPolicyToUserMutation },
+      createVeeamRepository: { mutation: createVeeamRepositoryMutation },
     }),
     [
       enableSOSAPIMutation,
