@@ -48,7 +48,7 @@ export const VeeamVBOPlatform = definePlatform({
     },
   },
 
-  insertFields: {
+  additionalFields: {
     afterAccount: [
       {
         name: 'application',

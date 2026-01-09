@@ -271,10 +271,10 @@ export type SummaryConfig = {
 };
 
 // ============================================================================
-// Insert Fields
+// Additional Fields
 // ============================================================================
 
-export type InsertFieldsConfig = {
+export type AdditionalFieldsConfig = {
   afterAccount?: FieldDef[];
   afterImmutable?: FieldDef[];
 };
@@ -348,8 +348,8 @@ export type PlatformConfig = {
     capacity?: FieldOverrideConfig;
   };
 
-  // Insert additional fields at specific positions
-  insertFields?: InsertFieldsConfig;
+  // Additional fields at specific positions
+  additionalFields?: AdditionalFieldsConfig;
 
   // Per-bucket mutation steps
   perBucketSteps?: PerBucketStep[];
@@ -370,12 +370,12 @@ export type PlatformConfig = {
   // Validator customization (escape hatch)
   customValidator?: Joi.ObjectSchema;
 
-  // Explicit mutations (overrides auto-generated mutations)
+  // Override auto-generated mutations with explicit mutations
   // Use this for full control over mutation order and composition
-  mutations?: MutationDef[];
+  mutationOverrides?: MutationDef[];
 
-  // Extra mutations to append after auto-generated mutations
+  // Additional mutations to append after auto-generated mutations
   // Use this when you want the standard flow + additional steps at the end
-  extraMutations?: MutationDef[];
+  additionalMutations?: MutationDef[];
 };
 

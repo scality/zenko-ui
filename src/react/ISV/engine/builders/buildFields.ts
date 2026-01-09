@@ -90,10 +90,10 @@ function buildBucketItemFields(config: PlatformConfig): BucketItemFieldDef[] {
  * Field order:
  * 1. Account selector
  * 2. IAM selector (shown in Advanced Settings for existing accounts)
- * 3. [insertFields.afterAccount]
+ * 3. [additionalFields.afterAccount]
  * 4. Buckets array
  * 5. Immutable toggle
- * 6. [insertFields.afterImmutable]
+ * 6. [additionalFields.afterImmutable]
  */
 export function buildFields(config: PlatformConfig): FieldDef[] {
   const fields: FieldDef[] = [];
@@ -118,9 +118,9 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
     ),
   } as FieldDef);
 
-  // 3. Insert after account (and after Advanced Settings)
-  if (config.insertFields?.afterAccount) {
-    fields.push(...config.insertFields.afterAccount);
+  // 3. Additional fields after account (and after Advanced Settings)
+  if (config.additionalFields?.afterAccount) {
+    fields.push(...config.additionalFields.afterAccount);
   }
 
   // 4. Buckets array
@@ -149,9 +149,9 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
     ...immutableBase,
   } as FieldDef);
 
-  // 6. Insert after immutable
-  if (config.insertFields?.afterImmutable) {
-    fields.push(...config.insertFields.afterImmutable);
+  // 6. Additional fields after immutable
+  if (config.additionalFields?.afterImmutable) {
+    fields.push(...config.additionalFields.afterImmutable);
   }
 
   return fields;

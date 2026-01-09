@@ -99,7 +99,7 @@ function buildSummary(config: PlatformConfig): SummaryConfig {
 export function definePlatform(config: PlatformConfig): ISVPlatform {
   const fields = buildFields(config);
   const validator = config.customValidator ?? buildValidator(config);
-  const mutations = config.mutations ?? buildMutations(config);
+  const mutations = config.mutationOverrides ?? buildMutations(config);
 
   return {
     id: config.id,

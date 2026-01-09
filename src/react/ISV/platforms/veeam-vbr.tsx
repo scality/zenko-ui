@@ -193,7 +193,7 @@ export const VeeamVBRPlatform = definePlatform({
     </Text>
   ),
 
-  insertFields: {
+  additionalFields: {
     afterImmutable: [
       {
         name: 'veeamRepositoryConfig',

@@ -238,8 +238,8 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
  */
 export function buildMutations(config: PlatformConfig): MutationDef[] {
   // Full override mode - use explicit mutations if provided
-  if (config.mutations) {
-    return config.mutations;
+  if (config.mutationOverrides) {
+    return config.mutationOverrides;
   }
 
   // Auto-generate standard mutation sequence
@@ -260,8 +260,8 @@ export function buildMutations(config: PlatformConfig): MutationDef[] {
   // 6-9. IAM mutations
   mutations.push(...buildIAMMutations(config));
 
-  // 10. Extra mutations (appended after auto-generated)
-  mutations.push(...(config.extraMutations ?? []));
+  // 10. Additional mutations (appended after auto-generated)
+  mutations.push(...(config.additionalMutations ?? []));
 
   return mutations;
 }
