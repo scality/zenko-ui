@@ -16,11 +16,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
-import {
-  FormData,
-  BucketItem,
-  SummaryRenderProps,
-} from '../engine/types';
+import { FormData, BucketItem, SummaryRenderProps } from '../engine/types';
 import { queries } from '../../next-architecture/domain/business/buckets';
 import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
 import { useAssumedRole } from '../../DataServiceRoleProvider';
@@ -73,16 +69,12 @@ export const DefaultISVSummary = ({
   secretKey,
   accessKeys,
   onFinish,
-}: SummaryRenderProps) => {
+}: Omit<SummaryRenderProps, 'renderDefault'>) => {
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform } = useISVStepper();
 
-  const {
-    buckets,
-    enableImmutableBackup,
-    application,
-  } = formData;
+  const { buckets, enableImmutableBackup, application } = formData;
 
   const immutabilityConfig = platform.summary.immutability;
   const immutableSectionInfos = {
@@ -373,18 +365,31 @@ export const ISVSummary = ({
       });
   }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
 
+  const renderDefault = () => (
+    <DefaultISVSummary
+      formData={formData}
+      accessKey={accessKey}
+      secretKey={secretKey}
+      accessKeys={accessKeys}
+      onFinish={onFinish}
+    />
+  );
+
   const summaryProps: SummaryRenderProps = {
     formData,
     accessKey,
     secretKey,
     accessKeys,
     onFinish,
+    renderDefault,
   };
 
   if (platform.summary.customRender) {
-    const CustomRender = platform.summary.customRender;
-    return <CustomRender {...summaryProps} />;
+    const customResult = platform.summary.customRender(summaryProps);
+    if (customResult) {
+      return customResult;
+    }
   }
 
-  return <DefaultISVSummary {...summaryProps} />;
+  return renderDefault();
 };

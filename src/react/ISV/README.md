@@ -388,6 +388,8 @@ prev.createIAMUser?.data  // { userName: string }
 
 ### Summary Configuration
 
+Customize the summary screen display:
+
 ```tsx
 definePlatform({
   // ...
@@ -396,9 +398,23 @@ definePlatform({
     bucketBanner: <MyWarningBanner />,
     immutabilityLabel: 'WORM Lock',
     immutabilityHelpText: (enabled) => enabled ? 'Enable WORM in app' : undefined,
-    customRender: MySummaryComponent,  // Full custom summary
+    customRender: (props: SummaryRenderProps) => <MySummaryComponent {...props} />,
   },
 });
+```
+
+**Type signature:**
+```typescript
+type SummaryRenderProps = {
+  formData: FormData;
+  accessKey: string;
+  secretKey: string;
+  accessKeys?: string[];
+  onFinish: () => void;
+  renderDefault: () => React.ReactNode;
+};
+
+customRender?: (props: SummaryRenderProps) => React.ReactNode;
 ```
 
 ### Custom Validator
@@ -848,7 +864,9 @@ export const VeeamVBRPlatform = definePlatform({
 Full control over the summary screen:
 
 ```tsx
-const MySummaryComponent = ({ formData, accessKey, secretKey, onFinish }) => {
+const MySummaryComponent = (props: SummaryRenderProps) => {
+  const { formData, accessKey, secretKey, onFinish, renderDefault } = props;
+  
   return (
     <Stack>
       <Text variant="Large">Configuration Complete!</Text>
