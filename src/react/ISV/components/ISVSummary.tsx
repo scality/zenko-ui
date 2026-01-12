@@ -69,16 +69,12 @@ export const DefaultISVSummary = ({
   secretKey,
   accessKeys,
   onFinish,
-}: SummaryRenderProps) => {
+}: Omit<SummaryRenderProps, 'renderDefault'>) => {
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform } = useISVStepper();
 
-  const {
-    buckets,
-    enableImmutableBackup,
-    application,
-  } = formData;
+  const { buckets, enableImmutableBackup, application } = formData;
 
   const immutabilityConfig = platform.summary.immutability;
   const immutableSectionInfos = {
@@ -361,18 +357,31 @@ export const ISVSummary = ({
     }
   }, [accountName, buckets, navigate]);
 
+  const renderDefault = () => (
+    <DefaultISVSummary
+      formData={formData}
+      accessKey={accessKey}
+      secretKey={secretKey}
+      accessKeys={accessKeys}
+      onFinish={onFinish}
+    />
+  );
+
   const summaryProps: SummaryRenderProps = {
     formData,
     accessKey,
     secretKey,
     accessKeys,
     onFinish,
+    renderDefault,
   };
 
   if (platform.summary.customRender) {
-    const CustomRender = platform.summary.customRender;
-    return <CustomRender {...summaryProps} />;
+    const customResult = platform.summary.customRender(summaryProps);
+    if (customResult) {
+      return customResult;
+    }
   }
 
-  return <DefaultISVSummary {...summaryProps} />;
+  return renderDefault();
 };

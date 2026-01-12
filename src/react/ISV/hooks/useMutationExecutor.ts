@@ -7,7 +7,10 @@
 
 import { useMemo } from 'react';
 import { useMutation } from 'react-query';
-import { MutationConfig, VariablesResolvers } from '@scality/react-chained-query';
+import {
+  MutationConfig,
+  VariablesResolvers,
+} from '@scality/react-chained-query';
 import {
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
@@ -35,7 +38,10 @@ import type {
   PreviousResults,
   SOSAPIStatus,
 } from '../engine/types';
-import { isLoopMutation, expandLoopMutation } from '../engine/builders/buildMutations';
+import {
+  isLoopMutation,
+  expandLoopMutation,
+} from '../engine/builders/buildMutations';
 
 /**
  * Custom hook for refetching accounts/locations/endpoints configuration
@@ -90,7 +96,7 @@ export function useMutationExecutor({
 }: UseMutationExecutorOptions): UseMutationExecutorResult {
   // Get instanceId for createAccount mutation
   const instanceId = useInstanceId();
-  
+
   // Initialize all mutation hooks
   const enableSOSAPIMutation = useEnableSOSAPIMutation();
   const createAccountMutation = useCreateAccountMutation();
@@ -198,13 +204,22 @@ export function buildRuntimeContext(params: {
   generateKey?: boolean;
   sosApiStatus: SOSAPIStatus;
   instanceId: string;
+  s3ServicePoint?: string;
 }): FullContext {
-  const { platform, account, IAMUserNameType, generateKey, sosApiStatus, instanceId } =
-    params;
+  const {
+    platform,
+    account,
+    IAMUserNameType,
+    generateKey,
+    sosApiStatus,
+    instanceId,
+    s3ServicePoint,
+  } = params;
 
   const isNewAccount = !account;
   const needsIAMUser = isNewAccount || IAMUserNameType === 'create';
-  const needsAccessKey = needsIAMUser || (IAMUserNameType === 'existing' && !!generateKey);
+  const needsAccessKey =
+    needsIAMUser || (IAMUserNameType === 'existing' && !!generateKey);
 
   return {
     _sosApiStatus: sosApiStatus,
@@ -218,9 +233,9 @@ export function buildRuntimeContext(params: {
     _platformId: platform.id,
     _bucketTag: platform.bucketTag,
     _instanceId: instanceId,
+    _s3ServicePoint: s3ServicePoint || '',
     isNewAccount,
     needsIAMUser,
     needsAccessKey,
   };
 }
-

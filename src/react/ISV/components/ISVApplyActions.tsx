@@ -17,6 +17,7 @@ import {
   buildRuntimeContext,
 } from '../hooks/useMutationExecutor';
 import { ISVPlatform, FormData, BucketItem } from '../engine/types';
+import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 
 const StatusBox = styled(Box)`
   display: flex;
@@ -61,15 +62,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
   const queryClient = useQueryClient();
   const { next } = useStepper(ISVStepsIndexes.ApplyActions, ISV_STEPS);
 
-  const {
-    buckets,
-    enableImmutableBackup,
-    accountName,
-    application,
-    platform,
-    accessKey,
-    accessKeys,
-  } = props;
+  const { platform, accessKey } = props;
 
   const accessKeyData = getResult<{
     AccessKey: { AccessKeyId: string; SecretAccessKey: string };
@@ -81,25 +74,11 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
   const handleContinue = useCallback(() => {
     queryClient.invalidateQueries(['WebIdentityRoles']);
     next({
-      accountName,
-      buckets,
-      enableImmutableBackup,
+      ...props,
       accessKey: finalAccessKey,
       secretKey: finalSecretKey,
-      application,
-      accessKeys,
     });
-  }, [
-    accountName,
-    buckets,
-    enableImmutableBackup,
-    finalAccessKey,
-    finalSecretKey,
-    application,
-    accessKeys,
-    queryClient,
-    next,
-  ]);
+  }, [props, finalAccessKey, finalSecretKey, queryClient, next]);
 
   const handleExit = useCallback(() => {
     setConfirmCancel(true);
@@ -216,6 +195,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
 
   const sosApiStatus = useCheckSOSAPIStatus();
   const instanceId = useInstanceId();
+  const { s3ServicePoint } = useGetS3ServicePoint();
 
   // Build form data for mutation executor
   const formData: FormData = {
@@ -244,6 +224,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     generateKey,
     sosApiStatus,
     instanceId,
+    s3ServicePoint,
   });
 
   // Use the mutation executor to get mutations and variable resolvers

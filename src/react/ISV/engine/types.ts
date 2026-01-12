@@ -71,6 +71,7 @@ export type RuntimeContext = {
   _platformId: string;
   _bucketTag: string;
   _instanceId: string;
+  _s3ServicePoint: string;
 };
 
 export type RuntimeHelpers = {
@@ -224,7 +225,7 @@ export type SingleMutationDef = {
   variables: (
     form: FormData,
     prev: PreviousResults,
-    ctx: FullContext
+    ctx: FullContext,
   ) => Record<string, unknown>;
 };
 
@@ -237,7 +238,7 @@ export type PerBucketStep = {
     form: FormData,
     bucket: BucketItem,
     prev: PreviousResults,
-    ctx: FullContext
+    ctx: FullContext,
   ) => Record<string, unknown>;
 };
 
@@ -258,6 +259,7 @@ export type SummaryRenderProps = {
   secretKey: string;
   accessKeys?: string[];
   onFinish: () => void;
+  renderDefault: () => React.ReactNode;
 };
 
 export type SummaryConfig = {
@@ -267,7 +269,7 @@ export type SummaryConfig = {
     label?: string;
     helpText?: (enabled: boolean) => string | undefined;
   };
-  customRender?: ComponentType<SummaryRenderProps>;
+  customRender?: (props: SummaryRenderProps) => React.ReactNode;
 };
 
 // ============================================================================
@@ -360,7 +362,7 @@ export type PlatformConfig = {
     bucketBanner?: ReactNode;
     immutabilityLabel?: string;
     immutabilityHelpText?: (enabled: boolean) => string | undefined;
-    customRender?: ComponentType<SummaryRenderProps>;
+    customRender?: (props: SummaryRenderProps) => React.ReactNode;
   };
 
   // Other
@@ -378,4 +380,3 @@ export type PlatformConfig = {
   // Use this when you want the standard flow + additional steps at the end
   additionalMutations?: MutationDef[];
 };
-
