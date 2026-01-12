@@ -28,7 +28,7 @@ describe('VeeamVBRPlatform', () => {
   describe('generated fields', () => {
     it('should generate accountName field', () => {
       const accountField = VeeamVBRPlatform.fields.find(
-        (f) => f.name === 'accountName'
+        (f) => f.name === 'accountName',
       );
       expect(accountField).toBeDefined();
       expect(accountField?.type).toBe('accountSelector');
@@ -37,20 +37,20 @@ describe('VeeamVBRPlatform', () => {
 
     it('should generate buckets field with capacity itemFields', () => {
       const bucketsField = VeeamVBRPlatform.fields.find(
-        (f) => f.name === 'buckets'
+        (f) => f.name === 'buckets',
       );
       expect(bucketsField).toBeDefined();
       expect(bucketsField?.type).toBe('bucketArray');
 
       if (bucketsField && 'itemFields' in bucketsField) {
         const capacityField = bucketsField.itemFields.find(
-          (f) => f.name === 'capacity'
+          (f) => f.name === 'capacity',
         );
         expect(capacityField).toBeDefined();
         expect(capacityField?.type).toBe('number');
 
         const capacityUnitField = bucketsField.itemFields.find(
-          (f) => f.name === 'capacityUnit'
+          (f) => f.name === 'capacityUnit',
         );
         expect(capacityUnitField).toBeDefined();
         expect(capacityUnitField?.type).toBe('select');
@@ -59,7 +59,7 @@ describe('VeeamVBRPlatform', () => {
 
     it('should generate IAMUserName field', () => {
       const iamField = VeeamVBRPlatform.fields.find(
-        (f) => f.name === 'IAMUserName'
+        (f) => f.name === 'IAMUserName',
       );
       expect(iamField).toBeDefined();
       expect(iamField?.type).toBe('iamUserSelector');
@@ -67,7 +67,7 @@ describe('VeeamVBRPlatform', () => {
 
     it('should generate enableImmutableBackup field', () => {
       const immutableField = VeeamVBRPlatform.fields.find(
-        (f) => f.name === 'enableImmutableBackup'
+        (f) => f.name === 'enableImmutableBackup',
       );
       expect(immutableField).toBeDefined();
       expect(immutableField?.type).toBe('toggle');
@@ -199,21 +199,21 @@ describe('VeeamVBRPlatform', () => {
 
     it('should include enableSOSAPI mutation (sosAPI: true)', () => {
       const sosMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'action' in m && m.action === 'enableSOSAPI'
+        (m) => 'action' in m && m.action === 'enableSOSAPI',
       );
       expect(sosMutation).toBeDefined();
     });
 
     it('should include createAccount mutation', () => {
       const createAccountMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'action' in m && m.action === 'createAccount'
+        (m) => 'action' in m && m.action === 'createAccount',
       );
       expect(createAccountMutation).toBeDefined();
     });
 
     it('should include bucket loop mutation with perBucketSteps', () => {
       const loopMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets'
+        (m) => 'each' in m && m.each === 'buckets',
       );
       expect(loopMutation).toBeDefined();
 
@@ -230,18 +230,18 @@ describe('VeeamVBRPlatform', () => {
 
     it('should have perBucketSteps with putObject action', () => {
       const loopMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets'
+        (m) => 'each' in m && m.each === 'buckets',
       );
 
       if (loopMutation && 'steps' in loopMutation) {
         const veeamSystemStep = loopMutation.steps.find(
-          (s) => s.id === 'veeamSystem'
+          (s) => s.id === 'veeamSystem',
         );
         expect(veeamSystemStep).toBeDefined();
         expect(veeamSystemStep?.action).toBe('putObject');
 
         const veeamCapacityStep = loopMutation.steps.find(
-          (s) => s.id === 'veeamCapacity'
+          (s) => s.id === 'veeamCapacity',
         );
         expect(veeamCapacityStep).toBeDefined();
         expect(veeamCapacityStep?.action).toBe('putObject');
@@ -257,7 +257,7 @@ describe('VeeamVBRPlatform', () => {
             'createAccessKey',
             'createPolicy',
             'attachPolicy',
-          ].includes(m.action)
+          ].includes(m.action),
       );
       expect(iamMutations.length).toBeGreaterThan(0);
     });
@@ -266,12 +266,12 @@ describe('VeeamVBRPlatform', () => {
   describe('perBucketSteps variables', () => {
     it('veeamSystem step should include s3Client from prev', () => {
       const loopMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets'
+        (m) => 'each' in m && m.each === 'buckets',
       );
 
       if (loopMutation && 'steps' in loopMutation) {
         const veeamSystemStep = loopMutation.steps.find(
-          (s) => s.id === 'veeamSystem'
+          (s) => s.id === 'veeamSystem',
         );
 
         const mockForm = {
@@ -291,13 +291,14 @@ describe('VeeamVBRPlatform', () => {
           isNewAccount: true,
           needsIAMUser: true,
           needsAccessKey: true,
+          _s3ServicePoint: 'test-s3-service-point',
         };
 
         const variables = veeamSystemStep?.variables(
           mockForm,
           mockBucket,
           mockPrev,
-          mockCtx
+          mockCtx,
         );
 
         expect(variables).toHaveProperty('s3Client');
@@ -309,12 +310,12 @@ describe('VeeamVBRPlatform', () => {
 
     it('veeamCapacity step should use bucket.capacityBytes', () => {
       const loopMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets'
+        (m) => 'each' in m && m.each === 'buckets',
       );
 
       if (loopMutation && 'steps' in loopMutation) {
         const veeamCapacityStep = loopMutation.steps.find(
-          (s) => s.id === 'veeamCapacity'
+          (s) => s.id === 'veeamCapacity',
         );
 
         const mockForm = {
@@ -323,7 +324,10 @@ describe('VeeamVBRPlatform', () => {
           enableImmutableBackup: false,
           buckets: [],
         };
-        const mockBucket = { name: 'capacity-bucket', capacityBytes: 1099511627776 };
+        const mockBucket = {
+          name: 'capacity-bucket',
+          capacityBytes: 1099511627776,
+        };
         const mockPrev = { assumeRole: { data: { mock: 's3Client' } } };
         const mockCtx = {
           _sosApiStatus: 'activated' as const,
@@ -334,13 +338,14 @@ describe('VeeamVBRPlatform', () => {
           isNewAccount: true,
           needsIAMUser: true,
           needsAccessKey: true,
+          _s3ServicePoint: 'test-s3-service-point',
         };
 
         const variables = veeamCapacityStep?.variables(
           mockForm,
           mockBucket,
           mockPrev,
-          mockCtx
+          mockCtx,
         );
 
         expect(variables).toHaveProperty('Bucket', 'capacity-bucket');
@@ -357,7 +362,7 @@ describe('VeeamVBRPlatform', () => {
     it('should have immutabilityHelpText function', () => {
       expect(VeeamVBRPlatform.summary.immutability?.helpText).toBeDefined();
       expect(typeof VeeamVBRPlatform.summary.immutability?.helpText).toBe(
-        'function'
+        'function',
       );
     });
 
@@ -374,10 +379,7 @@ describe('VeeamVBRPlatform', () => {
 
   describe('policy generation', () => {
     it('should generate valid policy for buckets', () => {
-      const policy = VeeamVBRPlatform.getPolicy(
-        ['bucket1', 'bucket2'],
-        false
-      );
+      const policy = VeeamVBRPlatform.getPolicy(['bucket1', 'bucket2'], false);
       const parsed = JSON.parse(policy);
 
       expect(parsed.Version).toBe('2012-10-17');
@@ -395,4 +397,3 @@ describe('VeeamVBRPlatform', () => {
     });
   });
 });
-
