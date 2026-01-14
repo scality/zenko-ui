@@ -364,9 +364,14 @@ const useCreateUserAccessKeyMutation = () => {
   });
 };
 
+type PollContext = {
+  baseUrl: string;
+};
+
 const usePatchZenkoConfigurationMutation = <T>(
   getJsonPatch: (args: T) => string,
   options?: MutationOptions<T, ApiError, T>,
+  additionalPollCondition?: (ctx: PollContext) => Promise<boolean>,
 ) => {
   const { useConfigRetriever, useAuth } = useShellHooks();
   const { getToken } = useAuth();
@@ -410,7 +415,8 @@ const usePatchZenkoConfigurationMutation = <T>(
       let pollAttempts = 0;
       const MAX_POLL_ATTEMPTS = 90;
       let deploymentStarted = false;
-      
+      let additionalConditionPassed = true;
+
       do {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const r = await fetch(getURL(instances), {
@@ -420,6 +426,10 @@ const usePatchZenkoConfigurationMutation = <T>(
             authorization: `Bearer ${await getToken()}`,
           },
         });
+        if (!r.ok) {
+          pollAttempts++;
+          continue;
+        }
         const response = await r.json();
         if (
           response.metadata.generation === response.status.observedGeneration
@@ -466,13 +476,29 @@ const usePatchZenkoConfigurationMutation = <T>(
           }
         }
 
+        additionalConditionPassed = !additionalPollCondition;
+        if (additionalPollCondition && isReady) {
+          const baseUrl = retrieveConfiguration({
+            configType: 'run',
+            name: instances[0].name,
+          })?.spec.selfConfiguration.url;
+          if (baseUrl) {
+            try {
+              additionalConditionPassed = await additionalPollCondition({ baseUrl });
+            } catch (e) {
+              console.warn('additionalPollCondition check failed:', e);
+              additionalConditionPassed = false;
+            }
+          }
+        }
+
         pollAttempts++;
       } while (
-        !(resourceSynchronized && isReady) &&
+        !(resourceSynchronized && isReady && additionalConditionPassed) &&
         pollAttempts < MAX_POLL_ATTEMPTS
       );
 
-      if (!(resourceSynchronized && isReady)) {
+      if (!(resourceSynchronized && isReady && additionalConditionPassed)) {
         throw new Error(
           'Operation timed out: resource synchronization did not complete within the expected time frame',
         );
@@ -484,14 +510,24 @@ const usePatchZenkoConfigurationMutation = <T>(
 };
 
 const useEnableSOSAPIMutation = () => {
-  return usePatchZenkoConfigurationMutation(() =>
-    JSON.stringify([
-      {
-        op: 'replace',
-        path: '/spec/veeamSosApi',
-        value: { enable: true },
-      },
-    ]),
+  return usePatchZenkoConfigurationMutation(
+    () =>
+      JSON.stringify([
+        {
+          op: 'replace',
+          path: '/spec/veeamSosApi',
+          value: { enable: true },
+        },
+      ]),
+    undefined,
+    async ({ baseUrl }) => {
+      const res = await fetch(
+        `${baseUrl}/zenko/.well-known/runtime-app-configuration?_t=${Date.now()}`,
+      );
+      if (!res.ok) return false;
+      const config = await res.json();
+      return !!config?.spec?.selfConfiguration?.proxy?.veeam;
+    },
   );
 };
 
