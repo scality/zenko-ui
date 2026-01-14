@@ -25,9 +25,13 @@ import {
   VEEAM_XML_PREFIX,
   SYSTEM_XML_CONTENT,
   GET_CAPACITY_XML_CONTENT,
+  VEEAM_ARCHIVE_FOLDER_PATH,
+  VEEAM_BACKUP_CLIENTS_FOLDER_PATH,
+  VEEAM_BACKUP_CONFIG_FOLDER_PATH,
 } from '../constants';
 import { calculateStorageConsumptionLimit } from '../utils/capacityCalculations';
 import { VeeamRepositorySummary } from '../components/VeeamRepositorySummary';
+import { ensureHttpsPrefix } from '../utils/ensureHttpsPrefix';
 
 const VeeamVBRDisabledMessage = ({
   onDisabledChange,
@@ -134,7 +138,7 @@ export const VeeamVBRPlatform = definePlatform({
     // Folder creation steps for auto-create repository feature
     {
       id: 'veeamArchiveFolder',
-      label: 'Create Archive folder: {{name}}',
+      label: `Create Archive folder: ${VEEAM_ARCHIVE_FOLDER_PATH}`,
       action: 'putObject',
       when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
         form.autoCreateRepository === true,
@@ -146,13 +150,13 @@ export const VeeamVBRPlatform = definePlatform({
       ) => ({
         s3Client: prev.assumeRole?.data,
         Bucket: bucket.name,
-        Key: 'Veeam/Archive/bkp/',
+        Key: VEEAM_ARCHIVE_FOLDER_PATH,
         Body: '',
       }),
     },
     {
       id: 'veeamBackupClientsFolder',
-      label: 'Create Backup Clients folder: {{name}}',
+      label: `Create Backup Clients folder: ${VEEAM_BACKUP_CLIENTS_FOLDER_PATH}`,
       action: 'putObject',
       when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
         form.autoCreateRepository === true,
@@ -164,13 +168,13 @@ export const VeeamVBRPlatform = definePlatform({
       ) => ({
         s3Client: prev.assumeRole?.data,
         Bucket: bucket.name,
-        Key: 'Veeam/Backup/bkp/Clients/',
+        Key: VEEAM_BACKUP_CLIENTS_FOLDER_PATH,
         Body: '',
       }),
     },
     {
       id: 'veeamBackupConfigFolder',
-      label: 'Create Backup Config folder: {{name}}',
+      label: `Create Backup Config folder: ${VEEAM_BACKUP_CONFIG_FOLDER_PATH}`,
       action: 'putObject',
       when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) => {
         return form.autoCreateRepository === true;
@@ -183,7 +187,7 @@ export const VeeamVBRPlatform = definePlatform({
       ) => ({
         s3Client: prev.assumeRole?.data,
         Bucket: bucket.name,
-        Key: 'Veeam/Backup/bkp/Config/',
+        Key: VEEAM_BACKUP_CONFIG_FOLDER_PATH,
         Body: '',
       }),
     },
@@ -241,7 +245,7 @@ export const VeeamVBRPlatform = definePlatform({
             const capacityBytes = bucket.capacityBytes ?? 0;
             const { kind, count } =
               calculateStorageConsumptionLimit(capacityBytes);
-            const servicePoint = ctx._s3ServicePoint || '';
+            const servicePoint = ensureHttpsPrefix(ctx._s3ServicePoint || '');
 
             const accessKeyData = prev.createAccessKey?.data as
               | {
