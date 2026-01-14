@@ -364,14 +364,10 @@ const useCreateUserAccessKeyMutation = () => {
   });
 };
 
-type PollContext = {
-  baseUrl: string;
-};
-
 const usePatchZenkoConfigurationMutation = <T>(
   getJsonPatch: (args: T) => string,
   options?: MutationOptions<T, ApiError, T>,
-  additionalPollCondition?: (ctx: PollContext) => Promise<boolean>,
+  additionalPollCondition?: () => Promise<boolean>,
 ) => {
   const { useConfigRetriever, useAuth } = useShellHooks();
   const { getToken } = useAuth();
@@ -479,17 +475,11 @@ const usePatchZenkoConfigurationMutation = <T>(
 
         additionalConditionPassed = !additionalPollCondition;
         if (additionalPollCondition && isReady) {
-          const baseUrl = retrieveConfiguration({
-            configType: 'run',
-            name: instances[0].name,
-          })?.spec.selfConfiguration.url;
-          if (baseUrl) {
-            try {
-              additionalConditionPassed = await additionalPollCondition({ baseUrl });
-            } catch (e) {
-              console.warn('additionalPollCondition check failed:', e);
-              additionalConditionPassed = false;
-            }
+          try {
+            additionalConditionPassed = await additionalPollCondition();
+          } catch (e) {
+            console.warn('additionalPollCondition check failed:', e);
+            additionalConditionPassed = false;
           }
         }
 
@@ -521,10 +511,9 @@ const useEnableSOSAPIMutation = () => {
         },
       ]),
     undefined,
-    async ({ baseUrl }) => {
-      const origin = new URL(baseUrl).origin;
+    async () => {
       const res = await fetch(
-        `${origin}/zenko/.well-known/runtime-app-configuration?_t=${Date.now()}`,
+        `/zenko/.well-known/runtime-app-configuration?_t=${Date.now()}`,
       );
       if (!res.ok) return false;
       const config = await res.json();
