@@ -521,8 +521,9 @@ const useEnableSOSAPIMutation = () => {
       ]),
     undefined,
     async ({ baseUrl }) => {
+      const origin = new URL(baseUrl).origin;
       const res = await fetch(
-        `${baseUrl}/zenko/.well-known/runtime-app-configuration?_t=${Date.now()}`,
+        `${origin}/zenko/.well-known/runtime-app-configuration?_t=${Date.now()}`,
       );
       if (!res.ok) return false;
       const config = await res.json();
