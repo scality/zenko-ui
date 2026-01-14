@@ -1,4 +1,4 @@
-import { useShellHooks } from '@scality/module-federation';
+import { useCurrentApp, useShellHooks } from '@scality/module-federation';
 import { S3 } from 'aws-sdk';
 import { useEffect, useRef, useState } from 'react';
 import { MutationOptions, useMutation, useQueryClient } from 'react-query';
@@ -501,6 +501,7 @@ const usePatchZenkoConfigurationMutation = <T>(
 };
 
 const useEnableSOSAPIMutation = () => {
+  const { url } = useCurrentApp();
   return usePatchZenkoConfigurationMutation(
     () =>
       JSON.stringify([
@@ -513,7 +514,7 @@ const useEnableSOSAPIMutation = () => {
     undefined,
     async () => {
       const res = await fetch(
-        `/zenko/.well-known/runtime-app-configuration?_t=${Date.now()}`,
+        `${url}/.well-known/runtime-app-configuration?_t=${Date.now()}`,
       );
       if (!res.ok) return false;
       const config = await res.json();
