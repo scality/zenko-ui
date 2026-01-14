@@ -388,6 +388,7 @@ const usePatchZenkoConfigurationMutation = <T>(
 
   return useMutation({
     mutationFn: async (args: T) => {
+      const patchTimestamp = new Date().getTime();
       const result = await fetch(getURL(instances), {
         method: 'PATCH',
         headers: {
@@ -409,7 +410,7 @@ const usePatchZenkoConfigurationMutation = <T>(
       let pollAttempts = 0;
       const MAX_POLL_ATTEMPTS = 90;
       let deploymentStarted = false;
-      const patchTimestamp = new Date().getTime();
+      
       do {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const r = await fetch(getURL(instances), {
