@@ -1,8 +1,7 @@
 import MonacoEditor, { EditorProps, loader } from '@monaco-editor/react';
 import React, { useMemo, useState } from 'react';
 
-import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import { useShellHooks } from '@scality/module-federation';
+import { useCurrentApp, useShellHooks } from '@scality/module-federation';
 
 type Props = {
   width?: string;
@@ -22,20 +21,18 @@ const Editor = ({
   readOnly,
   ...rest
 }: Props) => {
-  const config = useConfig();
-  const { basePath } = config;
   const [theme, setTheme] = useState('');
   const { useShellThemeSelector } = useShellHooks();
   const { themeMode } = useShellThemeSelector();
+  const { url } = useCurrentApp();
 
   useMemo(() => {
     setTheme(themeMode === 'dark' ? 'vs-dark' : 'light');
   }, [themeMode]);
 
   useMemo(() => {
-    const path = '/zenko';
-    loader.config({ paths: { vs: path + '/vs' } });
-  }, []);
+    loader.config({ paths: { vs: url + '/vs' } });
+  }, [url]);
 
   return (
     <MonacoEditor

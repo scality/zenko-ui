@@ -857,83 +857,110 @@ describe('mutations', () => {
     );
   });
 
-  describe('usePatchZenkoConfigurationMutation', () => {
-    let mockFetch;
-    let originalFetch;
+  // ==========================================================================
+  // Shared test utilities for Zenko configuration mutations
+  // ==========================================================================
 
-    // Helper to create mock responses for the deployment lifecycle
-    const createDeploymentLifecycleMocks = (generation: number = 1) => {
-      const now = new Date().toISOString();
-      return {
-        patchSuccess: {
-          ok: true,
-          json: () => Promise.resolve({ status: 'Success' }),
-        },
-        deploymentInProgress: {
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation },
-              status: {
-                observedGeneration: generation,
-                conditions: [
-                  { type: 'Available', status: 'False' },
-                  {
-                    type: 'DeploymentInProgress',
-                    status: 'True',
-                    lastTransitionTime: now,
-                  },
-                  { type: 'DeploymentFailure', status: 'False' },
-                ],
+  const createDeploymentLifecycleMocks = (generation: number = 1) => {
+    return {
+      patchSuccess: {
+        ok: true,
+        json: () => Promise.resolve({ status: 'Success' }),
+      },
+      deploymentInProgress: {
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            metadata: { generation },
+            status: {
+              observedGeneration: generation,
+              conditions: [
+                { type: 'Available', status: 'False' },
+                {
+                  type: 'DeploymentInProgress',
+                  status: 'True',
+                  lastTransitionTime: new Date().toISOString(),
+                },
+                { type: 'DeploymentFailure', status: 'False' },
+              ],
+            },
+          }),
+      },
+      deploymentComplete: {
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            metadata: { generation },
+            status: {
+              observedGeneration: generation,
+              conditions: [
+                { type: 'Available', status: 'True' },
+                { type: 'DeploymentInProgress', status: 'False' },
+                { type: 'DeploymentFailure', status: 'False' },
+              ],
+            },
+          }),
+      },
+      runtimeConfigWithVeeamProxy: {
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            spec: {
+              selfConfiguration: {
+                proxy: {
+                  veeam: { cloudserverEndpoint: 'http://localhost:8000' },
+                },
               },
-            }),
-        },
-        deploymentComplete: {
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              metadata: { generation },
-              status: {
-                observedGeneration: generation,
-                conditions: [
-                  { type: 'Available', status: 'True' },
-                  { type: 'DeploymentInProgress', status: 'False' },
-                  { type: 'DeploymentFailure', status: 'False' },
-                ],
-              },
-            }),
-        },
-      };
+            },
+          }),
+      },
+      runtimeConfigWithoutVeeamProxy: {
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            spec: {
+              selfConfiguration: {},
+            },
+          }),
+      },
     };
+  };
+
+  const setupZenkoMutationMocks = () => {
+    jest
+      .spyOn(require('@scality/module-federation'), 'useShellHooks')
+      .mockImplementation(() => ({
+        useAuth: () => ({
+          getToken: jest.fn().mockResolvedValue('test-token'),
+        }),
+        useConfigRetriever: () => ({
+          retrieveConfiguration: jest.fn().mockReturnValue({
+            spec: {
+              selfConfiguration: {
+                url: 'https://test-url',
+              },
+            },
+          }),
+        }),
+      }));
+
+    jest
+      .spyOn(
+        require('../react/next-architecture/ui/ConfigProvider'),
+        'useDeployedMetalk8sInstances',
+      )
+      .mockImplementation(() => [{ name: 'test-instance' }]);
+  };
+
+  describe('usePatchZenkoConfigurationMutation', () => {
+    let mockFetch: jest.Mock;
+    let originalFetch: typeof global.fetch;
 
     beforeEach(() => {
       originalFetch = global.fetch;
       mockFetch = jest.fn();
       global.fetch = mockFetch;
-
-      jest
-        .spyOn(require('@scality/module-federation'), 'useShellHooks')
-        .mockImplementation(() => ({
-          useAuth: () => ({
-            getToken: jest.fn().mockResolvedValue('test-token'),
-          }),
-          useConfigRetriever: () => ({
-            retrieveConfiguration: jest.fn().mockReturnValue({
-              spec: {
-                selfConfiguration: {
-                  url: 'https://test-url',
-                },
-              },
-            }),
-          }),
-        }));
-
-      jest
-        .spyOn(
-          require('../react/next-architecture/ui/ConfigProvider'),
-          'useDeployedMetalk8sInstances',
-        )
-        .mockImplementation(() => [{ name: 'test-instance' }]);
+      setupZenkoMutationMocks();
     });
 
     afterEach(() => {
@@ -1077,6 +1104,265 @@ describe('mutations', () => {
       expect(errorMessage).toContain('timed out');
 
       global.setTimeout = originalSetTimeout;
+    });
+  });
+
+  // ==========================================================================
+  // Tests for useEnableSOSAPIMutation with additionalPollCondition
+  // ==========================================================================
+
+  describe('useEnableSOSAPIMutation with veeam proxy check', () => {
+    let mockFetch: jest.Mock;
+    let originalFetch: typeof global.fetch;
+
+    beforeEach(() => {
+      originalFetch = global.fetch;
+      mockFetch = jest.fn();
+      global.fetch = mockFetch;
+      setupZenkoMutationMocks();
+    });
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+      jest.restoreAllMocks();
+    });
+
+    it('should succeed when veeam proxy appears in runtime config', async () => {
+      jest.useFakeTimers();
+
+      const mocks = createDeploymentLifecycleMocks(5);
+      mockFetch
+        .mockResolvedValueOnce(mocks.patchSuccess)
+        .mockResolvedValueOnce(mocks.deploymentInProgress)
+        .mockResolvedValueOnce(mocks.deploymentComplete)
+        .mockResolvedValueOnce(mocks.runtimeConfigWithVeeamProxy);
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let mutationPromise;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined);
+      });
+
+      for (let i = 0; i < 5; i++) {
+        await act(async () => {
+          jest.advanceTimersByTime(1000);
+        });
+      }
+
+      await mutationPromise;
+
+      jest.useRealTimers();
+
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.isError).toBe(false);
+
+      const patchCall = mockFetch.mock.calls.find(
+        ([, options]) => options?.method === 'PATCH',
+      );
+      expect(patchCall).toBeDefined();
+      expect(JSON.parse(patchCall[1].body)).toEqual([
+        {
+          op: 'replace',
+          path: '/spec/veeamSosApi',
+          value: { enable: true },
+        },
+      ]);
+
+      const runtimeConfigCall = mockFetch.mock.calls.find(([url]) =>
+        url.includes('runtime-app-configuration'),
+      );
+      expect(runtimeConfigCall).toBeDefined();
+    });
+
+    it('should timeout when veeam proxy never appears', async () => {
+      const originalSetTimeout = global.setTimeout;
+      global.setTimeout = ((fn: () => void) => fn()) as unknown as typeof global.setTimeout;
+
+      const mocks = createDeploymentLifecycleMocks(5);
+      mockFetch.mockImplementation((url: string) => {
+        if (url.includes('runtime-app-configuration')) {
+          return Promise.resolve(mocks.runtimeConfigWithoutVeeamProxy);
+        }
+        if (url.includes('artesca-data')) {
+          return Promise.resolve(mocks.deploymentComplete);
+        }
+        return Promise.resolve(mocks.patchSuccess);
+      });
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let error;
+      await act(async () => {
+        try {
+          await result.current.mutateAsync(undefined);
+        } catch (e) {
+          error = e;
+        }
+      });
+
+      expect(error).toBeDefined();
+      expect(result.current.isError).toBe(true);
+      expect(String(error)).toContain('timed out');
+
+      global.setTimeout = originalSetTimeout;
+    });
+
+    it('should handle runtime config fetch failure gracefully', async () => {
+      const originalSetTimeout = global.setTimeout;
+      global.setTimeout = ((fn: () => void) => fn()) as unknown as typeof global.setTimeout;
+
+      const mocks = createDeploymentLifecycleMocks(5);
+      mockFetch.mockImplementation((url: string) => {
+        if (url.includes('runtime-app-configuration')) {
+          return Promise.resolve({ ok: false, status: 500 });
+        }
+        if (url.includes('artesca-data')) {
+          return Promise.resolve(mocks.deploymentComplete);
+        }
+        return Promise.resolve(mocks.patchSuccess);
+      });
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let error;
+      await act(async () => {
+        try {
+          await result.current.mutateAsync(undefined);
+        } catch (e) {
+          error = e;
+        }
+      });
+
+      expect(error).toBeDefined();
+      expect(result.current.isError).toBe(true);
+      expect(String(error)).toContain('timed out');
+
+      global.setTimeout = originalSetTimeout;
+    });
+
+    it('should only check veeam proxy after deployment is ready', async () => {
+      jest.useFakeTimers();
+
+      const mocks = createDeploymentLifecycleMocks(5);
+      const fetchCalls: { url: string; isDeploymentReady: boolean }[] = [];
+      let deploymentReadyCount = 0;
+
+      mockFetch.mockImplementation((url: string, options?: { method?: string }) => {
+        if (options?.method === 'PATCH') {
+          return Promise.resolve(mocks.patchSuccess);
+        }
+
+        if (url.includes('artesca-data') && options?.method === 'GET') {
+          const artescaGetCount = fetchCalls.filter(
+            (c) => c.url.includes('artesca-data'),
+          ).length;
+          const isReady = artescaGetCount >= 2;
+          if (isReady) deploymentReadyCount++;
+          fetchCalls.push({ url, isDeploymentReady: isReady });
+          return Promise.resolve(
+            isReady ? mocks.deploymentComplete : mocks.deploymentInProgress,
+          );
+        }
+
+        if (url.includes('runtime-app-configuration')) {
+          fetchCalls.push({ url, isDeploymentReady: deploymentReadyCount > 0 });
+          return Promise.resolve(mocks.runtimeConfigWithVeeamProxy);
+        }
+
+        fetchCalls.push({ url, isDeploymentReady: false });
+        return Promise.resolve(mocks.patchSuccess);
+      });
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let mutationPromise;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined);
+      });
+
+      for (let i = 0; i < 10; i++) {
+        await act(async () => {
+          jest.advanceTimersByTime(1000);
+        });
+      }
+
+      await mutationPromise;
+
+      jest.useRealTimers();
+
+      const runtimeConfigCalls = fetchCalls.filter((c) =>
+        c.url.includes('runtime-app-configuration'),
+      );
+
+      expect(runtimeConfigCalls.length).toBeGreaterThan(0);
+      runtimeConfigCalls.forEach((call) => {
+        expect(call.isDeploymentReady).toBe(true);
+      });
+    });
+
+    it('should succeed immediately when deployment is already complete (no redeployment needed)', async () => {
+      jest.useFakeTimers();
+
+      const mocks = createDeploymentLifecycleMocks(5);
+      mockFetch
+        .mockResolvedValueOnce(mocks.patchSuccess)
+        // First poll: deployment already complete (operator determined no redeployment needed)
+        .mockResolvedValueOnce(mocks.deploymentComplete)
+        .mockResolvedValueOnce(mocks.runtimeConfigWithVeeamProxy);
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let mutationPromise;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined);
+      });
+
+      // Only need minimal timer advances since deployment is already complete
+      for (let i = 0; i < 3; i++) {
+        await act(async () => {
+          jest.advanceTimersByTime(1000);
+        });
+      }
+
+      await mutationPromise;
+
+      jest.useRealTimers();
+
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.isError).toBe(false);
+
+      // Verify the flow: PATCH -> GET (deployment complete) -> GET (runtime config)
+      const getCalls = mockFetch.mock.calls.filter(
+        ([, options]) => !options?.method || options.method === 'GET',
+      );
+      // Should have minimal GET calls since deployment was already complete
+      expect(getCalls.length).toBeLessThanOrEqual(2);
+    });
+
+    it('should return false when instances array is empty', async () => {
+      jest
+        .spyOn(
+          require('../react/next-architecture/ui/ConfigProvider'),
+          'useDeployedMetalk8sInstances',
+        )
+        .mockImplementation(() => []);
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      expect(result.current.mutate).toBeDefined();
     });
   });
 

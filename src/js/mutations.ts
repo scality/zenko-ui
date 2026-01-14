@@ -1,4 +1,4 @@
-import { useShellHooks } from '@scality/module-federation';
+import { useCurrentApp, useShellHooks } from '@scality/module-federation';
 import { S3 } from 'aws-sdk';
 import { useEffect, useRef, useState } from 'react';
 import { MutationOptions, useMutation, useQueryClient } from 'react-query';
@@ -367,6 +367,7 @@ const useCreateUserAccessKeyMutation = () => {
 const usePatchZenkoConfigurationMutation = <T>(
   getJsonPatch: (args: T) => string,
   options?: MutationOptions<T, ApiError, T>,
+  additionalPollCondition?: () => Promise<boolean>,
 ) => {
   const { useConfigRetriever, useAuth } = useShellHooks();
   const { getToken } = useAuth();
@@ -388,6 +389,7 @@ const usePatchZenkoConfigurationMutation = <T>(
 
   return useMutation({
     mutationFn: async (args: T) => {
+      const patchTimestamp = new Date().getTime();
       const result = await fetch(getURL(instances), {
         method: 'PATCH',
         headers: {
@@ -409,7 +411,8 @@ const usePatchZenkoConfigurationMutation = <T>(
       let pollAttempts = 0;
       const MAX_POLL_ATTEMPTS = 90;
       let deploymentStarted = false;
-      const patchTimestamp = new Date().getTime();
+      let additionalConditionPassed = true;
+
       do {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const r = await fetch(getURL(instances), {
@@ -419,6 +422,10 @@ const usePatchZenkoConfigurationMutation = <T>(
             authorization: `Bearer ${await getToken()}`,
           },
         });
+        if (!r.ok) {
+          pollAttempts++;
+          continue;
+        }
         const response = await r.json();
         if (
           response.metadata.generation === response.status.observedGeneration
@@ -426,12 +433,26 @@ const usePatchZenkoConfigurationMutation = <T>(
           resourceSynchronized = true;
         }
 
-        // Phase 1: Wait for deployment to START
-        if (resourceSynchronized && !deploymentStarted) {
-          if (response.status.conditions) {
-            const deploymentCondition = response.status.conditions.find(
-              (cond) => cond.type === 'DeploymentInProgress',
-            );
+        // Check deployment state from conditions
+        if (resourceSynchronized && response.status.conditions) {
+          const availableCondition = response.status.conditions.find(
+            (cond) => cond.type === 'Available',
+          );
+          const deploymentCondition = response.status.conditions.find(
+            (cond) => cond.type === 'DeploymentInProgress',
+          );
+          const failureCondition = response.status.conditions.find(
+            (cond) => cond.type === 'DeploymentFailure',
+          );
+
+          const isDeploymentComplete =
+            availableCondition?.status === 'True' &&
+            deploymentCondition?.status === 'False' &&
+            failureCondition?.status === 'False';
+
+          // Phase 1: Wait for deployment to START (or already complete)
+          if (!deploymentStarted) {
+            // If a new deployment started after our patch
             if (
               deploymentCondition &&
               new Date(deploymentCondition.lastTransitionTime).getTime() >=
@@ -439,39 +460,36 @@ const usePatchZenkoConfigurationMutation = <T>(
             ) {
               deploymentStarted = true;
             }
+            // Or if deployment is already complete (no new deployment needed)
+            else if (isDeploymentComplete) {
+              deploymentStarted = true;
+              isReady = true;
+            }
+          }
+
+          // Phase 2: Wait for deployment to COMPLETE
+          if (deploymentStarted && !isReady) {
+            isReady = isDeploymentComplete;
           }
         }
 
-        // Phase 2: Wait for deployment to COMPLETE
-        if (deploymentStarted) {
-          isReady = false;
-          if (response.status.conditions) {
-            const availableCondition = response.status.conditions.find(
-              (cond) => cond.type === 'Available',
-            );
-            const deploymentCondition = response.status.conditions.find(
-              (cond) => cond.type === 'DeploymentInProgress',
-            );
-            const failureCondition = response.status.conditions.find(
-              (cond) => cond.type === 'DeploymentFailure',
-            );
-            if (
-              availableCondition?.status === 'True' &&
-              deploymentCondition?.status === 'False' &&
-              failureCondition?.status === 'False'
-            ) {
-              isReady = true;
-            }
+        additionalConditionPassed = !additionalPollCondition;
+        if (additionalPollCondition && isReady) {
+          try {
+            additionalConditionPassed = await additionalPollCondition();
+          } catch (e) {
+            console.warn('additionalPollCondition check failed:', e);
+            additionalConditionPassed = false;
           }
         }
 
         pollAttempts++;
       } while (
-        !(resourceSynchronized && isReady) &&
+        !(resourceSynchronized && isReady && additionalConditionPassed) &&
         pollAttempts < MAX_POLL_ATTEMPTS
       );
 
-      if (!(resourceSynchronized && isReady)) {
+      if (!(resourceSynchronized && isReady && additionalConditionPassed)) {
         throw new Error(
           'Operation timed out: resource synchronization did not complete within the expected time frame',
         );
@@ -483,14 +501,25 @@ const usePatchZenkoConfigurationMutation = <T>(
 };
 
 const useEnableSOSAPIMutation = () => {
-  return usePatchZenkoConfigurationMutation(() =>
-    JSON.stringify([
-      {
-        op: 'replace',
-        path: '/spec/veeamSosApi',
-        value: { enable: true },
-      },
-    ]),
+  const { url } = useCurrentApp();
+  return usePatchZenkoConfigurationMutation(
+    () =>
+      JSON.stringify([
+        {
+          op: 'replace',
+          path: '/spec/veeamSosApi',
+          value: { enable: true },
+        },
+      ]),
+    undefined,
+    async () => {
+      const res = await fetch(
+        `${url}/.well-known/runtime-app-configuration?_t=${Date.now()}`,
+      );
+      if (!res.ok) return false;
+      const config = await res.json();
+      return !!config?.spec?.selfConfiguration?.proxy?.veeam;
+    },
   );
 };
 
