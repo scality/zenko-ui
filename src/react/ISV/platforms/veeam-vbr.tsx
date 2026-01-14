@@ -25,7 +25,13 @@ import {
   VEEAM_XML_PREFIX,
   SYSTEM_XML_CONTENT,
   GET_CAPACITY_XML_CONTENT,
+  VEEAM_ARCHIVE_FOLDER_PATH,
+  VEEAM_BACKUP_CLIENTS_FOLDER_PATH,
+  VEEAM_BACKUP_CONFIG_FOLDER_PATH,
 } from '../constants';
+import { calculateStorageConsumptionLimit } from '../utils/capacityCalculations';
+import { VeeamRepositorySummary } from '../components/VeeamRepositorySummary';
+import { ensureHttpsPrefix } from '../utils/ensureHttpsPrefix';
 
 const VeeamVBRDisabledMessage = ({
   onDisabledChange,
@@ -120,11 +126,67 @@ export const VeeamVBRPlatform = definePlatform({
       variables: (
         _form: FormData,
         bucket: BucketItem,
-        _prev: PreviousResults,
-        _ctx: FullContext
+        prev: PreviousResults,
+        _ctx: FullContext,
       ) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/`,
+        Body: '',
+      }),
+    },
+    // Folder creation steps for auto-create repository feature
+    {
+      id: 'veeamArchiveFolder',
+      label: `Create Archive folder: ${VEEAM_ARCHIVE_FOLDER_PATH}`,
+      action: 'putObject',
+      when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
+        form.autoCreateRepository === true,
+      variables: (
+        _form: FormData,
+        bucket: BucketItem,
+        prev: PreviousResults,
+        _ctx: FullContext,
+      ) => ({
+        s3Client: prev.assumeRole?.data,
+        Bucket: bucket.name,
+        Key: VEEAM_ARCHIVE_FOLDER_PATH,
+        Body: '',
+      }),
+    },
+    {
+      id: 'veeamBackupClientsFolder',
+      label: `Create Backup Clients folder: ${VEEAM_BACKUP_CLIENTS_FOLDER_PATH}`,
+      action: 'putObject',
+      when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
+        form.autoCreateRepository === true,
+      variables: (
+        _form: FormData,
+        bucket: BucketItem,
+        prev: PreviousResults,
+        _ctx: FullContext,
+      ) => ({
+        s3Client: prev.assumeRole?.data,
+        Bucket: bucket.name,
+        Key: VEEAM_BACKUP_CLIENTS_FOLDER_PATH,
+        Body: '',
+      }),
+    },
+    {
+      id: 'veeamBackupConfigFolder',
+      label: `Create Backup Config folder: ${VEEAM_BACKUP_CONFIG_FOLDER_PATH}`,
+      action: 'putObject',
+      when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) => {
+        return form.autoCreateRepository === true;
+      },
+      variables: (
+        _form: FormData,
+        bucket: BucketItem,
+        prev: PreviousResults,
+        _ctx: FullContext,
+      ) => ({
+        s3Client: prev.assumeRole?.data,
+        Bucket: bucket.name,
+        Key: VEEAM_BACKUP_CONFIG_FOLDER_PATH,
         Body: '',
       }),
     },
@@ -135,8 +197,8 @@ export const VeeamVBRPlatform = definePlatform({
       variables: (
         _form: FormData,
         bucket: BucketItem,
-        _prev: PreviousResults,
-        _ctx: FullContext
+        prev: PreviousResults,
+        _ctx: FullContext,
       ) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/system.xml`,
@@ -151,8 +213,8 @@ export const VeeamVBRPlatform = definePlatform({
       variables: (
         _form: FormData,
         bucket: BucketItem,
-        _prev: PreviousResults,
-        _ctx: FullContext
+        prev: PreviousResults,
+        _ctx: FullContext,
       ) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
@@ -161,7 +223,59 @@ export const VeeamVBRPlatform = definePlatform({
       }),
     },
   ],
+  additionalMutations: [
+    {
+      each: 'buckets',
+      steps: [
+        {
+          id: 'createVeeamRepo',
+          label: 'Create Veeam Repository: {{name}}',
+          action: 'createVeeamRepository',
+          when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
+            form.autoCreateRepository === true && _ctx.needsAccessKey,
+          variables: (
+            form: FormData,
+            bucket: BucketItem,
+            prev: PreviousResults,
+            ctx: FullContext,
+          ) => {
+            const capacityBytes = bucket.capacityBytes ?? 0;
+            const { kind, count } =
+              calculateStorageConsumptionLimit(capacityBytes);
+            const servicePoint = ensureHttpsPrefix(ctx._s3ServicePoint);
 
+            const accessKeyData = prev.createAccessKey?.data as
+              | {
+                  AccessKey?: {
+                    AccessKeyId: string;
+                    SecretAccessKey: string;
+                  };
+                }
+              | undefined;
+
+            if (!accessKeyData?.AccessKey) {
+              throw new Error(
+                'Access key not available. Ensure access key creation completed successfully.',
+              );
+            }
+
+            return {
+              repositoryName: bucket.name,
+              servicePoint,
+              accessKey: accessKeyData.AccessKey.AccessKeyId,
+              secretKey: accessKeyData.AccessKey.SecretAccessKey,
+              bucketName: bucket.name,
+              region: 'us-east-1',
+              immutable: form.enableImmutableBackup,
+              immutablePeriodDays: form.immutablePeriodDays,
+              storageConsumptionLimitKind: kind,
+              storageConsumptionLimitCount: count,
+            };
+          },
+        },
+      ],
+    },
+  ],
   summary: {
     serviceEndpointLabel: 'Service Endpoint',
     bucketBanner: <VeeamBucketBanner />,
@@ -170,6 +284,13 @@ export const VeeamVBRPlatform = definePlatform({
       enabled
         ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
         : undefined,
+    customRender: ({ formData, onFinish, renderDefault }) => {
+      if (!formData.autoCreateRepository) {
+        return renderDefault();
+      }
+
+      return <VeeamRepositorySummary formData={formData} onFinish={onFinish} />;
+    },
   },
 
   description: (
@@ -189,7 +310,6 @@ export const VeeamVBRPlatform = definePlatform({
       have any accounts, it will also prompt you on your next login.
     </Text>
   ),
-
   additionalFields: {
     afterImmutable: [
       {

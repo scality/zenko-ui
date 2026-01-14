@@ -92,3 +92,7 @@ export const VEEAM_SYSTEM_KEY = `${VEEAM_XML_PREFIX}/system.xml`;
 
 export const DEFAULT_IMMUTABLE_PERIOD_DAYS = 14;
 export const MAX_IMMUTABLE_PERIOD_DAYS = 3650;
+
+export const VEEAM_ARCHIVE_FOLDER_PATH = 'Veeam/Archive/bkp/';
+export const VEEAM_BACKUP_CLIENTS_FOLDER_PATH = 'Veeam/Backup/bkp/Clients/';
+export const VEEAM_BACKUP_CONFIG_FOLDER_PATH = 'Veeam/Backup/bkp/Config/';

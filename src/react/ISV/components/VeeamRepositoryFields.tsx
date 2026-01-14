@@ -4,17 +4,30 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { MAX_IMMUTABLE_PERIOD_DAYS } from '../constants';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
+import { useEffect } from 'react';
 
 export const VeeamRepositoryFields = () => {
   const {
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useFormContext();
   const isVeeamVBROnly = useIsVeeamVBROnly();
   const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
   const autoCreateRepository = watch('autoCreateRepository');
   const enableImmutableBackup = watch('enableImmutableBackup');
+
+  const accountNameType = watch('accountNameType');
+  const IAMUserNameType = watch('IAMUserNameType');
+  const isEnabled =
+    accountNameType === 'create' || IAMUserNameType === 'create';
+
+  useEffect(() => {
+    if (!isEnabled) {
+      setValue('autoCreateRepository', false);
+    }
+  }, [isEnabled, setValue]);
 
   if (!isVeeamVBROnly || !isAutoRepoFeatureEnabled) {
     return null;
@@ -31,16 +44,21 @@ export const VeeamRepositoryFields = () => {
           <Controller
             name="autoCreateRepository"
             control={control}
-            render={({ field: { value, onChange } }) => (
-              <Toggle
-                id="autoCreateRepository"
-                aria-label="autoCreateRepository"
-                name="autoCreateRepository"
-                toggle={value}
-                label={value ? 'Enabled' : 'Disabled'}
-                onChange={onChange}
-              />
-            )}
+            render={({ field: { value, onChange } }) => {
+              const effectiveValue = isEnabled ? value : false;
+
+              return (
+                <Toggle
+                  id="autoCreateRepository"
+                  aria-label="autoCreateRepository"
+                  name="autoCreateRepository"
+                  toggle={effectiveValue}
+                  label={effectiveValue ? 'Enabled' : 'Disabled'}
+                  onChange={onChange}
+                  disabled={!isEnabled}
+                />
+              );
+            }}
           />
         }
       />
