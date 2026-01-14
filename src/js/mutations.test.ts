@@ -1309,6 +1309,47 @@ describe('mutations', () => {
       });
     });
 
+    it('should succeed immediately when deployment is already complete (no redeployment needed)', async () => {
+      jest.useFakeTimers();
+
+      const mocks = createDeploymentLifecycleMocks(5);
+      mockFetch
+        .mockResolvedValueOnce(mocks.patchSuccess)
+        // First poll: deployment already complete (operator determined no redeployment needed)
+        .mockResolvedValueOnce(mocks.deploymentComplete)
+        .mockResolvedValueOnce(mocks.runtimeConfigWithVeeamProxy);
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let mutationPromise;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined);
+      });
+
+      // Only need minimal timer advances since deployment is already complete
+      for (let i = 0; i < 3; i++) {
+        await act(async () => {
+          jest.advanceTimersByTime(1000);
+        });
+      }
+
+      await mutationPromise;
+
+      jest.useRealTimers();
+
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.isError).toBe(false);
+
+      // Verify the flow: PATCH -> GET (deployment complete) -> GET (runtime config)
+      const getCalls = mockFetch.mock.calls.filter(
+        ([, options]) => !options?.method || options.method === 'GET',
+      );
+      // Should have minimal GET calls since deployment was already complete
+      expect(getCalls.length).toBeLessThanOrEqual(2);
+    });
+
     it('should return false when instances array is empty', async () => {
       jest
         .spyOn(

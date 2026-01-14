@@ -437,12 +437,26 @@ const usePatchZenkoConfigurationMutation = <T>(
           resourceSynchronized = true;
         }
 
-        // Phase 1: Wait for deployment to START
-        if (resourceSynchronized && !deploymentStarted) {
-          if (response.status.conditions) {
-            const deploymentCondition = response.status.conditions.find(
-              (cond) => cond.type === 'DeploymentInProgress',
-            );
+        // Check deployment state from conditions
+        if (resourceSynchronized && response.status.conditions) {
+          const availableCondition = response.status.conditions.find(
+            (cond) => cond.type === 'Available',
+          );
+          const deploymentCondition = response.status.conditions.find(
+            (cond) => cond.type === 'DeploymentInProgress',
+          );
+          const failureCondition = response.status.conditions.find(
+            (cond) => cond.type === 'DeploymentFailure',
+          );
+
+          const isDeploymentComplete =
+            availableCondition?.status === 'True' &&
+            deploymentCondition?.status === 'False' &&
+            failureCondition?.status === 'False';
+
+          // Phase 1: Wait for deployment to START (or already complete)
+          if (!deploymentStarted) {
+            // If a new deployment started after our patch
             if (
               deploymentCondition &&
               new Date(deploymentCondition.lastTransitionTime).getTime() >=
@@ -450,29 +464,16 @@ const usePatchZenkoConfigurationMutation = <T>(
             ) {
               deploymentStarted = true;
             }
-          }
-        }
-
-        // Phase 2: Wait for deployment to COMPLETE
-        if (deploymentStarted) {
-          isReady = false;
-          if (response.status.conditions) {
-            const availableCondition = response.status.conditions.find(
-              (cond) => cond.type === 'Available',
-            );
-            const deploymentCondition = response.status.conditions.find(
-              (cond) => cond.type === 'DeploymentInProgress',
-            );
-            const failureCondition = response.status.conditions.find(
-              (cond) => cond.type === 'DeploymentFailure',
-            );
-            if (
-              availableCondition?.status === 'True' &&
-              deploymentCondition?.status === 'False' &&
-              failureCondition?.status === 'False'
-            ) {
+            // Or if deployment is already complete (no new deployment needed)
+            else if (isDeploymentComplete) {
+              deploymentStarted = true;
               isReady = true;
             }
+          }
+
+          // Phase 2: Wait for deployment to COMPLETE
+          if (deploymentStarted && !isReady) {
+            isReady = isDeploymentComplete;
           }
         }
 
