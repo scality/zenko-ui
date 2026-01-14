@@ -134,7 +134,7 @@ export const VeeamVBRPlatform = definePlatform({
     // Folder creation steps for auto-create repository feature
     {
       id: 'veeamArchiveFolder',
-      label: 'Create Archive folder: {{name}}',
+      label: 'Create Archive folder: Veeam/Archive/bkp/',
       action: 'putObject',
       when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
         form.autoCreateRepository === true,
@@ -152,7 +152,7 @@ export const VeeamVBRPlatform = definePlatform({
     },
     {
       id: 'veeamBackupClientsFolder',
-      label: 'Create Backup Clients folder: {{name}}',
+      label: 'Create Backup Clients folder: Veeam/Backup/bkp/Clients/',
       action: 'putObject',
       when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
         form.autoCreateRepository === true,
@@ -170,7 +170,7 @@ export const VeeamVBRPlatform = definePlatform({
     },
     {
       id: 'veeamBackupConfigFolder',
-      label: 'Create Backup Config folder: {{name}}',
+      label: 'Create Backup Config folder: Veeam/Backup/bkp/Config/',
       action: 'putObject',
       when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) => {
         return form.autoCreateRepository === true;
