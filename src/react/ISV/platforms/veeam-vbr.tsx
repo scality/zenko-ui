@@ -245,7 +245,7 @@ export const VeeamVBRPlatform = definePlatform({
             const capacityBytes = bucket.capacityBytes ?? 0;
             const { kind, count } =
               calculateStorageConsumptionLimit(capacityBytes);
-            const servicePoint = ensureHttpsPrefix(ctx._s3ServicePoint || '');
+            const servicePoint = ensureHttpsPrefix(ctx._s3ServicePoint);
 
             const accessKeyData = prev.createAccessKey?.data as
               | {
