@@ -40,12 +40,36 @@ export const VeeamRepositorySummary = ({
       }
     >
       <Text isEmphazed>
-        Veeam repo "{buckets[0].name}" was successfully created on the Veeam
-        application.
+        {buckets.length === 1
+          ? `Veeam repository "${buckets[0].name}" was successfully created in the Veeam application.`
+          : `${buckets.length} Veeam repositories were successfully created in the Veeam application.`}
       </Text>
 
       <FormSection forceLabelWidth={300}>
-        <FormGroup
+        <>
+          {buckets.map((bucket, index) => (
+            <FormGroup
+              key={bucket.name}
+              id={`veeam-repository-name-${bucket.name}`}
+              label={
+                buckets.length > 1
+                  ? `Veeam repository name #${index + 1}`
+                  : 'Veeam repository name'
+              }
+              content={
+                <WrapperWithWidth>
+                  <Text>{bucket.name}</Text>
+                  <CopyButton
+                    textToCopy={bucket.name}
+                    aria-label="copy repository name"
+                  />
+                </WrapperWithWidth>
+              }
+            />
+          ))}
+        </>
+
+        {/* <FormGroup
           id="veeam-repository-name"
           label="Veeam repository name"
           content={
@@ -53,11 +77,11 @@ export const VeeamRepositorySummary = ({
               <Text>{buckets[0].name}</Text>
               <CopyButton
                 textToCopy={buckets[0].name}
-                aria-label="copy access key"
+                aria-label="copy repository name"
               />
             </WrapperWithWidth>
           }
-        />
+        /> */}
 
         <>
           <Text variant="Large" isEmphazed>
@@ -87,9 +111,9 @@ export const VeeamRepositorySummary = ({
           title="What is the next step?"
           content={
             <>
-              Your repository is now available in VBR under the name "
-              {buckets[0].name}". You can now proceed with the creation of your
-              backup jobs in the Veeam application.
+              {buckets.length === 1
+                ? `Your repository is now available in VBR under the name "${buckets[0].name}". You can now proceed with the creation of your backup jobs in the Veeam application.`
+                : `Your ${buckets.length} repositories are now available in VBR. You can now proceed with the creation of your backup jobs in the Veeam application.`}
             </>
           }
         />
