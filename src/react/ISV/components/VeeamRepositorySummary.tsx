@@ -69,20 +69,6 @@ export const VeeamRepositorySummary = ({
           ))}
         </>
 
-        {/* <FormGroup
-          id="veeam-repository-name"
-          label="Veeam repository name"
-          content={
-            <WrapperWithWidth>
-              <Text>{buckets[0].name}</Text>
-              <CopyButton
-                textToCopy={buckets[0].name}
-                aria-label="copy repository name"
-              />
-            </WrapperWithWidth>
-          }
-        /> */}
-
         <>
           <Text variant="Large" isEmphazed>
             Option
