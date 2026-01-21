@@ -11,7 +11,7 @@ const deps = packageJson.dependencies;
 
 const revision = execSync('git rev-parse HEAD').toString().trim();
 
-const zenkoDNS = 'zenko.local';
+const zenkoDNS = process.env.ZENKO_DNS || 'zenko.local';
 
 const accessControlAllowHeaders = [
   'X-Requested-With',
