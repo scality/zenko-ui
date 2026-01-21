@@ -179,10 +179,16 @@ export function useMutationExecutor({
         continue;
       }
 
+      // Resolve dynamic label
+      const label =
+        typeof def.label === 'function'
+          ? def.label(formData, context)
+          : def.label;
+
       // Build MutationConfig - spread the action config (mutation or hook)
       mutationConfigs.push({
         id: def.id,
-        label: def.label,
+        label,
         ...actionConfig,
       } as MutationConfig);
 

@@ -218,9 +218,13 @@ export type ActionName =
   | 'attachPolicy'
   | 'createVeeamRepository';
 
+export type MutationLabel =
+  | string
+  | ((form: FormData, ctx: FullContext) => string);
+
 export type SingleMutationDef = {
   id: string;
-  label: string;
+  label: MutationLabel;
   action: ActionName;
   when?: (form: FormData, ctx: FullContext) => boolean;
   variables: (
