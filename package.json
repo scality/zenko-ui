@@ -12,7 +12,8 @@
     "start": "rspack serve -c rspack.config.ts",
     "build": "npm run check-types && npm run rsbuild",
     "jest-preview": "jest-preview",
-    "rsbuild": "rspack build -c rspack.config.ts"
+    "rsbuild": "rspack build -c rspack.config.ts",
+    "gen:runtime-config": "npx ts-node generateRuntimeConfiguration.ts"
   },
   "keywords": [],
   "author": "",
