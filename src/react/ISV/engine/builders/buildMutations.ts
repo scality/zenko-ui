@@ -177,7 +177,8 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
     },
     {
       id: 'createPolicy',
-      label: 'Create Policy',
+      label: (_form: FormData, ctx: FullContext) =>
+        ctx.isNewAccount || ctx.needsIAMUser ? 'Create Policy' : 'Update Policy',
       action: 'createPolicy',
       variables: (
         form: FormData,
