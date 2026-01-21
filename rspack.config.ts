@@ -1,10 +1,11 @@
 import path from 'path';
 import packageJson from './package.json';
-import { Configuration } from '@rspack/cli';
+import type { Configuration } from '@rspack/cli';
 import * as rspack from '@rspack/core';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 import { execSync } from 'node:child_process';
+import fs from 'fs';
 
 const deps = packageJson.dependencies;
 
@@ -26,6 +27,13 @@ const accessControlAllowHeaders = [
   'content-md5',
   'x-amz-bypass-governance-retention',
 ];
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD',
+  'Access-Control-Allow-Headers': accessControlAllowHeaders.join(', '),
+  'Access-Control-Expose-Headers': 'ETag',
+};
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -129,8 +137,7 @@ const config: Configuration = {
       exposes: {
         './FederableApp': './src/react/FederableApp.tsx',
         './WelcomeModal': './src/react/ISV/components/Modal/WelcomeModal.tsx',
-        './SelectAccountIAMRole':
-          './src/react/ui-elements/SelectAccountIAMRole.tsx',
+        './SelectAccountIAMRole': './src/react/ui-elements/SelectAccountIAMRole.tsx',
       },
       remotes: !isProduction
         ? {
@@ -138,9 +145,7 @@ const config: Configuration = {
           }
         : undefined,
       shared: {
-        ...Object.fromEntries(
-          Object.entries(deps).map(([key, version]) => [key, {}]),
-        ),
+        ...Object.fromEntries(Object.entries(deps).map(([key, version]) => [key, {}])),
         '@scality/module-federation': {
           singleton: true,
         },
@@ -165,7 +170,7 @@ const config: Configuration = {
       },
     }),
     new rspack.CopyRspackPlugin({
-      patterns: [{ from: 'public/assets/zenko' }],
+      patterns: [{ from: 'public' }],
     }),
     process.env.RSDOCTOR && new RsdoctorRspackPlugin({}),
   ].filter(Boolean),
@@ -180,14 +185,8 @@ const config: Configuration = {
         errors: true,
       },
     },
-    static: path.join(__dirname, 'public/assets/zenko'),
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods':
-        'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD',
-      'Access-Control-Allow-Headers': accessControlAllowHeaders.join(', '),
-      'Access-Control-Expose-Headers': 'ETag',
-    },
+    static: path.join(__dirname, 'public'),
+    headers: corsHeaders,
     proxy: [
       {
         context: ['/zenko/s3'],
@@ -245,6 +244,18 @@ const config: Configuration = {
         logProvider: () => console,
       },
     ],
+    setupMiddlewares: (middlewares, devServer) => {
+      devServer.app.get('/zenko/.well-known/runtime-app-configuration', (req, res) => {
+        res.set(corsHeaders);
+        const devConfigPath = path.join(__dirname, 'public/.well-known/dev.runtime-app-configuration');
+        const defaultConfigPath = path.join(__dirname, 'public/.well-known/runtime-app-configuration');
+
+        const configPath = fs.existsSync(devConfigPath) ? devConfigPath : defaultConfigPath;
+
+        res.sendFile(configPath);
+      });
+      return middlewares;
+    },
   },
 };
 
