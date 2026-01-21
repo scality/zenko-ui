@@ -74,6 +74,6 @@
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
-    "types": ["@scality/core-ui/types/styled.d.ts", "@scality/core-ui/dist/components/tablev2/react-table-config.d.ts"]
+    "types": ["node", "@scality/core-ui/types/styled.d.ts", "@scality/core-ui/dist/components/tablev2/react-table-config.d.ts"]
   }
 }
