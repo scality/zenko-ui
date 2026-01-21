@@ -111,7 +111,7 @@ const Truststore = () => {
     { certificateIndex: number }
   > = {
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ['zenkoCR'] });
+      queryClient.invalidateQueries({ queryKey: ['zenkoCR'] });
       showToast({
         message: 'Certificate deleted successfully',
         status: 'success',
@@ -246,8 +246,8 @@ const Truststore = () => {
         const closestExpireDate =
           value.length > 1
             ? value.sort((a, b) => {
-                return a.getTime() - b.getTime();
-              })[0]
+              return a.getTime() - b.getTime();
+            })[0]
             : value[0];
         const { shortFormatWithPrefix, status } =
           formatExpiryDate(closestExpireDate);
@@ -257,9 +257,9 @@ const Truststore = () => {
             style={{ alignItems: 'center', justifyContent: 'flex-end' }}
           >
             {status === 'warning' ? (
-              <Icon name="Warning" />
+              <Icon color="statusWarning" name="Exclamation-circle" />
             ) : status === 'critical' ? (
-              <Icon name="Critical" />
+              <Icon color="statusCritical" name="Exclamation-circle" />
             ) : null}
 
             <Text>{shortFormatWithPrefix}</Text>
@@ -326,15 +326,15 @@ const Truststore = () => {
               </Text>
 
               {certificateToDelete?.metadata &&
-              certificateToDelete.metadata.length > 0
+                certificateToDelete.metadata.length > 0
                 ? certificateToDelete.metadata.map((name, index) => (
-                    <Stack gap="r4" key={name + index}>
-                      <Text isEmphazed>{name}</Text>
-                      {index < certificateToDelete.metadata.length - 1 && (
-                        <Icon name="Chevron-right" size="sm" />
-                      )}
-                    </Stack>
-                  ))
+                  <Stack gap="r4" key={name + index}>
+                    <Text isEmphazed>{name}</Text>
+                    {index < certificateToDelete.metadata.length - 1 && (
+                      <Icon name="Chevron-right" size="sm" />
+                    )}
+                  </Stack>
+                ))
                 : ''}
             </Stack>
           }
