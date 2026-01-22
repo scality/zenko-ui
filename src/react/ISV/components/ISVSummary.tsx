@@ -88,9 +88,9 @@ export const DefaultISVSummary = ({
     platform.summary.serviceEndpointLabel || 'Service point';
 
   const bucketItems = buckets as BucketItem[];
-  const textToCopy = `${serviceEndpointLabel}\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
-    accessKey ? 'Access key ID' : 'Access key IDs'
-  }\t${accessKey ? accessKey : accessKeys?.join(', ')}\n${
+  const accessKeyLabel =
+    accessKey || accessKeys?.length === 1 ? 'Access key ID' : 'Access key IDs';
+  const textToCopy = `${serviceEndpointLabel}\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${accessKeyLabel}\t${accessKey ? accessKey : accessKeys?.join(', ')}\n${
     secretKey ? `Secret Access key\t${secretKey}\n` : ''
   }Bucket names\t${bucketItems.map((bucket) => bucket.name).join(', ')}`;
 
