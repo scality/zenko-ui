@@ -95,7 +95,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         accessor: 'creationDate',
         cellStyle: {
           textAlign: 'right',
-          minWidth: '7rem',
+          minWidth: '20ch',
         },
         Cell: ({ value }: CellProps<Account, Date>) => (
           <FormattedDateTime
