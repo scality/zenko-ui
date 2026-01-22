@@ -12,8 +12,7 @@
     "start": "rspack serve -c rspack.config.ts",
     "build": "npm run check-types && npm run rsbuild",
     "jest-preview": "jest-preview",
-    "rsbuild": "rspack build -c rspack.config.ts",
-    "gen:runtime-config": "npx ts-node generateRuntimeConfiguration.ts"
+    "rsbuild": "rspack build -c rspack.config.ts"
   },
   "keywords": [],
   "author": "",
@@ -68,7 +67,7 @@
     "@scality/certchain": "1.4.0",
     "@scality/core-ui": "0.193.0",
     "@scality/data-browser-library": "1.0.0-preview.17",
-    "@scality/module-federation": "^1.5.0",
+    "@scality/module-federation": "github:scality/module-federation.git#improvement/add-runtime-plugin",
     "@scality/react-chained-query": "^2.0.1",
     "@types/react-table": "^7.7.10",
     "@types/react-virtualized": "^9.21.20",

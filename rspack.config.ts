@@ -5,7 +5,7 @@ import * as rspack from '@rspack/core';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 import { execSync } from 'node:child_process';
-import fs from 'fs';
+import { MicroAppRuntimeConfigurationPlugin } from '@scality/module-federation';
 
 const deps = packageJson.dependencies;
 
@@ -173,6 +173,40 @@ const config: Configuration = {
       patterns: [{ from: 'public' }],
     }),
     process.env.RSDOCTOR && new RsdoctorRspackPlugin({}),
+    new MicroAppRuntimeConfigurationPlugin(
+      {
+        kind: 'MicroAppRuntimeConfiguration',
+        apiVersion: 'ui.scality.com/v1alpha1',
+        metadata: {
+          kind: 'zenko-ui',
+          name: 'zenko.eu-west-1',
+        },
+        spec: {
+          title: 'Data Management',
+          selfConfiguration: {
+            managementEndpoint: '/zenko/management',
+            stsEndpoint: '/zenko/sts',
+            zenkoEndpoint: '/zenko/s3',
+            iamEndpoint: '/zenko/iam',
+            features: [],
+            basePath: '/',
+            s3InternalFQDN: `s3.${zenkoDNS}`,
+            iamInternalFQDN: `iam.${zenkoDNS}`,
+          },
+          auth: {
+            kind: 'OIDC',
+            providerUrl: '/oidc',
+            redirectUrl: 'http://localhost:8084/',
+            clientId: 'zenko-ui',
+            responseType: 'code',
+            scopes: 'openid profile email',
+            providerLogout: true,
+          },
+        },
+      },
+      'ZENKO_RUNTIME_',
+      corsHeaders,
+    ),
   ].filter(Boolean),
   devServer: {
     host: '127.0.0.1',
@@ -244,18 +278,6 @@ const config: Configuration = {
         logProvider: () => console,
       },
     ],
-    setupMiddlewares: (middlewares, devServer) => {
-      devServer.app.get('/zenko/.well-known/runtime-app-configuration', (req, res) => {
-        res.set(corsHeaders);
-        const devConfigPath = path.join(__dirname, 'public/.well-known/dev.runtime-app-configuration');
-        const defaultConfigPath = path.join(__dirname, 'public/.well-known/runtime-app-configuration');
-
-        const configPath = fs.existsSync(devConfigPath) ? devConfigPath : defaultConfigPath;
-
-        res.sendFile(configPath);
-      });
-      return middlewares;
-    },
   },
 };
 
