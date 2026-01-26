@@ -146,7 +146,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
                     ) : row.status === 'error' ? (
                       <StatusBox>
                         <Icon
-                          name="Exclamation-triangle"
+                          name="Exclamation-circle"
                           color={theme.statusCritical}
                         />
                         <span>Failed</span>
@@ -215,10 +215,10 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     platform,
     account: account
       ? {
-          id: account.id,
-          name: account.name,
-          roleArn: account.preferredAssumableRoleArn,
-        }
+        id: account.id,
+        name: account.name,
+        roleArn: account.preferredAssumableRoleArn,
+      }
       : null,
     IAMUserNameType,
     generateKey,

@@ -146,7 +146,7 @@ const AccountUpdateUser = () => {
         errorMessage && (
           <Banner
             variant="danger"
-            icon={<Icon name="Exclamation-triangle" />}
+            icon={<Icon name="Exclamation-circle" />}
             title={'Error'}
           >
             {errorMessage}

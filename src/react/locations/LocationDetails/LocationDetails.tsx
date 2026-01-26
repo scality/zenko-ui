@@ -66,7 +66,7 @@ export default class LocationDetails extends React.Component<Props> {
       } else if (this.props.repStatus === 'disabled') {
         msg = (
           <div>
-            <Icon name="Exclamation-triangle" />
+            <Icon name="Exclamation-circle" />
             <span>
               Your instance failed to automatically resume this location. Please
               resume manually.

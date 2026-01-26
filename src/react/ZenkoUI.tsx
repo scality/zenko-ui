@@ -15,7 +15,7 @@ function ZenkoUI() {
       return (
         <Container>
           <Banner
-            icon={<Icon name="Exclamation-triangle" />}
+            icon={<Icon name="Exclamation-circle" />}
             title="Error: Unable to load the appplication"
             variant="danger"
           >

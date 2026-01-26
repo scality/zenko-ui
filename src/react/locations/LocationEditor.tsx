@@ -281,7 +281,7 @@ function LocationEditor() {
       banner={
         displayErrorMessage && (
           <Banner
-            icon={<Icon name="Exclamation-triangle" />}
+            icon={<Icon name="Exclamation-circle" />}
             title="Error"
             variant="danger"
           >
@@ -317,8 +317,8 @@ function LocationEditor() {
               loading
                 ? 'Saving...'
                 : locationEditing
-                ? 'Save Changes'
-                : 'Create'
+                  ? 'Save Changes'
+                  : 'Create'
             }
           />
         </Stack>

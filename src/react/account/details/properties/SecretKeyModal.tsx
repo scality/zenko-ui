@@ -116,7 +116,7 @@ const modalBody = (key: AccountKey | null) => {
 
   return (
     <ModalBody>
-      <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
+      <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
         A Root user Access key ID and its Secret Access key have been created.{' '}
         <br />
         The Secret Access key cannot be retrieved afterwards, so make sure to

@@ -8,7 +8,7 @@ function NoMatch() {
   return (
     <Warning
       centered={true}
-      icon={<Icon name="Exclamation-triangle" size="5x" />}
+      icon={<Icon name="Exclamation-circle" size="5x" />}
       title={title}
     />
   );

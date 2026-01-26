@@ -114,7 +114,7 @@ const modalBody = (key: AccountKey | null, accountName: string) => {
 
   return (
     <ModalBody>
-      <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
+      <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
         An Access key ID and its Secret Access key have been created. <br />
         The Secret Access key cannot be retrieved afterwards, so make sure to
         keep and secure it now. <br />

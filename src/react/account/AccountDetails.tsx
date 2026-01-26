@@ -19,7 +19,7 @@ type Props = {
 const NotFound = () => (
   <Warning
     centered={true}
-    icon={<Icon name="Exclamation-triangle" size="3x" />}
+    icon={<Icon name="Exclamation-circle" size="3x" />}
     title="Account not found."
   />
 );

@@ -184,7 +184,7 @@ function EndpointCreate() {
           </Banner>
           {createEndpointMutation.isError ? (
             <Banner
-              icon={<Icon name="Exclamation-triangle" />}
+              icon={<Icon name="Exclamation-circle" />}
               title="Error"
               variant="danger"
             >
