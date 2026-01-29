@@ -8,7 +8,6 @@ import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.co
 import { ISVStepsIndexes, useISVStepper } from './ISVSteps';
 import { ISVSkipModal } from './ISVSkipModal';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
-import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
 import { DEFAULT_IMMUTABLE_PERIOD_DAYS, VEEAM_OFFICE_365 } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { FormRenderer } from './FormRenderer';
@@ -115,7 +114,6 @@ const getDefaultFormValues = (
   platform: ISVPlatform,
   paramsAccountName: string | null,
   isVeeamVBROnly: boolean,
-  isAutoRepoFeatureEnabled: boolean,
 ): Partial<FormData> => {
   const baseDefaults: Partial<FormData> = {
     accountName: paramsAccountName || '',
@@ -139,7 +137,7 @@ const getDefaultFormValues = (
 
   const defaults = { ...fieldDefaults, ...baseDefaults };
 
-  if (isVeeamVBROnly && isAutoRepoFeatureEnabled) {
+  if (isVeeamVBROnly) {
     return {
       ...defaults,
       autoCreateRepository: true,
@@ -155,7 +153,6 @@ export const ISVConfiguration = () => {
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
   const isVeeamVBROnly = useIsVeeamVBROnly();
-  const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
 
   const formMethods = useForm<FormData>({
     mode: 'all',
@@ -163,7 +160,6 @@ export const ISVConfiguration = () => {
       platform,
       paramsAccountName,
       isVeeamVBROnly,
-      isAutoRepoFeatureEnabled,
     ),
     resolver: joiResolver(platform.validator),
     shouldUnregister: false,

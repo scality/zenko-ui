@@ -6,18 +6,12 @@ import { Wrapper } from '../../../utils/testUtil';
 import { Form, FormSection, FormGroup } from '@scality/core-ui';
 
 jest.mock('../../hooks/useIsVeeamVBROnly');
-jest.mock('../../hooks/useVeeamAutoRepositoryFeature');
 
 import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
-import { useVeeamAutoRepositoryFeature } from '../../hooks/useVeeamAutoRepositoryFeature';
 
 const mockUseIsVeeamVBROnly = useIsVeeamVBROnly as jest.MockedFunction<
   typeof useIsVeeamVBROnly
 >;
-const mockUseVeeamAutoRepositoryFeature =
-  useVeeamAutoRepositoryFeature as jest.MockedFunction<
-    typeof useVeeamAutoRepositoryFeature
-  >;
 
 interface FormWrapperProps {
   children: React.ReactNode;
@@ -59,7 +53,6 @@ describe('VeeamRepositoryFields', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseIsVeeamVBROnly.mockReturnValue(true);
-    mockUseVeeamAutoRepositoryFeature.mockReturnValue(true);
   });
 
   it('renders repository creation toggle', () => {
