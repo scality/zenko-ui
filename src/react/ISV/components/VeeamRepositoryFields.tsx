@@ -3,7 +3,6 @@ import { Input } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
 import { MAX_IMMUTABLE_PERIOD_DAYS } from '../constants';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
-import { useVeeamAutoRepositoryFeature } from '../hooks/useVeeamAutoRepositoryFeature';
 import { useEffect } from 'react';
 
 export const VeeamRepositoryFields = () => {
@@ -14,7 +13,6 @@ export const VeeamRepositoryFields = () => {
     formState: { errors },
   } = useFormContext();
   const isVeeamVBROnly = useIsVeeamVBROnly();
-  const isAutoRepoFeatureEnabled = useVeeamAutoRepositoryFeature();
   const autoCreateRepository = watch('autoCreateRepository');
   const enableImmutableBackup = watch('enableImmutableBackup');
 
@@ -29,7 +27,7 @@ export const VeeamRepositoryFields = () => {
     }
   }, [isEnabled, setValue]);
 
-  if (!isVeeamVBROnly || !isAutoRepoFeatureEnabled) {
+  if (!isVeeamVBROnly) {
     return null;
   }
 
