@@ -1,16 +1,17 @@
 import path from 'path';
 import packageJson from './package.json';
-import { Configuration } from '@rspack/cli';
+import type { Configuration } from '@rspack/cli';
 import * as rspack from '@rspack/core';
 import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 import { execSync } from 'node:child_process';
+import { MicroAppRuntimeConfigurationPlugin } from '@scality/module-federation';
 
 const deps = packageJson.dependencies;
 
 const revision = execSync('git rev-parse HEAD').toString().trim();
 
-const zenkoDNS = 'zenko.local';
+const zenkoDNS = process.env.ZENKO_DNS || 'zenko.local';
 
 const accessControlAllowHeaders = [
   'X-Requested-With',
@@ -26,6 +27,13 @@ const accessControlAllowHeaders = [
   'content-md5',
   'x-amz-bypass-governance-retention',
 ];
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD',
+  'Access-Control-Allow-Headers': accessControlAllowHeaders.join(', '),
+  'Access-Control-Expose-Headers': 'ETag',
+};
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -129,8 +137,7 @@ const config: Configuration = {
       exposes: {
         './FederableApp': './src/react/FederableApp.tsx',
         './WelcomeModal': './src/react/ISV/components/Modal/WelcomeModal.tsx',
-        './SelectAccountIAMRole':
-          './src/react/ui-elements/SelectAccountIAMRole.tsx',
+        './SelectAccountIAMRole': './src/react/ui-elements/SelectAccountIAMRole.tsx',
       },
       remotes: !isProduction
         ? {
@@ -138,9 +145,7 @@ const config: Configuration = {
           }
         : undefined,
       shared: {
-        ...Object.fromEntries(
-          Object.entries(deps).map(([key, version]) => [key, {}]),
-        ),
+        ...Object.fromEntries(Object.entries(deps).map(([key, version]) => [key, {}])),
         '@scality/module-federation': {
           singleton: true,
         },
@@ -165,9 +170,43 @@ const config: Configuration = {
       },
     }),
     new rspack.CopyRspackPlugin({
-      patterns: [{ from: 'public/assets/zenko' }],
+      patterns: [{ from: 'public' }],
     }),
     process.env.RSDOCTOR && new RsdoctorRspackPlugin({}),
+    new MicroAppRuntimeConfigurationPlugin(
+      {
+        kind: 'MicroAppRuntimeConfiguration',
+        apiVersion: 'ui.scality.com/v1alpha1',
+        metadata: {
+          kind: 'zenko-ui',
+          name: 'zenko.eu-west-1',
+        },
+        spec: {
+          title: 'Data Management',
+          selfConfiguration: {
+            managementEndpoint: '/zenko/management',
+            stsEndpoint: '/zenko/sts',
+            zenkoEndpoint: '/zenko/s3',
+            iamEndpoint: '/zenko/iam',
+            features: [],
+            basePath: '/',
+            s3InternalFQDN: `s3.${zenkoDNS}`,
+            iamInternalFQDN: `iam.${zenkoDNS}`,
+          },
+          auth: {
+            kind: 'OIDC',
+            providerUrl: '/oidc',
+            redirectUrl: 'http://localhost:8084/',
+            clientId: 'zenko-ui',
+            responseType: 'code',
+            scopes: 'openid profile email',
+            providerLogout: true,
+          },
+        },
+      },
+      'ZENKO_RUNTIME_',
+      corsHeaders,
+    ),
   ].filter(Boolean),
   devServer: {
     host: '127.0.0.1',
@@ -180,14 +219,8 @@ const config: Configuration = {
         errors: true,
       },
     },
-    static: path.join(__dirname, 'public/assets/zenko'),
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods':
-        'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD',
-      'Access-Control-Allow-Headers': accessControlAllowHeaders.join(', '),
-      'Access-Control-Expose-Headers': 'ETag',
-    },
+    static: path.join(__dirname, 'public'),
+    headers: corsHeaders,
     proxy: [
       {
         context: ['/zenko/s3'],
