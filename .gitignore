@@ -13,5 +13,3 @@ coverage
 
 build
 build_ts/
-
-public/.well-known/dev.runtime-app-configuration
