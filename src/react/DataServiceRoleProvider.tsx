@@ -72,11 +72,13 @@ const useS3ConfigFromAssumeRoleResult = () => {
       assumeRoleResult:
         | PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>
         | undefined,
+      cacheKey?: string,
     ): S3Config => ({
       endpoint,
       region: DEFAULT_REGION,
       forcePathStyle: true,
       features,
+      cacheKey,
       proxy: {
         enabled: true,
         endpoint: zenkoEndpoint,
@@ -172,11 +174,12 @@ export const useCurrentAccount = () => {
 
 export const useS3Config = (): S3Config | undefined => {
   const assumedRole = useAssumedRole();
+  const { roleArn } = useDataServiceRole();
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
   return useMemo(() => {
     if (!assumedRole) return undefined;
-    return getS3Config(assumedRole);
-  }, [assumedRole, getS3Config]);
+    return getS3Config(assumedRole, roleArn);
+  }, [assumedRole, getS3Config, roleArn]);
 };
 
 const DataServiceRoleProvider = ({
@@ -216,6 +219,9 @@ const DataServiceRoleProvider = ({
     },
   });
 
+  const { useAuth } = useShellHooks();
+  const { userData } = useAuth();
+
   useEffect(() => {
     const storedRole = getRoleArnStored();
     if (accountName) {
@@ -243,13 +249,13 @@ const DataServiceRoleProvider = ({
     if (role.roleArn) {
       assumeRoleMutation.mutate(role.roleArn);
     }
-  }, [role.roleArn]);
+  }, [role.roleArn, userData?.token]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 
   const s3Config = useMemo(
-    () => getS3Config(assumedRole),
-    [assumedRole, getS3Config],
+    () => getS3Config(assumedRole, role.roleArn),
+    [assumedRole, getS3Config, role.roleArn],
   );
 
   const credentials: S3Credentials = useMemo(
@@ -286,7 +292,7 @@ const DataServiceRoleProvider = ({
           setRoleArnStored(role.roleArn);
           setRoleState(role);
         });
-        return getS3Config(data);
+        return getS3Config(data, role.roleArn);
       });
   };
 
