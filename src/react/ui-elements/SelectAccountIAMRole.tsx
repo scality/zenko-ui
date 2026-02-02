@@ -1,4 +1,4 @@
-import { Form, FormGroup, FormSection, useToast } from '@scality/core-ui';
+import { Form, FormGroup, FormSection, ToastProvider, useToast } from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
 import { IAM } from 'aws-sdk';
 import { Bucket } from '@scality/data-browser-library';
@@ -49,21 +49,6 @@ export class NoOpMetricsAdapter implements IMetricsAdapter {
     return {};
   }
 }
-
-const filterRoles = (
-  accountName: string,
-  roles: IAM.Role[],
-  hideAccountRoles: { accountName: string; roleName: string }[],
-) => {
-  return roles.filter(
-    (role) =>
-      !hideAccountRoles.find(
-        (hideRole) =>
-          hideRole.accountName === accountName &&
-          hideRole.roleName === role.RoleName,
-      ),
-  );
-};
 
 export const extractAccountIdFromARN = (arn: string) => {
   return regexArn.exec(arn)?.groups?.['account_id'] ?? '';
@@ -198,19 +183,14 @@ const SelectAccountIAMRoleWithAccount = (
   };
   const roleQueryData = useQuery(listRolesQuery);
 
-  const allRolesExceptHiddenOnes = filterRoles(
-    accountName,
-    roleQueryData?.data?.Roles ?? [],
-    hideAccountRoles,
-  );
   const roles = props.filterOutInternalRoles
-    ? allRolesExceptHiddenOnes.filter((role) => {
-        return (
-          SCALITY_IAM_ROLES.includes(role.RoleName) ||
-          !role.Arn.includes('role/scality-internal')
-        );
-      })
-    : allRolesExceptHiddenOnes;
+    ? (roleQueryData?.data?.Roles ?? []).filter((role) => {
+      return (
+        SCALITY_IAM_ROLES.includes(role.RoleName) ||
+        !role.Arn.includes('role/scality-internal')
+      );
+    })
+    : (roleQueryData?.data?.Roles ?? []);
 
   const isDefaultAccountSelected = account?.name === defaultValue?.accountName;
   const defaultRole = isDefaultAccountSelected ? defaultValue?.roleName : null;
@@ -281,15 +261,15 @@ const SelectAccountIAMRoleWithAccount = (
                           (statement) =>
                             (props.identityProviderUrl
                               ? statement.Principal?.Federated?.startsWith(
-                                  props.identityProviderUrl,
-                                )
+                                props.identityProviderUrl,
+                              )
                               : true) &&
                             statement.Condition?.StringEquals?.[
-                              'keycloak:roles'
+                            'keycloak:roles'
                             ] &&
                             statement.Effect === 'Allow' &&
                             statement.Action ===
-                              'sts:AssumeRoleWithWebIdentity',
+                            'sts:AssumeRoleWithWebIdentity',
                         )?.Condition?.StringEquals['keycloak:roles'];
                       onChange(account, selectedRole, keycloakRoleName);
                     },
@@ -299,11 +279,23 @@ const SelectAccountIAMRoleWithAccount = (
                 menuPosition={props.menuPosition}
                 placeholder="Select Role"
               >
-                {roles.map((role) => (
-                  <Select.Option key={`${role.RoleName}`} value={role.RoleName}>
-                    {role.RoleName}
-                  </Select.Option>
-                ))}
+                {
+                  roleQueryData.isLoading || !assumedRoleAccountMatchSelectedAccount
+                    ? <Select.Option key="loading" value="loading" disabled>Loading...</Select.Option>
+                    : roles.map((role) => {
+
+                      if (hideAccountRoles.find(hideRole => hideRole.accountName === accountName && hideRole.roleName === role.RoleName)) {
+                        return <Select.Option key={`${role.RoleName}`} value={role.RoleName} disabled disabledReason="Role already attached">
+                          {role.RoleName}
+                        </Select.Option>;
+                      }
+                      return (
+                        <Select.Option key={`${role.RoleName}`} value={role.RoleName}>
+                          {role.RoleName}
+                        </Select.Option>
+                      )
+                    })
+                }
               </Select>
             ) : (
               <Select
@@ -311,7 +303,7 @@ const SelectAccountIAMRoleWithAccount = (
                 value={'Please select an account'}
                 disabled
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
-                onChange={() => {}}
+                onChange={() => { }}
                 menuPosition={props.menuPosition}
                 placeholder="Select Role"
               >
@@ -380,7 +372,9 @@ export default function SelectAccountIAMRole(
       shellAlerts={props.shellAlerts}
       shellHooks={props.shellHooks}
     >
-      <SelectAccountIAMRoleInternal {...props} />
+      <ToastProvider>
+        <SelectAccountIAMRoleInternal {...props} />
+      </ToastProvider>
     </ShellHooksProvider>
   );
 }
