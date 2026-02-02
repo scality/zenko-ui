@@ -15,13 +15,16 @@ import {
   SearchInput,
   SecondaryText,
   spacing,
+  Stack,
   Tooltip,
+  Wrap,
 } from '@scality/core-ui';
 import styled from 'styled-components';
 import {
   AttachableEntity,
   AttachmentOperation,
   AttachmentAction,
+  EntityDisplayText,
 } from './AttachmentTypes';
 import { tableRowHeight } from '@scality/core-ui/dist/components/tablev2/TableUtils';
 
@@ -44,10 +47,10 @@ export type AttachmentTableProps<
   onAttachmentsOperationsChanged: (
     attachmentOperations: AttachmentOperation[],
   ) => void;
+  entity: EntityDisplayText;
 };
 
 const rowHeight = 'h48';
-
 const MenuContainer = styled.ul<{
   width: string;
   isOpen: boolean;
@@ -74,8 +77,8 @@ const MenuContainer = styled.ul<{
       border: 1px solid ${props.theme.selectedActive};
   `
       : props.searchInputIsFocused
-      ? `border-bottom: 1px solid ${props.theme.selectedActive};`
-      : ''}
+        ? `border-bottom: 1px solid ${props.theme.selectedActive};`
+        : ''}
   border-top: 0;
   li {
     padding: ${spacing.r8};
@@ -116,7 +119,6 @@ const StyledTable = styled.div`
 export const CenterredSecondaryText = styled(SecondaryText)`
   display: block;
   text-align: center;
-  line-height: ${tableRowHeight[rowHeight]}rem;
 `;
 
 export const AttachmentTable = <
@@ -129,6 +131,7 @@ export const AttachmentTable = <
   getEntitiesFromResult,
   initialAttachmentOperations,
   onAttachmentsOperationsChanged,
+  entity,
 }: AttachmentTableProps<API_RESPONSE>) => {
   //Desired attached entities and onAttachmentsOperationsChanged handling
   const [{ desiredAttachedEntities }, dispatch] = useReducer(
@@ -375,8 +378,8 @@ export const AttachmentTable = <
             if (element?.firstElementChild) {
               setSearchWidth(
                 element.firstElementChild.getBoundingClientRect().width -
-                  2 +
-                  'px',
+                2 +
+                'px',
               );
             }
           },
@@ -545,9 +548,14 @@ export const AttachmentTable = <
             {(rows) => (
               <>
                 {desiredAttachedEntities.length === 0 && (
-                  <CenterredSecondaryText>
-                    No entities attached
-                  </CenterredSecondaryText>
+                  <Stack direction="vertical" gap='r16' style={{ padding: spacing.r16, }}>
+                    <CenterredSecondaryText>
+                      No {entity.plural} attached.
+                    </CenterredSecondaryText>
+                    <CenterredSecondaryText>
+                      <Icon name="Search" /> Use the search bar to attach a {entity.singular}.
+                    </CenterredSecondaryText>
+                  </Stack>
                 )}
                 {desiredAttachedEntities.length > 0 && rows}
               </>
