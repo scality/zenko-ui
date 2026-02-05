@@ -360,19 +360,19 @@ describe('VeeamVBRPlatform', () => {
     });
 
     it('should have immutabilityHelpText function', () => {
-      expect(VeeamVBRPlatform.summary.immutability?.helpText).toBeDefined();
-      expect(typeof VeeamVBRPlatform.summary.immutability?.helpText).toBe(
+      expect(VeeamVBRPlatform.summary.immutabilityHelpText).toBeDefined();
+      expect(typeof VeeamVBRPlatform.summary.immutabilityHelpText).toBe(
         'function',
       );
     });
 
     it('should return help text when immutable is true', () => {
-      const helpText = VeeamVBRPlatform.summary.immutability?.helpText?.(true);
+      const helpText = VeeamVBRPlatform.summary.immutabilityHelpText?.(true);
       expect(helpText).toContain('Make recent backups immutable');
     });
 
     it('should return undefined when immutable is false', () => {
-      const helpText = VeeamVBRPlatform.summary.immutability?.helpText?.(false);
+      const helpText = VeeamVBRPlatform.summary.immutabilityHelpText?.(false);
       expect(helpText).toBeUndefined();
     });
   });

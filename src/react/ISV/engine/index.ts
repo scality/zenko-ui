@@ -35,6 +35,9 @@ export type {
   ISVPlatform,
   SummaryConfig,
   SummaryRenderProps,
+  SectionRenderProps,
+  SectionDef,
+  DefaultSectionId,
 
   // Field definitions
   FieldDef,

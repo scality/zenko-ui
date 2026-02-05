@@ -35,14 +35,16 @@ function buildValidator(config: PlatformConfig): Joi.ObjectSchema {
  */
 function buildSummary(config: PlatformConfig): SummaryConfig {
   return {
+    title: config.summary?.title ?? `${config.name} preparation summary`,
     serviceEndpointLabel:
       config.summary?.serviceEndpointLabel ?? 'Service Endpoint',
     bucketBanner: config.summary?.bucketBanner,
-    immutability: {
-      label: config.summary?.immutabilityLabel ?? 'Immutable Backup',
-      helpText: config.summary?.immutabilityHelpText,
-    },
+    immutabilityLabel: config.summary?.immutabilityLabel ?? 'Immutable Backup',
+    immutabilityHelpText: config.summary?.immutabilityHelpText,
+    accessKeyLabel: config.summary?.accessKeyLabel ?? 'Access key ID',
+    secretKeyLabel: config.summary?.secretKeyLabel ?? 'Secret Access key',
     customRender: config.summary?.customRender,
+    sections: config.summary?.sections,
   };
 }
 

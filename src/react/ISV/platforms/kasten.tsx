@@ -1,21 +1,16 @@
 import { Stack, Text } from '@scality/core-ui';
+import { IAMUSerTooltip } from '../components/IAMUserTooltip';
+import { VeeamKastenLogo } from '../components/Modal/Logos/VeeamKastenLogo';
+import { AccountTooltip, BucketNameTooltip, KastenImmutableBackupTooltip } from '../components/shared/PlatformTooltips';
 import { definePlatform, KastenValidator } from '../engine';
 import { GET_KASTEN_POLICY } from '../utils/ISVPolicy';
-import { VeeamKastenLogo } from '../components/Modal/Logos/VeeamKastenLogo';
-import { IAMUSerTooltip } from '../components/IAMUserTooltip';
-import {
-  AccountTooltip,
-  BucketNameTooltip,
-  KastenImmutableBackupTooltip,
-} from '../components/shared/PlatformTooltips';
 
 export const KastenPlatform = definePlatform({
   id: 'kasten',
   name: 'Kasten',
   logo: <VeeamKastenLogo />,
   policy: GET_KASTEN_POLICY,
-  documentationLink:
-    '/artesca/docs/partner_applications/backup_and_archives/kasten.html',
+  documentationLink: '/artesca/docs/partner_applications/backup_and_archives/kasten.html',
 
   fieldOverrides: {
     accountName: {
@@ -39,7 +34,17 @@ export const KastenPlatform = definePlatform({
   },
 
   summary: {
+    title: 'Kasten Location Profile preparation summary',
+    sections: [
+      { id: 'customInformation', render: () => <Text>ARTESCA is a "S3 Compatible" Storage Provider for Kasten.</Text> },
+      { id: 'credentials' },
+      { id: 'connectionInfo' },
+      { id: 'buckets' },
+      { id: 'immutability' },
+    ],
     serviceEndpointLabel: 'S3 Endpoint',
+    accessKeyLabel: 'S3 Access Key',
+    secretKeyLabel: 'S3 Secret',
     immutabilityLabel: 'Immutable Backup',
     immutabilityHelpText: (enabled: boolean) =>
       enabled
@@ -56,9 +61,8 @@ export const KastenPlatform = definePlatform({
 
   skipModalContent: (
     <Text>
-      To start Kasten assistant configuration again, you can go to the{' '}
-      <b>Accounts</b> page or <b>Data Browser</b> page. If the platform doesn't
-      have any accounts, it will also prompt you on your next login.
+      To start Kasten assistant configuration again, you can go to the <b>Accounts</b> page or <b>Data Browser</b> page.
+      If the platform doesn't have any accounts, it will also prompt you on your next login.
     </Text>
   ),
 

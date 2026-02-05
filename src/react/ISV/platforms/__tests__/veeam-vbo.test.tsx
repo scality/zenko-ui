@@ -245,19 +245,19 @@ describe('VeeamVBOPlatform', () => {
     });
 
     it('should have immutabilityHelpText function', () => {
-      expect(VeeamVBOPlatform.summary.immutability?.helpText).toBeDefined();
-      expect(typeof VeeamVBOPlatform.summary.immutability?.helpText).toBe(
+      expect(VeeamVBOPlatform.summary.immutabilityHelpText).toBeDefined();
+      expect(typeof VeeamVBOPlatform.summary.immutabilityHelpText).toBe(
         'function'
       );
     });
 
     it('should return help text when immutable is true', () => {
-      const helpText = VeeamVBOPlatform.summary.immutability?.helpText?.(true);
+      const helpText = VeeamVBOPlatform.summary.immutabilityHelpText?.(true);
       expect(helpText).toContain('Make recent backups immutable');
     });
 
     it('should return undefined when immutable is false', () => {
-      const helpText = VeeamVBOPlatform.summary.immutability?.helpText?.(false);
+      const helpText = VeeamVBOPlatform.summary.immutabilityHelpText?.(false);
       expect(helpText).toBeUndefined();
     });
   });

@@ -197,7 +197,7 @@ describe('CommvaultPlatform', () => {
     });
 
     it('should have correct immutability label', () => {
-      expect(CommvaultPlatform.summary.immutability?.label).toBe(
+      expect(CommvaultPlatform.summary.immutabilityLabel).toBe(
         'WORM Storage lock'
       );
     });

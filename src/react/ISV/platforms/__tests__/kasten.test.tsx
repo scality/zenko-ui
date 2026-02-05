@@ -170,7 +170,7 @@ describe('KastenPlatform', () => {
     });
 
     it('should have correct immutability label', () => {
-      expect(KastenPlatform.summary.immutability?.label).toBe('Immutable Backup');
+      expect(KastenPlatform.summary.immutabilityLabel).toBe('Immutable Backup');
     });
   });
 

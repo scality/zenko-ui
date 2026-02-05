@@ -1,7 +1,8 @@
-import { Icon, Link, spacing, Stack, Text, Tooltip } from '@scality/core-ui';
-import React from 'react';
+import { Icon, Link, Stack, spacing, Text, Tooltip } from '@scality/core-ui';
+import type React from 'react';
 
 import styled from 'styled-components';
+import { useDeployedMetalk8sInstances } from '../../../next-architecture/ui/ConfigProvider';
 import Input from '../../../ui-elements/Input';
 
 type CardProps = {
@@ -74,43 +75,55 @@ const StyledDiv = styled.div`
   }
 `;
 export const CardISV = (props: CardProps) => {
+  const metalK8sInstances = useDeployedMetalk8sInstances();
+  const isMetalk8sInstanceDeployed = metalK8sInstances.length > 0;
   const { logo, name, application, onChange, selected, link, disabledMessage, disabled } =
     props;
   const isDisabled = disabled ?? false;
 
+  const labelContent = (
+    <CustomLabel
+      disabled={isDisabled}
+      htmlFor={`isv-${name}`}
+      selected={selected}
+      aria-disabled={isDisabled}
+    >
+      <CardContent logo={logo} application={application} />
+
+      <Input
+        style={{ width: 0 }}
+        type="radio"
+        name="isv"
+        value={name}
+        id={`isv-${name}`}
+        checked={selected}
+        disabled={isDisabled}
+        onChange={() => onChange?.(name)}
+      />
+    </CustomLabel>
+  );
+
   return (
     <StyledDiv>
-      <Tooltip
-        overlay={disabledMessage}
-        overlayStyle={{
-          height: 'fit-content',
-          maxWidth: '20rem',
-          width: 'fit-content',
-        }}
-      >
-        <CustomLabel
-          disabled={isDisabled}
-          htmlFor={`isv-${name}`}
-          selected={selected}
-          aria-disabled={isDisabled}
+      {isDisabled && disabledMessage ? (
+        <Tooltip
+          overlay={disabledMessage}
+          overlayStyle={{
+            height: 'fit-content',
+            maxWidth: '20rem',
+            width: 'fit-content',
+          }}
         >
-          <CardContent logo={logo} application={application} />
-
-          <Input
-            style={{ width: 0 }}
-            type="radio"
-            name="isv"
-            value={name}
-            id={`isv-${name}`}
-            checked={selected}
-            disabled={isDisabled}
-            onChange={() => onChange(name)}
-          />
-        </CustomLabel>
-      </Tooltip>
-      <CustomLink href={link} target="_blank">
-        Learn more <Icon name="External-link"></Icon>
-      </CustomLink>
+          {labelContent}
+        </Tooltip>
+      ) : (
+        labelContent
+      )}
+      {isMetalk8sInstanceDeployed && (
+        <CustomLink href={link} target="_blank">
+          Learn more <Icon name="External-link"></Icon>
+        </CustomLink>
+      )}
     </StyledDiv>
   );
 };

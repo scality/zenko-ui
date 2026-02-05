@@ -9,20 +9,23 @@ import {
 } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Wrap, spacing } from '@scality/core-ui/dist/spacing';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
-import { useAuthGroups } from '../../utils/hooks';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
-import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
-import { useISVStepper } from './ISVStepperContext';
-import {
-  FormData,
+import { useAuthGroups } from '../../utils/hooks';
+import { VEEAM_OFFICE_365 } from '../constants';
+import type {
   BucketItem,
+  DefaultSectionId,
+  FormData,
+  SectionDef,
+  SectionRenderProps,
   SummaryRenderProps,
 } from '../engine/types';
-import { useCallback } from 'react';
-import { VEEAM_OFFICE_365 } from '../constants';
+import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
+import { useISVStepper } from './ISVStepperContext';
 
 export const DEFAULT_REGION = 'us-east-1';
 
@@ -50,6 +53,216 @@ const Separator = styled.div`
   height: ${spacing.r32};
 `;
 
+type InternalSectionProps = SectionRenderProps & {
+  secretKeyLabel: string;
+  baseAccessKeyLabel: string;
+  serviceEndpointLabel: string;
+  immutableSectionInfos: {
+    label: string;
+    helpText?: string;
+  };
+  shouldHideImmutableSection: boolean;
+};
+
+const ConnectionInfoSection = ({
+  s3ServicePoint,
+  serviceEndpointLabel,
+}: InternalSectionProps) => (
+  <FormSection forceLabelWidth={150}>
+    <FormGroup
+      id="service-endpoint"
+      label={serviceEndpointLabel}
+      required
+      content={
+        <WrapperWithWidth>
+          <Text>{s3ServicePoint}</Text>
+          <CopyButton
+            textToCopy={s3ServicePoint}
+            aria-label={`copy ${serviceEndpointLabel.toLowerCase()}`}
+          />
+        </WrapperWithWidth>
+      }
+    />
+    <FormGroup
+      id="region"
+      required
+      label="Region"
+      content={
+        <WrapperWithWidth>
+          <Text>{DEFAULT_REGION}</Text>
+          <CopyButton textToCopy={DEFAULT_REGION} aria-label="copy region" />
+        </WrapperWithWidth>
+      }
+    />
+  </FormSection>
+);
+
+const CredentialsSection = ({
+  accessKey,
+  secretKey,
+  accessKeys,
+  secretKeyLabel,
+  baseAccessKeyLabel,
+}: InternalSectionProps) => {
+  if (secretKey) {
+    return (
+      <FormSection forceLabelWidth={150} title={{ name: 'Credentials' }}>
+        <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
+          The {secretKeyLabel} cannot be retrieved afterwards, so make sure to
+          keep and secure it now. <br />
+          You will be able to create new {baseAccessKeyLabel}s at any time.
+        </Banner>
+        <FormGroup
+          id="access-key"
+          label={baseAccessKeyLabel}
+          required
+          content={
+            <WrapperWithWidth>
+              <Text style={{ display: 'flex', alignItems: 'center' }}>
+                {accessKey}
+              </Text>
+              <CopyButton textToCopy={accessKey} aria-label="copy access key" />
+            </WrapperWithWidth>
+          }
+        />
+        <FormGroup
+          id="secret-key"
+          label={secretKeyLabel}
+          required
+          content={
+            <WrapperWithWidth>
+              <HideCredential credentials={secretKey} />
+              <CopyButton
+                textToCopy={secretKey}
+                aria-label="copy secret access key"
+              />
+            </WrapperWithWidth>
+          }
+        />
+      </FormSection>
+    );
+  }
+
+  if (accessKeys) {
+    return (
+      <>
+        <Text isEmphazed>{`Credentials`}</Text>
+        <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
+          An existing user has been chosen and no new {baseAccessKeyLabel} has
+          been created.
+          <br />
+          You must use an {baseAccessKeyLabel} and {secretKeyLabel} already
+          created. Here is a list of {baseAccessKeyLabel}s that can be used for
+          this user:
+        </Banner>
+        <FormSection forceLabelWidth={150}>
+          {accessKeys.map((ak, index) => (
+            <FormGroup
+              key={ak}
+              id={`access-key-${index}`}
+              label={baseAccessKeyLabel}
+              required
+              content={
+                <WrapperWithWidth>
+                  <Text style={{ display: 'flex', alignItems: 'center' }}>
+                    {ak}
+                  </Text>
+                  <CopyButton textToCopy={ak} aria-label="copy access key" />
+                </WrapperWithWidth>
+              }
+            />
+          ))}
+        </FormSection>
+      </>
+    );
+  }
+
+  return null;
+};
+
+const BucketsSection = ({ formData, platform }: InternalSectionProps) => {
+  const bucketItems = formData.buckets as BucketItem[];
+  return (
+    <>
+      {platform.summary.bucketBanner && <>{platform.summary.bucketBanner}</>}
+      <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
+        {bucketItems.map((bucket, index) => (
+          <FormGroup
+            key={bucket.name}
+            id={`bucket-${index}`}
+            label={`Bucket #${index + 1}`}
+            required
+            content={
+              <WrapperWithWidth>
+                <Text>{bucket.name}</Text>
+                <CopyButton
+                  textToCopy={bucket.name}
+                  aria-label="copy bucket name"
+                />
+              </WrapperWithWidth>
+            }
+          />
+        ))}
+      </FormSection>
+    </>
+  );
+};
+
+const ImmutabilitySection = ({
+  formData,
+  immutableSectionInfos,
+  shouldHideImmutableSection,
+}: InternalSectionProps) => {
+  if (shouldHideImmutableSection) {
+    return null;
+  }
+
+  return (
+    <FormSection title={{ name: 'Option' }} forceLabelWidth={150}>
+      <FormGroup
+        id="immutable"
+        required
+        label={immutableSectionInfos.label}
+        helpErrorPosition="bottom"
+        help={immutableSectionInfos.helpText}
+        content={
+          <Text>{formData.enableImmutableBackup ? 'Active' : 'Inactive'}</Text>
+        }
+      />
+    </FormSection>
+  );
+};
+
+export const DEFAULT_SECTIONS: SectionDef[] = [
+  { id: 'connectionInfo' },
+  { id: 'credentials' },
+  { id: 'buckets' },
+  { id: 'immutability' },
+];
+
+const renderSection = (
+  section: SectionDef,
+  props: InternalSectionProps,
+): React.ReactNode => {
+  if ('render' in section) {
+    return section.render(props);
+  }
+
+  const sectionId = section.id as DefaultSectionId;
+  switch (sectionId) {
+    case 'connectionInfo':
+      return <ConnectionInfoSection {...props} />;
+    case 'credentials':
+      return <CredentialsSection {...props} />;
+    case 'buckets':
+      return <BucketsSection {...props} />;
+    case 'immutability':
+      return <ImmutabilitySection {...props} />;
+    default:
+      return null;
+  }
+};
+
 export type ISVSummaryProps = FormData & {
   accessKey: string;
   secretKey: string;
@@ -76,10 +289,9 @@ export const DefaultISVSummary = ({
 
   const { buckets, enableImmutableBackup, application } = formData;
 
-  const immutabilityConfig = platform.summary.immutability;
   const immutableSectionInfos = {
-    label: immutabilityConfig?.label || 'Object-lock',
-    helpText: immutabilityConfig?.helpText?.(enableImmutableBackup),
+    label: platform.summary.immutabilityLabel || 'Object-lock',
+    helpText: platform.summary.immutabilityHelpText?.(enableImmutableBackup),
   };
 
   const shouldHideImmutableSection = application === VEEAM_OFFICE_365;
@@ -88,16 +300,24 @@ export const DefaultISVSummary = ({
     platform.summary.serviceEndpointLabel || 'Service point';
 
   const bucketItems = buckets as BucketItem[];
+  const baseAccessKeyLabel =
+    platform.summary.accessKeyLabel || 'Access key ID';
   const accessKeyLabel =
-    accessKey || accessKeys?.length === 1 ? 'Access key ID' : 'Access key IDs';
+    accessKey || accessKeys?.length === 1
+      ? baseAccessKeyLabel
+      : `${baseAccessKeyLabel}s`;
+  const secretKeyLabel =
+    platform.summary.secretKeyLabel || 'Secret Access key';
   const textToCopy = `${serviceEndpointLabel}\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${accessKeyLabel}\t${accessKey ? accessKey : accessKeys?.join(', ')}\n${
-    secretKey ? `Secret Access key\t${secretKey}\n` : ''
+    secretKey ? `${secretKeyLabel}\t${secretKey}\n` : ''
   }Bucket names\t${bucketItems.map((bucket) => bucket.name).join(', ')}`;
 
   return (
     <Form
       layout={{
-        title: `${platform.name} Repository preparation summary`,
+        title:
+          platform.summary.title ||
+          `${platform.name} Repository preparation summary`,
         kind: 'page',
       }}
       requireMode="all"
@@ -168,149 +388,33 @@ export const DefaultISVSummary = ({
           />
         </Wrap>
         <Separator />
-        <FormSection forceLabelWidth={150}>
-          <FormGroup
-            id="service-endpoint"
-            label={serviceEndpointLabel}
-            required
-            content={
-              <WrapperWithWidth>
-                <Text>{s3ServicePoint}</Text>
-                <CopyButton
-                  textToCopy={s3ServicePoint}
-                  aria-label={`copy ${serviceEndpointLabel.toLowerCase()}`}
-                />
-              </WrapperWithWidth>
-            }
-          />
-          <FormGroup
-            id="region"
-            required
-            label="Region"
-            content={
-              <WrapperWithWidth>
-                <Text>{DEFAULT_REGION}</Text>
-                <CopyButton
-                  textToCopy={DEFAULT_REGION}
-                  aria-label="copy region"
-                />
-              </WrapperWithWidth>
-            }
-          />
-        </FormSection>
-
-        <Separator />
-
-        {secretKey && (
-          <FormSection forceLabelWidth={150} title={{ name: 'Credentials' }}>
-            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
-              The Secret Access key cannot be retrieved afterwards, so make sure
-              to keep and secure it now. <br />
-              You will be able to create new Access keys at any time.
-            </Banner>
-            <FormGroup
-              id="access-key"
-              label="Access key ID"
-              required
-              content={
-                <WrapperWithWidth>
-                  <Text style={{ display: 'flex', alignItems: 'center' }}>
-                    {accessKey}
-                  </Text>
-                  <CopyButton
-                    textToCopy={accessKey}
-                    aria-label="copy access key"
-                  />
-                </WrapperWithWidth>
-              }
-            />
-
-            <FormGroup
-              id="secret-key"
-              label="Secret Access key"
-              required
-              content={
-                <WrapperWithWidth>
-                  <HideCredential credentials={secretKey} />
-                  <CopyButton
-                    textToCopy={secretKey}
-                    aria-label="copy secret access key"
-                  />
-                </WrapperWithWidth>
-              }
-            />
-          </FormSection>
-        )}
-        {!secretKey && accessKeys && (
-          <>
-            <Text isEmphazed>{`Credentials`}</Text>
-            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
-              An existing user has been chosen and no new Access Key has been
-              created.
-              <br />
-              You must use an Access Key and Secret key already created. Here is
-              a list of Access keys that can be used for this user:
-            </Banner>
-            <FormSection forceLabelWidth={150}>
-              {accessKeys.map((accessKey, index) => (
-                <FormGroup
-                  key={accessKey}
-                  id={`access-key-${index}`}
-                  label="Access key ID"
-                  required
-                  content={
-                    <WrapperWithWidth>
-                      <Text style={{ display: 'flex', alignItems: 'center' }}>
-                        {accessKey}
-                      </Text>
-                      <CopyButton
-                        textToCopy={accessKey}
-                        aria-label="copy access key"
-                      />
-                    </WrapperWithWidth>
-                  }
-                />
-              ))}
-            </FormSection>
-          </>
-        )}
-        <Separator />
-
-        {platform.summary.bucketBanner && <>{platform.summary.bucketBanner}</>}
-        <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
-          {bucketItems.map((bucket, index) => (
-            <FormGroup
-              key={bucket.name}
-              id={`bucket-${index}`}
-              label={`Bucket #${index + 1}`}
-              required
-              content={
-                <WrapperWithWidth>
-                  <Text>{bucket.name}</Text>
-                  <CopyButton
-                    textToCopy={bucket.name}
-                    aria-label="copy bucket name"
-                  />
-                </WrapperWithWidth>
-              }
-            />
-          ))}
-        </FormSection>
-        <Separator />
-        {!shouldHideImmutableSection && (
-          <FormSection title={{ name: 'Option' }} forceLabelWidth={150}>
-            <FormGroup
-              id="immutable"
-              required
-              label={immutableSectionInfos.label}
-              helpErrorPosition="bottom"
-              help={immutableSectionInfos.helpText}
-              content={
-                <Text>{enableImmutableBackup ? 'Active' : 'Inactive'}</Text>
-              }
-            />
-          </FormSection>
-        )}
+        <>
+          {(platform.summary.sections ?? DEFAULT_SECTIONS).map(
+            (section, index, arr) => {
+              const sectionProps: InternalSectionProps = {
+                formData,
+                accessKey,
+                secretKey,
+                accessKeys,
+                s3ServicePoint,
+                platform,
+                secretKeyLabel,
+                baseAccessKeyLabel,
+                serviceEndpointLabel,
+                immutableSectionInfos,
+                shouldHideImmutableSection,
+              };
+              const rendered = renderSection(section, sectionProps);
+              if (!rendered) return null;
+              return (
+                <React.Fragment key={section.id}>
+                  {rendered}
+                  {index < arr.length - 1 && <Separator />}
+                </React.Fragment>
+              );
+            },
+          )}
+        </>
       </Level4FormSection>
     </Form>
   );

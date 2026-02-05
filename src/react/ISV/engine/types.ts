@@ -258,6 +258,25 @@ export type MutationDef = SingleMutationDef | LoopMutationDef;
 // Summary Configuration
 // ============================================================================
 
+export type DefaultSectionId =
+  | 'connectionInfo'
+  | 'credentials'
+  | 'buckets'
+  | 'immutability';
+
+export type SectionRenderProps = {
+  formData: FormData;
+  accessKey: string;
+  secretKey: string;
+  accessKeys?: string[];
+  s3ServicePoint: string;
+  platform: ISVPlatform;
+};
+
+export type SectionDef =
+  | { id: DefaultSectionId }
+  | { id: string; render: (props: SectionRenderProps) => React.ReactNode };
+
 export type SummaryRenderProps = {
   formData: FormData;
   accessKey: string;
@@ -268,13 +287,15 @@ export type SummaryRenderProps = {
 };
 
 export type SummaryConfig = {
+  title?: string;
   serviceEndpointLabel?: string;
   bucketBanner?: ReactNode;
-  immutability?: {
-    label?: string;
-    helpText?: (enabled: boolean) => string | undefined;
-  };
+  immutabilityLabel?: string;
+  immutabilityHelpText?: (enabled: boolean) => string | undefined;
+  accessKeyLabel?: string;
+  secretKeyLabel?: string;
   customRender?: (props: SummaryRenderProps) => React.ReactNode;
+  sections?: SectionDef[];
 };
 
 // ============================================================================
@@ -362,13 +383,7 @@ export type PlatformConfig = {
   perBucketSteps?: PerBucketStep[];
 
   // Summary configuration
-  summary?: {
-    serviceEndpointLabel?: string;
-    bucketBanner?: ReactNode;
-    immutabilityLabel?: string;
-    immutabilityHelpText?: (enabled: boolean) => string | undefined;
-    customRender?: (props: SummaryRenderProps) => React.ReactNode;
-  };
+  summary?: SummaryConfig;
 
   // Other
   description?: ReactNode;
