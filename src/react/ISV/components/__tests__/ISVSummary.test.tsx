@@ -1,36 +1,29 @@
 import { Stepper } from '@scality/core-ui';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-
-import { DEFAULT_REGION, ISVSummary, ISVSummaryProps } from '../ISVSummary';
 import userEvent from '@testing-library/user-event';
+import { Route, Routes, useParams } from 'react-router';
+import { mockComponent, mockShellHooks, renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
 import {
   VEEAM_BACKUP_REPLICATION,
   VEEAM_DEFAULT_ACCOUNT_NAME,
-  VEEAM_OFFICE_365_V8,
   VEEAM_OFFICE_365,
+  VEEAM_OFFICE_365_V8,
 } from '../../constants';
-
-import {
-  mockComponent,
-  mockShellHooks,
-  renderWithCustomRoute,
-  Wrapper,
-} from '../../../utils/testUtil';
-import { ISVStepperContext, ISVStepperContextType } from '../ISVStepperContext';
-import { Route, Routes, useParams } from 'react-router';
-import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
 import { CommvaultPlatform } from '../../platforms/commvault';
 import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { ISVStepperContext, type ISVStepperContextType } from '../ISVStepperContext';
+import { DEFAULT_REGION, ISVSummary, type ISVSummaryProps } from '../ISVSummary';
 
 const useAuth = mockShellHooks.useAuth;
 const useDeployedApps = mockShellHooks.useDeployedApps;
 const useConfigRetriever = mockShellHooks.useConfigRetriever;
 
 import * as useGetS3ServicePointModule from '../../hooks/useGetS3ServicePoint';
+
 jest.spyOn(useGetS3ServicePointModule, 'useGetS3ServicePoint').mockReturnValue({
   s3ServicePoint: 's3.test.local',
 });
-
 
 const mockAuthUserData = {
   userData: {
@@ -89,10 +82,7 @@ const mockMultiBucketSummaryProps: ISVSummaryProps = {
   accountNameType: 'create',
   accessKey: ACCESS_KEY,
   secretKey: SECRET_KEY,
-  buckets: [
-    { name: BUCKET_NAME },
-    { name: 'bucket-name-2' },
-  ],
+  buckets: [{ name: BUCKET_NAME }, { name: 'bucket-name-2' }],
   enableImmutableBackup: true,
   application: VEEAM_BACKUP_REPLICATION,
 };
@@ -119,23 +109,16 @@ describe('ISVSummary', () => {
   });
   const selectors = {
     title: (platformName) => screen.getByText(SUMMARY_TITLE(platformName)),
-    informationSection: (platformName) =>
-      screen.getByText(CONFIGURATION_SUMMARY_TITLE(platformName)),
+    informationSection: (platformName) => screen.getByText(CONFIGURATION_SUMMARY_TITLE(platformName)),
     credentialsSection: () => screen.getByText(CREDENTIALS_SECTION_TITLE),
     bucketSection: () => screen.getByText(BUCKET_SECTION_TITLE),
     certificateSection: () => screen.queryByText(CERTIFICATE_SECTION_TITLE),
-    certificateButton: () =>
-      screen.queryByRole('button', { name: /Download/i }),
-    copyServiceEndpointButton: () =>
-      screen.getByRole('button', { name: /copy service (endpoint|point|host)/i }),
-    copySecretKeyButton: () =>
-      screen.getByRole('button', { name: /copy secret access key/i }),
-    copyAccessKeyButton: () =>
-      screen.getByRole('button', { name: /copy access key/i }),
-    copyBucketNameButton: () =>
-      screen.getByRole('button', { name: /copy bucket name/i }),
-    copyRegionButton: () =>
-      screen.getByRole('button', { name: /copy region/i }),
+    certificateButton: () => screen.queryByRole('button', { name: /Download/i }),
+    copyServiceEndpointButton: () => screen.getByRole('button', { name: /copy service (endpoint|point|host)/i }),
+    copySecretKeyButton: () => screen.getByRole('button', { name: /copy secret access key/i }),
+    copyAccessKeyButton: () => screen.getByRole('button', { name: /copy access key/i }),
+    copyBucketNameButton: () => screen.getByRole('button', { name: /copy bucket name/i }),
+    copyRegionButton: () => screen.getByRole('button', { name: /copy region/i }),
     copyAllButton: () => screen.getByRole('button', { name: /copy all/i }),
     secretKeyOutput: () => screen.queryByLabelText(/Secret Access key/i),
     accessKeysOutput: () => screen.queryAllByText(/Access key ID/),
@@ -286,7 +269,8 @@ describe('ISVSummary', () => {
 
     //E+V
     expect(selectors.secretKeyOutput()).not.toBeInTheDocument();
-    expect(selectors.accessKeysOutput()).toHaveLength(2);
+    // 3 matches: 2 access key labels + 1 in the banner message
+    expect(selectors.accessKeysOutput()).toHaveLength(3);
   });
   it('should render a list of buckets if more than one bucket is created', async () => {
     //S
@@ -345,11 +329,7 @@ describe('ISVSummary', () => {
                 steps={[
                   {
                     label: 'Summary',
-                    Component: ({
-                      children,
-                    }: {
-                      children: React.ReactNode;
-                    }) => {
+                    Component: ({ children }: { children: React.ReactNode }) => {
                       return <ISVSummary {...mockSummaryProps} />;
                     },
                   },
@@ -358,10 +338,7 @@ describe('ISVSummary', () => {
             </ISVStepperContext.Provider>
           }
         />
-        <Route
-          path="/accounts/:accountName/buckets/:bucketName"
-          element={<ExpectedComponent />}
-        ></Route>
+        <Route path="/accounts/:accountName/buckets/:bucketName" element={<ExpectedComponent />}></Route>
       </Routes>,
       '/',
     );
@@ -673,9 +650,7 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
 
-      expect(
-        screen.getByText((content) => /worm|storage|lock/i.test(content)),
-      ).toBeInTheDocument();
+      expect(screen.getByText((content) => /worm|storage|lock/i.test(content))).toBeInTheDocument();
     });
     it('should render Immutability Section with help text for Veeam Backup & Replication', async () => {
       useAuth.mockImplementation(() => {
@@ -697,9 +672,7 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
       expect(screen.queryAllByText(/immutable/i).length).toBeGreaterThan(0);
-      expect(
-        screen.getByText(/Ensure "Make recent backups immutable"/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Ensure "Make recent backups immutable"/i)).toBeInTheDocument();
     });
     it('should render Immutability Section with help text for Veeam VBO V8', async () => {
       render(
@@ -732,11 +705,9 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
       expect(screen.queryAllByText(/immutable/i).length).toBeGreaterThan(0);
-      expect(
-        screen.getByText(/Ensure "Make recent backups immutable"/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Ensure "Make recent backups immutable"/i)).toBeInTheDocument();
     });
-    
+
     it('should hide Immutability Section for Veeam Office 365', async () => {
       render(
         <ISVStepperContext.Provider

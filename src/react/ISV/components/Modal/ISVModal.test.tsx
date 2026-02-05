@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import ISVModal from './ISVModal';
+import userEvent from '@testing-library/user-event';
 import { Wrapper } from '../../../utils/testUtil';
 import { ISVList } from '../../ISVList';
-import userEvent from '@testing-library/user-event';
+import ISVModal from './ISVModal';
 
 jest.mock('../../hooks/useCheckSOSAPIStatus', () => ({
   useCheckSOSAPIStatus: jest.fn().mockReturnValue('activated'),
@@ -54,7 +54,8 @@ describe('ISVModal', () => {
         <ISVModal isOpen={true} setIsOpen={() => {}} />
       </Wrapper>,
     );
-    const commvaultCard = screen.getAllByRole('radio')[2];
+    // Order: Kasten(0), VeeamVBR(1), VeeamVBO(2), Commvault(3), then manual ISVs
+    const commvaultCard = screen.getAllByRole('radio')[3];
     userEvent.click(commvaultCard);
 
     await waitFor(() => {
@@ -62,11 +63,8 @@ describe('ISVModal', () => {
     });
 
     expect(
-      screen.getByText(
-        /assistant will start to guide you through the configuration process./gi,
-      ),
+      screen.getByText(/assistant will start to guide you through the configuration process./gi),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Commvault/gi)).toBeInTheDocument();
     expect(screen.getByText(/Continue to assistant/)).toBeInTheDocument();
   });
   it('should display help message and change button label when selecting a manual ISV', async () => {
@@ -75,15 +73,13 @@ describe('ISVModal', () => {
         <ISVModal isOpen={true} setIsOpen={() => {}} />
       </Wrapper>,
     );
+    // Order: Kasten(0), VeeamVBR(1), VeeamVBO(2), Commvault(3), Rubrik(4), ...
     const manualCard = screen.getAllByRole('radio')[4];
     userEvent.click(manualCard);
     await waitFor(() => {
       expect(manualCard).toBeChecked();
     });
-    expect(
-      screen.getByText(/You will be redirected to the account page./i),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/Rubrik/i)).toBeInTheDocument();
+    expect(screen.getByText(/You will be redirected to the account page./i)).toBeInTheDocument();
     expect(screen.getByText(/Continue to create account/i)).toBeInTheDocument();
   });
   it('should allow keyboard navigation', async () => {

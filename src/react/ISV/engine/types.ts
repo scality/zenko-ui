@@ -1,6 +1,6 @@
-import Joi from 'joi';
-import { ReactElement, ReactNode, ComponentType } from 'react';
-import { Control, FieldErrors } from 'react-hook-form';
+import type Joi from 'joi';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
+import type { Control, FieldErrors } from 'react-hook-form';
 
 // ============================================================================
 // Platform Identity
@@ -55,11 +55,7 @@ export type FormData = {
 // Runtime Context
 // ============================================================================
 
-export type SOSAPIStatus =
-  | 'activated'
-  | 'available'
-  | 'wrongAccess'
-  | 'unauthorized';
+export type SOSAPIStatus = 'activated' | 'available' | 'wrongAccess' | 'unauthorized';
 
 export type RuntimeContext = {
   _sosApiStatus: SOSAPIStatus;
@@ -218,20 +214,14 @@ export type ActionName =
   | 'attachPolicy'
   | 'createVeeamRepository';
 
-export type MutationLabel =
-  | string
-  | ((form: FormData, ctx: FullContext) => string);
+export type MutationLabel = string | ((form: FormData, ctx: FullContext) => string);
 
 export type SingleMutationDef = {
   id: string;
   label: MutationLabel;
   action: ActionName;
   when?: (form: FormData, ctx: FullContext) => boolean;
-  variables: (
-    form: FormData,
-    prev: PreviousResults,
-    ctx: FullContext,
-  ) => Record<string, unknown>;
+  variables: (form: FormData, prev: PreviousResults, ctx: FullContext) => Record<string, unknown>;
 };
 
 export type PerBucketStep = {
@@ -239,12 +229,7 @@ export type PerBucketStep = {
   label: string;
   action: ActionName;
   when?: (form: FormData, bucket: BucketItem, ctx: FullContext) => boolean;
-  variables: (
-    form: FormData,
-    bucket: BucketItem,
-    prev: PreviousResults,
-    ctx: FullContext,
-  ) => Record<string, unknown>;
+  variables: (form: FormData, bucket: BucketItem, prev: PreviousResults, ctx: FullContext) => Record<string, unknown>;
 };
 
 export type LoopMutationDef = {
@@ -258,11 +243,7 @@ export type MutationDef = SingleMutationDef | LoopMutationDef;
 // Summary Configuration
 // ============================================================================
 
-export type DefaultSectionId =
-  | 'connectionInfo'
-  | 'credentials'
-  | 'buckets'
-  | 'immutability';
+export type DefaultSectionId = 'connectionInfo' | 'credentials' | 'buckets' | 'immutability';
 
 export type SectionRenderProps = {
   formData: FormData;

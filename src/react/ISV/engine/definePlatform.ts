@@ -6,15 +6,10 @@
  */
 
 import Joi from 'joi';
-import type { PlatformConfig, ISVPlatform, SummaryConfig } from './types';
 import { buildFields } from './builders/buildFields';
 import { buildMutations } from './builders/buildMutations';
-import {
-  accountValidator,
-  iamValidator,
-  immutableValidator,
-  getBucketsValidator,
-} from './validators';
+import type { ISVPlatform, PlatformConfig, SummaryConfig } from './types';
+import { accountValidator, getBucketsValidator, iamValidator, immutableValidator } from './validators';
 
 /**
  * Build a validator from platform configuration
@@ -36,8 +31,7 @@ function buildValidator(config: PlatformConfig): Joi.ObjectSchema {
 function buildSummary(config: PlatformConfig): SummaryConfig {
   return {
     title: config.summary?.title ?? `${config.name} preparation summary`,
-    serviceEndpointLabel:
-      config.summary?.serviceEndpointLabel ?? 'Service Endpoint',
+    serviceEndpointLabel: config.summary?.serviceEndpointLabel ?? 'Service Endpoint',
     bucketBanner: config.summary?.bucketBanner,
     immutabilityLabel: config.summary?.immutabilityLabel ?? 'Immutable Backup',
     immutabilityHelpText: config.summary?.immutabilityHelpText,
@@ -125,5 +119,3 @@ export function definePlatform(config: PlatformConfig): ISVPlatform {
     disabledMessage: config.disabledMessage,
   };
 }
-
-
