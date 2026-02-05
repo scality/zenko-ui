@@ -206,7 +206,7 @@ const commonIAMHandlers = (getPayloadFn: jest.Mock, req, res, ctx) => {
                 <CreateDate>2024-04-17T16:31:36Z</CreateDate>
               </member>
               <member>
-                <AssumeRolePolicyDocument>%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D</AssumeRolePolicyDocument>
+                <AssumeRolePolicyDocument>%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D</AssumeRolePolicyDocument>
                 <Description>No keycloak role</Description>
                 <Path>/</Path>
                 <RoleName>no-keycloak-role</RoleName>
@@ -395,8 +395,10 @@ describe('SelectAccountIAMRole', () => {
       await userEvent.click(seletors.roleSelect());
     });
 
+    await userEvent.type(seletors.roleSelect(), 'data-consumer-role');
+
     await act(async () => {
-      await userEvent.click(seletors.selectOption(/backbeat-gc-1/i));
+      await userEvent.click(seletors.selectOption(/data-consumer-role/i));
     });
 
     const account = {
@@ -418,14 +420,14 @@ describe('SelectAccountIAMRole', () => {
       },
     };
     const role = {
-      Arn: 'arn:aws:iam::232853836441:role/scality-internal/backbeat-gc-1',
+      Arn: 'arn:aws:iam::232853836441:role/scality-internal/data-consumer-role',
       AssumeRolePolicyDocument:
-        '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRole%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22AWS%22%3A%22arn%3Aaws%3Aiam%3A%3A000000000000%3Auser%2Fscality-internal%2Fbackbeat-gc-1%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
+        '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
       CreateDate: new Date('2024-04-17T16:31:36.000Z'),
-      Description: 'undefined',
+      Description: 'Has S3 read and write accesses to 100 S3 Buckets. Cannot create or delete S3 Buckets.',
       Path: '/scality-internal/',
-      RoleId: 'NPP7LHXVP8THSFDX9J58KJED1VKO5WIZ',
-      RoleName: 'backbeat-gc-1',
+      RoleId: 'YGEX9QWC7RI9KMBQEKS4RA9OND4JZ35U',
+      RoleName: 'data-consumer-role',
       Tags: [],
     };
 
@@ -472,8 +474,10 @@ describe('SelectAccountIAMRole', () => {
       await userEvent.click(seletors.roleSelect());
     });
 
+    await userEvent.type(seletors.roleSelect(), 'data-consumer-role');
+
     await act(async () => {
-      await userEvent.click(seletors.selectOption(/backbeat-gc-1/i));
+      await userEvent.click(seletors.selectOption(/data-consumer-role/i));
     });
 
     expect(onChange).not.toHaveBeenCalled();
@@ -513,7 +517,8 @@ describe('SelectAccountIAMRole', () => {
     });
 
     await userEvent.click(seletors.roleSelect());
-    await userEvent.click(seletors.selectOption(/backbeat-gc-1/i));
+    await userEvent.type(seletors.roleSelect(), 'data-consumer-role');
+    await userEvent.click(seletors.selectOption(/data-consumer-role/i));
 
     await waitFor(() => {
       expect(onChange).toHaveBeenNthCalledWith(
@@ -538,14 +543,14 @@ describe('SelectAccountIAMRole', () => {
           },
         },
         {
-          Arn: 'arn:aws:iam::232853836441:role/scality-internal/backbeat-gc-1',
+          Arn: 'arn:aws:iam::232853836441:role/scality-internal/data-consumer-role',
           AssumeRolePolicyDocument:
-            '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRole%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22AWS%22%3A%22arn%3Aaws%3Aiam%3A%3A000000000000%3Auser%2Fscality-internal%2Fbackbeat-gc-1%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
+            '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
           CreateDate: new Date('2024-04-17T16:31:36.000Z'),
-          Description: 'undefined',
+          Description: 'Has S3 read and write accesses to 100 S3 Buckets. Cannot create or delete S3 Buckets.',
           Path: '/scality-internal/',
-          RoleId: 'NPP7LHXVP8THSFDX9J58KJED1VKO5WIZ',
-          RoleName: 'backbeat-gc-1',
+          RoleId: 'YGEX9QWC7RI9KMBQEKS4RA9OND4JZ35U',
+          RoleName: 'data-consumer-role',
           Tags: [],
         },
         '11112::DataConsumer',
@@ -712,7 +717,7 @@ describe('SelectAccountIAMRole', () => {
           onChange={onChange}
           defaultValue={{
             accountName: 'no-bucket',
-            roleName: 'backbeat-gc-1',
+            roleName: 'data-consumer-role',
           }}
         />
       </LocalWrapper>,
@@ -726,7 +731,7 @@ describe('SelectAccountIAMRole', () => {
     });
   });
 
-  it('renders with wrong default value', async () => {
+  it('renders without crashing when defaultValue references a non-existent account', async () => {
     const getPayloadFn = jest.fn();
     server.use(genFn(getPayloadFn));
     const onChange = jest.fn();
@@ -736,7 +741,7 @@ describe('SelectAccountIAMRole', () => {
           onChange={onChange}
           defaultValue={{
             accountName: 'william1',
-            roleName: 'backbeat-gc-1',
+            roleName: 'data-consumer-role',
           }}
         />
       </LocalWrapper>,
@@ -749,7 +754,7 @@ describe('SelectAccountIAMRole', () => {
     expect(seletors.accountSelect()).toBeInTheDocument();
   });
 
-  it('renders with hidden account roles as disabled options', async () => {
+  it('renders with hidden account roles (already attached roles) as disabled options', async () => {
     const getPayloadFn = jest.fn();
     server.use(genFn(getPayloadFn));
     const onChange = jest.fn();
@@ -870,7 +875,7 @@ describe('SelectAccountIAMRole', () => {
     expect(screen.getByText(/Loading Roles.../i)).toBeInTheDocument();
   });
 
-  it('renders with hidden internal roles', async () => {
+  it('filters out internal roles when filterOutInternalRoles is true', async () => {
     const getPayloadFn = jest.fn();
     server.use(genFn(getPayloadFn));
     const onChange = jest.fn();
@@ -960,7 +965,7 @@ describe('SelectAccountIAMRole', () => {
       {
         Arn: 'arn:aws:iam::232853836441:role/no-keycloak-role',
         AssumeRolePolicyDocument:
-          '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
+          '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
         CreateDate: new Date('2024-04-17T16:31:36.000Z'),
         Description: 'No keycloak role',
         Path: '/',
@@ -970,5 +975,45 @@ describe('SelectAccountIAMRole', () => {
       },
       undefined,
     );
+  });
+
+  it('should disable roles without sts:AssumeRoleWithWebIdentity in trust policy', async () => {
+    const getPayloadFn = jest.fn();
+    server.use(genFn(getPayloadFn));
+    const onChange = jest.fn();
+    render(
+      <LocalWrapper>
+        <SelectAccountIAMRole onChange={onChange} />
+      </LocalWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(seletors.accountSelect()).toBeInTheDocument();
+    });
+
+    await userEvent.click(seletors.accountSelect());
+    await userEvent.click(seletors.selectOption(/no-bucket/i));
+
+    await waitFor(() => {
+      expect(seletors.roleSelect()).toBeInTheDocument();
+    });
+
+    await userEvent.click(seletors.roleSelect());
+
+    // Role with sts:AssumeRole (incompatible) should be disabled
+    await userEvent.type(seletors.roleSelect(), 'cold-storage-archive-role-2');
+    const incompatibleOption = screen.getByRole('option', {
+      name: /cold-storage-archive-role-2/i,
+    });
+    expect(incompatibleOption).toHaveAttribute('aria-disabled', 'true');
+
+    // Close dropdown, reopen and search for a compatible role
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(seletors.roleSelect());
+    await userEvent.type(seletors.roleSelect(), 'data-consumer-role');
+    const compatibleOption = screen.getByRole('option', {
+      name: /data-consumer-role/i,
+    });
+    expect(compatibleOption).not.toHaveAttribute('aria-disabled', 'true');
   });
 });

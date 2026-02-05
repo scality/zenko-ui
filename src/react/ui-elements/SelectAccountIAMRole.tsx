@@ -54,6 +54,26 @@ export const extractAccountIdFromARN = (arn: string) => {
   return regexArn.exec(arn)?.groups?.account_id ?? '';
 };
 
+/**
+ * Checks if a role's trust policy allows sts:AssumeRoleWithWebIdentity.
+ * Roles without this action are incompatible with Web Identity (OIDC/Keycloak) federation.
+ */
+const isWebIdentityCompatible = (role: IAM.Role): boolean => {
+  try {
+    const policy = JSON.parse(
+      decodeURIComponent(role.AssumeRolePolicyDocument || '{}'),
+    );
+    return policy.Statement?.some(
+      (statement: { Action?: string | string[] }) =>
+        statement.Action === 'sts:AssumeRoleWithWebIdentity' ||
+        (Array.isArray(statement.Action) &&
+          statement.Action.includes('sts:AssumeRoleWithWebIdentity')),
+    );
+  } catch {
+    return false;
+  }
+};
+
 const AssumeDefaultIAMRole = ({
   defaultValue,
 }: Pick<SelectAccountIAMRoleWithAccountProps, 'defaultValue'>) => {
@@ -291,9 +311,31 @@ const SelectAccountIAMRoleWithAccount = (
                 </Select.Option>
               ) : (
                 roles.map((role) => {
-                  if (hideAccountRoles.find(hideRole => hideRole.accountName === accountName && hideRole.roleName === role.RoleName)) {
+                  const isAlreadyAttached = hideAccountRoles.find(
+                    (hideRole) =>
+                      hideRole.accountName === accountName &&
+                      hideRole.roleName === role.RoleName,
+                  );
+                  if (isAlreadyAttached) {
                     return (
-                      <Select.Option key={`${role.RoleName}`} value={role.RoleName} disabled disabledReason="Role already attached">
+                      <Select.Option
+                        key={`${role.RoleName}`}
+                        value={role.RoleName}
+                        disabled
+                        disabledReason="Role already attached"
+                      >
+                        {role.RoleName}
+                      </Select.Option>
+                    );
+                  }
+                  if (!isWebIdentityCompatible(role)) {
+                    return (
+                      <Select.Option
+                        key={`${role.RoleName}`}
+                        value={role.RoleName}
+                        disabled
+                        disabledReason="Incompatible: Requires sts:AssumeRoleWithWebIdentity"
+                      >
                         {role.RoleName}
                       </Select.Option>
                     );
