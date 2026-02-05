@@ -1,5 +1,6 @@
 import { ISVPlatform } from '../engine/types';
 import { CommvaultPlatform } from './commvault';
+import { KastenPlatform } from './kasten';
 import { VeeamVBRPlatform } from './veeam-vbr';
 import { VeeamVBOPlatform } from './veeam-vbo';
 
@@ -7,6 +8,7 @@ import { VeeamVBOPlatform } from './veeam-vbo';
  * Registry of all available ISV platforms.
  */
 export const platformRegistry: ISVPlatform[] = [
+  KastenPlatform,
   VeeamVBRPlatform,
   VeeamVBOPlatform,
   CommvaultPlatform,

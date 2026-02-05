@@ -7,7 +7,7 @@
 
 import { ListItem } from './StyledComponents';
 
-type PlatformName = 'Veeam' | 'Commvault';
+type PlatformName = 'Veeam' | 'Commvault' | 'Kasten';
 
 /**
  * Account name tooltip - explains the purpose of the account field
@@ -83,6 +83,25 @@ export const CommvaultWORMTooltip = () => (
     <ListItem>
       Data backed up to your ARTESCA S3 bucket via Commvault will be
       immutable.
+    </ListItem>
+  </ul>
+);
+
+/**
+ * Immutable backup tooltip for Kasten
+ */
+export const KastenImmutableBackupTooltip = () => (
+  <ul>
+    <ListItem>
+      Kasten's Immutable Backup feature enhances data protection by using S3
+      Object-lock technology.
+    </ListItem>
+    <ListItem>
+      By selecting the Immutable Backup feature, the ARTESCA bucket is created
+      with Object-lock enabled.
+    </ListItem>
+    <ListItem>
+      Data backed up to your ARTESCA S3 bucket via Kasten will be immutable.
     </ListItem>
   </ul>
 );

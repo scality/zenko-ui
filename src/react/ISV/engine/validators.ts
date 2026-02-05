@@ -140,6 +140,16 @@ export const CommvaultValidator = Joi.object({
 });
 
 /**
+ * Veeam Kasten validator (basic, no capacity)
+ */
+export const KastenValidator = Joi.object({
+  ...accountValidator,
+  ...iamValidator,
+  ...bucketsValidator,
+  ...immutableValidator,
+});
+
+/**
  * Veeam VBR validator (with capacity)
  */
 export const VeeamVBRValidator = Joi.object({

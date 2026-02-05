@@ -69,3 +69,5 @@ export const GET_COMMVAULT_POLICY = (buckets: string[], isImmutable: boolean) =>
       },
     ],
   });
+
+export const GET_KASTEN_POLICY = GET_VEEAM_POLICY;

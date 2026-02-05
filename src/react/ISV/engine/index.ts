@@ -66,6 +66,7 @@ export {
   bucketsWithCapacityValidator,
   immutableValidator,
   CommvaultValidator,
+  KastenValidator,
   VeeamVBRValidator,
   VeeamVBOValidator,
 } from './validators';
