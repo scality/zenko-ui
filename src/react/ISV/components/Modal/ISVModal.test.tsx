@@ -54,8 +54,8 @@ describe('ISVModal', () => {
         <ISVModal isOpen={true} setIsOpen={() => {}} />
       </Wrapper>,
     );
-    // Order: Kasten(0), VeeamVBR(1), VeeamVBO(2), Commvault(3), then manual ISVs
-    const commvaultCard = screen.getAllByRole('radio')[3];
+    const assistantISV = ISVList.find((isv) => isv.assistant);
+    const commvaultCard = document.getElementById(`isv-${assistantISV.name}`) as HTMLInputElement;
     userEvent.click(commvaultCard);
 
     await waitFor(() => {
@@ -73,8 +73,8 @@ describe('ISVModal', () => {
         <ISVModal isOpen={true} setIsOpen={() => {}} />
       </Wrapper>,
     );
-    // Order: Kasten(0), VeeamVBR(1), VeeamVBO(2), Commvault(3), Rubrik(4), ...
-    const manualCard = screen.getAllByRole('radio')[4];
+    const manualISV = ISVList.find((isv) => !isv.assistant);
+    const manualCard = document.getElementById(`isv-${manualISV.name}`) as HTMLInputElement;
     userEvent.click(manualCard);
     await waitFor(() => {
       expect(manualCard).toBeChecked();
