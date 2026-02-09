@@ -1,12 +1,12 @@
 import { screen, waitFor } from '@testing-library/react';
+import { useAuthLoading } from './AuthLoadingProvider';
+import { useConfig } from './next-architecture/ui/ConfigProvider';
 import InternalRoutes, { PrivateRoutes } from './Routes';
 import {
   FAKE_TOKEN,
   mockShellHooks,
   renderWithRouterMatch,
 } from './utils/testUtil';
-import { useConfig } from './next-architecture/ui/ConfigProvider';
-import { useAuthLoading } from './AuthLoadingProvider';
 
 jest.mock('./next-architecture/ui/ConfigProvider', () => ({
   useConfig: jest.fn(),
@@ -15,6 +15,18 @@ jest.mock('./next-architecture/ui/ConfigProvider', () => ({
 jest.mock('./AuthLoadingProvider', () => ({
   useAuthLoading: jest.fn(),
 }));
+const defautOriginal = {
+  id_token: 'idtoken',
+  access_token: 'accessToken',
+  profile: {
+    sub: 'test-user-sub',
+    instanceIds: ['1abe6d07-9b04-45e4-8c62-bdc5548f1f95'],
+    name: 'Test User',
+    email: 'test@test.com',
+  },
+  expires_at: Date.now() / 1000 + 3600,
+  session_state: 'session-state-1',
+};
 
 describe('Routes component', () => {
   const mockUseConfig = useConfig as jest.Mock;
@@ -124,7 +136,7 @@ describe('Routes component', () => {
       });
     });
 
-    it('should show Truststore in sidebar for Platform Admin', async () => {
+    it('should show Truststore in sidebar for Platform Admin when MetalK8s is enabled', async () => {
       // Mock the hook to return PlatformAdmin user
       mockShellHooks.useAuth.mockReturnValue({
         userData: {
@@ -144,6 +156,14 @@ describe('Routes component', () => {
           groups: ['PlatformAdmin'],
         },
         getToken: () => Promise.resolve(FAKE_TOKEN),
+      });
+
+      // Mock MetalK8s as enabled
+      (mockShellHooks.useDeployedApps as jest.Mock).mockImplementation(({ kind }: { kind: string }) => {
+        if (kind === 'metalk8s-ui') {
+          return [{ name: 'metalk8s-ui', kind: 'metalk8s-ui', version: '1.0', url: '', appHistoryBasePath: '' }];
+        }
+        return [{ kind: 'zenko-ui', name: 'zenko-ui.eu-west-1', version: '1.0', url: '', appHistoryBasePath: '' }];
       });
 
       mockUseConfig.mockReturnValue({
@@ -166,8 +186,47 @@ describe('Routes component', () => {
       });
     });
 
-    it('should not show Truststore in sidebar for non Platform Admin', async () => {
-      // Setup Mock the hook to return non PlatformAdmin user
+    it('should not show Truststore in sidebar for Platform Admin when MetalK8s is disabled', async () => {
+      // Mock the hook to return PlatformAdmin user
+      mockShellHooks.useAuth.mockReturnValue({
+        userData: {
+          token: FAKE_TOKEN,
+          original: defautOriginal,
+          groups: ['PlatformAdmin'],
+        },
+        getToken: () => Promise.resolve(FAKE_TOKEN),
+      });
+
+      // Mock MetalK8s as disabled (empty array)
+      (mockShellHooks.useDeployedApps as jest.Mock).mockImplementation(({ kind }: { kind: string }) => {
+        if (kind === 'metalk8s-ui') {
+          return [];
+        }
+        return [{ kind: 'zenko-ui', name: 'zenko-ui.eu-west-1', version: '1.0', url: '', appHistoryBasePath: '' }];
+      });
+
+      mockUseConfig.mockReturnValue({
+        basePath: '/data',
+        features: [],
+        zenkoEndpoint: '/zenko/s3',
+        iamEndpoint: '/zenko/iam',
+        stsEndpoint: '/zenko/sts',
+        managementEndpoint: '/zenko/management',
+        s3InternalFQDN: 's3.test.local',
+        iamInternalFQDN: 'iam.test.local',
+      });
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/accounts',
+      });
+
+      await waitFor(() => {
+        expect(selectors.truststoreLink()).not.toBeInTheDocument();
+      });
+    });
+
+    it('should not show Truststore in sidebar for non Platform Admin even when MetalK8s is enabled', async () => {
+      // Mock the hook to return non PlatformAdmin user
       mockShellHooks.useAuth.mockReturnValue({
         userData: {
           token: FAKE_TOKEN,
@@ -187,13 +246,158 @@ describe('Routes component', () => {
         },
         getToken: () => Promise.resolve(FAKE_TOKEN),
       });
+
+      // Mock MetalK8s as enabled
+      (mockShellHooks.useDeployedApps as jest.Mock).mockImplementation(({ kind }: { kind: string }) => {
+        if (kind === 'metalk8s-ui') {
+          return [{ name: 'metalk8s-ui', kind: 'metalk8s-ui', version: '1.0', url: '', appHistoryBasePath: '' }];
+        }
+        return [{ kind: 'zenko-ui', name: 'zenko-ui.eu-west-1', version: '1.0', url: '', appHistoryBasePath: '' }];
+      });
+
       renderWithRouterMatch(<InternalRoutes />, {
         path: '/*',
         route: '/accounts',
       });
-      // V
+
       await waitFor(() => {
         expect(selectors.truststoreLink()).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('truststore routes', () => {
+    it('should render Truststore route when Platform Admin and MetalK8s is enabled', async () => {
+      // Mock the hook to return PlatformAdmin user
+      mockShellHooks.useAuth.mockReturnValue({
+        userData: {
+          token: FAKE_TOKEN,
+          original: defautOriginal,
+          groups: ['PlatformAdmin'],
+        },
+        getToken: () => Promise.resolve(FAKE_TOKEN),
+      });
+
+      // Mock MetalK8s as enabled
+      (mockShellHooks.useDeployedApps as jest.Mock).mockImplementation(({ kind }: { kind: string }) => {
+        if (kind === 'metalk8s-ui') {
+          return [{ name: 'metalk8s-ui', kind: 'metalk8s-ui', version: '1.0', url: '', appHistoryBasePath: '' }];
+        }
+        return [{ kind: 'zenko-ui', name: 'zenko-ui.eu-west-1', version: '1.0', url: '', appHistoryBasePath: '' }];
+      });
+
+      // Mock useConfigRetriever to return proper runtime config for metalk8s
+      mockShellHooks.useConfigRetriever.mockReturnValue({
+        retrieveConfiguration: jest.fn(() => ({
+          spec: {
+            remoteEntryPath: '/remoteEntry.js',
+            selfConfiguration: {
+              url: 'http://metalk8s.test.local',
+            },
+          },
+        })),
+      });
+
+      mockUseConfig.mockReturnValue({
+        basePath: '/data',
+        features: [],
+        zenkoEndpoint: '/zenko/s3',
+        iamEndpoint: '/zenko/iam',
+        stsEndpoint: '/zenko/sts',
+        managementEndpoint: '/zenko/management',
+        s3InternalFQDN: 's3.test.local',
+        iamInternalFQDN: 'iam.test.local',
+      });
+
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/truststore',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/TLS Verification/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should not render Truststore route when Platform Admin but MetalK8s is disabled', async () => {
+      // Mock the hook to return PlatformAdmin user
+      mockShellHooks.useAuth.mockReturnValue({
+        userData: {
+          token: FAKE_TOKEN,
+          original: defautOriginal,
+          groups: ['PlatformAdmin'],
+        },
+        getToken: () => Promise.resolve(FAKE_TOKEN),
+      });
+
+      // Mock MetalK8s as disabled
+      (mockShellHooks.useDeployedApps as jest.Mock).mockImplementation(({ kind }: { kind: string }) => {
+        if (kind === 'metalk8s-ui') {
+          return [];
+        }
+        return [{ kind: 'zenko-ui', name: 'zenko-ui.eu-west-1', version: '1.0', url: '', appHistoryBasePath: '' }];
+      });
+
+      mockUseConfig.mockReturnValue({
+        basePath: '/data',
+        features: [],
+        zenkoEndpoint: '/zenko/s3',
+        iamEndpoint: '/zenko/iam',
+        stsEndpoint: '/zenko/sts',
+        managementEndpoint: '/zenko/management',
+        s3InternalFQDN: 's3.test.local',
+        iamInternalFQDN: 'iam.test.local',
+      });
+
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/truststore',
+      });
+
+      // Truststore route should not be rendered - verify Truststore content is not present
+      await waitFor(() => {
+        expect(screen.queryByText(/Import Certificate/i)).not.toBeInTheDocument();
+      });
+    });
+
+    it('should not render Truststore route when MetalK8s is enabled but not Platform Admin', async () => {
+      // Mock the hook to return non PlatformAdmin user
+      mockShellHooks.useAuth.mockReturnValue({
+        userData: {
+          token: FAKE_TOKEN,
+          original: defautOriginal,
+          groups: ['StorageManager'],
+        },
+        getToken: () => Promise.resolve(FAKE_TOKEN),
+      });
+
+      // Mock MetalK8s as enabled
+      (mockShellHooks.useDeployedApps as jest.Mock).mockImplementation(({ kind }: { kind: string }) => {
+        if (kind === 'metalk8s-ui') {
+          return [{ name: 'metalk8s-ui', kind: 'metalk8s-ui', version: '1.0', url: '', appHistoryBasePath: '' }];
+        }
+        return [{ kind: 'zenko-ui', name: 'zenko-ui.eu-west-1', version: '1.0', url: '', appHistoryBasePath: '' }];
+      });
+
+      mockUseConfig.mockReturnValue({
+        basePath: '/data',
+        features: [],
+        zenkoEndpoint: '/zenko/s3',
+        iamEndpoint: '/zenko/iam',
+        stsEndpoint: '/zenko/sts',
+        managementEndpoint: '/zenko/management',
+        s3InternalFQDN: 's3.test.local',
+        iamInternalFQDN: 'iam.test.local',
+      });
+
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/truststore',
+      });
+
+      // Truststore route should not be rendered - verify Truststore content is not present
+      await waitFor(() => {
+        expect(screen.queryByText(/Import Certificate/i)).not.toBeInTheDocument();
       });
     });
   });

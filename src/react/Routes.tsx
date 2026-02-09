@@ -6,37 +6,35 @@ import {
   Loader,
   Sidebar,
 } from '@scality/core-ui';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useCallback, useState } from 'react';
-import { Navigate, Route, Routes, matchPath, useLocation } from 'react-router';
-
+import { matchPath, Navigate, Route, Routes, useLocation } from 'react-router';
+import { useAuthLoading } from './AuthLoadingProvider';
+import AccountContent from './account/AccountContent';
+import AccountCreate from './account/AccountCreate';
+import AccountCreateUser from './account/AccountCreateUser';
+import Accounts from './account/Accounts';
+import AccountUpdateUser from './account/AccountUpdateUser';
+import AccountUserAccessKeys from './account/AccountUserAccessKeys';
+import CreateAccountPolicy from './account/CreateAccountPolicy';
+import Attachments from './account/iamAttachment/Attachments';
+import UpdateAccountPolicy from './account/UpdateAccountPolicy';
 import DataServiceRoleProvider, {
   useCurrentAccount,
 } from './DataServiceRoleProvider';
-import ManagementProvider from './ManagementProvider';
-import STSProvider from './STSProvider';
-import { useAuthLoading } from './AuthLoadingProvider';
-import ReauthDialog from './ui-elements/ReauthDialog';
-
-import { useConfig } from './next-architecture/ui/ConfigProvider';
-import { useAuthGroups } from './utils/hooks';
-import Accounts from './account/Accounts';
-import { Locations } from './locations/Locations';
-import Endpoints from './endpoint/Endpoints';
-import EndpointCreate from './endpoint/EndpointCreate';
-import AccountCreate from './account/AccountCreate';
-import AccountContent from './account/AccountContent';
 import DataBrowser from './databrowser/DataBrowser';
-import LocationEditor from './locations/LocationEditor';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import Attachments from './account/iamAttachment/Attachments';
-import AccountUpdateUser from './account/AccountUpdateUser';
-import UpdateAccountPolicy from './account/UpdateAccountPolicy';
-import AccountUserAccessKeys from './account/AccountUserAccessKeys';
-import AccountCreateUser from './account/AccountCreateUser';
-import CreateAccountPolicy from './account/CreateAccountPolicy';
+import EndpointCreate from './endpoint/EndpointCreate';
+import Endpoints from './endpoint/Endpoints';
 import { ISVSteps } from './ISV/components/ISVSteps';
+import LocationEditor from './locations/LocationEditor';
+import { Locations } from './locations/Locations';
+import ManagementProvider from './ManagementProvider';
+import { useConfig, useDeployedMetalk8sInstances } from './next-architecture/ui/ConfigProvider';
+import STSProvider from './STSProvider';
 import ImportCertificate from './truststore/ImportCertificate';
 import Truststore from './truststore/Truststore';
+import ReauthDialog from './ui-elements/ReauthDialog';
+import { useAuthGroups } from './utils/hooks';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -92,6 +90,9 @@ export function PrivateRoutes({
   const { isClientsLoaded } = useAuthLoading();
   const config = useConfig();
 
+  const { isPlatformAdmin } = useAuthGroups();
+  const metalK8sInstances = useDeployedMetalk8sInstances();
+  const isMetalK8sEnabled = metalK8sInstances.length > 0;
   if (!isClientsLoaded) {
     return (
       <Loader centered>
@@ -151,24 +152,24 @@ export function PrivateRoutes({
         }
       />
 
-      <>
-        <Route
-          path="create-dataservice/*"
-          element={
-            <DataServiceRoleProvider>
-              <EndpointCreate />
-            </DataServiceRoleProvider>
-          }
-        />
-        <Route
-          path="dataservices/*"
-          element={
-            <DataServiceRoleProvider>
-              <Endpoints />
-            </DataServiceRoleProvider>
-          }
-        />
-      </>
+
+      <Route
+        path="create-dataservice/*"
+        element={
+          <DataServiceRoleProvider>
+            <EndpointCreate />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="dataservices/*"
+        element={
+          <DataServiceRoleProvider>
+            <Endpoints />
+          </DataServiceRoleProvider>
+        }
+      />
+
 
       <Route
         path="locations/*"
@@ -178,11 +179,15 @@ export function PrivateRoutes({
           </DataServiceRoleProvider>
         }
       />
-      <Route path="truststore/*" element={<Truststore />} />
-      <Route
-        path="truststore/import-certificate/*"
-        element={<ImportCertificate />}
-      />
+      {isPlatformAdmin && isMetalK8sEnabled && (
+        <>
+          <Route path="truststore/*" element={<Truststore />} />
+          <Route
+            path="truststore/import-certificate/*"
+            element={<ImportCertificate />}
+          />
+        </>
+      )}
       <Route
         path="isv/configuration/*"
         element={
@@ -274,7 +279,7 @@ export function PrivateRoutes({
       <Route path="/" element={<Navigate to="accounts" replace />} />
       <Route
         path="*"
-        element={<Navigate to={config.basePath + `/accounts`} replace />}
+        element={<Navigate to={`${config.basePath}/accounts`} replace />}
       />
     </Routes>
   );
@@ -283,11 +288,14 @@ export function PrivateRoutes({
 function InternalRoutes() {
   const [isSideBarOpen, setIsSideBarOpen] = useState(
     localStorage.getItem('isSideBarOpen') === null ||
-      localStorage.getItem('isSideBarOpen') === 'true',
+    localStorage.getItem('isSideBarOpen') === 'true',
   );
   const location = useLocation();
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const config = useConfig();
+
+  const metalK8sInstances = useDeployedMetalk8sInstances();
+  const isMetalK8sEnabled = metalK8sInstances.length > 0;
   const navigate = useBasenameRelativeNavigate();
 
   const doesRouteMatch = useCallback(
@@ -306,7 +314,7 @@ function InternalRoutes() {
         );
       }
     },
-    [location.pathname],
+    [location.pathname, config.basePath],
   );
 
   const routeWithoutSideBars = [
@@ -371,7 +379,7 @@ function InternalRoutes() {
         },
         active: doesRouteMatch('/locations'),
       },
-      isPlatformAdmin && {
+      isPlatformAdmin && isMetalK8sEnabled && {
         label: 'Truststore',
         icon: <Icon name="ID-card" />,
         onClick: () => {
@@ -397,12 +405,12 @@ function InternalRoutes() {
       </DataServiceRoleProvider>
       <AppContainer
         hasPadding
-        sidebarNavigation={hideSideBar ? <></> : <Sidebar {...sidebarConfig} />}
+        sidebarNavigation={hideSideBar ? null : <Sidebar {...sidebarConfig} />}
       >
         <RemoveTrailingSlash />
         <ManagementProvider>
           <STSProvider>
-          <PrivateRoutes hideSideBar={hideSideBar} />
+            <PrivateRoutes hideSideBar={hideSideBar} />
           </STSProvider>
         </ManagementProvider>
       </AppContainer>
