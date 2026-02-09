@@ -1,19 +1,24 @@
-import { Form, FormGroup, FormSection, useToast } from '@scality/core-ui';
+import { Form, FormGroup, FormSection, ToastProvider, useToast } from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
-import { IAM } from 'aws-sdk';
-import { Bucket } from '@scality/data-browser-library';
-import { PropsWithChildren, useState } from 'react';
+import type { Bucket } from '@scality/data-browser-library';
+import { ShellHooksProvider } from '@scality/module-federation';
+import type { IAM } from 'aws-sdk';
+import { type PropsWithChildren, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
+import type {
+  ShellAlerts,
+  ShellHooks,
+} from 'shell/compiled-types/src/hooks/useShellHooks';
 import DataServiceRoleProvider, {
   useAssumedRole,
   useSetAssumedRole,
 } from '../DataServiceRoleProvider';
 import { useIAMClient } from '../IAMProvider';
-import { IMetricsAdapter } from '../next-architecture/adapters/metrics/IMetricsAdapter';
+import type { IMetricsAdapter } from '../next-architecture/adapters/metrics/IMetricsAdapter';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
-import { Account } from '../next-architecture/domain/entities/account';
-import { LatestUsedCapacity } from '../next-architecture/domain/entities/metrics';
+import type { Account } from '../next-architecture/domain/entities/account';
+import type { LatestUsedCapacity } from '../next-architecture/domain/entities/metrics';
 import {
   AccessibleAccountsAdapterProvider,
   useAccessibleAccountsAdapter,
@@ -21,11 +26,6 @@ import {
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
 import { SCALITY_IAM_ROLES, regexArn } from '../utils/hooks';
-import { ShellHooksProvider } from '@scality/module-federation';
-import {
-  ShellAlerts,
-  ShellHooks,
-} from 'shell/compiled-types/src/hooks/useShellHooks';
 
 export class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(
@@ -50,23 +50,8 @@ export class NoOpMetricsAdapter implements IMetricsAdapter {
   }
 }
 
-const filterRoles = (
-  accountName: string,
-  roles: IAM.Role[],
-  hideAccountRoles: { accountName: string; roleName: string }[],
-) => {
-  return roles.filter(
-    (role) =>
-      !hideAccountRoles.find(
-        (hideRole) =>
-          hideRole.accountName === accountName &&
-          hideRole.roleName === role.RoleName,
-      ),
-  );
-};
-
 export const extractAccountIdFromARN = (arn: string) => {
-  return regexArn.exec(arn)?.groups?.['account_id'] ?? '';
+  return regexArn.exec(arn)?.groups?.account_id ?? '';
 };
 
 const AssumeDefaultIAMRole = ({
@@ -198,22 +183,18 @@ const SelectAccountIAMRoleWithAccount = (
   };
   const roleQueryData = useQuery(listRolesQuery);
 
-  const allRolesExceptHiddenOnes = filterRoles(
-    accountName,
-    roleQueryData?.data?.Roles ?? [],
-    hideAccountRoles,
-  );
   const roles = props.filterOutInternalRoles
-    ? allRolesExceptHiddenOnes.filter((role) => {
-        return (
-          SCALITY_IAM_ROLES.includes(role.RoleName) ||
-          !role.Arn.includes('role/scality-internal')
-        );
-      })
-    : allRolesExceptHiddenOnes;
+    ? (roleQueryData?.data?.Roles ?? []).filter((role) => {
+      return (
+        SCALITY_IAM_ROLES.includes(role.RoleName) ||
+        !role.Arn.includes('role/scality-internal')
+      );
+    })
+    : (roleQueryData?.data?.Roles ?? []);
 
   const isDefaultAccountSelected = account?.name === defaultValue?.accountName;
   const defaultRole = isDefaultAccountSelected ? defaultValue?.roleName : null;
+  const isRolesLoading = roleQueryData.isLoading || !assumedRoleAccountMatchSelectedAccount;
 
   return (
     <Form layout={{ kind: 'tab' }}>
@@ -254,72 +235,77 @@ const SelectAccountIAMRoleWithAccount = (
           label="Role"
           id="select-account-role"
           content={
-            account ? (
-              <Select
-                id="select-account-role"
-                value={role?.RoleName ?? defaultRole}
-                onChange={(roleName) => {
-                  const selectedRole = roles.find(
-                    (role) => role.RoleName === roleName,
-                  );
-                  getIAMRoleMutation.mutate(roleName, {
-                    onSuccess: (data) => {
-                      const assumeRolePolicyDocument: {
-                        Statement?: {
-                          Effect: 'Allow' | 'Deny';
-                          Principal: { Federated?: string };
-                          Action: 'sts:AssumeRoleWithWebIdentity';
-                          Condition: {
-                            StringEquals: { ['keycloak:roles']: string };
-                          };
-                        }[];
-                      } = JSON.parse(
-                        decodeURIComponent(data.Role.AssumeRolePolicyDocument),
-                      );
-                      const keycloakRoleName =
-                        assumeRolePolicyDocument?.Statement?.find(
-                          (statement) =>
-                            (props.identityProviderUrl
-                              ? statement.Principal?.Federated?.startsWith(
-                                  props.identityProviderUrl,
-                                )
-                              : true) &&
-                            statement.Condition?.StringEquals?.[
-                              'keycloak:roles'
-                            ] &&
-                            statement.Effect === 'Allow' &&
-                            statement.Action ===
-                              'sts:AssumeRoleWithWebIdentity',
-                        )?.Condition?.StringEquals['keycloak:roles'];
-                      onChange(account, selectedRole, keycloakRoleName);
-                    },
-                  });
-                  setRole(selectedRole);
-                }}
-                menuPosition={props.menuPosition}
-                placeholder="Select Role"
-              >
-                {roles.map((role) => (
-                  <Select.Option key={`${role.RoleName}`} value={role.RoleName}>
-                    {role.RoleName}
-                  </Select.Option>
-                ))}
-              </Select>
-            ) : (
-              <Select
-                id="select-account-role"
-                value={'Please select an account'}
-                disabled
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                onChange={() => {}}
-                menuPosition={props.menuPosition}
-                placeholder="Select Role"
-              >
-                <Select.Option value={'Please select an account'}>
+            <Select
+              id="select-account-role"
+              value={account ? (isRolesLoading ? 'loading' : (role?.RoleName ?? defaultRole)) : 'no-account'}
+              disabled={!account || isRolesLoading}
+              onChange={(roleName) => {
+                if (!account) return;
+                const selectedRole = roles.find(
+                  (role) => role.RoleName === roleName,
+                );
+                getIAMRoleMutation.mutate(roleName, {
+                  onSuccess: (data) => {
+                    const assumeRolePolicyDocument: {
+                      Statement?: {
+                        Effect: 'Allow' | 'Deny';
+                        Principal: { Federated?: string };
+                        Action: 'sts:AssumeRoleWithWebIdentity';
+                        Condition: {
+                          StringEquals: { ['keycloak:roles']: string };
+                        };
+                      }[];
+                    } = JSON.parse(
+                      decodeURIComponent(data.Role.AssumeRolePolicyDocument),
+                    );
+                    const keycloakRoleName =
+                      assumeRolePolicyDocument?.Statement?.find(
+                        (statement) =>
+                          (props.identityProviderUrl
+                            ? statement.Principal?.Federated?.startsWith(
+                              props.identityProviderUrl,
+                            )
+                            : true) &&
+                          statement.Condition?.StringEquals?.[
+                          'keycloak:roles'
+                          ] &&
+                          statement.Effect === 'Allow' &&
+                          statement.Action ===
+                          'sts:AssumeRoleWithWebIdentity',
+                      )?.Condition?.StringEquals['keycloak:roles'];
+                    onChange(account, selectedRole, keycloakRoleName);
+                  },
+                });
+                setRole(selectedRole);
+              }}
+              menuPosition={props.menuPosition}
+              placeholder="Select Role"
+            >
+              {!account ? (
+                <Select.Option key="no-account" value="no-account" disabled>
                   Please select an account
                 </Select.Option>
-              </Select>
-            )
+              ) : isRolesLoading ? (
+                <Select.Option key="loading" value="loading" disabled>
+                  Loading Roles...
+                </Select.Option>
+              ) : (
+                roles.map((role) => {
+                  if (hideAccountRoles.find(hideRole => hideRole.accountName === accountName && hideRole.roleName === role.RoleName)) {
+                    return (
+                      <Select.Option key={`${role.RoleName}`} value={role.RoleName} disabled disabledReason="Role already attached">
+                        {role.RoleName}
+                      </Select.Option>
+                    );
+                  }
+                  return (
+                    <Select.Option key={`${role.RoleName}`} value={role.RoleName}>
+                      {role.RoleName}
+                    </Select.Option>
+                  );
+                })
+              )}
+            </Select>
           }
         />
       </FormSection>
@@ -380,7 +366,9 @@ export default function SelectAccountIAMRole(
       shellAlerts={props.shellAlerts}
       shellHooks={props.shellHooks}
     >
-      <SelectAccountIAMRoleInternal {...props} />
+      <ToastProvider>
+        <SelectAccountIAMRoleInternal {...props} />
+      </ToastProvider>
     </ShellHooksProvider>
   );
 }

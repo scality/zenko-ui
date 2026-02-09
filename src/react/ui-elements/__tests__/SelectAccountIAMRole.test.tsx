@@ -23,6 +23,7 @@ import { coreUIAvailableThemes } from '@scality/core-ui/src/lib/style/theme';
 import { ThemeProvider } from 'styled-components';
 import { QueryClientProvider } from '../../../QueryClientProvider';
 import { ShellHooksProvider } from '@scality/module-federation';
+import { debug } from 'jest-preview';
 
 const testAccountId1 = '064609833007';
 const testAccountId2 = '377232323695';
@@ -640,24 +641,7 @@ describe('SelectAccountIAMRole', () => {
                   <Arn>arn:aws:iam::232853836441:role/scality-internal/data-consumer-role</Arn>
                   <CreateDate>2024-04-17T16:31:36Z</CreateDate>
                 </member>
-                <member>
-                  <AssumeRolePolicyDocument>%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3AStorageAccountOwner%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3AStorageAccountOwner%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D</AssumeRolePolicyDocument>
-                  <Description>Manages the 100 account (Policies, Users, Roles, Groups).</Description>
-                  <Path>/scality-internal/</Path>
-                  <RoleName>storage-account-owner-role</RoleName>
-                  <RoleId>OYYDW5GLCETHME90KWAZCG5Z8KNZA1OT</RoleId>
-                  <Arn>arn:aws:iam::232853836441:role/scality-internal/storage-account-owner-role</Arn>
-                  <CreateDate>2024-04-17T16:31:36Z</CreateDate>
-                </member>
-                <member>
-                  <AssumeRolePolicyDocument>%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Aroles%22%3A%22StorageManager%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Aroles%22%3A%22StorageManager%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D</AssumeRolePolicyDocument>
-                  <Description>Has all permissions and full access to the 100 account resources and manages ARTESCA users.</Description>
-                  <Path>/scality-internal/</Path>
-                  <RoleName>storage-manager-role</RoleName>
-                  <RoleId>YRA3NTDUTWN6DRN76LSSDM6HA22RWBO9</RoleId>
-                  <Arn>arn:aws:iam::232853836441:role/scality-internal/storage-manager-role</Arn>
-                  <CreateDate>2024-04-17T16:31:36Z</CreateDate>
-                </member>
+
               </Roles>
               <IsTruncated>false</IsTruncated>
             </ListRolesResult>
@@ -765,7 +749,7 @@ describe('SelectAccountIAMRole', () => {
     expect(seletors.accountSelect()).toBeInTheDocument();
   });
 
-  it('renders with hidden account roles', async () => {
+  it('renders with hidden account roles as disabled options', async () => {
     const getPayloadFn = jest.fn();
     server.use(genFn(getPayloadFn));
     const onChange = jest.fn();
@@ -773,8 +757,8 @@ describe('SelectAccountIAMRole', () => {
       <LocalWrapper>
         <SelectAccountIAMRole
           onChange={onChange}
+          filterOutInternalRoles
           hideAccountRoles={[
-            { accountName: 'william', roleName: 'backbeat-gc-1' },
             { accountName: 'no-bucket', roleName: 'data-consumer-role' },
           ]}
         />
@@ -794,9 +778,96 @@ describe('SelectAccountIAMRole', () => {
     });
 
     await userEvent.click(seletors.roleSelect());
-    await userEvent.type(seletors.roleSelect(), 'data-consumer');
 
-    expect(screen.getByText(/no options/i)).toBeInTheDocument();
+    // The role should be visible but disabled
+    const dataConsumerOption = await screen.findByRole('option', {
+      name: /data-consumer-role/i,
+    });
+    expect(dataConsumerOption).toBeInTheDocument();
+    expect(dataConsumerOption).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should display "Please select an account" when no account is selected', async () => {
+    const getPayloadFn = jest.fn();
+    server.use(genFn(getPayloadFn));
+    const onChange = jest.fn();
+    render(
+      <LocalWrapper>
+        <SelectAccountIAMRole onChange={onChange} />
+      </LocalWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(seletors.accountSelect()).toBeInTheDocument();
+    });
+
+    // Role select should be disabled and show "Please select an account"
+    expect(seletors.roleSelect()).toHaveAttribute('disabled');
+    expect(screen.getByText(/Please select an account/i)).toBeInTheDocument();
+
+  });
+
+  it('should display Loading option while roles are being fetched', async () => {
+    const getPayloadFn = jest.fn();
+    // Add a delayed handler for ListRoles to ensure we can see the loading state
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, async (req, res, ctx) => {
+        //@ts-ignore
+        const params = new URLSearchParams(req.body);
+
+        // Handle other actions normally
+        const commonResponse = commonIAMHandlers(getPayloadFn, req, res, ctx);
+        if (commonResponse && params.get('Action') !== 'ListRoles') {
+          return commonResponse;
+        }
+
+        // Delay ListRoles response to test loading state
+        if (params.get('Action') === 'ListRoles') {
+          return res(
+            ctx.delay(500),
+            ctx.xml(`
+              <ListRolesResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+                <ListRolesResult>
+                  <Roles>
+                    <member>
+                      <RoleName>backbeat-gc-1</RoleName>
+                      <RoleId>TEST</RoleId>
+                      <Arn>arn:aws:iam::232853836441:role/scality-internal/backbeat-gc-1</Arn>
+                      <CreateDate>2024-04-17T16:31:36Z</CreateDate>
+                    </member>
+                  </Roles>
+                  <IsTruncated>false</IsTruncated>
+                </ListRolesResult>
+              </ListRolesResponse>
+            `),
+          );
+        }
+
+        return commonResponse;
+      }),
+    );
+    const onChange = jest.fn();
+    render(
+      <LocalWrapper>
+        <SelectAccountIAMRole onChange={onChange} />
+      </LocalWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(seletors.accountSelect()).toBeInTheDocument();
+    });
+
+    await userEvent.click(seletors.accountSelect());
+
+    await userEvent.click(seletors.selectOption(/no-bucket/i));
+
+    await waitFor(() => {
+      expect(seletors.roleSelect()).toBeInTheDocument();
+    });
+
+    // Role select should be disabled while loading
+    expect(seletors.roleSelect()).toHaveAttribute('disabled');
+    expect(screen.getByText(/Loading Roles.../i)).toBeInTheDocument();
   });
 
   it('renders with hidden internal roles', async () => {

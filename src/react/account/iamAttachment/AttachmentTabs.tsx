@@ -1,6 +1,6 @@
 import { Icon, Loader } from '@scality/core-ui';
 import { useReducer } from 'react';
-import { useLocation, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useTheme } from 'styled-components';
 import { useQuery } from 'react-query';
 import { useIAMClient } from '../../IAMProvider';
@@ -63,6 +63,7 @@ const AttachmentTableProxy = <
   getAttachedEntitesFromResult,
   onAttachmentsOperationsChanged,
   initialAttachmentOperations,
+  entity,
 }: TableProxyProps<ENTITIES_API_RESPONSE, ATTACHED_ENTITIES_API_RESPONSE>) => {
   const { data, status } = useAwsPaginatedEntities(
     getInitiallyAttachedEntitesQuery(),
@@ -91,6 +92,7 @@ const AttachmentTableProxy = <
       initiallyAttachedEntities={data || []}
       onAttachmentsOperationsChanged={onAttachmentsOperationsChanged}
       initialAttachmentOperations={initialAttachmentOperations}
+      entity={entity}
     />
   );
 };
@@ -144,9 +146,108 @@ const AttachmentTabs = ({
       (seed) => seed.permissionPolicy.policyName === resourceName,
     ) || [];
 
-  return (
-    <Tabs {...customTabStyle}>
-      {resourceType === 'policy' && (
+  if (resourceType === 'user') {
+    return (
+      <Tabs {...customTabStyle}>
+        <Tabs.Tab
+          label="Policies"
+          path={''}
+          query={{ ...queryObject, tab: null }}
+          icon={<Icon name="Policy" />}
+          withoutPadding
+        >
+          <AttachmentTableProxy
+            key="user-policies"
+            //@ts-expect-error fix this when you are working on it
+            getAllEntitiesPaginatedQuery={() => {
+              return getListPoliciesQuery(accountName, IAMClient);
+            }}
+            getEntitiesFromResult={(response) => {
+              return (
+                response.Policies?.map((policy) => {
+                  return {
+                    name: policy.PolicyName || '',
+                    id: policy.Arn || '',
+                    type: 'policy',
+                  };
+                }) || []
+              );
+            }}
+            getInitiallyAttachedEntitesQuery={() =>
+              getListAttachedUserPoliciesQuery(
+                resourceId,
+                accountName,
+                IAMClient,
+              )
+            }
+            getAttachedEntitesFromResult={(response) => {
+              return (
+                response.AttachedPolicies?.map((policy) => {
+                  return {
+                    name: policy.PolicyName || '',
+                    id: policy.PolicyArn || '',
+                    type: 'policy',
+                  };
+                }) || []
+              );
+            }}
+            initialAttachmentOperations={attachmentOperations['policy']}
+            onAttachmentsOperationsChanged={(attachmentOperations) =>
+              setAttachmentOperations({ type: 'policy', attachmentOperations })
+            }
+            entity={{ singular: 'policy', plural: 'policies' }}
+          />
+        </Tabs.Tab>
+        <Tabs.Tab
+          label="Groups"
+          path={''}
+          query={{ ...queryObject, tab: 'groups' }}
+          icon={<Icon name="Group" />}
+          withoutPadding
+        >
+          <AttachmentTableProxy
+            key="user-groups"
+            getAllEntitiesPaginatedQuery={() =>
+              //@ts-expect-error fix this when you are working on it
+              getListGroupsQuery(accountName, IAMClient)
+            }
+            getEntitiesFromResult={(response) => {
+              return (
+                response.Groups?.map((group) => {
+                  return {
+                    name: group.GroupName || '',
+                    id: group.GroupName || '',
+                    type: 'group',
+                  };
+                }) || []
+              );
+            }}
+            getInitiallyAttachedEntitesQuery={() =>
+              //@ts-expect-error fix this when you are working on it
+              getUserListGroupsQuery(resourceId, IAMClient)
+            }
+            getAttachedEntitesFromResult={(response) => {
+              return response.Groups.map((group) => {
+                return {
+                  name: group.GroupName,
+                  id: group.GroupName,
+                  type: 'group',
+                };
+              });
+            }}
+            initialAttachmentOperations={attachmentOperations['group']}
+            onAttachmentsOperationsChanged={(attachmentOperations) =>
+              setAttachmentOperations({ type: 'group', attachmentOperations })
+            }
+            entity={{ singular: 'group', plural: 'groups' }}
+          />
+        </Tabs.Tab>
+      </Tabs>
+    );
+  }
+  if (resourceType === 'policy') {
+    return (
+      <Tabs {...customTabStyle}>
         <Tabs.Tab
           label="Users"
           path={''}
@@ -160,6 +261,7 @@ const AttachmentTabs = ({
               //@ts-expect-error fix this when you are working on it
               getListUsersQuery(accountName, IAMClient)
             }
+
             getEntitiesFromResult={(response) => {
               return response.Users.map((user) => {
                 return {
@@ -187,10 +289,9 @@ const AttachmentTabs = ({
             onAttachmentsOperationsChanged={(attachmentOperations) =>
               setAttachmentOperations({ type: 'user', attachmentOperations })
             }
+            entity={{ singular: 'user', plural: 'users' }}
           />
         </Tabs.Tab>
-      )}
-      {resourceType === 'policy' && (
         <Tabs.Tab
           label="Groups"
           path={''}
@@ -233,55 +334,9 @@ const AttachmentTabs = ({
             onAttachmentsOperationsChanged={(attachmentOperations) =>
               setAttachmentOperations({ type: 'group', attachmentOperations })
             }
+            entity={{ singular: 'group', plural: 'groups' }}
           />
         </Tabs.Tab>
-      )}
-      {resourceType === 'user' && (
-        <Tabs.Tab
-          label="Groups"
-          path={''}
-          query={{ ...queryObject, tab: null }}
-          icon={<Icon name="Group" />}
-          withoutPadding
-        >
-          <AttachmentTableProxy
-            key="user-groups"
-            getAllEntitiesPaginatedQuery={() =>
-              //@ts-expect-error fix this when you are working on it
-              getListGroupsQuery(accountName, IAMClient)
-            }
-            getEntitiesFromResult={(response) => {
-              return (
-                response.Groups?.map((group) => {
-                  return {
-                    name: group.GroupName || '',
-                    id: group.GroupName || '',
-                    type: 'group',
-                  };
-                }) || []
-              );
-            }}
-            getInitiallyAttachedEntitesQuery={() =>
-              //@ts-expect-error fix this when you are working on it
-              getUserListGroupsQuery(resourceId, IAMClient)
-            }
-            getAttachedEntitesFromResult={(response) => {
-              return response.Groups.map((group) => {
-                return {
-                  name: group.GroupName,
-                  id: group.GroupName,
-                  type: 'group',
-                };
-              });
-            }}
-            initialAttachmentOperations={attachmentOperations['group']}
-            onAttachmentsOperationsChanged={(attachmentOperations) =>
-              setAttachmentOperations({ type: 'group', attachmentOperations })
-            }
-          />
-        </Tabs.Tab>
-      )}
-      {resourceType === 'policy' && (
         <Tabs.Tab
           label="Roles"
           path={''}
@@ -329,61 +384,14 @@ const AttachmentTabs = ({
             onAttachmentsOperationsChanged={(attachmentOperations) =>
               setAttachmentOperations({ type: 'role', attachmentOperations })
             }
+            entity={{ singular: 'role', plural: 'roles' }}
           />
         </Tabs.Tab>
-      )}
-      {resourceType === 'user' && (
-        <Tabs.Tab
-          label="Policies"
-          path={''}
-          query={{ ...queryObject, tab: 'policies' }}
-          icon={<Icon name="Policy" />}
-          withoutPadding
-        >
-          <AttachmentTableProxy
-            key="user-policies"
-            //@ts-expect-error fix this when you are working on it
-            getAllEntitiesPaginatedQuery={() => {
-              return getListPoliciesQuery(accountName, IAMClient);
-            }}
-            getEntitiesFromResult={(response) => {
-              return (
-                response.Policies?.map((policy) => {
-                  return {
-                    name: policy.PolicyName || '',
-                    id: policy.Arn || '',
-                    type: 'policy',
-                  };
-                }) || []
-              );
-            }}
-            getInitiallyAttachedEntitesQuery={() =>
-              getListAttachedUserPoliciesQuery(
-                resourceId,
-                accountName,
-                IAMClient,
-              )
-            }
-            getAttachedEntitesFromResult={(response) => {
-              return (
-                response.AttachedPolicies?.map((policy) => {
-                  return {
-                    name: policy.PolicyName || '',
-                    id: policy.PolicyArn || '',
-                    type: 'policy',
-                  };
-                }) || []
-              );
-            }}
-            initialAttachmentOperations={attachmentOperations['policy']}
-            onAttachmentsOperationsChanged={(attachmentOperations) =>
-              setAttachmentOperations({ type: 'policy', attachmentOperations })
-            }
-          />
-        </Tabs.Tab>
-      )}
-    </Tabs>
-  );
+      </Tabs>
+    );
+  }
+  return null;
+
 };
 
 export default AttachmentTabs;
