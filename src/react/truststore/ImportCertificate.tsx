@@ -119,8 +119,8 @@ const ImportCertificate = () => {
                 overlay: !isValid
                   ? 'Import a valid certificate'
                   : isImportingCertificate
-                  ? 'Importing certificate...'
-                  : undefined,
+                    ? 'Importing certificate...'
+                    : undefined,
               }}
               isLoading={isImportingCertificate || isLoadingZenkoCR}
             />
@@ -195,6 +195,7 @@ const ImportCertificate = () => {
               variant="code"
               width={'68ch'}
               autoGrow={true}
+              style={{ minHeight: '10rem' }}
               value={certificateValue}
             />
             <Text isEmphazed variant="Smaller" color="statusCritical">
