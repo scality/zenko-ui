@@ -1,12 +1,12 @@
 import { screen, waitFor } from '@testing-library/react';
+import { useAuthLoading } from './AuthLoadingProvider';
+import { useConfig } from './next-architecture/ui/ConfigProvider';
 import InternalRoutes, { PrivateRoutes } from './Routes';
 import {
   FAKE_TOKEN,
   mockShellHooks,
   renderWithRouterMatch,
 } from './utils/testUtil';
-import { useConfig } from './next-architecture/ui/ConfigProvider';
-import { useAuthLoading } from './AuthLoadingProvider';
 
 jest.mock('./next-architecture/ui/ConfigProvider', () => ({
   useConfig: jest.fn(),
@@ -15,6 +15,18 @@ jest.mock('./next-architecture/ui/ConfigProvider', () => ({
 jest.mock('./AuthLoadingProvider', () => ({
   useAuthLoading: jest.fn(),
 }));
+const defautOriginal = {
+  id_token: 'idtoken',
+  access_token: 'accessToken',
+  profile: {
+    sub: 'test-user-sub',
+    instanceIds: ['1abe6d07-9b04-45e4-8c62-bdc5548f1f95'],
+    name: 'Test User',
+    email: 'test@test.com',
+  },
+  expires_at: Date.now() / 1000 + 3600,
+  session_state: 'session-state-1',
+};
 
 describe('Routes component', () => {
   const mockUseConfig = useConfig as jest.Mock;
@@ -179,9 +191,7 @@ describe('Routes component', () => {
       mockShellHooks.useAuth.mockReturnValue({
         userData: {
           token: FAKE_TOKEN,
-          original: {
-            session_state: 'session-state-1',
-          },
+          original: defautOriginal,
           groups: ['PlatformAdmin'],
         },
         getToken: () => Promise.resolve(FAKE_TOKEN),
@@ -262,9 +272,7 @@ describe('Routes component', () => {
       mockShellHooks.useAuth.mockReturnValue({
         userData: {
           token: FAKE_TOKEN,
-          original: {
-            session_state: 'session-state-1',
-          },
+          original: defautOriginal,
           groups: ['PlatformAdmin'],
         },
         getToken: () => Promise.resolve(FAKE_TOKEN),
@@ -316,9 +324,7 @@ describe('Routes component', () => {
       mockShellHooks.useAuth.mockReturnValue({
         userData: {
           token: FAKE_TOKEN,
-          original: {
-            session_state: 'session-state-1',
-          },
+          original: defautOriginal,
           groups: ['PlatformAdmin'],
         },
         getToken: () => Promise.resolve(FAKE_TOKEN),
@@ -359,9 +365,7 @@ describe('Routes component', () => {
       mockShellHooks.useAuth.mockReturnValue({
         userData: {
           token: FAKE_TOKEN,
-          original: {
-            session_state: 'session-state-1',
-          },
+          original: defautOriginal,
           groups: ['StorageManager'],
         },
         getToken: () => Promise.resolve(FAKE_TOKEN),
