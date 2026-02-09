@@ -222,6 +222,8 @@ export type SingleMutationDef = {
   action: ActionName;
   when?: (form: FormData, ctx: FullContext) => boolean;
   variables: (form: FormData, prev: PreviousResults, ctx: FullContext) => Record<string, unknown>;
+  optional?: boolean;
+  failureMessage?: string | ((form: FormData, ctx: FullContext) => string);
 };
 
 export type PerBucketStep = {
@@ -230,6 +232,8 @@ export type PerBucketStep = {
   action: ActionName;
   when?: (form: FormData, bucket: BucketItem, ctx: FullContext) => boolean;
   variables: (form: FormData, bucket: BucketItem, prev: PreviousResults, ctx: FullContext) => Record<string, unknown>;
+  optional?: boolean;
+  failureMessage?: string | ((form: FormData, bucket: BucketItem, ctx: FullContext) => string);
 };
 
 export type LoopMutationDef = {
@@ -238,6 +242,16 @@ export type LoopMutationDef = {
 };
 
 export type MutationDef = SingleMutationDef | LoopMutationDef;
+
+// ============================================================================
+// Optional Failure Tracking
+// ============================================================================
+
+export type OptionalFailure = {
+  id: string;
+  label: string;
+  message: string;
+};
 
 // ============================================================================
 // Summary Configuration
@@ -265,6 +279,7 @@ export type SummaryRenderProps = {
   accessKeys?: string[];
   onFinish: () => void;
   renderDefault: () => React.ReactNode;
+  optionalFailures?: OptionalFailure[];
 };
 
 export type SummaryConfig = {
@@ -343,6 +358,10 @@ export type PlatformConfig = {
 
   // Bucket tag for tagging buckets (defaults to name)
   bucketTag?: string;
+
+  // Optional step failure handling
+  defaultOptionalFailureMessage?: string;
+  continueWithOptionalFailuresLabel?: string;
 
   // Feature switches
   sosAPI?: boolean;
