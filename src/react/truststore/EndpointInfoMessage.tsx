@@ -1,9 +1,13 @@
 import { InfoMessage, spacing } from '@scality/core-ui';
 import { Text } from '@scality/core-ui/dist/components/text/Text.component';
-import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../locations/LocationEditor';
 import { Box } from '@scality/core-ui/dist/next';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../locations/LocationEditor';
+import { useConfig, useDeployedMetalk8sInstances } from '../next-architecture/ui/ConfigProvider';
 
 export const EndpointInfoMessage = ({ hasMargin }: { hasMargin?: boolean }) => {
+  const { basePath } = useConfig();
+  const metalK8sInstances = useDeployedMetalk8sInstances();
+  const isMetalK8sEnabled = metalK8sInstances.length > 0;
   return (
     <Box
       style={{
@@ -22,7 +26,7 @@ export const EndpointInfoMessage = ({ hasMargin }: { hasMargin?: boolean }) => {
             and import the endpoint's certificate if it is missing.
           </Text>
         }
-        link={'/data/truststore'}
+        link={isMetalK8sEnabled ? `${basePath}/truststore` : undefined}
         linkText="Open truststore"
       />
     </Box>
