@@ -1,18 +1,17 @@
 /* eslint-disable */
-import userEvent from '@testing-library/user-event';
 import { JAGUAR_S3_LOCATION_KEY } from '../../../../types/config';
-import { InstanceStateSnapshot } from '../../../../types/stats';
+import type { InstanceStateSnapshot } from '../../../../types/stats';
+import * as ConfigProvider from '../../../next-architecture/ui/ConfigProvider';
 import {
-  NewWrapper,
   testMountAct,
   updateInputText,
+  zenkoUITestConfig,
 } from '../../../utils/testUtil';
 import LocationDetailsAwsCustom from '../LocationDetailsAwsCustom';
-import { debug } from 'jest-preview';
 
 const props = {
   details: {},
-  onChange: () => {},
+  onChange: () => { },
   locationType: 'location-scality-ring-s3-v1',
   capabilities: {
     locationTypeLocal: true,
@@ -95,7 +94,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
     let location = {};
     const { container } = await testMountAct(
       //@ts-expect-error fix this when you are working on it
-      <LocationDetailsAwsCustom {...props} onChange={(l) => (location = l)} />,
+      <LocationDetailsAwsCustom {...props} onChange={(l) => { location = l; }} />,
     );
     updateInputText(container, 'accessKey', 'ak');
     updateInputText(container, 'secretKey', 'sk');
@@ -104,6 +103,9 @@ describe('class <LocationDetailsAwsCustom />', () => {
     expect(location).toEqual(refLocation);
   });
   it('should display truststore link for non-Ring S3 Reseller locations and an HTTPS endpoint', async () => {
+    const useConfigSpy = jest
+      .spyOn(ConfigProvider, 'useConfig')
+      .mockReturnValue(zenkoUITestConfig);
     const component = await testMountAct(
       <LocationDetailsAwsCustom
         {...props}
@@ -128,10 +130,18 @@ describe('class <LocationDetailsAwsCustom />', () => {
     const truststoreLink = component.getByRole('link', {
       name: /open truststore/i,
     });
-    expect(truststoreLink).toHaveAttribute('href', '/data/truststore');
+    expect(truststoreLink).toHaveAttribute(
+      'href',
+      `${zenkoUITestConfig.basePath}/truststore`,
+    );
     expect(truststoreLink).toHaveAttribute('target', '_blank');
+
+    useConfigSpy.mockRestore();
   });
   it('should not display truststore link for Ring S3 Reseller locations', async () => {
+    const useConfigSpy = jest
+      .spyOn(ConfigProvider, 'useConfig')
+      .mockReturnValue(zenkoUITestConfig);
     const component = await testMountAct(
       <LocationDetailsAwsCustom
         {...props}
@@ -148,5 +158,40 @@ describe('class <LocationDetailsAwsCustom />', () => {
     expect(
       component.queryByText(/when using an https endpoint/i),
     ).not.toBeInTheDocument();
+    useConfigSpy.mockRestore();
+  });
+  it('should not display truststore link when MetalK8s is not deployed', async () => {
+    const useConfigSpy = jest
+      .spyOn(ConfigProvider, 'useConfig')
+      .mockReturnValue(zenkoUITestConfig);
+    const useDeployedMetalk8sSpy = jest
+      .spyOn(ConfigProvider, 'useDeployedMetalk8sInstances')
+      .mockReturnValue([]);
+    const component = await testMountAct(
+      <LocationDetailsAwsCustom
+        {...props}
+        locationType="location-scality-artesca-s3-v1"
+        details={{
+          endpoint: 'https://ep',
+        }}
+        capabilities={
+          {
+            capabilities: {
+              locationTypeS3Custom: true,
+            },
+          } as Pick<InstanceStateSnapshot, 'capabilities'>
+        }
+      />,
+    );
+
+    expect(
+      component.getByText(/Certificate for HTTPS Endpoint/i),
+    ).toBeInTheDocument();
+    expect(
+      component.queryByRole('link', { name: /open truststore/i }),
+    ).not.toBeInTheDocument();
+
+    useConfigSpy.mockRestore();
+    useDeployedMetalk8sSpy.mockRestore();
   });
 });

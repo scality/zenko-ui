@@ -125,7 +125,7 @@ setLogger({
   log: console.log,
   warn: console.warn,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  error: () => {},
+  error: () => { },
 });
 
 export const zenkoUITestConfig = {
@@ -136,6 +136,9 @@ export const zenkoUITestConfig = {
   features: [XDM_FEATURE, VEEAM_FEATURE],
   navbarEndpoint: TEST_API_BASE_URL,
   stsEndpoint: TEST_API_BASE_URL,
+  basePath: '/test-base-path',
+  iamInternalFQDN: '',
+  s3InternalFQDN: '',
 };
 
 export const mockShellHooks = {
@@ -242,7 +245,6 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
           <ThemeProvider theme={theme}>
             <MemoryRouter>
               <_ConfigContext.Provider
-                //@ts-expect-error fix this when you are working on it
                 value={zenkoUITestConfig}
               >
                 <_DataServiceRoleContext.Provider
@@ -354,7 +356,6 @@ export const testRender = (component: JSX.Element) => {
               <ToastProvider>
                 <MemoryRouter>
                   <_ConfigContext.Provider
-                    //@ts-expect-error fix this when you are working on it
                     value={zenkoUITestConfig}
                   >
                     <_DataServiceRoleContext.Provider
@@ -543,7 +544,6 @@ export const renderWithCustomRoute = (
           >
             <MemoryRouter initialEntries={[route]}>
               <_ConfigContext.Provider
-                //@ts-expect-error fix this when you are working on it
                 value={zenkoUITestConfig}
               >
                 <_DataServiceRoleContext.Provider
@@ -606,45 +606,45 @@ const DataServiceProvider = ({ children }) => {
 
 export const NewWrapper =
   (route = '/') =>
-  ({ children }: { children: ReactNode }) => {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <ShellHooksProvider
-            shellHooks={mockShellHooks}
-            shellAlerts={mockShellAlerts}
-          >
-            <MemoryRouter initialEntries={[route]}>
-              <ToastProvider>
-                <DataServiceProvider>
-                  <_ManagementContext.Provider
-                    value={{
-                      managementClient: TEST_MANAGEMENT_CLIENT,
-                    }}
-                  >
-                    <LocationAdapterProvider>
-                      <MetricsAdapterProvider>
-                        <AccountsLocationsEndpointsAdapterProvider>
-                          <AccessibleAccountsAdapterProvider>
-                            <ErrorProvider>
-                              <TestProvidersWrapper>
-                                {children}
-                                <ErrorHandlerModal />
-                              </TestProvidersWrapper>
-                            </ErrorProvider>
-                          </AccessibleAccountsAdapterProvider>
-                        </AccountsLocationsEndpointsAdapterProvider>
-                      </MetricsAdapterProvider>
-                    </LocationAdapterProvider>
-                  </_ManagementContext.Provider>
-                </DataServiceProvider>
-              </ToastProvider>
-            </MemoryRouter>
-          </ShellHooksProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    );
-  };
+    ({ children }: { children: ReactNode }) => {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <ShellHooksProvider
+              shellHooks={mockShellHooks}
+              shellAlerts={mockShellAlerts}
+            >
+              <MemoryRouter initialEntries={[route]}>
+                <ToastProvider>
+                  <DataServiceProvider>
+                    <_ManagementContext.Provider
+                      value={{
+                        managementClient: TEST_MANAGEMENT_CLIENT,
+                      }}
+                    >
+                      <LocationAdapterProvider>
+                        <MetricsAdapterProvider>
+                          <AccountsLocationsEndpointsAdapterProvider>
+                            <AccessibleAccountsAdapterProvider>
+                              <ErrorProvider>
+                                <TestProvidersWrapper>
+                                  {children}
+                                  <ErrorHandlerModal />
+                                </TestProvidersWrapper>
+                              </ErrorProvider>
+                            </AccessibleAccountsAdapterProvider>
+                          </AccountsLocationsEndpointsAdapterProvider>
+                        </MetricsAdapterProvider>
+                      </LocationAdapterProvider>
+                    </_ManagementContext.Provider>
+                  </DataServiceProvider>
+                </ToastProvider>
+              </MemoryRouter>
+            </ShellHooksProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      );
+    };
 
 export const selectClick = async (component) => {
   await userEvent.click(component);
