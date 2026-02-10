@@ -325,6 +325,8 @@ export type ISVPlatform = {
   skipModalContent?: ReactNode;
 
   bucketTag: string;
+  defaultOptionalFailureMessage?: string;
+  continueWithOptionalFailuresLabel?: string;
 
   fields: FieldDef[];
   validator: Joi.ObjectSchema;

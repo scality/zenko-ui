@@ -105,6 +105,8 @@ export function definePlatform(config: PlatformConfig): ISVPlatform {
     skipModalContent: config.skipModalContent,
 
     bucketTag: config.bucketTag ?? config.name,
+    defaultOptionalFailureMessage: config.defaultOptionalFailureMessage,
+    continueWithOptionalFailuresLabel: config.continueWithOptionalFailuresLabel,
 
     fields,
     validator,
