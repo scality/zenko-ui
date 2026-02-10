@@ -96,8 +96,8 @@ export const useParseBundleCertificates = (
     if (certificateBundles.length > 0) {
       parse();
     } else {
-      setData([]);
-      setIsLoading(false);
+      setData((prev) => (prev.length === 0 ? prev : []));
+      setIsLoading((prev) => (prev ? false : prev));
     }
   }, [certificateBundles]);
 
