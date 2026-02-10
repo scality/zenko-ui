@@ -33,7 +33,7 @@ export const oracleCloudEndpointBuilder = (namespace: string, region: string) =>
 export const getNamespaceAndRegion = (endpoint: string) => {
   if (!endpoint) return { namespace: '', region: '' };
   const regex =
-    /https:\/\/(?<namespace>.+)\.compat\.objectstorage\.(?<region>.+).oraclecloud.com/;
+    /https:\/\/(?<namespace>.+)\.compat\.objectstorage\.(?<region>.+)\.oraclecloud\.com/;
   const parts = endpoint.match(regex);
   return {
     namespace: parts.groups['namespace'],
