@@ -8,8 +8,12 @@
 import { useMemo } from 'react';
 import { useMutation } from 'react-query';
 import {
-  MutationConfig,
   VariablesResolvers,
+} from '@scality/react-chained-query';
+import type {
+  MutationConfig,
+  StaticMutationConfig,
+  DynamicMutationConfig,
 } from '@scality/react-chained-query';
 import {
   useAttachPolicyToUserMutation,
@@ -78,6 +82,7 @@ type UseMutationExecutorOptions = {
 type UseMutationExecutorResult = {
   mutations: MutationConfig[];
   variables: VariablesResolvers;
+  failureMessages: Record<string, string>;
 };
 
 /**
@@ -110,11 +115,10 @@ export function useMutationExecutor({
   const createVeeamRepositoryMutation = useCreateVeeamRepository();
 
   // Action to mutation/hook mapping
-  // Using Partial<MutationConfig> to allow either mutation or hook property
-  const actionMutationMap: Record<
-    ActionName,
-    Omit<MutationConfig, 'id' | 'label'>
-  > = useMemo(
+  type ActionMutationConfig =
+    | Omit<StaticMutationConfig, 'id' | 'label'>
+    | Omit<DynamicMutationConfig, 'id' | 'label'>;
+  const actionMutationMap: Record<ActionName, ActionMutationConfig> = useMemo(
     () => ({
       enableSOSAPI: { mutation: enableSOSAPIMutation },
       createAccount: { mutation: createAccountMutation },
@@ -159,9 +163,10 @@ export function useMutationExecutor({
   }, [platform.mutations, formData, context]);
 
   // Filter mutations based on `when` conditions and build MutationConfig[]
-  const { mutations, variables } = useMemo(() => {
+  const { mutations, variables, failureMessages } = useMemo(() => {
     const mutationConfigs: MutationConfig[] = [];
     const variableResolvers: VariablesResolvers = {};
+    const resolvedFailureMessages: Record<string, string> = {};
 
     for (const def of expandedMutations) {
       // Check `when` condition
@@ -190,17 +195,31 @@ export function useMutationExecutor({
         id: def.id,
         label,
         ...actionConfig,
+        ...(def.optional && { optional: true }),
       } as MutationConfig);
 
       // Build variable resolver
-      variableResolvers[def.id] = (prev: PreviousResults) =>
-        def.variables(formData, prev, context);
+      // Cast library's PreviousResults to ISV engine's PreviousResults (structurally compatible)
+      variableResolvers[def.id] = (prev) =>
+        def.variables(formData, prev as unknown as PreviousResults, context);
+
+      // Resolve failure message for optional steps
+      if (def.optional && def.failureMessage) {
+        resolvedFailureMessages[def.id] =
+          typeof def.failureMessage === 'function'
+            ? def.failureMessage(formData, context)
+            : def.failureMessage;
+      }
     }
 
-    return { mutations: mutationConfigs, variables: variableResolvers };
+    return {
+      mutations: mutationConfigs,
+      variables: variableResolvers,
+      failureMessages: resolvedFailureMessages,
+    };
   }, [expandedMutations, formData, context, actionMutationMap]);
 
-  return { mutations, variables };
+  return { mutations, variables, failureMessages };
 }
 
 /**

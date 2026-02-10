@@ -91,6 +91,9 @@ const createMockChainedMutations = (
   getResult: mockGetResult as ChainedMutationsResult['getResult'],
   start: jest.fn(),
   reset: jest.fn(),
+  allRequiredStepsComplete: true,
+  hasOptionalFailures: false,
+  optionalFailures: [],
   ...overrides,
 });
 
@@ -143,10 +146,11 @@ describe('ISVApplyActions', () => {
     expect(mockRetry).toHaveBeenCalled();
   });
 
-  it('disables continue button when there are failures', () => {
+  it('disables continue button when there are required failures', () => {
     mockUseChainedMutations.mockReturnValue(createMockChainedMutations({
       isComplete: false,
       hasError: true,
+      allRequiredStepsComplete: false,
     }));
 
     render(<Wrapper><ISVApplyActions {...mockProps} /></Wrapper>);

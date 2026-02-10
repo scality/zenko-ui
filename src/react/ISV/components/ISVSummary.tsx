@@ -12,6 +12,7 @@ import type {
   BucketItem,
   DefaultSectionId,
   FormData,
+  OptionalFailure,
   SectionDef,
   SectionRenderProps,
   SummaryRenderProps,
@@ -228,6 +229,7 @@ export type ISVSummaryProps = FormData & {
   accessKey: string;
   secretKey: string;
   accessKeys?: string[];
+  optionalFailures?: OptionalFailure[];
 };
 
 /**
@@ -371,6 +373,7 @@ export const ISVSummary = ({
   generateKey,
   autoCreateRepository,
   immutablePeriodDays,
+  optionalFailures,
 }: ISVSummaryProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { platform } = useISVStepper();
@@ -415,6 +418,7 @@ export const ISVSummary = ({
     accessKeys,
     onFinish,
     renderDefault,
+    optionalFailures,
   };
 
   if (platform.summary.customRender) {

@@ -317,6 +317,13 @@ export function expandLoopMutation(
         action: step.action,
         variables: (f: FormData, prev: PreviousResults, c: FullContext) =>
           step.variables(f, item, prev, c),
+        ...(step.optional && { optional: true }),
+        ...(step.failureMessage && {
+          failureMessage:
+            typeof step.failureMessage === 'function'
+              ? (f: FormData, c: FullContext) => (step.failureMessage as (form: FormData, bucket: BucketItem, ctx: FullContext) => string)(f, item, c)
+              : step.failureMessage,
+        }),
       });
     }
   });
