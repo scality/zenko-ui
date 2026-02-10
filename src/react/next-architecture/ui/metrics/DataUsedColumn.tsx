@@ -1,8 +1,8 @@
-import { CoreUIColumn } from 'react-table';
-import { LatestUsedCapacity } from '../../domain/entities/metrics';
-import { PromiseResult } from '../../domain/entities/promise';
-import { CellProps } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { CSSProperties, useMemo } from 'react';
+import type { CellProps } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { type CSSProperties, useMemo } from 'react';
+import type { CoreUIColumn } from 'react-table';
+import type { LatestUsedCapacity } from '../../domain/entities/metrics';
+import type { PromiseResult } from '../../domain/entities/promise';
 import { UsedCapacityInlinePromiseResult } from './LatestUsedCapacity';
 
 export function getDataUsedColumn<
@@ -54,19 +54,11 @@ export function getDataUsedColumn<
       textAlign: 'right',
       ...cellStyle,
     },
-    Cell: ({
-      row,
-      updateTableData,
-      value,
-    }: CellProps<T, T['usedCapacity']>) => {
+    Cell: ({ row, updateTableData, value }: CellProps<T, T['usedCapacity']>) => {
       const { usedCapacity } = useLatestUsedCapacity(row.original);
 
       useMemo(() => {
-        if (
-          usedCapacity.status === 'success' &&
-          value.status !== 'success' &&
-          updateTableData
-        ) {
+        if (usedCapacity.status === 'success' && value.status !== 'success' && updateTableData) {
           updateTableData(row.id, 'usedCapacity', usedCapacity);
         }
       }, [usedCapacity.status, updateTableData]);

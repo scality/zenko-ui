@@ -68,11 +68,7 @@ function ErrorFallback() {
   return <ErrorPage500 data-cy="sc-error-page500" locale={'en'} />;
 }
 
-export function ArtescaLibraryProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function ArtescaLibraryProvider({ children }: { children: React.ReactNode }) {
   const { useDeployedApps, useConfig } = ModuleFederation.useShellHooks();
   const instances = useDeployedApps({ kind: 'artesca-base-ui' });
 

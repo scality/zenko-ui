@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { CreateOrSelectNameField } from '../CreateOrSelectNameField';
 import { useFormContext } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
+import { CreateOrSelectNameField } from '../CreateOrSelectNameField';
 
 jest.mock('react-hook-form', () => {
   return {
@@ -51,14 +51,7 @@ jest.mock('@scality/core-ui', () => ({
 }));
 
 jest.mock('@scality/core-ui/dist/next', () => {
-  const SelectMock = ({
-    children,
-    onChange,
-    value,
-    id,
-    disabled,
-    placeholder,
-  }) => {
+  const SelectMock = ({ children, onChange, value, id, disabled, placeholder }) => {
     return (
       <div>
         <label htmlFor={id}>{placeholder}</label>
@@ -80,12 +73,7 @@ jest.mock('@scality/core-ui/dist/next', () => {
 
   return {
     Input: (props) => (
-      <input
-        type="text"
-        aria-label={props.placeholder || props.id || 'Input field'}
-        role="textbox"
-        {...props}
-      />
+      <input type="text" aria-label={props.placeholder || props.id || 'Input field'} role="textbox" {...props} />
     ),
     Select: SelectMock,
   };
@@ -113,17 +101,10 @@ describe('CreateOrSelectNameField', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useFormContext as jest.Mock).mockReturnValue(mockFormContext);
-    (useSearchParams as jest.Mock).mockReturnValue([
-      { get: () => null },
-      jest.fn(),
-    ]);
+    (useSearchParams as jest.Mock).mockReturnValue([{ get: () => null }, jest.fn()]);
   });
 
-  const getRadioOptions = (
-    isAccount = true,
-    disableCreate = false,
-    disableExisting = false,
-  ) => {
+  const getRadioOptions = (isAccount = true, disableCreate = false, disableExisting = false) => {
     return [
       {
         value: 'create',
@@ -176,9 +157,7 @@ describe('CreateOrSelectNameField', () => {
   });
 
   it('renders IAM user labels when isAccount is false', () => {
-    render(
-      <CreateOrSelectNameField {...defaultProps} onFieldNameChange={null} />,
-    );
+    render(<CreateOrSelectNameField {...defaultProps} onFieldNameChange={null} />);
 
     expect(screen.getByText('IAM User Name')).toBeInTheDocument();
 
@@ -222,10 +201,7 @@ describe('CreateOrSelectNameField', () => {
   });
 
   it('handles URL param matching with options', () => {
-    (useSearchParams as jest.Mock).mockReturnValue([
-      { get: () => 'option1' },
-      jest.fn(),
-    ]);
+    (useSearchParams as jest.Mock).mockReturnValue([{ get: () => 'option1' }, jest.fn()]);
 
     render(<CreateOrSelectNameField {...defaultProps} isExist={true} />);
 
@@ -236,9 +212,7 @@ describe('CreateOrSelectNameField', () => {
   });
 
   it('applies correct placeholder to input based on status and options', () => {
-    const { rerender } = render(
-      <CreateOrSelectNameField {...defaultProps} status="success" />,
-    );
+    const { rerender } = render(<CreateOrSelectNameField {...defaultProps} status="success" />);
 
     const input = screen.getByRole('textbox');
     expect(input).toHaveAttribute('placeholder', 'veeam');

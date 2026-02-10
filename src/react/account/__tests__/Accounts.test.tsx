@@ -2,29 +2,27 @@ import { screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
-  USERS,
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
+  INSTANCE_ID,
+  USERS,
 } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import {
-  FAKE_TOKEN,
-  TEST_API_BASE_URL,
-  WrapperAsStorageManager,
   defaultUserData,
+  FAKE_TOKEN,
   mockOffsetSize,
   mockShellHooks,
-  testRender,
   renderWithRouterMatch,
+  TEST_API_BASE_URL,
+  testRender,
+  WrapperAsStorageManager,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import Accounts from '../Accounts';
 
-const TEST_ACCOUNT =
-  USERS.find((user) => user.id === '064609833007')?.userName ?? '';
-const TEST_ACCOUNT_CREATION_DATE =
-  USERS.find((user) => user.id === '064609833007')?.createDate ?? '';
+const TEST_ACCOUNT = USERS.find((user) => user.id === '064609833007')?.userName ?? '';
+const TEST_ACCOUNT_CREATION_DATE = USERS.find((user) => user.id === '064609833007')?.createDate ?? '';
 const NO_ACCOUNT_MESSAGE = "You don't have any account yet.";
 
 const useAuth = mockShellHooks.useAuth;
@@ -53,10 +51,7 @@ const server = setupServer(
     );
   }),
   getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
-  ...getStorageConsumptionMetricsHandlers(
-    zenkoUITestConfig.managementEndpoint,
-    INSTANCE_ID,
-  ),
+  ...getStorageConsumptionMetricsHandlers(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
 );
 
 beforeAll(() => {
@@ -68,10 +63,8 @@ afterAll(() => server.close());
 
 describe('Accounts', () => {
   const selectors = {
-    createAccountButton: () =>
-      screen.queryByRole('button', { name: /Create Account/i }),
-    startISVConfgurationButton: () =>
-      screen.queryByRole('button', { name: /Start ISV Connector/i }),
+    createAccountButton: () => screen.queryByRole('button', { name: /Create Account/i }),
+    startISVConfgurationButton: () => screen.queryByRole('button', { name: /Start ISV Connector/i }),
   };
 
   it('should list accounts on which user can assume a role', async () => {
@@ -89,23 +82,15 @@ describe('Accounts', () => {
 
   it('should list accounts display an error when retrieval of accounts failed', async () => {
     //S
-    server.use(
-      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
-        res(ctx.status(500, 'error')),
-      ),
-    );
+    server.use(rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => res(ctx.status(500, 'error'))));
     //E
     testRender(<Accounts />);
     //V
 
     //Wait for error
-    await waitFor(() =>
-      screen.getByText(/The server is temporarily unavailable./i),
-    );
+    await waitFor(() => screen.getByText(/The server is temporarily unavailable./i));
 
-    expect(
-      screen.getByText('The server is temporarily unavailable.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('The server is temporarily unavailable.')).toBeInTheDocument();
   });
 
   it('should handle token expired errror correctly', async () => {
@@ -132,9 +117,7 @@ describe('Accounts', () => {
     //Wait for error
     await waitFor(() => screen.getByText(/The provided token has expired./i));
 
-    expect(
-      screen.getByText(/The provided token has expired./i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/The provided token has expired./i)).toBeInTheDocument();
   });
 
   it('should not let the user click on account when no storage manager or storage account owner role can be assumed', async () => {

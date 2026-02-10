@@ -1,19 +1,19 @@
 import { FormGroup, Toggle } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
-import { Controller, UseFormReturn } from 'react-hook-form';
-import {
+import { Controller, type UseFormReturn } from 'react-hook-form';
+import type {
+  AccountSelectorFieldDef,
+  BucketArrayFieldDef,
+  CustomFieldDef,
   FieldDef,
   FormData,
-  SelectFieldDef,
-  ToggleFieldDef,
-  TextFieldDef,
-  NumberFieldDef,
-  CustomFieldDef,
-  BucketArrayFieldDef,
-  AccountSelectorFieldDef,
   IAMUserSelectorFieldDef,
+  NumberFieldDef,
+  SelectFieldDef,
+  TextFieldDef,
+  ToggleFieldDef,
 } from '../engine/types';
-import { BucketArrayField, AccountSelectorField, IAMUserSelectorField } from './fields';
+import { AccountSelectorField, BucketArrayField, IAMUserSelectorField } from './fields';
 
 type FormRendererContext = {
   platform?: string;
@@ -177,27 +177,17 @@ const renderField = (
 
     case 'bucketArray': {
       const bucketField = field as BucketArrayFieldDef;
-      return (
-        <BucketArrayField
-          field={bucketField}
-          formMethods={formMethods}
-          platform={context?.platform ?? ''}
-        />
-      );
+      return <BucketArrayField field={bucketField} formMethods={formMethods} platform={context?.platform ?? ''} />;
     }
 
     case 'accountSelector': {
       const accountField = field as AccountSelectorFieldDef;
-      return (
-        <AccountSelectorField field={accountField} formMethods={formMethods} />
-      );
+      return <AccountSelectorField field={accountField} formMethods={formMethods} />;
     }
 
     case 'iamUserSelector': {
       const iamField = field as IAMUserSelectorFieldDef;
-      return (
-        <IAMUserSelectorField field={iamField} formMethods={formMethods} />
-      );
+      return <IAMUserSelectorField field={iamField} formMethods={formMethods} />;
     }
 
     default:
@@ -211,11 +201,7 @@ const renderField = (
  * Supported field types:
  * - text, number, toggle, select, custom, bucketArray, accountSelector, iamUserSelector
  */
-export const FormRenderer: React.FC<FormRendererProps> = ({
-  fields,
-  formMethods,
-  context,
-}) => {
+export const FormRenderer: React.FC<FormRendererProps> = ({ fields, formMethods, context }) => {
   return (
     <>
       {fields.map((field) => {
@@ -225,5 +211,3 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
     </>
   );
 };
-
-

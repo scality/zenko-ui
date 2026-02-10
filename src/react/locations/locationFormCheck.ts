@@ -1,12 +1,6 @@
-import {
-  NFS_OPT_CONFLICT,
-  NFS_V3_CONFLICTS,
-  NFS_V3_OPTIONS,
-  NFS_V4_CONFLICTS,
-  NFS_V4_OPTIONS,
-} from './constants';
-import { tapeMiriaValidators } from './LocationDetails/LocationDetailsTapeMiria';
+import { NFS_OPT_CONFLICT, NFS_V3_CONFLICTS, NFS_V3_OPTIONS, NFS_V4_CONFLICTS, NFS_V4_OPTIONS } from './constants';
 import { crrValidators } from './LocationDetails/LocationDetailsCRR';
+import { tapeMiriaValidators } from './LocationDetails/LocationDetailsTapeMiria';
 
 const v3ConflictOpts = Object.assign({}, NFS_OPT_CONFLICT, NFS_V3_CONFLICTS);
 const v4ConflictOpts = Object.assign({}, NFS_OPT_CONFLICT, NFS_V4_CONFLICTS);
@@ -34,12 +28,7 @@ function _checkNFSDetails(details) {
     };
   }
 
-  const {
-    protocol: scheme,
-    host,
-    pathname: path,
-    search: query,
-  } = new URL(details.endpoint);
+  const { protocol: scheme, host, pathname: path, search: query } = new URL(details.endpoint);
   const [protocol, version] = scheme.slice(0, -1).split('+');
 
   if (protocol !== 'udp' && protocol !== 'tcp') {

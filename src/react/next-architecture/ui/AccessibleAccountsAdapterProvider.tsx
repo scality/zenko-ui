@@ -1,8 +1,7 @@
-import { createContext, useContext } from 'react';
-import { IAccessibleAccounts } from '../adapters/accessible-accounts/IAccessibleAccounts';
+import { createContext, type JSX, useContext } from 'react';
+import type { IAccessibleAccounts } from '../adapters/accessible-accounts/IAccessibleAccounts';
 import { IAMPensieveAccessibleAccounts } from '../adapters/accessible-accounts/IAMPensieveAccessibleAccounts';
 import { useAccountsLocationsEndpointsAdapter } from './AccountsLocationsEndpointsAdapterProvider';
-import { JSX } from 'react';
 
 const _AccessibleAccountsAdapterContext = createContext<null | {
   accessibleAccountsAdapter: IAccessibleAccounts;
@@ -12,9 +11,7 @@ export const useAccessibleAccountsAdapter = (): IAccessibleAccounts => {
   const context = useContext(_AccessibleAccountsAdapterContext);
 
   if (!context) {
-    throw new Error(
-      'The useAccessibleAccountsAdapter hook can only be used within AccessibleAccountsAdapterProvider.',
-    );
+    throw new Error('The useAccessibleAccountsAdapter hook can only be used within AccessibleAccountsAdapterProvider.');
   }
 
   return context.accessibleAccountsAdapter;
@@ -38,9 +35,7 @@ export const AccessibleAccountsAdapterProvider = ({
   );
 
   return (
-    <_AccessibleAccountsAdapterContext.Provider
-      value={{ accessibleAccountsAdapter }}
-    >
+    <_AccessibleAccountsAdapterContext.Provider value={{ accessibleAccountsAdapter }}>
       {children}
     </_AccessibleAccountsAdapterContext.Provider>
   );

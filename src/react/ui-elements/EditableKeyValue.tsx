@@ -1,11 +1,10 @@
-import styled from 'styled-components';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Icon, spacing } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { Icon } from '@scality/core-ui';
 
-import Input from './Input';
-import { CSSProperties, useCallback, useMemo } from 'react';
+import { type CSSProperties, useCallback, useMemo } from 'react';
+import styled from 'styled-components';
 import { isEmptyItem } from '../utils';
+import Input from './Input';
 
 export const Container = styled.div`
   flex: 1;
@@ -19,7 +18,7 @@ export const Item = styled.div<{ isShrink?: boolean }>`
   flex-direction: row;
   align-items: center;
 
-  margin-bottom: ${spacing.sp4};
+  margin-bottom: ${spacing.r4};
   // For Select we adjust width of the sc-scrollbar div because in CoreUI.SelectV2
   // the first parent is .sc-scrollbar
   .sc-scrollbar {
@@ -32,35 +31,35 @@ export const Header = styled.div`
   display: flex;
   flex-direction: row;
   width: calc(100% - 100px);
-  margin-bottom: ${spacing.sp8};
+  margin-bottom: ${spacing.r8};
 `;
 export const HeaderKey = styled.div`
   flex: 0 60%;
-  padding-left: ${spacing.sp8};
+  padding-left: ${spacing.r8};
 `;
 export const HeaderValue = styled.div`
   flex: 0 40%;
-  padding-left: ${spacing.sp8};
+  padding-left: ${spacing.r8};
 `;
 export const HeaderKeyTag = styled.div`
   flex: 0 50%;
-  padding-left: ${spacing.sp8};
+  padding-left: ${spacing.r8};
 `;
 export const HeaderValueTag = styled.div`
   flex: 0 50%;
-  padding-left: ${spacing.sp8};
+  padding-left: ${spacing.r8};
 `;
 export const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
 
-  margin-bottom: ${spacing.sp4};
+  margin-bottom: ${spacing.r4};
 `;
 export const Buttons = styled.div`
   display: flex;
   flex: 0 0 100px;
   & > * {
-    margin-right: ${spacing.sp2};
+    margin-right: ${spacing.r2};
   }
 `;
 export const Inputs = styled.div`
@@ -69,7 +68,7 @@ export const Inputs = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  margin-right: ${spacing.sp4};
+  margin-right: ${spacing.r4};
 `;
 // NOTE: use for x-amz-meta extra key value
 export const InputExtraKey = styled(Input)`
@@ -86,7 +85,7 @@ export const InputValue = styled(Input)<{ isShrink?: boolean }>`
 export const InputTag = styled(Input)`
   flex: 1 40%;
   &:first-child {
-    margin-right: ${spacing.sp4};
+    margin-right: ${spacing.r4};
   }
   width: 40%;
   min-width: 40%;
@@ -112,13 +111,7 @@ type AddButtonProps<T = unknown> = {
   disabled?: boolean;
   iconStyle?: CSSProperties;
 };
-export const AddButton = ({
-  index,
-  items,
-  insertEntry,
-  disabled,
-  iconStyle,
-}: AddButtonProps) => {
+export const AddButton = ({ index, items, insertEntry, disabled, iconStyle }: AddButtonProps) => {
   const itemsLength = items.length;
   const itemsIndex = items[index];
   //@ts-expect-error fix this when you are working on it
@@ -171,13 +164,7 @@ type SubButtonProps<T = unknown> = {
   disabled?: boolean;
   iconStyle?: CSSProperties;
 };
-export const SubButton = ({
-  index,
-  items,
-  deleteEntry,
-  disabled,
-  iconStyle,
-}: SubButtonProps) => {
+export const SubButton = ({ index, items, deleteEntry, disabled, iconStyle }: SubButtonProps) => {
   let isDisabled = disabled || false;
 
   if (items.length === 1 && isEmptyItem(items[0])) {
@@ -189,8 +176,6 @@ export const SubButton = ({
       variant="danger"
       type="button"
       disabled={isDisabled}
-      //@ts-expect-error fix this when you are working on it
-      type="button"
       aria-label="Remove"
       name={`delbtn${index}`}
       id={`delbtn${index}`}

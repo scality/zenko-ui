@@ -1,4 +1,5 @@
 import { Icon } from '@scality/core-ui';
+import { useShellHooks } from '@scality/module-federation';
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
@@ -9,23 +10,14 @@ import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/Ac
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import * as T from '../ui-elements/Table';
-import { useShellHooks } from '@scality/module-federation';
 
-export const DeleteEndpoint = ({
-  hostname,
-  disabled,
-}: {
-  hostname: string;
-  disabled: boolean;
-}) => {
+export const DeleteEndpoint = ({ hostname, disabled }: { hostname: string; disabled: boolean }) => {
   const queryClient = useQueryClient();
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter,
-    });
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const { refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
   const { useAuth } = useShellHooks();
@@ -63,9 +55,7 @@ export const DeleteEndpoint = ({
     }
   }, [waiterStatus, refetchAccountsLocationsEndpointsMutation]);
 
-  const tooltipMessage = disabled
-    ? 'This Data Service can not be deleted'
-    : 'Delete Data Service';
+  const tooltipMessage = disabled ? 'This Data Service can not be deleted' : 'Delete Data Service';
 
   return (
     <>
@@ -73,9 +63,7 @@ export const DeleteEndpoint = ({
         show={isConfirmDeleteOpen}
         cancel={() => setIsConfirmDeleteOpen(false)}
         approve={handleDeleteApprove}
-        isLoading={
-          deleteEndpointMutation.isLoading || waiterStatus === 'waiting'
-        }
+        isLoading={deleteEndpointMutation.isLoading || waiterStatus === 'waiting'}
         titleText={`Are you sure you want to delete Data Service: ${hostname} ?`}
       />
       <T.ActionButton

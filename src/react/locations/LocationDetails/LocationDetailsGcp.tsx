@@ -1,8 +1,8 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
-import { LocationDetailsFormProps } from '.';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
 
 type State = {
   bucketMatch: boolean;
@@ -18,10 +18,7 @@ const INIT_STATE: State = {
   bucketName: '',
   mpuBucketName: '',
 };
-export default class LocationDetailsGcp extends React.Component<
-  LocationDetailsFormProps,
-  State
-> {
+export default class LocationDetailsGcp extends React.Component<LocationDetailsFormProps, State> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);

@@ -1,6 +1,6 @@
-import { UiFacingApi } from '../js/managementClient/api';
-import { AccessKey, SecretKey } from './account';
-import { ConfigurationOverlay } from './config';
+import type { UiFacingApi } from '../js/managementClient/api';
+import type { AccessKey, SecretKey } from './account';
+import type { ConfigurationOverlay } from './config';
 export type ApiAccountResponse = {
   readonly arn: string;
   readonly canonicalId: string;

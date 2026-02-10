@@ -1,4 +1,4 @@
-import { Property } from 'csstype';
+import type { Property } from 'csstype';
 import styled from 'styled-components';
 export const TextTransformer = styled.span<{
   transform: Property.TextTransform;

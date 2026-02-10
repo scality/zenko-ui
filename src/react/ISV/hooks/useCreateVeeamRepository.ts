@@ -1,6 +1,6 @@
 import { useShellHooks } from '@scality/module-federation';
 import { useMutation } from 'react-query';
-import { StorageConsumptionLimitKind } from '../utils/capacityCalculations';
+import type { StorageConsumptionLimitKind } from '../utils/capacityCalculations';
 
 export type VeeamRepositoryRequest = {
   repositoryName: string;

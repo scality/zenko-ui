@@ -1,12 +1,5 @@
 import { isValidTrustedCACertificate } from '@scality/certchain';
-import {
-  Dropzone,
-  Form,
-  Stack,
-  Text,
-  TextArea,
-  useToast,
-} from '@scality/core-ui';
+import { Dropzone, Form, Stack, Text, TextArea, useToast } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo } from 'react';
@@ -41,24 +34,18 @@ const ImportCertificate = () => {
     formState: { isValid, errors },
   } = formMethods;
   const certificateValue = formMethods.watch('certificate');
-  const { data: zenkoCR, isLoading: isLoadingZenkoCR } = useQuery(
-    getZenkoCRQuery(),
-  );
+  const { data: zenkoCR, isLoading: isLoadingZenkoCR } = useQuery(getZenkoCRQuery());
 
   const hasEgress = useMemo(() => {
     return !!zenkoCR?.spec?.egress;
   }, [zenkoCR]);
 
-  const hasExtraCACerts = useMemo(
-    () => !!zenkoCR?.spec?.egress?.extraCACerts,
-    [zenkoCR],
-  );
+  const hasExtraCACerts = useMemo(() => !!zenkoCR?.spec?.egress?.extraCACerts, [zenkoCR]);
 
-  const addCertificateToZenkoConfigurationMutation =
-    useAddCertificateToZenkoConfigurationMutation({
-      hasEgress,
-      hasExtraCACerts,
-    });
+  const addCertificateToZenkoConfigurationMutation = useAddCertificateToZenkoConfigurationMutation({
+    hasEgress,
+    hasExtraCACerts,
+  });
 
   const onSubmit = (data: { certificate: string }) => {
     addCertificateToZenkoConfigurationMutation.mutate(
@@ -109,11 +96,7 @@ const ImportCertificate = () => {
             <Button
               type="submit"
               variant="primary"
-              label={
-                isImportingCertificate
-                  ? 'Importing certificate...'
-                  : 'Import certificate'
-              }
+              label={isImportingCertificate ? 'Importing certificate...' : 'Import certificate'}
               disabled={!isValid}
               tooltip={{
                 overlay: !isValid
@@ -129,18 +112,14 @@ const ImportCertificate = () => {
       >
         <Stack direction="vertical" gap="r16" style={{ width: 'min-content' }}>
           <Stack direction="vertical" gap="r8">
+            <Text>Choose a file or paste the Certificate chain bundle in order to import a certificate.</Text>
             <Text>
-              Choose a file or paste the Certificate chain bundle in order to
-              import a certificate.
+              The certificate chain bundle should be PEM x509 formatted and follow this order: <br /> optional
+              intermediate(s) then the root certificate.
             </Text>
             <Text>
-              The certificate chain bundle should be PEM x509 formatted and
-              follow this order: <br /> optional intermediate(s) then the root
-              certificate.
-            </Text>
-            <Text>
-              This action will update the ARTESCA configuration to add the
-              certificate to the truststore. This operation may take some time.
+              This action will update the ARTESCA configuration to add the certificate to the truststore. This operation
+              may take some time.
             </Text>
           </Stack>
           <Stack direction="vertical" gap="r8">
@@ -163,8 +142,7 @@ const ImportCertificate = () => {
                     shouldValidate: true,
                   });
                   showToast({
-                    message:
-                      'Failed to read certificate file. Import a valid certificate PEM file',
+                    message: 'Failed to read certificate file. Import a valid certificate PEM file',
                     status: 'error',
                     open: true,
                   });
@@ -185,9 +163,7 @@ const ImportCertificate = () => {
                 validate: async (value) => {
                   if (!value) return true;
                   const isValid = await isValidTrustedCACertificate(value);
-                  return isValid
-                    ? true
-                    : 'Invalid certificate. The certificate should be a valid PEM x509 file';
+                  return isValid ? true : 'Invalid certificate. The certificate should be a valid PEM x509 file';
                 },
               })}
               id="Certificate"

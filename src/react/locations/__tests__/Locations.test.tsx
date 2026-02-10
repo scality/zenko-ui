@@ -1,22 +1,11 @@
-import { LocationsList } from '../LocationsList';
+import { getAllByRole, getByRole, screen, waitForElementToBeRemoved } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import {
-  mockOffsetSize,
-  testRender,
-  TEST_API_BASE_URL,
-} from '../../utils/testUtil';
 import { XDM_FEATURE } from '../../../js/config';
-import {
-  screen,
-  getAllByRole,
-  getByRole,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
-import {
-  ACCOUNT_ID,
-  getColdStorageHandlers,
-} from '../../../js/mock/managementClientMSWHandlers';
+import { ACCOUNT_ID, getColdStorageHandlers } from '../../../js/mock/managementClientMSWHandlers';
+import { mockOffsetSize, TEST_API_BASE_URL, testRender } from '../../utils/testUtil';
+import { LocationsList } from '../LocationsList';
+
 const locationFile = {
   details: {
     bootstrapList: [],
@@ -127,18 +116,16 @@ const server = setupServer(
     `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
     (req, res, ctx) => res(ctx.json([])),
   ),
-  rest.get(
-    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
-    (req, res, ctx) =>
-      res(
-        ctx.json({
-          metrics: {
-            ['crr-schedule']: { states: { ['location-dmf']: 'enabled' } },
-            ['ingest-schedule']: { states: { ['location-dmf']: 'enabled' } },
-          },
-          state: null,
-        }),
-      ),
+  rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`, (req, res, ctx) =>
+    res(
+      ctx.json({
+        metrics: {
+          ['crr-schedule']: { states: { ['location-dmf']: 'enabled' } },
+          ['ingest-schedule']: { states: { ['location-dmf']: 'enabled' } },
+        },
+        state: null,
+      }),
+    ),
   ),
 );
 
@@ -156,14 +143,11 @@ describe.skip('Locations', () => {
     try {
       testRender(<LocationsList />);
 
-      await waitForElementToBeRemoved(
-        () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
-        { timeout: 8000 },
-      );
+      await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Checking if linked to workflows.../i)], {
+        timeout: 8000,
+      });
 
-      expect(screen.getAllByRole('columnheader').length).toEqual(
-        nbrOfColumnsExpectedWithoutXDM,
-      );
+      expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
       /*********************************************************/
       const firstRow = screen.getAllByRole('row')[1];
 
@@ -186,9 +170,7 @@ describe.skip('Locations', () => {
       /*********************************************************/
       const secondRow = screen.getAllByRole('row')[2];
       const gridCellOfSecondRow = getAllByRole(secondRow, 'gridcell');
-      expect(gridCellOfSecondRow.length).toEqual(
-        nbrOfColumnsExpectedWithoutXDM,
-      );
+      expect(gridCellOfSecondRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
       expect(screen.getByText('location-ceph')).toBeInTheDocument();
       expect(screen.getByText('Ceph RADOS Gateway')).toBeInTheDocument();
@@ -227,14 +209,10 @@ describe.skip('Locations', () => {
       /*********************************************************/
       const fourthRow = screen.getAllByRole('row')[4];
       const gridCellOfFourthRow = getAllByRole(fourthRow, 'gridcell');
-      expect(gridCellOfFourthRow.length).toEqual(
-        nbrOfColumnsExpectedWithoutXDM,
-      );
+      expect(gridCellOfFourthRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
       expect(screen.getByText('location-hd')).toBeInTheDocument();
-      expect(
-        screen.getByText('Storage Service for ARTESCA'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Storage Service for ARTESCA')).toBeInTheDocument();
 
       expect(
         getByRole(fourthRow, 'button', {
@@ -272,9 +250,7 @@ describe.skip('Locations', () => {
       expect(gridCellOfSixthRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
       expect(screen.getByText('location-ring')).toBeInTheDocument();
-      expect(
-        screen.getByText('Scality RING with S3 Connector'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Scality RING with S3 Connector')).toBeInTheDocument();
       expect(screen.getByText('bucketName3')).toBeInTheDocument();
 
       expect(
@@ -291,14 +267,10 @@ describe.skip('Locations', () => {
       /*********************************************************/
       const seventhRow = screen.getAllByRole('row')[7];
       const gridCellOfSeventhRow = getAllByRole(seventhRow, 'gridcell');
-      expect(gridCellOfSeventhRow.length).toEqual(
-        nbrOfColumnsExpectedWithoutXDM,
-      );
+      expect(gridCellOfSeventhRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
       expect(screen.getByText('location-sproxyd')).toBeInTheDocument();
-      expect(
-        screen.getByText('Scality RING with Sproxyd Connector'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Scality RING with Sproxyd Connector')).toBeInTheDocument();
 
       expect(
         getByRole(seventhRow, 'button', {
@@ -343,10 +315,9 @@ describe.skip('Locations', () => {
 
       testRender(<LocationsList />);
 
-      await waitForElementToBeRemoved(
-        () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
-        { timeout: 8000 },
-      );
+      await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Checking if linked to workflows.../i)], {
+        timeout: 8000,
+      });
 
       expect(screen.getAllByRole('row')).toHaveLength(2);
 
@@ -354,9 +325,7 @@ describe.skip('Locations', () => {
       expect(screen.getByText('Location Type')).toBeInTheDocument();
       expect(screen.getByText('Target Bucket')).toBeInTheDocument();
 
-      expect(screen.getAllByRole('columnheader').length).toEqual(
-        nbrOfColumnsExpectedWithoutXDM,
-      );
+      expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
       expect(screen.getByText('location-aws-s3')).toBeInTheDocument();
       expect(screen.getByText('Amazon S3')).toBeInTheDocument();
@@ -410,10 +379,9 @@ describe.skip('Locations', () => {
 
       testRender(<LocationsList />);
 
-      await waitForElementToBeRemoved(
-        () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
-        { timeout: 8000 },
-      );
+      await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Checking if linked to workflows.../i)], {
+        timeout: 8000,
+      });
 
       expect(screen.getAllByRole('row')).toHaveLength(2);
 
@@ -422,9 +390,7 @@ describe.skip('Locations', () => {
       expect(screen.getByText('Target Bucket')).toBeInTheDocument();
       expect(screen.getByText('Async Metadata updates')).toBeInTheDocument();
 
-      expect(screen.getAllByRole('columnheader').length).toEqual(
-        nbrOfColumnsExpected,
-      );
+      expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpected);
       expect(screen.getByText('location-aws-s3')).toBeInTheDocument();
       expect(screen.getByText('Amazon S3')).toBeInTheDocument();
       expect(screen.getByText('bucketName1')).toBeInTheDocument();
@@ -454,16 +420,13 @@ describe.skip('Locations', () => {
     try {
       testRender(<LocationsList />);
 
-      await waitForElementToBeRemoved(
-        () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
-        { timeout: 8000 },
-      );
+      await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Checking if linked to workflows.../i)], {
+        timeout: 8000,
+      });
 
       expect(screen.getAllByRole('row')).toHaveLength(2);
 
-      expect(screen.getAllByRole('columnheader').length).toEqual(
-        nbrOfColumnsExpectedWithoutXDM,
-      );
+      expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
       expect(screen.getByText('location-aws-s3')).toBeInTheDocument();
       expect(screen.getByText('Amazon S3')).toBeInTheDocument();
@@ -483,10 +446,7 @@ describe.skip('Locations', () => {
         }),
       ).toBeDisabled();
     } catch (e) {
-      console.log(
-        'should disable delete location button if location is attached to a bucket',
-        e,
-      );
+      console.log('should disable delete location button if location is attached to a bucket', e);
       throw e;
     }
   });
@@ -494,16 +454,13 @@ describe.skip('Locations', () => {
     try {
       testRender(<LocationsList />);
 
-      await waitForElementToBeRemoved(
-        () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
-        { timeout: 8000 },
-      );
+      await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Checking if linked to workflows.../i)], {
+        timeout: 8000,
+      });
 
       expect(screen.getAllByRole('row')).toHaveLength(2);
 
-      expect(screen.getAllByRole('columnheader').length).toEqual(
-        nbrOfColumnsExpectedWithoutXDM,
-      );
+      expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
       expect(screen.getByText('location-aws-s3')).toBeInTheDocument();
       expect(screen.getByText('Amazon S3')).toBeInTheDocument();
@@ -523,10 +480,7 @@ describe.skip('Locations', () => {
         }),
       ).toBeDisabled();
     } catch (e) {
-      console.log(
-        'should disable delete location button if location is being used for endpoint',
-        e,
-      );
+      console.log('should disable delete location button if location is being used for endpoint', e);
       throw e;
     }
   });
@@ -559,10 +513,9 @@ describe.skip('Locations', () => {
     );
     testRender(<LocationsList />);
 
-    await waitForElementToBeRemoved(
-      () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
-      { timeout: 8000 },
-    );
+    await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Checking if linked to workflows.../i)], {
+      timeout: 8000,
+    });
 
     const firstRow = screen.getAllByRole('row')[1];
 

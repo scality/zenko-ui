@@ -1,8 +1,8 @@
-import { HTMLProps } from 'react';
+import { FormGroup } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
+import type { HTMLProps } from 'react';
 import { AddButton, SubButton } from './EditableKeyValue';
 import { Input } from './FormLayout';
-import { FormGroup } from '@scality/core-ui';
 
 function InputList({
   label,
@@ -22,13 +22,9 @@ function InputList({
   getInputProps?: (
     value: string,
     index: number,
-  ) => Omit<
-    HTMLProps<HTMLInputElement>,
-    'onChange' | 'name' | 'value' | 'id' | 'ref' | 'as'
-  >;
+  ) => Omit<HTMLProps<HTMLInputElement>, 'onChange' | 'name' | 'value' | 'id' | 'ref' | 'as'>;
 }) {
-  const isMaxItemsReached =
-    maxItems !== undefined && maxItems !== null && values.length === maxItems;
+  const isMaxItemsReached = maxItems !== undefined && maxItems !== null && values.length === maxItems;
   const insertEntry = () => {
     if (!isMaxItemsReached) {
       onChange([...values, '']);

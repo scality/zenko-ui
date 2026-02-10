@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { useIAMClient } from '../../../IAMProvider';
+import type { IAM } from 'aws-sdk';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
-import { IAM } from 'aws-sdk';
+import { useIAMClient } from '../../../IAMProvider';
 
 export const ACCESS_KEYS_QUERY_KEY = 'accountAccessKeys';
 

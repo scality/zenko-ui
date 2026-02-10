@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Clipboard } from '../Clipboard';
 import { NewWrapper } from '../../utils/testUtil';
+import { Clipboard } from '../Clipboard';
 
 const OWNER_NAME = 'test-owner';
 
@@ -24,8 +24,6 @@ describe('Clipboard', () => {
     await userEvent.click(copyButton);
 
     expect(writeTextFn).toHaveBeenCalledTimes(1);
-    expect(
-      screen.queryByRole('button', { name: /copy/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /copy/i })).not.toBeInTheDocument();
   });
 });

@@ -1,11 +1,11 @@
-import { render, screen, renderHook } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import * as React from 'react';
-import { ISVStepperContext, useISVStepper } from '../ISVStepperContext';
-import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { Wrapper } from '../../../utils/testUtil';
+import type { ISVPlatform } from '../../engine/types';
 import { CommvaultPlatform } from '../../platforms/commvault';
 import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
-import { ISVPlatform } from '../../engine/types';
-import { Wrapper } from '../../../utils/testUtil';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { ISVStepperContext, useISVStepper } from '../ISVStepperContext';
 
 jest.mock('../ISVSteps', () => {
   const originalModule = jest.requireActual('../ISVSteps');
@@ -47,9 +47,7 @@ describe('ISVSteps', () => {
 
     return (
       <div>
-        <div data-testid="platform-id">
-          {context.platform?.id || 'no-platform'}
-        </div>
+        <div data-testid="platform-id">{context.platform?.id || 'no-platform'}</div>
       </div>
     );
   };
@@ -85,10 +83,7 @@ describe('ISVSteps', () => {
     });
 
     const { useSearchParams } = require('react-router');
-    useSearchParams.mockReturnValue([
-      new URLSearchParams(platformId ? `?platform=${platformId}` : ''),
-      jest.fn(),
-    ]);
+    useSearchParams.mockReturnValue([new URLSearchParams(platformId ? `?platform=${platformId}` : ''), jest.fn()]);
   };
 
   const renderWithThemeAndContextReader = () => {
@@ -103,17 +98,17 @@ describe('ISVSteps', () => {
     );
   };
 
-  it.each([['veeam-vbr'], ['veeam-vbo'], ['commvault'], [null]])(
-    'should set correct context for %s platform',
-    (platformId) => {
-      setupMockISVSteps(platformId);
-      renderWithThemeAndContextReader();
+  it.each([
+    ['veeam-vbr'],
+    ['veeam-vbo'],
+    ['commvault'],
+    [null],
+  ])('should set correct context for %s platform', (platformId) => {
+    setupMockISVSteps(platformId);
+    renderWithThemeAndContextReader();
 
-      expect(screen.getByTestId('platform-id')).toHaveTextContent(
-        platformId || 'no-platform',
-      );
-    },
-  );
+    expect(screen.getByTestId('platform-id')).toHaveTextContent(platformId || 'no-platform');
+  });
 
   it('should render stepper with correct steps', () => {
     setupMockISVSteps('veeam-vbr');

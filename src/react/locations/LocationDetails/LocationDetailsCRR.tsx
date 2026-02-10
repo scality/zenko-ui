@@ -1,9 +1,10 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
-import React, { useState } from 'react';
-import { LocationDetailsFormProps } from '.';
-import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type React from 'react';
+import { useState } from 'react';
 import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
 
 type FieldNames = 'endpoint' | 'stsEndpoint' | 'accessKey' | 'secretKey';
 
@@ -88,12 +89,7 @@ export const crrValidators = {
   },
 
   validateCRRDetails: (details: Partial<CRRDetails>) => {
-    if (
-      !details.endpoint ||
-      !details.stsEndpoint ||
-      !details.accessKey ||
-      !details.secretKey
-    ) {
+    if (!details.endpoint || !details.stsEndpoint || !details.accessKey || !details.secretKey) {
       return {
         disable: true,
         errorMessage: '',
@@ -104,21 +100,15 @@ export const crrValidators = {
     if (endpointError) {
       return {
         disable: true,
-        errorMessage:
-          endpointError === 'S3 endpoint is required' ? '' : endpointError,
+        errorMessage: endpointError === 'S3 endpoint is required' ? '' : endpointError,
       };
     }
 
-    const stsEndpointError = crrValidators.validateStsEndpoint(
-      details.stsEndpoint,
-    );
+    const stsEndpointError = crrValidators.validateStsEndpoint(details.stsEndpoint);
     if (stsEndpointError) {
       return {
         disable: true,
-        errorMessage:
-          stsEndpointError === 'STS endpoint is required'
-            ? ''
-            : stsEndpointError,
+        errorMessage: stsEndpointError === 'STS endpoint is required' ? '' : stsEndpointError,
       };
     }
 
@@ -126,11 +116,7 @@ export const crrValidators = {
   },
 };
 
-function LocationDetailsCRR({
-  details,
-  onChange,
-  editingExisting,
-}: LocationDetailsFormProps) {
+function LocationDetailsCRR({ details, onChange, editingExisting }: LocationDetailsFormProps) {
   const [formState, setFormState] = useState<State>(() => {
     const initialState = { ...Object.assign({}, INIT_STATE, details) };
     if (editingExisting) {
@@ -229,10 +215,7 @@ function LocationDetailsCRR({
               />
             }
           />
-          {field.name === 'endpoint' &&
-            formState.endpoint.startsWith('https') && (
-              <EndpointInfoMessage hasMargin />
-            )}
+          {field.name === 'endpoint' && formState.endpoint.startsWith('https') && <EndpointInfoMessage hasMargin />}
         </>
       ))}
     </FormSection>

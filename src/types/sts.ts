@@ -11,7 +11,5 @@ export type AssumeRoleWithWebIdentityResp = {
   };
 };
 export interface STSClient {
-  assumeRoleWithWebIdentity(
-    arg0: AssumeRoleWithWebIdentityReq,
-  ): Promise<AssumeRoleWithWebIdentityResp>;
+  assumeRoleWithWebIdentity(arg0: AssumeRoleWithWebIdentityReq): Promise<AssumeRoleWithWebIdentityResp>;
 }

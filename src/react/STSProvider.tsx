@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, JSX } from 'react';
+import { createContext, type JSX, useContext, useMemo } from 'react';
 import STSClient from '../js/STSClient';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 
@@ -12,9 +12,7 @@ export const useStsClient = () => {
   const context = useContext(STSContext);
 
   if (!context) {
-    throw new Error(
-      'The useStsClient hook can only be used within STSProvider.',
-    );
+    throw new Error('The useStsClient hook can only be used within STSProvider.');
   }
 
   return context.stsClient;
@@ -30,12 +28,7 @@ const STSProvider = ({ children }: { children: JSX.Element }) => {
     return null;
   }, [stsEndpoint]);
 
-  return (
-    <STSContext.Provider value={{ stsClient }}>
-      {children}
-    </STSContext.Provider>
-  );
+  return <STSContext.Provider value={{ stsClient }}>{children}</STSContext.Provider>;
 };
 
 export default STSProvider;
-

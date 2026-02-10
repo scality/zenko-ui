@@ -6,9 +6,7 @@ describe('ensureHttpsPrefix', () => {
   });
 
   it('preserves existing https:// prefix', () => {
-    expect(ensureHttpsPrefix('https://example.com')).toBe(
-      'https://example.com',
-    );
+    expect(ensureHttpsPrefix('https://example.com')).toBe('https://example.com');
   });
 
   it('preserves existing http:// prefix', () => {
@@ -24,17 +22,11 @@ describe('ensureHttpsPrefix', () => {
   });
 
   it('adds https:// prefix to URLs with port', () => {
-    expect(ensureHttpsPrefix('example.com:8443')).toBe(
-      'https://example.com:8443',
-    );
+    expect(ensureHttpsPrefix('example.com:8443')).toBe('https://example.com:8443');
   });
 
   it('handles URLs with paths', () => {
-    expect(ensureHttpsPrefix('example.com/path')).toBe(
-      'https://example.com/path',
-    );
-    expect(ensureHttpsPrefix('https://example.com/path')).toBe(
-      'https://example.com/path',
-    );
+    expect(ensureHttpsPrefix('example.com/path')).toBe('https://example.com/path');
+    expect(ensureHttpsPrefix('https://example.com/path')).toBe('https://example.com/path');
   });
 });

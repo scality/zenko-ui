@@ -1,17 +1,13 @@
-import { ChangeEvent, JSX } from 'react';
-import { useLocation } from 'react-router';
-import { SearchInput, Tooltip, Wrap, spacing } from '@scality/core-ui';
-import { Box, Table } from '@scality/core-ui/dist/next';
+import { SearchInput, spacing, Tooltip, Wrap } from '@scality/core-ui';
 import { TableItemCount } from '@scality/core-ui/dist/components/tablev2/Search';
-import IAMClient from '../../js/IAMClient';
-import { useIAMClient } from '../IAMProvider';
-import {
-  AWS_PAGINATED_ENTITIES,
-  AWS_PAGINATED_QUERY,
-  useAwsPaginatedEntities,
-} from '../utils/IAMhooks';
-import { useQueryParams } from '../utils/hooks';
+import { Box, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import type { ChangeEvent, JSX } from 'react';
+import { useLocation } from 'react-router';
+import type IAMClient from '../../js/IAMClient';
+import { useIAMClient } from '../IAMProvider';
+import { useQueryParams } from '../utils/hooks';
+import { type AWS_PAGINATED_ENTITIES, type AWS_PAGINATED_QUERY, useAwsPaginatedEntities } from '../utils/IAMhooks';
 
 const WithTooltipWhileLoading = ({
   children,
@@ -21,31 +17,16 @@ const WithTooltipWhileLoading = ({
   tooltipOverlay: string;
   isLoading?: boolean;
   children: JSX.Element;
-}) => (
-  <>
-    {isLoading ? (
-      <Tooltip overlay={tooltipOverlay}>{children}</Tooltip>
-    ) : (
-      children
-    )}
-  </>
-);
+}) => <>{isLoading ? <Tooltip overlay={tooltipOverlay}>{children}</Tooltip> : children}</>;
 
 export type Props<ENTITY, PREPARED_ENTITY = ENTITY> = {
   additionalHeaders: JSX.Element;
   columns: JSX.IntrinsicElements;
   query: {
-    getResourceQuery: (
-      iamClient?: IAMClient | null,
-    ) => AWS_PAGINATED_QUERY<{ Marker?: string }, ENTITY>;
+    getResourceQuery: (iamClient?: IAMClient | null) => AWS_PAGINATED_QUERY<{ Marker?: string }, ENTITY>;
     getEntitiesFromResult: (data: { Marker?: string | undefined }) => ENTITY[];
-    prepareData: (
-      queryResult: AWS_PAGINATED_ENTITIES<ENTITY>,
-    ) => PREPARED_ENTITY[];
-    filterData?: (
-      entities: PREPARED_ENTITY[],
-      search?: string | null,
-    ) => PREPARED_ENTITY[];
+    prepareData: (queryResult: AWS_PAGINATED_ENTITIES<ENTITY>) => PREPARED_ENTITY[];
+    filterData?: (entities: PREPARED_ENTITY[], search?: string | null) => PREPARED_ENTITY[];
   };
   defaultSortingKey: string;
   getItemKey: string;
@@ -66,13 +47,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
   query: { getResourceQuery, getEntitiesFromResult, prepareData, filterData },
   defaultSortingKey,
   getItemKey,
-  labels: {
-    disabledSearchWhileLoading,
-    pluralResourceName,
-    singularResourceName,
-    loading,
-    errorPreviousHeaders,
-  },
+  labels: { disabledSearchWhileLoading, pluralResourceName, singularResourceName, loading, errorPreviousHeaders },
 }: Props<ENTITY, PREPARED_ENTITY>) => {
   const navigate = useBasenameRelativeNavigate();
   const IAMClient = useIAMClient();
@@ -80,10 +55,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
   const location = useLocation();
   const search = queryParams.get(SEARCH_QUERY_PARAM);
 
-  const queryResult = useAwsPaginatedEntities(
-    getResourceQuery(IAMClient),
-    getEntitiesFromResult,
-  );
+  const queryResult = useAwsPaginatedEntities(getResourceQuery(IAMClient), getEntitiesFromResult);
   const preparedData = prepareData(queryResult);
 
   const setSearch = (newSearch: string) => {
@@ -118,8 +90,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
       >
         <Wrap style={{ padding: spacing.r16 }}>
           <Box display="flex" alignItems="center">
-            {queryResult.firstPageStatus !== 'loading' &&
-            queryResult.firstPageStatus !== 'error'
+            {queryResult.firstPageStatus !== 'loading' && queryResult.firstPageStatus !== 'error'
               ? data &&
                 filterData && (
                   <TableItemCount
@@ -156,16 +127,8 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
                 />
               )}
             </WithTooltipWhileLoading>
-            {queryResult.firstPageStatus === 'loading' ? (
-              <Box ml={12}>{loading}</Box>
-            ) : (
-              ''
-            )}
-            {queryResult.status === 'error' ? (
-              <Box ml={12}>{errorPreviousHeaders}</Box>
-            ) : (
-              ''
-            )}
+            {queryResult.firstPageStatus === 'loading' ? <Box ml={12}>{loading}</Box> : ''}
+            {queryResult.status === 'error' ? <Box ml={12}>{errorPreviousHeaders}</Box> : ''}
           </Box>
           {additionalHeaders}
         </Wrap>

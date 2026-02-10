@@ -1,34 +1,21 @@
-import { MouseEvent, useRef } from 'react';
-import { useComponentError, useModalError } from '../ErrorProvider';
-import {
-  Banner,
-  Form,
-  FormGroup,
-  FormSection,
-  Icon,
-  Stack,
-} from '@scality/core-ui';
-import { Button, Input } from '@scality/core-ui/dist/next';
-import Joi from 'joi';
 import { joiResolver } from '@hookform/resolvers/joi';
+import { Banner, Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
+import { Button, Input } from '@scality/core-ui/dist/next';
+import type { ListUsersResponse } from 'aws-sdk/clients/iam';
+import Joi from 'joi';
+import { type MouseEvent, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { useOutsideClick } from '../utils/hooks';
-import { useIAMClient } from '../IAMProvider';
-import { InfiniteData, useMutation, useQueryClient } from 'react-query';
-import { useParams } from 'react-router';
+import { type InfiniteData, useMutation, useQueryClient } from 'react-query';
+import { useNavigate, useParams } from 'react-router';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { ListUsersResponse } from 'aws-sdk/clients/iam';
+import { useComponentError, useModalError } from '../ErrorProvider';
+import { useIAMClient } from '../IAMProvider';
 import { getListUsersQuery } from '../queries';
-import { useNavigate } from 'react-router';
+import { useOutsideClick } from '../utils/hooks';
+
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
-  name: Joi.string()
-    .label('Name')
-    .required()
-    .min(2)
-    .max(64)
-    .regex(regexpName)
-    .message('Invalid Name'),
+  name: Joi.string().label('Name').required().min(2).max(64).regex(regexpName).message('Invalid Name'),
 });
 
 //TODO this component is duplicated ith AccountCreateUser...
@@ -54,18 +41,14 @@ const AccountUpdateUser = () => {
     (newUserName: string) => {
       const oldUserName = IAMUserName;
       return IAMClient.updateUser(newUserName, oldUserName).then(() => {
-        const olddata = queryClient.getQueryData(
-          getListUsersQuery(accountName, IAMClient).queryKey,
-        );
+        const olddata = queryClient.getQueryData(getListUsersQuery(accountName, IAMClient).queryKey);
         olddata &&
           queryClient.setQueryData<InfiniteData<ListUsersResponse>>(
             getListUsersQuery(accountName, IAMClient).queryKey,
             (old) => {
               const pages = notFalsyTypeGuard(old).pages.map((page) => {
                 const users = page.Users;
-                const index = users.findIndex(
-                  (user) => user.UserName === oldUserName,
-                );
+                const index = users.findIndex((user) => user.UserName === oldUserName);
                 if (index !== -1) {
                   users[index].UserName = newUserName;
                 }
@@ -125,13 +108,7 @@ const AccountUpdateUser = () => {
       onSubmit={handleSubmit(onSubmit)}
       rightActions={
         <Stack gap="r16">
-          <Button
-            disabled={loading}
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            label="Cancel"
-          />
+          <Button disabled={loading} type="button" variant="outline" onClick={handleCancel} label="Cancel" />
           <Button
             icon={<Icon name="Save" />}
             disabled={loading}
@@ -144,11 +121,7 @@ const AccountUpdateUser = () => {
       }
       banner={
         errorMessage && (
-          <Banner
-            variant="danger"
-            icon={<Icon name="Exclamation-circle" />}
-            title={'Error'}
-          >
+          <Banner variant="danger" icon={<Icon name="Exclamation-circle" />} title={'Error'}>
             {errorMessage}
           </Banner>
         )
@@ -163,34 +136,23 @@ const AccountUpdateUser = () => {
           labelHelpTooltip={
             <div style={{ textAlign: 'start' }}>
               <div>
-                The ARN and the (friendly) name for the user will be edited, but
-                the unique ID remains the same.
+                The ARN and the (friendly) name for the user will be edited, but the unique ID remains the same.
               </div>
               <br />
               <div>The User stays in the same Groups, under its new name.</div>
               <br />
               <div>Policies:</div>
+              <div>- Any Policies attached to the user stays with this user, under its new name.</div>
               <div>
-                - Any Policies attached to the user stays with this user, under
-                its new name.
+                - Any Role (Trust) Policies that refer to the User as a Principal are automatically updated with the new
+                name.
               </div>
               <div>
-                - Any Role (Trust) Policies that refer to the User as a
-                Principal are automatically updated with the new name.
-              </div>
-              <div>
-                - Any Policies that refer to the User as a Resource are not
-                updated, you have to do it manually.
+                - Any Policies that refer to the User as a Resource are not updated, you have to do it manually.
               </div>
             </div>
           }
-          content={
-            <Input
-              id="name"
-              autoFocus
-              {...register('name', { onChange: clearServerError })}
-            />
-          }
+          content={<Input id="name" autoFocus {...register('name', { onChange: clearServerError })} />}
           required
           error={errors.name?.message}
         />

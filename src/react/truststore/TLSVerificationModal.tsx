@@ -1,18 +1,10 @@
-import {
-  Banner,
-  Checkbox,
-  Icon,
-  Modal,
-  Stack,
-  Text,
-  useToast,
-} from '@scality/core-ui';
+import { Banner, Checkbox, Icon, Modal, Stack, Text, useToast } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/components/box/Box';
 import { Button } from '@scality/core-ui/dist/next';
-import { MutationOptions, useQueryClient } from 'react-query';
-import { useToggleTLSVerificationMutation } from '../../js/mutations';
-import { ApiError } from '../../types/actions';
 import { useState } from 'react';
+import { type MutationOptions, useQueryClient } from 'react-query';
+import { useToggleTLSVerificationMutation } from '../../js/mutations';
+import type { ApiError } from '../../types/actions';
 
 type TLSVerificationModalProps = {
   isOpen: boolean;
@@ -21,12 +13,7 @@ type TLSVerificationModalProps = {
   hasEgress: boolean;
 };
 
-const TLSVerificationModal = ({
-  isOpen,
-  setIsOpen,
-  isTLSVerificationActive,
-  hasEgress,
-}: TLSVerificationModalProps) => {
+const TLSVerificationModal = ({ isOpen, setIsOpen, isTLSVerificationActive, hasEgress }: TLSVerificationModalProps) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -59,29 +46,17 @@ const TLSVerificationModal = ({
       handleCloseModal();
     },
   };
-  const {
-    mutate: toggleTLSVerificationMutation,
-    isLoading: isUpdatingTLSVerification,
-  } = useToggleTLSVerificationMutation(
-    hasEgress,
-    toggleTLSVerificationMutationOptions,
-  );
+  const { mutate: toggleTLSVerificationMutation, isLoading: isUpdatingTLSVerification } =
+    useToggleTLSVerificationMutation(hasEgress, toggleTLSVerificationMutationOptions);
   return (
     <Modal
       close={handleCloseModal}
       isOpen={isOpen}
-      title={`${
-        isTLSVerificationActive ? 'Skip' : 'Activate'
-      } TLS Verification?`}
+      title={`${isTLSVerificationActive ? 'Skip' : 'Activate'} TLS Verification?`}
       footer={
         <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Stack>
-            <Button
-              variant="outline"
-              onClick={handleCloseModal}
-              label="Cancel"
-              disabled={isUpdatingTLSVerification}
-            />
+            <Button variant="outline" onClick={handleCloseModal} label="Cancel" disabled={isUpdatingTLSVerification} />
             <Button
               variant="primary"
               disabled={!isConfirmed && !isTLSVerificationActive}
@@ -104,26 +79,18 @@ const TLSVerificationModal = ({
           maxWidth: '35rem',
         }}
       >
-        <Text>
-          Expect some delay (about 1 minute) - updating Data Management
-          configuration takes time.
-        </Text>
+        <Text>Expect some delay (about 1 minute) - updating Data Management configuration takes time.</Text>
 
-        <Banner
-          variant="warning"
-          icon={<Icon color="statusWarning" name="Exclamation-circle" />}
-        >
+        <Banner variant="warning" icon={<Icon color="statusWarning" name="Exclamation-circle" />}>
           {isTLSVerificationActive ? (
             <Text>
-              Skipping TLS Verification will allow ARTESCA to access external
-              locations without verifying their TLS certificates. This is not
-              recommended as it may expose ARTESCA to security risks.
+              Skipping TLS Verification will allow ARTESCA to access external locations without verifying their TLS
+              certificates. This is not recommended as it may expose ARTESCA to security risks.
             </Text>
           ) : (
             <Text>
-              Make sure to import the certificates of the external locations
-              before activating TLS Verification. This will prevent service
-              interruption.
+              Make sure to import the certificates of the external locations before activating TLS Verification. This
+              will prevent service interruption.
             </Text>
           )}
         </Banner>

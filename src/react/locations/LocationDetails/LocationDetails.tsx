@@ -1,10 +1,7 @@
-import { EnabledState, InstanceStateSnapshot } from '../../../types/stats';
-import {
-  LocationDetails as LocationFormDetails,
-  LocationTypeKey,
-} from '../../../types/config';
-import React, { JSX } from 'react';
-import { Tooltip, Icon } from '@scality/core-ui';
+import { Icon, Tooltip } from '@scality/core-ui';
+import React, { type JSX } from 'react';
+import type { LocationDetails as LocationFormDetails, LocationTypeKey } from '../../../types/config';
+import type { EnabledState, InstanceStateSnapshot } from '../../../types/stats';
 import { storageOptions } from './storageOptions';
 
 type Props = {
@@ -57,8 +54,8 @@ export default class LocationDetails extends React.Component<Props> {
         msg = (
           <div>
             <span>
-              Replication to this location is paused. All changes queued for
-              replication to this location will be processed in&nbsp;
+              Replication to this location is paused. All changes queued for replication to this location will be
+              processed in&nbsp;
             </span>
             <Tooltip overlay={overlay}>{diff} hours.</Tooltip>
           </div>
@@ -67,10 +64,7 @@ export default class LocationDetails extends React.Component<Props> {
         msg = (
           <div>
             <Icon name="Exclamation-circle" />
-            <span>
-              Your instance failed to automatically resume this location. Please
-              resume manually.
-            </span>
+            <span>Your instance failed to automatically resume this location. Please resume manually.</span>
           </div>
         );
       }
@@ -80,16 +74,11 @@ export default class LocationDetails extends React.Component<Props> {
       <div className="p-2">
         <div>
           Location Type:&nbsp;
-          <span className="px-2">
-            {storageOptions[this.props.locationType].name}
-          </span>
+          <span className="px-2">{storageOptions[this.props.locationType].name}</span>
           <br />
         </div>
         {this.props.repStatus === 'disabled' ? (
-          <div
-            id="crr-status-info-text"
-            className="self-align-center multiple-select-extra-info text-muted"
-          >
+          <div id="crr-status-info-text" className="self-align-center multiple-select-extra-info text-muted">
             {msg}
           </div>
         ) : null}

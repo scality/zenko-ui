@@ -2,14 +2,8 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { Route, Routes } from 'react-router';
-import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
-import {
-  mockOffsetSize,
-  renderWithCustomRoute,
-  TEST_API_BASE_URL,
-  zenkoUITestConfig,
-} from '../../utils/testUtil';
+import { getConfigOverlay, INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
+import { mockOffsetSize, renderWithCustomRoute, TEST_API_BASE_URL, zenkoUITestConfig } from '../../utils/testUtil';
 import AccountCreateUser from '../AccountCreateUser';
 import AccountUserList from '../AccountUserList';
 
@@ -165,10 +159,7 @@ afterAll(() => server.close());
 
 describe('AccountCreateUser', () => {
   it('should create user successfully', async () => {
-    renderWithCustomRoute(
-      <AccountCreateUser />,
-      `/accounts/${ACCOUNT_NAME}/create-user`,
-    );
+    renderWithCustomRoute(<AccountCreateUser />, `/accounts/${ACCOUNT_NAME}/create-user`);
 
     await waitFor(() => screen.getByText('Create a User'));
 
@@ -195,10 +186,7 @@ describe('AccountCreateUser', () => {
             </div>
           }
         />
-        <Route
-          path="accounts/:accountName/create-user"
-          element={<AccountCreateUser />}
-        />
+        <Route path="accounts/:accountName/create-user" element={<AccountCreateUser />} />
       </Routes>,
       `/accounts/${ACCOUNT_NAME}/users`,
     );

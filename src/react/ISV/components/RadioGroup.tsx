@@ -1,6 +1,6 @@
+import { spacing } from '@scality/core-ui/dist/spacing';
 import { useId } from 'react';
 import styled from 'styled-components';
-import { spacing } from '@scality/core-ui/dist/spacing';
 
 type RadioOption = {
   value: string;
@@ -20,8 +20,7 @@ type RadioGroupProps = {
 
 const RadioContainer = styled.div<{ direction: 'horizontal' | 'vertical' }>`
   display: flex;
-  flex-direction: ${(props) =>
-    props.direction === 'horizontal' ? 'row' : 'column'};
+  flex-direction: ${(props) => (props.direction === 'horizontal' ? 'row' : 'column')};
   gap: ${spacing.r8};
 `;
 
@@ -130,10 +129,7 @@ export const RadioGroup = ({
       {options.map((option) => {
         const optionId = `${groupName}-${option.value}`;
         return (
-          <RadioWrapper
-            key={option.value}
-            data-disabled={disabled || option.disabled}
-          >
+          <RadioWrapper key={option.value} data-disabled={disabled || option.disabled}>
             <RadioInput
               type="radio"
               id={optionId}
@@ -145,9 +141,7 @@ export const RadioGroup = ({
             />
             <RadioContent>
               <RadioLabel htmlFor={optionId}>{option.label}</RadioLabel>
-              {option.description && (
-                <RadioDescription>{option.description}</RadioDescription>
-              )}
+              {option.description && <RadioDescription>{option.description}</RadioDescription>}
             </RadioContent>
           </RadioWrapper>
         );

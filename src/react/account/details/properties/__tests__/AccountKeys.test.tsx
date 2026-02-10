@@ -1,11 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { accountAccessKeys } from '../../../../../js/mock/IAMClient';
 
-import {
-  mockOffsetSize,
-  testRender,
-  renderWithRouterMatch,
-} from '../../../../utils/testUtil';
+import { mockOffsetSize, renderWithRouterMatch, testRender } from '../../../../utils/testUtil';
 import AccountKeys from '../AccountKeys';
 import * as useAccessKeysQueryModule from '../useAccessKeysQuery';
 
@@ -39,9 +35,7 @@ describe('AccountKeys', () => {
       error: null,
     } as any);
 
-    renderWithRouterMatch(
-      <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
-    );
+    renderWithRouterMatch(<AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />);
 
     await waitFor(() => {
       expect(screen.getByText('Access key ID')).toBeInTheDocument();
@@ -50,9 +44,7 @@ describe('AccountKeys', () => {
 
     accountAccessKeys.forEach((accessKey, i) => {
       expect(screen.getByText(accessKey.AccessKeyId)).toBeInTheDocument();
-      expect(
-        screen.getByText(i === 0 ? '2020-04-19 16:15' : '2021-04-19 16:15'),
-      ).toBeInTheDocument();
+      expect(screen.getByText(i === 0 ? '2020-04-19 16:15' : '2021-04-19 16:15')).toBeInTheDocument();
     });
   });
 
@@ -65,9 +57,7 @@ describe('AccountKeys', () => {
       error: null,
     } as any);
 
-    renderWithRouterMatch(
-      <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
-    );
+    renderWithRouterMatch(<AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />);
 
     await waitFor(() => {
       expect(
@@ -86,9 +76,7 @@ describe('AccountKeys', () => {
       error: null,
     } as any);
 
-    const { component } = testRender(
-      <AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />,
-    );
+    const { component } = testRender(<AccountKeys account={account1} onOpenKeyModal={mockOnOpenKeyModal} />);
 
     await waitFor(() => {
       expect(component.getByText('No access keys found')).toBeInTheDocument();
@@ -96,8 +84,6 @@ describe('AccountKeys', () => {
 
     const TableBody = component.queryByTestId('table-body');
     expect(TableBody).toBeFalsy();
-    expect(
-      component.queryByTestId('root-access-keys-banner'),
-    ).not.toBeInTheDocument();
+    expect(component.queryByTestId('root-access-keys-banner')).not.toBeInTheDocument();
   });
 });

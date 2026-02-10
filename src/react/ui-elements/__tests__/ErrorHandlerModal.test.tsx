@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import { ThemeProvider } from 'styled-components';
-import ErrorHandlerModal, { DumbErrorModal } from '../ErrorHandlerModal';
-import { theme } from '../../utils/testUtil';
-import ErrorProvider, { useModalError } from '../../ErrorProvider';
 import { useEffect } from 'react';
+import { ThemeProvider } from 'styled-components';
+import ErrorProvider, { useModalError } from '../../ErrorProvider';
+import { theme } from '../../utils/testUtil';
+import ErrorHandlerModal, { DumbErrorModal } from '../ErrorHandlerModal';
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <ThemeProvider theme={theme}>
@@ -44,11 +44,7 @@ describe('ErrorHandlerModal', () => {
   it('DumbErrorModal should render error message when isOpen is true', () => {
     render(
       <ThemeProvider theme={theme}>
-        <DumbErrorModal
-          close={jest.fn()}
-          isOpen={true}
-          errorMessage={errorMessage}
-        />
+        <DumbErrorModal close={jest.fn()} isOpen={true} errorMessage={errorMessage} />
       </ThemeProvider>,
     );
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
@@ -57,11 +53,7 @@ describe('ErrorHandlerModal', () => {
   it('DumbErrorModal should not render when isOpen is false', () => {
     render(
       <ThemeProvider theme={theme}>
-        <DumbErrorModal
-          close={jest.fn()}
-          isOpen={false}
-          errorMessage={errorMessage}
-        />
+        <DumbErrorModal close={jest.fn()} isOpen={false} errorMessage={errorMessage} />
       </ThemeProvider>,
     );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

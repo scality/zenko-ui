@@ -1,4 +1,4 @@
-import { Location } from './config';
+import type { Location } from './config';
 
 export type LocationFormOptions = {
   readonly isTransient: boolean;

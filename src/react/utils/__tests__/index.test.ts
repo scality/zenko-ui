@@ -1,11 +1,5 @@
-import {
-  addTrailingSlash,
-  errorParser,
-  formatDate,
-  maybePluralize,
-  stripQuotes,
-  stripTrailingSlash,
-} from '../index';
+import { addTrailingSlash, errorParser, formatDate, maybePluralize, stripQuotes, stripTrailingSlash } from '../index';
+
 describe('functions utils', () => {
   const errorMessages = [
     'This is an error message #1',
@@ -18,8 +12,7 @@ describe('functions utils', () => {
   ];
   const tests = [
     {
-      it:
-        'should return the error message contains in error.response.body.message if exists',
+      it: 'should return the error message contains in error.response.body.message if exists',
       error: {
         response: {
           body: {
@@ -79,8 +72,7 @@ describe('functions utils', () => {
       expectedErrorMessage: errorMessages[6],
     },
     {
-      it:
-        'should return the status code if no message exists in the error object and status code is not handled',
+      it: 'should return the status code if no message exists in the error object and status code is not handled',
       error: {
         status: 501,
       },
@@ -96,13 +88,7 @@ describe('functions utils', () => {
     const date = 'Mon Oct 12 2020 17:28:03';
     expect(formatDate(new Date(date))).toBe(date);
   });
-  const urls = [
-    '',
-    '/buckets/',
-    '/buckets',
-    '/buckets/bucket1',
-    '/buckets/bucket1/test/',
-  ];
+  const urls = ['', '/buckets/', '/buckets', '/buckets/bucket1', '/buckets/bucket1/test/'];
   it('should return a string with a trailing slash removed at the end if exists', () => {
     urls.forEach((url) => {
       expect(stripTrailingSlash(url).slice(-1)).not.toBe('/');

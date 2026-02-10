@@ -1,22 +1,15 @@
-import { default as BasicInput } from '../ui-elements/Input';
-import { LocationFormOptions } from '../../types/location';
-import { LocationName } from '../../types/config';
-import { ChangeEvent } from 'react';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import {
-  FormGroup,
-  FormSection,
-} from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Form.component';
+import { spacing } from '@scality/core-ui/dist/style/theme';
+import type { ChangeEvent } from 'react';
+import styled from 'styled-components';
+import type { LocationName } from '../../types/config';
+import type { LocationFormOptions } from '../../types/location';
+import { default as BasicInput } from '../ui-elements/Input';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from './LocationEditor';
 
 const isTransientEnabled = (locationType: LocationName) => {
-  const transientLocationsType = [
-    'location-scality-sproxyd-v1',
-    'location-file-v1',
-    'location-scality-hdclient-v2',
-  ];
+  const transientLocationsType = ['location-scality-sproxyd-v1', 'location-file-v1', 'location-scality-hdclient-v2'];
   return transientLocationsType.includes(locationType);
 };
 
@@ -37,10 +30,7 @@ function LocationOptions(props: Props) {
 
   return (
     hasFields && (
-      <FormSection
-        title={{ name: 'Advanced Options' }}
-        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
-      >
+      <FormSection title={{ name: 'Advanced Options' }} forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         {showTransientOption && (
           <FormGroup
             label="Is transient ?"

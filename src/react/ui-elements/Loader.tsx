@@ -1,5 +1,5 @@
-import { LoaderContainer } from './Container';
 import { Loader as LoaderCoreUI } from '@scality/core-ui';
+import { LoaderContainer } from './Container';
 
 const Loader = ({ children }: { children: React.ReactElement }) => (
   <LoaderContainer>

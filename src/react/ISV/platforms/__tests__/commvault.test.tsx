@@ -26,34 +26,26 @@ describe('CommvaultPlatform', () => {
 
   describe('generated fields', () => {
     it('should generate accountName field', () => {
-      const accountField = CommvaultPlatform.fields.find(
-        (f) => f.name === 'accountName'
-      );
+      const accountField = CommvaultPlatform.fields.find((f) => f.name === 'accountName');
       expect(accountField).toBeDefined();
       expect(accountField?.type).toBe('accountSelector');
       expect(accountField?.label).toBe('Account');
     });
 
     it('should generate buckets field', () => {
-      const bucketsField = CommvaultPlatform.fields.find(
-        (f) => f.name === 'buckets'
-      );
+      const bucketsField = CommvaultPlatform.fields.find((f) => f.name === 'buckets');
       expect(bucketsField).toBeDefined();
       expect(bucketsField?.type).toBe('bucketArray');
     });
 
     it('should generate IAMUserName field', () => {
-      const iamField = CommvaultPlatform.fields.find(
-        (f) => f.name === 'IAMUserName'
-      );
+      const iamField = CommvaultPlatform.fields.find((f) => f.name === 'IAMUserName');
       expect(iamField).toBeDefined();
       expect(iamField?.type).toBe('iamUserSelector');
     });
 
     it('should generate enableImmutableBackup field with correct override', () => {
-      const immutableField = CommvaultPlatform.fields.find(
-        (f) => f.name === 'enableImmutableBackup'
-      );
+      const immutableField = CommvaultPlatform.fields.find((f) => f.name === 'enableImmutableBackup');
       expect(immutableField).toBeDefined();
       expect(immutableField?.type).toBe('toggle');
       expect(immutableField?.label).toBe('WORM bucket');
@@ -133,11 +125,7 @@ describe('CommvaultPlatform', () => {
         accountName: 'test-account',
         accountNameType: 'create',
         enableImmutableBackup: false,
-        buckets: [
-          { name: 'bucket-one' },
-          { name: 'bucket-two' },
-          { name: 'bucket-three' },
-        ],
+        buckets: [{ name: 'bucket-one' }, { name: 'bucket-two' }, { name: 'bucket-three' }],
       };
 
       const { error } = CommvaultPlatform.validator.validate(validData);
@@ -153,15 +141,13 @@ describe('CommvaultPlatform', () => {
 
     it('should include createAccount mutation', () => {
       const createAccountMutation = CommvaultPlatform.mutations.find(
-        (m) => 'action' in m && m.action === 'createAccount'
+        (m) => 'action' in m && m.action === 'createAccount',
       );
       expect(createAccountMutation).toBeDefined();
     });
 
     it('should include bucket loop mutation', () => {
-      const loopMutation = CommvaultPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets'
-      );
+      const loopMutation = CommvaultPlatform.mutations.find((m) => 'each' in m && m.each === 'buckets');
       expect(loopMutation).toBeDefined();
       if (loopMutation && 'steps' in loopMutation) {
         const stepActions = loopMutation.steps.map((s) => s.action);
@@ -172,34 +158,24 @@ describe('CommvaultPlatform', () => {
 
     it('should include IAM mutations', () => {
       const iamMutations = CommvaultPlatform.mutations.filter(
-        (m) =>
-          'action' in m &&
-          ['createIAMUser', 'createAccessKey', 'createPolicy', 'attachPolicy'].includes(
-            m.action
-          )
+        (m) => 'action' in m && ['createIAMUser', 'createAccessKey', 'createPolicy', 'attachPolicy'].includes(m.action),
       );
       expect(iamMutations.length).toBeGreaterThan(0);
     });
 
     it('should NOT include SOS API mutation (not enabled for Commvault)', () => {
-      const sosMutation = CommvaultPlatform.mutations.find(
-        (m) => 'action' in m && m.action === 'enableSOSAPI'
-      );
+      const sosMutation = CommvaultPlatform.mutations.find((m) => 'action' in m && m.action === 'enableSOSAPI');
       expect(sosMutation).toBeUndefined();
     });
   });
 
   describe('summary config', () => {
     it('should have correct service endpoint label', () => {
-      expect(CommvaultPlatform.summary.serviceEndpointLabel).toBe(
-        'Service Host'
-      );
+      expect(CommvaultPlatform.summary.serviceEndpointLabel).toBe('Service Host');
     });
 
     it('should have correct immutability label', () => {
-      expect(CommvaultPlatform.summary.immutabilityLabel).toBe(
-        'WORM Storage lock'
-      );
+      expect(CommvaultPlatform.summary.immutabilityLabel).toBe('WORM Storage lock');
     });
   });
 
@@ -223,4 +199,3 @@ describe('CommvaultPlatform', () => {
     });
   });
 });
-

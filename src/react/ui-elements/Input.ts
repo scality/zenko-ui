@@ -28,8 +28,7 @@ const Input = styled.input<{ hasError?: boolean }>`
   color: ${(props) => props.theme?.textPrimary};
   border-width: ${spacing.sp1};
   border-style: solid;
-  border-color: ${(props) =>
-    props.hasError ? props.theme.statusCritical : props.theme?.border};
+  border-color: ${(props) => (props.hasError ? props.theme.statusCritical : props.theme?.border)};
   padding: 0px ${spacing.sp8};
   font-size: ${fontSize.base};
   border-radius: ${spacing.sp4};

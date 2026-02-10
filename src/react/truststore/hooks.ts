@@ -1,7 +1,7 @@
 import { extractPemParts, parseCertificateFromPEM } from '@scality/certchain';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useK8sSecretQueries } from '../queries';
-import { ParsedCertificatesBundleWithIndex } from './Truststore';
+import type { ParsedCertificatesBundleWithIndex } from './Truststore';
 
 export type ZenkoCRCertificateBundle = {
   'ca.crt'?: string;
@@ -18,9 +18,7 @@ export type SecretCertificate = {
   index: number;
 };
 
-const extractCertificateBundles = (
-  certificateBundles: ZenkoCRCertificateBundleWithIndex[],
-) => {
+const extractCertificateBundles = (certificateBundles: ZenkoCRCertificateBundleWithIndex[]) => {
   return certificateBundles
     .filter((certificateBundle) => certificateBundle['ca.crt'])
     .map((certificateBundle) => {
@@ -70,20 +68,15 @@ const parseCertificateBundles = async (
   );
 };
 
-export const useParseBundleCertificates = (
-  certificateBundles: ZenkoCRCertificateBundleWithIndex[],
-) => {
+export const useParseBundleCertificates = (certificateBundles: ZenkoCRCertificateBundleWithIndex[]) => {
   const [data, setData] = useState<ParsedCertificatesBundleWithIndex[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const parse = async () => {
       try {
-        const extractedCertificateBundles =
-          extractCertificateBundles(certificateBundles);
-        const parsedCertificates = await parseCertificateBundles(
-          extractedCertificateBundles,
-        );
+        const extractedCertificateBundles = extractCertificateBundles(certificateBundles);
+        const parsedCertificates = await parseCertificateBundles(extractedCertificateBundles);
         setData(parsedCertificates);
       } catch (error) {
         console.error('Error parsing certificates:', error);
@@ -110,14 +103,9 @@ export const useParseSecretCertificates = (
   parsedSecretCertificates: ParsedCertificatesBundleWithIndex[];
   isLoading: boolean;
 } => {
-  const [parsedSecretCertificates, setParsedCertificates] = useState<
-    ParsedCertificatesBundleWithIndex[]
-  >([]);
+  const [parsedSecretCertificates, setParsedCertificates] = useState<ParsedCertificatesBundleWithIndex[]>([]);
 
-  const extractedSecretCertificates = useMemo(
-    () => extractSecretCertificates(extraCACerts),
-    [extraCACerts],
-  );
+  const extractedSecretCertificates = useMemo(() => extractSecretCertificates(extraCACerts), [extraCACerts]);
 
   const secretNames = useMemo(
     () => extractedSecretCertificates.map((secret) => secret.secretName),
@@ -150,14 +138,11 @@ export const useParseSecretCertificates = (
 
         const parsed = await Promise.all(
           secretsData.map(async (secretData, dataIndex) => {
-            const attributeName =
-              extractedSecretCertificates[dataIndex].secretAttributes;
+            const attributeName = extractedSecretCertificates[dataIndex].secretAttributes;
 
             const certificateBase64 = secretData?.data?.[attributeName];
             if (!certificateBase64) {
-              throw new Error(
-                `Certificate not found in secret field: ${attributeName}`,
-              );
+              throw new Error(`Certificate not found in secret field: ${attributeName}`);
             }
 
             // Decode base64 to get the PEM certificate

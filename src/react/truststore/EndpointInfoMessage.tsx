@@ -20,10 +20,9 @@ export const EndpointInfoMessage = ({ hasMargin }: { hasMargin?: boolean }) => {
         title="Certificate for HTTPS Endpoint"
         content={
           <Text>
-            When using an HTTPS endpoint, you must add the endpoint's SSL/TLS
-            certificate to the truststore for secure communication. You can
-            check the certificates already present by opening the truststore,
-            and import the endpoint's certificate if it is missing.
+            When using an HTTPS endpoint, you must add the endpoint's SSL/TLS certificate to the truststore for secure
+            communication. You can check the certificates already present by opening the truststore, and import the
+            endpoint's certificate if it is missing.
           </Text>
         }
         link={isMetalK8sEnabled ? `${basePath}/truststore` : undefined}

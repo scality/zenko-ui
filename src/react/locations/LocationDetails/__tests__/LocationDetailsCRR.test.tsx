@@ -40,12 +40,7 @@ describe('LocationDetailsCRR', () => {
       expect(onChangeFn).not.toHaveBeenCalled();
 
       // But it should render all the form fields
-      const {
-        accessKeyInput,
-        secretKeyInput,
-        endpointInput,
-        stsEndpointInput,
-      } = getFormInputs(component);
+      const { accessKeyInput, secretKeyInput, endpointInput, stsEndpointInput } = getFormInputs(component);
       expect(accessKeyInput).toBeInTheDocument();
       expect(secretKeyInput).toBeInTheDocument();
       expect(endpointInput).toBeInTheDocument();
@@ -54,12 +49,7 @@ describe('LocationDetailsCRR', () => {
 
     it('should show CRR details for empty details', () => {
       const component = mountCRRComponent();
-      const {
-        accessKeyInput,
-        secretKeyInput,
-        endpointInput,
-        stsEndpointInput,
-      } = getFormInputs(component);
+      const { accessKeyInput, secretKeyInput, endpointInput, stsEndpointInput } = getFormInputs(component);
 
       expect(accessKeyInput).toHaveValue('');
       expect(secretKeyInput).toHaveValue('');
@@ -73,12 +63,7 @@ describe('LocationDetailsCRR', () => {
         editingExisting: true,
       });
 
-      const {
-        accessKeyInput,
-        secretKeyInput,
-        endpointInput,
-        stsEndpointInput,
-      } = getFormInputs(component);
+      const { accessKeyInput, secretKeyInput, endpointInput, stsEndpointInput } = getFormInputs(component);
 
       expect(accessKeyInput).toHaveValue(VALID_LOCATION_DETAILS.accessKey);
       expect(secretKeyInput).toHaveValue(''); // cleared for security
@@ -106,20 +91,12 @@ describe('LocationDetailsCRR', () => {
     it('should call onChange on form field updates', async () => {
       let location = {};
       const component = mountCRRComponent({ onChange: (l) => (location = l) });
-      const {
-        accessKeyInput,
-        secretKeyInput,
-        endpointInput,
-        stsEndpointInput,
-      } = getFormInputs(component);
+      const { accessKeyInput, secretKeyInput, endpointInput, stsEndpointInput } = getFormInputs(component);
 
       await userEvent.type(accessKeyInput, VALID_LOCATION_DETAILS.accessKey);
       await userEvent.type(secretKeyInput, VALID_LOCATION_DETAILS.secretKey);
       await userEvent.type(endpointInput, VALID_LOCATION_DETAILS.endpoint);
-      await userEvent.type(
-        stsEndpointInput,
-        VALID_LOCATION_DETAILS.stsEndpoint,
-      );
+      await userEvent.type(stsEndpointInput, VALID_LOCATION_DETAILS.stsEndpoint);
 
       expect(location).toEqual(VALID_LOCATION_DETAILS);
     });
@@ -132,17 +109,13 @@ describe('LocationDetailsCRR', () => {
       await userEvent.type(accessKeyInput, 'short');
       fireEvent.blur(accessKeyInput);
 
-      expect(component.container.textContent).toContain(
-        'Access key must be between 16 and 128 characters',
-      );
+      expect(component.container.textContent).toContain('Access key must be between 16 and 128 characters');
 
       // Test invalid endpoint
       await userEvent.type(endpointInput, 'invalid-url');
       fireEvent.blur(endpointInput);
 
-      expect(component.container.textContent).toContain(
-        'Invalid endpoint URL format',
-      );
+      expect(component.container.textContent).toContain('Invalid endpoint URL format');
     });
 
     it('should clear secret key when editing existing location', () => {
@@ -165,33 +138,25 @@ describe('LocationDetailsCRR', () => {
 
       // Test empty endpoint
       fireEvent.blur(endpointInput);
-      expect(component.container.textContent).toContain(
-        'S3 endpoint is required',
-      );
+      expect(component.container.textContent).toContain('S3 endpoint is required');
 
       // Test invalid URL
       await userEvent.clear(endpointInput);
       await userEvent.type(endpointInput, 'not-a-url');
       fireEvent.blur(endpointInput);
-      expect(component.container.textContent).toContain(
-        'Invalid endpoint URL format',
-      );
+      expect(component.container.textContent).toContain('Invalid endpoint URL format');
 
       // Test non-HTTP protocol
       await userEvent.clear(endpointInput);
       await userEvent.type(endpointInput, 'ftp://example.com');
       fireEvent.blur(endpointInput);
-      expect(component.container.textContent).toContain(
-        'Endpoint must be a valid HTTP or HTTPS URL',
-      );
+      expect(component.container.textContent).toContain('Endpoint must be a valid HTTP or HTTPS URL');
 
       // Test valid endpoint
       await userEvent.clear(endpointInput);
       await userEvent.type(endpointInput, VALID_LOCATION_DETAILS.endpoint);
       fireEvent.blur(endpointInput);
-      expect(component.container.textContent).not.toContain(
-        'S3 endpoint is required',
-      );
+      expect(component.container.textContent).not.toContain('S3 endpoint is required');
     });
 
     it('should validate STS endpoint field correctly', async () => {
@@ -200,28 +165,19 @@ describe('LocationDetailsCRR', () => {
 
       // Test empty STS endpoint
       fireEvent.blur(stsEndpointInput);
-      expect(component.container.textContent).toContain(
-        'STS endpoint is required',
-      );
+      expect(component.container.textContent).toContain('STS endpoint is required');
 
       // Test invalid URL
       await userEvent.clear(stsEndpointInput);
       await userEvent.type(stsEndpointInput, 'invalid-sts-url');
       fireEvent.blur(stsEndpointInput);
-      expect(component.container.textContent).toContain(
-        'Invalid STS endpoint URL format',
-      );
+      expect(component.container.textContent).toContain('Invalid STS endpoint URL format');
 
       // Test valid STS endpoint
       await userEvent.clear(stsEndpointInput);
-      await userEvent.type(
-        stsEndpointInput,
-        VALID_LOCATION_DETAILS.stsEndpoint,
-      );
+      await userEvent.type(stsEndpointInput, VALID_LOCATION_DETAILS.stsEndpoint);
       fireEvent.blur(stsEndpointInput);
-      expect(component.container.textContent).not.toContain(
-        'STS endpoint is required',
-      );
+      expect(component.container.textContent).not.toContain('STS endpoint is required');
     });
 
     it('should validate access key field correctly', async () => {
@@ -230,32 +186,24 @@ describe('LocationDetailsCRR', () => {
 
       // Test empty access key
       fireEvent.blur(accessKeyInput);
-      expect(component.container.textContent).toContain(
-        'Access key is required',
-      );
+      expect(component.container.textContent).toContain('Access key is required');
 
       // Test too short access key
       await userEvent.type(accessKeyInput, 'short');
       fireEvent.blur(accessKeyInput);
-      expect(component.container.textContent).toContain(
-        'Access key must be between 16 and 128 characters',
-      );
+      expect(component.container.textContent).toContain('Access key must be between 16 and 128 characters');
 
       // Test too long access key
       await userEvent.clear(accessKeyInput);
       await userEvent.type(accessKeyInput, 'a'.repeat(129));
       fireEvent.blur(accessKeyInput);
-      expect(component.container.textContent).toContain(
-        'Access key must be between 16 and 128 characters',
-      );
+      expect(component.container.textContent).toContain('Access key must be between 16 and 128 characters');
 
       // Test valid access key
       await userEvent.clear(accessKeyInput);
       await userEvent.type(accessKeyInput, VALID_LOCATION_DETAILS.accessKey);
       fireEvent.blur(accessKeyInput);
-      expect(component.container.textContent).not.toContain(
-        'Access key is required',
-      );
+      expect(component.container.textContent).not.toContain('Access key is required');
     });
 
     it('should validate secret key field correctly', async () => {
@@ -264,24 +212,18 @@ describe('LocationDetailsCRR', () => {
 
       // Test empty secret key
       fireEvent.blur(secretKeyInput);
-      expect(component.container.textContent).toContain(
-        'Secret key is required',
-      );
+      expect(component.container.textContent).toContain('Secret key is required');
 
       // Test too short secret key
       await userEvent.type(secretKeyInput, 'short');
       fireEvent.blur(secretKeyInput);
-      expect(component.container.textContent).toContain(
-        'Secret key must be at least 20 characters long',
-      );
+      expect(component.container.textContent).toContain('Secret key must be at least 20 characters long');
 
       // Test valid secret key
       await userEvent.clear(secretKeyInput);
       await userEvent.type(secretKeyInput, VALID_LOCATION_DETAILS.secretKey);
       fireEvent.blur(secretKeyInput);
-      expect(component.container.textContent).not.toContain(
-        'Secret key is required',
-      );
+      expect(component.container.textContent).not.toContain('Secret key is required');
     });
   });
 
@@ -306,47 +248,33 @@ describe('LocationDetailsCRR', () => {
   describe('CRR Validators', () => {
     describe('validateEndpoint', () => {
       it('should return error for empty endpoint', () => {
-        expect(crrValidators.validateEndpoint('')).toBe(
-          'S3 endpoint is required',
-        );
+        expect(crrValidators.validateEndpoint('')).toBe('S3 endpoint is required');
       });
 
       it('should return error for invalid URL', () => {
-        expect(crrValidators.validateEndpoint('not-a-url')).toBe(
-          'Invalid endpoint URL format',
-        );
+        expect(crrValidators.validateEndpoint('not-a-url')).toBe('Invalid endpoint URL format');
       });
 
       it('should return error for non-HTTP protocol', () => {
-        expect(crrValidators.validateEndpoint('ftp://example.com')).toBe(
-          'Endpoint must be a valid HTTP or HTTPS URL',
-        );
+        expect(crrValidators.validateEndpoint('ftp://example.com')).toBe('Endpoint must be a valid HTTP or HTTPS URL');
       });
 
       it('should return empty string for valid HTTP URL', () => {
-        expect(crrValidators.validateEndpoint('http://s3.example.com')).toBe(
-          '',
-        );
+        expect(crrValidators.validateEndpoint('http://s3.example.com')).toBe('');
       });
 
       it('should return empty string for valid HTTPS URL', () => {
-        expect(crrValidators.validateEndpoint('https://s3.example.com')).toBe(
-          '',
-        );
+        expect(crrValidators.validateEndpoint('https://s3.example.com')).toBe('');
       });
     });
 
     describe('validateStsEndpoint', () => {
       it('should return error for empty STS endpoint', () => {
-        expect(crrValidators.validateStsEndpoint('')).toBe(
-          'STS endpoint is required',
-        );
+        expect(crrValidators.validateStsEndpoint('')).toBe('STS endpoint is required');
       });
 
       it('should return error for invalid URL', () => {
-        expect(crrValidators.validateStsEndpoint('invalid-url')).toBe(
-          'Invalid STS endpoint URL format',
-        );
+        expect(crrValidators.validateStsEndpoint('invalid-url')).toBe('Invalid STS endpoint URL format');
       });
 
       it('should return error for non-HTTP protocol', () => {
@@ -356,23 +284,17 @@ describe('LocationDetailsCRR', () => {
       });
 
       it('should return empty string for valid HTTPS URL', () => {
-        expect(
-          crrValidators.validateStsEndpoint('https://sts.example.com'),
-        ).toBe('');
+        expect(crrValidators.validateStsEndpoint('https://sts.example.com')).toBe('');
       });
     });
 
     describe('validateAccessKey', () => {
       it('should return error for empty access key', () => {
-        expect(crrValidators.validateAccessKey('')).toBe(
-          'Access key is required',
-        );
+        expect(crrValidators.validateAccessKey('')).toBe('Access key is required');
       });
 
       it('should return error for too short access key', () => {
-        expect(crrValidators.validateAccessKey('short')).toBe(
-          'Access key must be between 16 and 128 characters',
-        );
+        expect(crrValidators.validateAccessKey('short')).toBe('Access key must be between 16 and 128 characters');
       });
 
       it('should return error for too long access key', () => {
@@ -382,31 +304,21 @@ describe('LocationDetailsCRR', () => {
       });
 
       it('should return empty string for valid access key', () => {
-        expect(crrValidators.validateAccessKey('AKIAIOSFODNN7EXAMPLE')).toBe(
-          '',
-        );
+        expect(crrValidators.validateAccessKey('AKIAIOSFODNN7EXAMPLE')).toBe('');
       });
     });
 
     describe('validateSecretKey', () => {
       it('should return error for empty secret key', () => {
-        expect(crrValidators.validateSecretKey('')).toBe(
-          'Secret key is required',
-        );
+        expect(crrValidators.validateSecretKey('')).toBe('Secret key is required');
       });
 
       it('should return error for too short secret key', () => {
-        expect(crrValidators.validateSecretKey('short')).toBe(
-          'Secret key must be at least 20 characters long',
-        );
+        expect(crrValidators.validateSecretKey('short')).toBe('Secret key must be at least 20 characters long');
       });
 
       it('should return empty string for valid secret key', () => {
-        expect(
-          crrValidators.validateSecretKey(
-            'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
-          ),
-        ).toBe('');
+        expect(crrValidators.validateSecretKey('wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')).toBe('');
       });
     });
 
@@ -458,9 +370,7 @@ describe('LocationDetailsCRR', () => {
       const component = mountCRRComponent();
 
       const labels = component.container.querySelectorAll('label');
-      const labelTexts = Array.from(labels).map((label) =>
-        label.textContent?.trim(),
-      );
+      const labelTexts = Array.from(labels).map((label) => label.textContent?.trim());
 
       expect(labelTexts).toContain('Access Key *');
       expect(labelTexts).toContain('Secret Key *');
@@ -472,9 +382,7 @@ describe('LocationDetailsCRR', () => {
       const component = mountCRRComponent();
 
       // FormSection should have forceLabelWidth prop
-      const formSection = component.container.querySelector(
-        '[data-testid="form-section"]',
-      );
+      const formSection = component.container.querySelector('[data-testid="form-section"]');
       // This is implementation-specific and might need adjustment based on actual DOM structure
     });
     it('should show endpoint info message for HTTPS endpoint after endpoint Field', async () => {
@@ -498,14 +406,8 @@ describe('LocationDetailsCRR', () => {
       const { endpointInput, stsEndpointInput } = getFormInputs(component);
 
       // The actual placeholder includes "Example: " prefix based on the Input component implementation
-      expect(endpointInput).toHaveAttribute(
-        'placeholder',
-        'Example: https://s3.example.com',
-      );
-      expect(stsEndpointInput).toHaveAttribute(
-        'placeholder',
-        'Example: https://sts.example.com',
-      );
+      expect(endpointInput).toHaveAttribute('placeholder', 'Example: https://s3.example.com');
+      expect(stsEndpointInput).toHaveAttribute('placeholder', 'Example: https://sts.example.com');
     });
   });
 });

@@ -2,16 +2,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import Truststore, { CertificateWithPEM } from '../Truststore';
-import {
-  NewWrapper,
-  mockOffsetSize,
-  mockShellHooks,
-} from '../../utils/testUtil';
-import {
-  useParseBundleCertificates,
-  useParseSecretCertificates,
-} from '../hooks';
+import { mockOffsetSize, mockShellHooks, NewWrapper } from '../../utils/testUtil';
+import { useParseBundleCertificates, useParseSecretCertificates } from '../hooks';
+import Truststore, { type CertificateWithPEM } from '../Truststore';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -29,15 +22,13 @@ jest.mock('../hooks', () => ({
   useParseSecretCertificates: jest.fn(),
 }));
 
-const mockUseParseBundleCertificates =
-  useParseBundleCertificates as jest.MockedFunction<
-    typeof useParseBundleCertificates
-  >;
+const mockUseParseBundleCertificates = useParseBundleCertificates as jest.MockedFunction<
+  typeof useParseBundleCertificates
+>;
 
-const mockUseParseSecretCertificates =
-  useParseSecretCertificates as jest.MockedFunction<
-    typeof useParseSecretCertificates
-  >;
+const mockUseParseSecretCertificates = useParseSecretCertificates as jest.MockedFunction<
+  typeof useParseSecretCertificates
+>;
 
 // Mock the delete mutation hook
 const mockDeleteMutate = jest.fn();
@@ -61,42 +52,32 @@ const mockDeleteMutationResult = {
 
 jest.mock('../../../js/mutations', () => ({
   ...jest.requireActual('../../../js/mutations'),
-  useDeleteCertificateFromZenkoConfigurationMutation: jest.fn(
-    () => mockDeleteMutationResult,
-  ),
+  useDeleteCertificateFromZenkoConfigurationMutation: jest.fn(() => mockDeleteMutationResult),
 }));
 
 import { useDeleteCertificateFromZenkoConfigurationMutation } from '../../../js/mutations';
-const mockUseDeleteMutation =
-  useDeleteCertificateFromZenkoConfigurationMutation as jest.MockedFunction<
-    typeof useDeleteCertificateFromZenkoConfigurationMutation
-  >;
+
+const mockUseDeleteMutation = useDeleteCertificateFromZenkoConfigurationMutation as jest.MockedFunction<
+  typeof useDeleteCertificateFromZenkoConfigurationMutation
+>;
 
 describe('Truststore', () => {
   const selectors = {
     pageTitle: () => screen.getByText('Truststore'),
-    importButton: () =>
-      screen.getByRole('button', { name: /Import Certificate/i }),
+    importButton: () => screen.getByRole('button', { name: /Import Certificate/i }),
     nameColumn: () => screen.getByText('Name'),
     expireOnColumn: () => screen.getByText('Expires On'),
-    viewDetailsButton: () =>
-      screen.getByRole('button', { name: /View Details/i }),
-    deleteButtons: () =>
-      screen.getAllByRole('button', { name: /Delete Certificate/i }),
-    deleteButton: () =>
-      screen.getByRole('button', { name: /Delete Certificate/i }),
-    deleteConfirmationModal: () =>
-      screen.getByText(/Delete.*from the truststore\?/i),
-    deleteConfirmationDeleteButton: () =>
-      screen.getByRole('button', { name: 'Delete' }),
+    viewDetailsButton: () => screen.getByRole('button', { name: /View Details/i }),
+    deleteButtons: () => screen.getAllByRole('button', { name: /Delete Certificate/i }),
+    deleteButton: () => screen.getByRole('button', { name: /Delete Certificate/i }),
+    deleteConfirmationModal: () => screen.getByText(/Delete.*from the truststore\?/i),
+    deleteConfirmationDeleteButton: () => screen.getByRole('button', { name: 'Delete' }),
     deletingButton: () => screen.getByRole('button', { name: 'Deleting...' }),
     deleteCancelButton: () => screen.getByRole('button', { name: /Cancel/i }),
-    deleteConfirmationQuery: () =>
-      screen.queryByText(/Remove.*from the truststore\?/i),
+    deleteConfirmationQuery: () => screen.queryByText(/Remove.*from the truststore\?/i),
   };
 
-  const MOCK_PEM_CERT =
-    '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+  const MOCK_PEM_CERT = '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
 
   const mockCertificate1: CertificateWithPEM = {
     name: 'Test Certificate 1',
@@ -114,8 +95,7 @@ describe('Truststore', () => {
     postalCodes: ['12345'],
     serialNumber: '123456',
     certificateHash: 'abc123',
-    publicKey:
-      '-----BEGIN PUBLIC KEY-----\nMockPublicKey1\n-----END PUBLIC KEY-----',
+    publicKey: '-----BEGIN PUBLIC KEY-----\nMockPublicKey1\n-----END PUBLIC KEY-----',
     originalPEM: MOCK_PEM_CERT,
     rsaPublicKey: {
       modulus: 'mockModulus1',
@@ -169,9 +149,7 @@ describe('Truststore', () => {
     server.resetHandlers();
     jest.clearAllMocks();
     mockDeleteMutate.mockReset();
-    (mockUseDeleteMutation as jest.Mock).mockReturnValue(
-      mockDeleteMutationResult,
-    );
+    (mockUseDeleteMutation as jest.Mock).mockReturnValue(mockDeleteMutationResult);
   });
 
   afterAll(() => {
@@ -233,18 +211,14 @@ describe('Truststore', () => {
     render(<Truststore />, { wrapper: NewWrapper() });
     //V
     await waitFor(() => {
-      expect(
-        screen.getByText(/Imported certificates listed below are ignored/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Imported certificates listed below are ignored/i)).toBeInTheDocument();
     });
   });
 
   it('should open certificate details modal when View Details is clicked', async () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [
-        { parsedCertificates: [mockCertificate1], index: 0 },
-      ],
+      parsedCertificates: [{ parsedCertificates: [mockCertificate1], index: 0 }],
       isLoading: false,
     });
     mockUseParseSecretCertificates.mockReturnValue({
@@ -255,9 +229,7 @@ describe('Truststore', () => {
     //E
     render(<Truststore />, { wrapper: NewWrapper() });
     await waitFor(() => {
-      expect(
-        screen.queryByText(/Loading certificates/i),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/Loading certificates/i)).not.toBeInTheDocument();
     });
 
     await waitFor(() => {
@@ -275,9 +247,7 @@ describe('Truststore', () => {
   it('should close certificate details modal when modal is closed', async () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [
-        { parsedCertificates: [mockCertificate1], index: 0 },
-      ],
+      parsedCertificates: [{ parsedCertificates: [mockCertificate1], index: 0 }],
       isLoading: false,
     });
     mockUseParseSecretCertificates.mockReturnValue({
@@ -317,9 +287,7 @@ describe('Truststore', () => {
     };
 
     mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [
-        { parsedCertificates: [mockCertificate1, mockCertificate2], index: 0 },
-      ],
+      parsedCertificates: [{ parsedCertificates: [mockCertificate1, mockCertificate2], index: 0 }],
       isLoading: false,
     });
     mockUseParseSecretCertificates.mockReturnValue({
@@ -330,9 +298,7 @@ describe('Truststore', () => {
     render(<Truststore />, { wrapper: NewWrapper() });
 
     await waitFor(() => {
-      expect(
-        screen.queryByText(/Loading certificates/i),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/Loading certificates/i)).not.toBeInTheDocument();
     });
 
     //V
@@ -350,9 +316,7 @@ describe('Truststore', () => {
     };
 
     mockUseParseBundleCertificates.mockReturnValue({
-      parsedCertificates: [
-        { parsedCertificates: [mockCertificate1, mockCertificate2], index: 0 },
-      ],
+      parsedCertificates: [{ parsedCertificates: [mockCertificate1, mockCertificate2], index: 0 }],
       isLoading: false,
     });
     mockUseParseSecretCertificates.mockReturnValue({
@@ -363,9 +327,7 @@ describe('Truststore', () => {
     render(<Truststore />, { wrapper: NewWrapper() });
 
     await waitFor(() => {
-      expect(
-        screen.queryByText(/Loading certificates/i),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/Loading certificates/i)).not.toBeInTheDocument();
     });
 
     //V
@@ -452,9 +414,7 @@ describe('Truststore', () => {
     it('should return table data when Zenko CR and certificates are loaded successfully', async () => {
       //S
       mockUseParseBundleCertificates.mockReturnValue({
-        parsedCertificates: [
-          { parsedCertificates: [mockCertificate1], index: 0 },
-        ],
+        parsedCertificates: [{ parsedCertificates: [mockCertificate1], index: 0 }],
         isLoading: false,
       });
       mockUseParseSecretCertificates.mockReturnValue({
@@ -467,9 +427,7 @@ describe('Truststore', () => {
       //V
       expect(selectors.pageTitle()).toBeInTheDocument();
       await waitFor(() => {
-        expect(
-          screen.queryByText(/Loading certificates/i),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Loading certificates/i)).not.toBeInTheDocument();
       });
       // Component should render with data in table
       expect(screen.getByText(mockCertificate1.commonName)).toBeInTheDocument();
@@ -483,9 +441,7 @@ describe('Truststore', () => {
     it('should close delete confirmation modal when cancel button is clicked', async () => {
       //S
       mockUseParseBundleCertificates.mockReturnValue({
-        parsedCertificates: [
-          { parsedCertificates: [mockCertificate1], index: 0 },
-        ],
+        parsedCertificates: [{ parsedCertificates: [mockCertificate1], index: 0 }],
         isLoading: false,
       });
       mockUseParseSecretCertificates.mockReturnValue({
@@ -496,9 +452,7 @@ describe('Truststore', () => {
       render(<Truststore />, { wrapper: NewWrapper() });
 
       await waitFor(() => {
-        expect(
-          screen.queryByText(/loading certificates.../i),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/loading certificates.../i)).not.toBeInTheDocument();
       });
 
       await waitFor(() => {
@@ -522,9 +476,7 @@ describe('Truststore', () => {
     it('should delete certificate and close modal when delete button is clicked', async () => {
       //S
       mockUseParseBundleCertificates.mockReturnValue({
-        parsedCertificates: [
-          { parsedCertificates: [mockCertificate1], index: 0 },
-        ],
+        parsedCertificates: [{ parsedCertificates: [mockCertificate1], index: 0 }],
         isLoading: false,
       });
       mockUseParseSecretCertificates.mockReturnValue({
@@ -534,15 +486,13 @@ describe('Truststore', () => {
 
       // Mock the mutation to capture args and trigger success callback
       let capturedMutateArgs: any;
-      (mockUseDeleteMutation as jest.Mock).mockImplementation(
-        (options: any) => ({
-          ...mockDeleteMutationResult,
-          mutate: (args: any) => {
-            capturedMutateArgs = args;
-            setTimeout(() => options?.onSuccess?.(), 0);
-          },
-        }),
-      );
+      (mockUseDeleteMutation as jest.Mock).mockImplementation((options: any) => ({
+        ...mockDeleteMutationResult,
+        mutate: (args: any) => {
+          capturedMutateArgs = args;
+          setTimeout(() => options?.onSuccess?.(), 0);
+        },
+      }));
 
       //E
       render(<Truststore />, { wrapper: NewWrapper() });
@@ -567,9 +517,7 @@ describe('Truststore', () => {
 
       // Success toast should appear
       await waitFor(() => {
-        expect(
-          screen.getByText(/Certificate deleted successfully/i),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Certificate deleted successfully/i)).toBeInTheDocument();
       });
 
       // Verify the mutation was called with correct args
@@ -579,9 +527,7 @@ describe('Truststore', () => {
     it('should display error toast when delete fails', async () => {
       //S
       mockUseParseBundleCertificates.mockReturnValue({
-        parsedCertificates: [
-          { parsedCertificates: [mockCertificate1], index: 0 },
-        ],
+        parsedCertificates: [{ parsedCertificates: [mockCertificate1], index: 0 }],
         isLoading: false,
       });
       mockUseParseSecretCertificates.mockReturnValue({
@@ -590,14 +536,12 @@ describe('Truststore', () => {
       });
 
       // Mock the mutation to trigger error callback
-      (mockUseDeleteMutation as jest.Mock).mockImplementation(
-        (options: any) => ({
-          ...mockDeleteMutationResult,
-          mutate: () => {
-            setTimeout(() => options?.onError?.(), 0);
-          },
-        }),
-      );
+      (mockUseDeleteMutation as jest.Mock).mockImplementation((options: any) => ({
+        ...mockDeleteMutationResult,
+        mutate: () => {
+          setTimeout(() => options?.onError?.(), 0);
+        },
+      }));
 
       //E
       render(<Truststore />, { wrapper: NewWrapper() });
@@ -618,9 +562,7 @@ describe('Truststore', () => {
       //V
       // Error toast should appear
       await waitFor(() => {
-        expect(
-          screen.getByText(/Failed to delete certificate/i),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Failed to delete certificate/i)).toBeInTheDocument();
       });
     });
   });

@@ -1,13 +1,9 @@
 /* eslint-disable */
-import {
-  addListEntry,
-  delListEntry,
-  editListEntry,
-  themeMount as mount,
-} from '../../../utils/testUtil';
-import LocationDetailsHyperdriveV2 from '../LocationDetailsHyperdriveV2';
-import React from 'react';
+
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { addListEntry, delListEntry, editListEntry, themeMount as mount } from '../../../utils/testUtil';
+import LocationDetailsHyperdriveV2 from '../LocationDetailsHyperdriveV2';
 
 const props = {
   details: {},
@@ -64,10 +60,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
   });
 
   it('should disable add button if ten items in the bootstrap list', () => {
-    const bootstrapList = Array.from(
-      { length: 10 },
-      (_, i) => `localhost:8${i}`,
-    );
+    const bootstrapList = Array.from({ length: 10 }, (_, i) => `localhost:8${i}`);
     const locationDetails = { bootstrapList };
     const component = mount(
       // @ts-expect-error

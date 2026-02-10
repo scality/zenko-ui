@@ -1,4 +1,4 @@
-import { Bucket } from '@scality/data-browser-library';
+import type { Bucket } from '@scality/data-browser-library';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 import { UsedCapacityInlinePromiseResult } from '../../next-architecture/ui/metrics/LatestUsedCapacity';
 import { useBucketMetrics } from '../hooks/useBucketMetrics';

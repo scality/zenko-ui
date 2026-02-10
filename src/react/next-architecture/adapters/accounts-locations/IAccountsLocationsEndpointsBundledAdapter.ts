@@ -1,6 +1,6 @@
-import { Endpoint } from '../../../../types/config';
-import { AccountInfo } from '../../domain/entities/account';
-import { LocationInfo } from './ILocationsAdapter';
+import type { Endpoint } from '../../../../types/config';
+import type { AccountInfo } from '../../domain/entities/account';
+import type { LocationInfo } from './ILocationsAdapter';
 
 export interface IAccountsLocationsEndpointsAdapter {
   listAccountsLocationsAndEndpoints(): Promise<{

@@ -1,7 +1,6 @@
-/* eslint-disable */
+import userEvent from '@testing-library/user-event';
 import { themeMount as mount, updateInputText } from '../../../utils/testUtil';
 import LocationDetailsGcp from '../LocationDetailsGcp';
-import userEvent from '@testing-library/user-event';
 
 const props = {
   details: {},
@@ -37,15 +36,9 @@ describe('class <LocationDetailsGcp />', () => {
     const accessKeyInput = component.getByRole('textbox', {
       name: /access key/i,
     });
-    const secretKeyInput = component.container.querySelector(
-      'input[name="secretKey"]',
-    );
-    const bucketNameInput = component.container.querySelector(
-      'input[name="bucketName"]',
-    );
-    const mpuBucketInput = component.container.querySelector(
-      'input[name="mpuBucketName"]',
-    );
+    const secretKeyInput = component.container.querySelector('input[name="secretKey"]');
+    const bucketNameInput = component.container.querySelector('input[name="bucketName"]');
+    const mpuBucketInput = component.container.querySelector('input[name="mpuBucketName"]');
 
     await userEvent.type(accessKeyInput, 'ak');
     await userEvent.type(secretKeyInput, 'sk');
@@ -56,18 +49,10 @@ describe('class <LocationDetailsGcp />', () => {
     //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsGcp {...props} />);
 
-    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
-      '',
-    );
-    expect(
-      component.container.querySelector('input[name="secretKey"]'),
-    ).toHaveValue('');
-    expect(
-      component.container.querySelector('input[name="bucketName"]'),
-    ).toHaveValue('');
-    expect(
-      component.container.querySelector('input[name="mpuBucketName"]'),
-    ).toHaveValue('');
+    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue('');
+    expect(component.container.querySelector('input[name="secretKey"]')).toHaveValue('');
+    expect(component.container.querySelector('input[name="bucketName"]')).toHaveValue('');
+    expect(component.container.querySelector('input[name="mpuBucketName"]')).toHaveValue('');
   });
   it('should show gcp details when editing an existing location', () => {
     const locationDetails = {
@@ -82,18 +67,10 @@ describe('class <LocationDetailsGcp />', () => {
       <LocationDetailsGcp {...props} details={locationDetails} />,
     );
 
-    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
-      'ak',
-    );
-    expect(
-      component.container.querySelector('input[name="secretKey"]'),
-    ).toHaveValue(''); // encrypted
-    expect(
-      component.container.querySelector('input[name="bucketName"]'),
-    ).toHaveValue('bn');
-    expect(
-      component.container.querySelector('input[name="mpuBucketName"]'),
-    ).toHaveValue('mbn');
+    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue('ak');
+    expect(component.container.querySelector('input[name="secretKey"]')).toHaveValue(''); // encrypted
+    expect(component.container.querySelector('input[name="bucketName"]')).toHaveValue('bn');
+    expect(component.container.querySelector('input[name="mpuBucketName"]')).toHaveValue('mbn');
   });
   it('should call onChange on location details updates', () => {
     const refLocation = {

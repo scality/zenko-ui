@@ -1,9 +1,5 @@
 import type { AccessKey, Account, SecretKey } from '../../types/account';
-import type {
-  ConfigurationOverlay,
-  Endpoint,
-  Location,
-} from '../../types/config';
+import type { ConfigurationOverlay, Endpoint, Location } from '../../types/config';
 import type {
   ApiAccountKeyResponse,
   ApiAccountResponse,
@@ -25,8 +21,7 @@ export const location: Location = {
 export const account: Account = {
   //@ts-expect-error fix this when you are working on it
   arn: 'arn:aws:iam::538641674554:/bart/',
-  canonicalId:
-    '41901f00de359c995578b3f7af6a9ab57ccca15f1a03ed97e29ba7fdf9a09c33',
+  canonicalId: '41901f00de359c995578b3f7af6a9ab57ccca15f1a03ed97e29ba7fdf9a09c33',
   createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
   email: 'my@email.com',
   id: '538641674554',
@@ -71,39 +66,32 @@ export const endpoint: Endpoint = {
   isBuiltin: false,
 };
 export class MockManagementClient implements ManagementClientInterface {
-  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
     //@ts-expect-error fix this when you are working on it
     return Promise.resolve(account);
   }
 
-  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayUser(): Promise<void> {
     return Promise.resolve();
   }
 
-  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayLocation(): Promise<Location> {
     return Promise.resolve(location);
   }
 
-  //@ts-expect-error fix this when you are working on it
   updateConfigurationOverlayLocation(): Promise<Location> {
     return Promise.resolve(location);
   }
 
-  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayLocation(): Promise<void> {
     return Promise.resolve();
   }
 
-  //@ts-expect-error fix this when you are working on it
   getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
     return Promise.resolve({
       ...latestOverlay,
     });
   }
-
 
   generateKeyConfigurationOverlayUser(): Promise<ApiAccountKeyResponse> {
     return Promise.resolve({
@@ -111,7 +99,6 @@ export class MockManagementClient implements ManagementClientInterface {
     });
   }
 
-  //@ts-expect-error fix this when you are working on it
   getLatestInstanceStatus(): Promise<InstanceStatus> {
     return Promise.resolve(instanceStatus);
   }
@@ -120,7 +107,6 @@ export class MockManagementClient implements ManagementClientInterface {
     return Promise.resolve(endpoint);
   }
 
-  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayEndpoint(): Promise<void> {
     return Promise.resolve();
   }
@@ -132,48 +118,38 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     this._error = error;
   }
 
-  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
     return Promise.reject(this._error);
   }
 
-  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayUser(): Promise<void> {
     return Promise.reject(this._error);
   }
 
-  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayLocation(): Promise<Location> {
     return Promise.reject(this._error);
   }
 
-  //@ts-expect-error fix this when you are working on it
   updateConfigurationOverlayLocation(): Promise<Location> {
     return Promise.reject(this._error);
   }
 
-  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayLocation(): Promise<void> {
     return Promise.reject(this._error);
   }
 
-  //@ts-expect-error fix this when you are working on it
   getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
     return Promise.reject(this._error);
   }
 
-
-  //@ts-expect-error fix this when you are working on it
   generateKeyConfigurationOverlayUser(): Promise<void> {
     return Promise.reject(this._error);
   }
 
-  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayEndpoint(): Promise<void> {
     return Promise.reject(this._error);
   }
 
-  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayEndpoint(): Promise<void> {
     return Promise.reject(this._error);
   }
@@ -197,8 +173,7 @@ export class MockManagementClientWithConfigurationVersions extends MockManagemen
       ...body,
       state: {
         ...body.state,
-        runningConfigurationVersion:
-          this.runningVersions[this.getStatusCallCounter++],
+        runningConfigurationVersion: this.runningVersions[this.getStatusCallCounter++],
       },
     }));
   }

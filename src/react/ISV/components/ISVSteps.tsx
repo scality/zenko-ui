@@ -1,13 +1,13 @@
-import { spacing, Stepper } from '@scality/core-ui';
-import { useMemo } from 'react';
-import { ISVConfiguration } from './ISVConfiguration';
-import { useTheme } from 'styled-components';
+import { Stepper, spacing } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
-import { ISVSummary } from './ISVSummary';
-import ISVApplyActions from './ISVApplyActions';
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router';
+import { useTheme } from 'styled-components';
 import { getPlatformById } from '../platforms';
+import ISVApplyActions from './ISVApplyActions';
+import { ISVConfiguration } from './ISVConfiguration';
 import { ISVStepperContext } from './ISVStepperContext';
+import { ISVSummary } from './ISVSummary';
 
 export enum ISVStepsIndexes {
   Configuration,

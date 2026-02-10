@@ -1,13 +1,13 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ISVConfiguration } from '../ISVConfiguration';
-import { ISVStepperContext } from '../ISVStepperContext';
 import { useListAccounts } from '../../../next-architecture/domain/business/accounts';
-import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
+import { VEEAM_OFFICE_365 } from '../../constants';
 import { CommvaultPlatform } from '../../platforms/commvault';
 import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
-import { VEEAM_OFFICE_365 } from '../../constants';
-import { renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
+import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import { ISVConfiguration } from '../ISVConfiguration';
+import { ISVStepperContext } from '../ISVStepperContext';
 
 const mockNavigate = jest.fn();
 jest.mock('@scality/module-federation', () => ({
@@ -45,14 +45,11 @@ jest.mock('../../hooks/useIAMUser', () => {
 
 const mockNext = jest.fn();
 // Mock stepper hook
-jest.mock(
-  '@scality/core-ui/dist/components/steppers/Stepper.component',
-  () => ({
-    useStepper: () => ({
-      next: mockNext,
-    }),
+jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => ({
+  useStepper: () => ({
+    next: mockNext,
   }),
-);
+}));
 
 // Add mock for useCapacityUnit hook
 jest.mock('../../hooks/useCapacityUnit', () => ({
@@ -67,24 +64,16 @@ jest.mock('../../hooks/useCapacityUnit', () => ({
 }));
 const selectors = {
   formTitle: () => screen.getByText('Configure ARTESCA for your Use case'),
-  createAccountRadio: () =>
-    screen.getByRole('radio', { name: /Create a new Account/i }),
-  existingAccountRadio: () =>
-    screen.getByRole('radio', { name: /Use an existing Account/i }),
+  createAccountRadio: () => screen.getByRole('radio', { name: /Create a new Account/i }),
+  existingAccountRadio: () => screen.getByRole('radio', { name: /Use an existing Account/i }),
   skipButton: () => screen.getByText(/Skip Use case configuration/i),
   continueButton: () => screen.getByRole('button', { name: /Continue/i }),
-  useExistingAccountSelect: () =>
-    screen.getByRole('listbox', { name: /Select existing account/i }),
-  existingUserRadio: () =>
-    screen.getByRole('radio', { name: /Use an existing IAM User/i }),
-  createUserRadio: () =>
-    screen.getByRole('radio', { name: /Create a new IAM User/i }),
-  createUserInput: () =>
-    screen.getByRole('textbox', { name: /IAM User Name */i }),
-  selectExistingUser: () =>
-    screen.getByRole('listbox', { name: 'Select existing user' }),
-  generateKey: () =>
-    screen.getByRole('checkbox', { name: /Generate a new set of AK\/SK/ }),
+  useExistingAccountSelect: () => screen.getByRole('listbox', { name: /Select existing account/i }),
+  existingUserRadio: () => screen.getByRole('radio', { name: /Use an existing IAM User/i }),
+  createUserRadio: () => screen.getByRole('radio', { name: /Create a new IAM User/i }),
+  createUserInput: () => screen.getByRole('textbox', { name: /IAM User Name */i }),
+  selectExistingUser: () => screen.getByRole('listbox', { name: 'Select existing user' }),
+  generateKey: () => screen.getByRole('checkbox', { name: /Generate a new set of AK\/SK/ }),
 };
 describe('ISVConfiguration', () => {
   const mockAccounts = {
@@ -163,15 +152,9 @@ describe('ISVConfiguration', () => {
   it('should navigate to next step when Continue button is clicked', async () => {
     renderComponent(CommvaultPlatform);
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
-      'new-veeam-account',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /Account \* Account Name \*/i }), 'new-veeam-account');
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /Bucket name \*/i }),
-      'veeam-bucket',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'veeam-bucket');
 
     await waitFor(() => {
       expect(selectors.continueButton()).not.toBeDisabled();
@@ -188,27 +171,15 @@ describe('ISVConfiguration', () => {
     const bucketNumberInput = screen.getByRole('spinbutton', { name: /number of buckets \*/i });
 
     await userEvent.click(selectors.createAccountRadio());
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
-      'new-account',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /Account \* Account Name \*/i }), 'new-account');
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /Bucket name \*/i }),
-      'test-bucket-1',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'test-bucket-1');
 
     fireEvent.change(bucketNumberInput, { target: { value: '3' } });
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /Bucket #2 name \*/i }),
-      'test-bucket-2',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /Bucket #2 name \*/i }), 'test-bucket-2');
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /Bucket #3 name \*/i }),
-      'test-bucket-3',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /Bucket #3 name \*/i }), 'test-bucket-3');
 
     fireEvent.change(bucketNumberInput, { target: { value: '1' } });
 
@@ -253,9 +224,7 @@ describe('ISVConfiguration', () => {
       // Should not show internal account in options
       await userEvent.click(selectors.useExistingAccountSelect());
       expect(screen.getByText('test-account')).toBeInTheDocument();
-      expect(
-        screen.queryByText('scality-internal-services'),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('scality-internal-services')).not.toBeInTheDocument();
     });
 
     it('should disable account selection when no accounts are available', async () => {
@@ -293,9 +262,7 @@ describe('ISVConfiguration', () => {
         '/isv/configuration?platform=veeam&account=non-existing-account',
       );
       expect(selectors.createAccountRadio()).not.toBeDisabled();
-      expect(
-        screen.queryByText('non-existing-account'),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('non-existing-account')).not.toBeInTheDocument();
     });
   });
 
@@ -315,9 +282,7 @@ describe('ISVConfiguration', () => {
         );
 
         // Verify bucket field is present
-        expect(
-          screen.getByRole('textbox', { name: /Bucket name \*/i }),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: /Bucket name \*/i })).toBeInTheDocument();
 
         // Verify immutable backup toggle if present
         const immutableText = screen.queryByText('Immutable Backup');
@@ -342,9 +307,7 @@ describe('ISVConfiguration', () => {
         );
 
         // Check for bucket field
-        expect(
-          screen.getByRole('textbox', { name: /Bucket name \*/i }),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: /Bucket name \*/i })).toBeInTheDocument();
       });
     });
 
@@ -364,9 +327,7 @@ describe('ISVConfiguration', () => {
         await userEvent.click(applicationInput);
 
         // Just check that options exist without trying to count them
-        expect(
-          screen.getAllByText(/Veeam Backup for Microsoft 365/).length,
-        ).toBeGreaterThan(0);
+        expect(screen.getAllByText(/Veeam Backup for Microsoft 365/).length).toBeGreaterThan(0);
       });
 
       it('should show immutable backup toggle for VBO v8+', async () => {
@@ -413,28 +374,18 @@ describe('ISVConfiguration', () => {
       expect(selectors.continueButton()).toBeDisabled();
 
       // Fill in account name
-      await userEvent.type(
-        screen.getByRole('textbox', { name: 'Account * Account Name *' }),
-        'new-test-account',
-      );
+      await userEvent.type(screen.getByRole('textbox', { name: 'Account * Account Name *' }), 'new-test-account');
 
       // Set number of buckets to 1
-      await userEvent.clear(
-        screen.getByRole('spinbutton', { name: 'Number of buckets *' }),
-      );
-      await userEvent.type(
-        screen.getByRole('spinbutton', { name: 'Number of buckets *' }),
-        '1',
-      );
+      await userEvent.clear(screen.getByRole('spinbutton', { name: 'Number of buckets *' }));
+      await userEvent.type(screen.getByRole('spinbutton', { name: 'Number of buckets *' }), '1');
 
       // Fill in Veeam application for VBO
       const applicationInput = screen.getByRole('textbox', {
         name: 'Veeam application',
       });
       await userEvent.click(applicationInput);
-      await userEvent.click(
-        screen.getByRole('option', { name: VEEAM_OFFICE_365 }),
-      );
+      await userEvent.click(screen.getByRole('option', { name: VEEAM_OFFICE_365 }));
 
       expect(selectors.continueButton()).toBeDisabled();
     });
@@ -442,14 +393,9 @@ describe('ISVConfiguration', () => {
     it('should show error for duplicate account names', async () => {
       renderComponent();
 
-      await userEvent.type(
-        screen.getByLabelText(/Account Name/i),
-        'test-account',
-      );
+      await userEvent.type(screen.getByLabelText(/Account Name/i), 'test-account');
 
-      expect(
-        screen.getByText('Account name already exists'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Account name already exists')).toBeInTheDocument();
     });
 
     it('should show error for duplicate IAM User Names', async () => {
@@ -460,27 +406,17 @@ describe('ISVConfiguration', () => {
       await userEvent.click(screen.getByText('test-account'));
       await userEvent.click(screen.getByText('Advanced settings'));
 
-      await userEvent.type(
-        screen.getByLabelText(/IAM User Name/i),
-        'test-user',
-      );
+      await userEvent.type(screen.getByLabelText(/IAM User Name/i), 'test-user');
 
-      expect(
-        screen.getByText('IAM User name already exists'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('IAM User name already exists')).toBeInTheDocument();
     });
 
     it('should show error for duplicate bucket names', async () => {
       renderComponent();
 
       // Fill in bucket name
-      await userEvent.clear(
-        screen.getByRole('textbox', { name: 'Bucket name *' }),
-      );
-      await userEvent.type(
-        screen.getByRole('textbox', { name: 'Bucket name *' }),
-        'test-bucket-1',
-      );
+      await userEvent.clear(screen.getByRole('textbox', { name: 'Bucket name *' }));
+      await userEvent.type(screen.getByRole('textbox', { name: 'Bucket name *' }), 'test-bucket-1');
 
       // Add buckets
       const bucketNumberInput = screen.getByRole('spinbutton', { name: /number of buckets \*/i });
@@ -494,17 +430,10 @@ describe('ISVConfiguration', () => {
       });
 
       // Fill in second bucket name
-      await userEvent.clear(
-        screen.getByRole('textbox', { name: 'Bucket #2 name *' }),
-      );
-      await userEvent.type(
-        screen.getByRole('textbox', { name: 'Bucket #2 name *' }),
-        'test-bucket-1',
-      );
+      await userEvent.clear(screen.getByRole('textbox', { name: 'Bucket #2 name *' }));
+      await userEvent.type(screen.getByRole('textbox', { name: 'Bucket #2 name *' }), 'test-bucket-1');
 
-      expect(
-        screen.getByText('Bucket name must be unique'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Bucket name must be unique')).toBeInTheDocument();
     });
   });
 
@@ -625,9 +554,7 @@ describe('ISVConfiguration', () => {
       // Select existing IAM user
       await userEvent.click(selectors.existingUserRadio());
 
-      expect(
-        screen.getByText('Generate a new set of AK/SK'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Generate a new set of AK/SK')).toBeInTheDocument();
     });
     it('should not check by default generate key checkbox for existing IAM user with active keys', async () => {
       renderComponent();
@@ -642,9 +569,7 @@ describe('ISVConfiguration', () => {
 
       // Select existing IAM user
       await userEvent.click(selectors.existingUserRadio());
-      await userEvent.click(
-        screen.queryByRole('listbox', { name: /Select existing user/ }),
-      );
+      await userEvent.click(screen.queryByRole('listbox', { name: /Select existing user/ }));
       await userEvent.click(screen.getByText('test-user'));
 
       expect(selectors.generateKey()).not.toBeChecked();

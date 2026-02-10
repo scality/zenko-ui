@@ -1,18 +1,17 @@
 import { ToastProvider } from '@scality/core-ui';
+import { ShellHooksProvider, useBasenameRelativeNavigate, useCurrentApp } from '@scality/module-federation';
+import type React from 'react';
+import { useEffect } from 'react';
 import { ReactQueryDevtools } from 'react-query/devtools';
-
-import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { AccountsLocationsEndpointsAdapterProvider } from './next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
-import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
-import ZenkoUI from './ZenkoUI';
 import AuthLoadingProvider from './AuthLoadingProvider';
 import ErrorProvider from './ErrorProvider';
-
-import { ShellHooksProvider, useBasenameRelativeNavigate, useCurrentApp } from '@scality/module-federation';
-import React, { useEffect } from 'react';
+import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { AccountsLocationsEndpointsAdapterProvider } from './next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { ArtescaLibraryProvider } from './next-architecture/ui/ArtescaLibraryProvider';
+import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
+import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
 import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
+import ZenkoUI from './ZenkoUI';
 
 const HistoryPushEventListener = () => {
   const navigate = useBasenameRelativeNavigate();
@@ -42,13 +41,9 @@ const ZenkoUIGuard = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-
 const FederableApp = (props) => {
   return (
-    <ShellHooksProvider
-      shellHooks={props.shellHooks}
-      shellAlerts={props.shellAlerts}
-    >
+    <ShellHooksProvider shellHooks={props.shellHooks} shellAlerts={props.shellAlerts}>
       <XCoreLibraryProvider>
         <ArtescaLibraryProvider>
           <HistoryPushEventListener />

@@ -53,9 +53,7 @@ describe('class <LocationDetailsDOSpaces />', () => {
     //@ts-expect-error fix this when you are working on it
     const { container } = mount(<LocationDetailsDOSpaces {...props} />);
 
-    expect(screen.getByRole('textbox', { name: /access key/i })).toHaveValue(
-      '',
-    );
+    expect(screen.getByRole('textbox', { name: /access key/i })).toHaveValue('');
     expect(container.querySelector('input[name="secretKey"]')).toHaveValue('');
     expect(container.querySelector('input[name="bucketName"]')).toHaveValue('');
     expect(screen.getByRole('textbox', { name: /endpoint/i })).toHaveValue('');
@@ -73,16 +71,10 @@ describe('class <LocationDetailsDOSpaces />', () => {
       <LocationDetailsDOSpaces {...props} details={locationDetails} />,
     );
 
-    expect(screen.getByRole('textbox', { name: /access key/i })).toHaveValue(
-      'ak',
-    );
+    expect(screen.getByRole('textbox', { name: /access key/i })).toHaveValue('ak');
     expect(container.querySelector('input[name="secretKey"]')).toHaveValue(''); // encrypted
-    expect(container.querySelector('input[name="bucketName"]')).toHaveValue(
-      'bn',
-    );
-    expect(screen.getByRole('textbox', { name: /endpoint/i })).toHaveValue(
-      'https://ep',
-    );
+    expect(container.querySelector('input[name="bucketName"]')).toHaveValue('bn');
+    expect(screen.getByRole('textbox', { name: /endpoint/i })).toHaveValue('https://ep');
   });
   it('should call onChange on location details updates', async () => {
     const refLocation = {

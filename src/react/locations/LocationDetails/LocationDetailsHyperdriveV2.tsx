@@ -1,8 +1,8 @@
-import React from 'react';
-import { LocationDetailsFormProps } from '.';
-import InputList from '../../ui-elements/InputList';
 import { FormSection } from '@scality/core-ui';
+import React from 'react';
+import InputList from '../../ui-elements/InputList';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
 
 type State = {
   bootstrapList: Array<string>;
@@ -11,10 +11,7 @@ const INIT_STATE = {
   bootstrapList: [''],
 };
 const MAX_HYPERDRIVE = 10;
-export default class LocationDetailsHyperdriveV2 extends React.Component<
-  LocationDetailsFormProps,
-  State
-> {
+export default class LocationDetailsHyperdriveV2 extends React.Component<LocationDetailsFormProps, State> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);

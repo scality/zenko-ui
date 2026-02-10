@@ -1,14 +1,7 @@
-import {
-  Form,
-  FormGroup,
-  FormSection,
-  InfoMessage,
-  Text,
-  Wrap,
-} from '@scality/core-ui';
+import { Form, FormGroup, FormSection, InfoMessage, Text, Wrap } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
-import { FormData } from '../engine/types';
 import styled from 'styled-components';
+import type { FormData } from '../engine/types';
 
 const WrapperWithWidth = styled(Wrap)`
   width: 20rem;
@@ -19,10 +12,7 @@ type VeeamRepositorySummaryProps = {
   onFinish: () => void;
 };
 
-export const VeeamRepositorySummary = ({
-  formData,
-  onFinish,
-}: VeeamRepositorySummaryProps) => {
+export const VeeamRepositorySummary = ({ formData, onFinish }: VeeamRepositorySummaryProps) => {
   const { buckets, enableImmutableBackup, immutablePeriodDays } = formData;
   return (
     <Form
@@ -30,14 +20,7 @@ export const VeeamRepositorySummary = ({
         title: 'Veeam Repository creation summary',
         kind: 'page',
       }}
-      rightActions={
-        <Button
-          type="button"
-          variant="primary"
-          onClick={onFinish}
-          label="Exit"
-        />
-      }
+      rightActions={<Button type="button" variant="primary" onClick={onFinish} label="Exit" />}
     >
       <Text isEmphazed>
         {buckets.length === 1
@@ -51,18 +34,11 @@ export const VeeamRepositorySummary = ({
             <FormGroup
               key={bucket.name}
               id={`veeam-repository-name-${bucket.name}`}
-              label={
-                buckets.length > 1
-                  ? `Veeam repository name #${index + 1}`
-                  : 'Veeam repository name'
-              }
+              label={buckets.length > 1 ? `Veeam repository name #${index + 1}` : 'Veeam repository name'}
               content={
                 <WrapperWithWidth>
                   <Text>{bucket.name}</Text>
-                  <CopyButton
-                    textToCopy={bucket.name}
-                    aria-label="copy repository name"
-                  />
+                  <CopyButton textToCopy={bucket.name} aria-label="copy repository name" />
                 </WrapperWithWidth>
               }
             />
@@ -78,9 +54,7 @@ export const VeeamRepositorySummary = ({
             id="immutable-backup-status"
             label="Immutable backup"
             labelHelpTooltip={<></>}
-            content={
-              <Text>{enableImmutableBackup ? 'Active' : 'Inactive'}</Text>
-            }
+            content={<Text>{enableImmutableBackup ? 'Active' : 'Inactive'}</Text>}
           />
 
           {enableImmutableBackup && immutablePeriodDays && (

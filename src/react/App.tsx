@@ -1,8 +1,8 @@
 import { QueryClient } from 'react-query';
 import '../css/index.css';
-import FederableApp from './FederableApp';
-import { QueryClientProvider } from '../QueryClientProvider';
 import { createRoot } from 'react-dom/client';
+import { QueryClientProvider } from '../QueryClientProvider';
+import FederableApp from './FederableApp';
 
 declare global {
   interface Window {

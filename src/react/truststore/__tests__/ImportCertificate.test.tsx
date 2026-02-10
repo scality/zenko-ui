@@ -3,11 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { Route, Routes } from 'react-router';
-import {
-  NewWrapper,
-  renderWithCustomRoute,
-  mockShellHooks,
-} from '../../utils/testUtil';
+import { mockShellHooks, NewWrapper, renderWithCustomRoute } from '../../utils/testUtil';
 import ImportCertificate from '../ImportCertificate';
 
 // Mock Zenko CR endpoint URL
@@ -42,16 +38,14 @@ const mockMutationResult = {
 
 jest.mock('../../../js/mutations', () => ({
   ...jest.requireActual('../../../js/mutations'),
-  useAddCertificateToZenkoConfigurationMutation: jest.fn(
-    () => mockMutationResult,
-  ),
+  useAddCertificateToZenkoConfigurationMutation: jest.fn(() => mockMutationResult),
 }));
 
 import { useAddCertificateToZenkoConfigurationMutation } from '../../../js/mutations';
-const mockUseAddCertificateMutation =
-  useAddCertificateToZenkoConfigurationMutation as jest.MockedFunction<
-    typeof useAddCertificateToZenkoConfigurationMutation
-  >;
+
+const mockUseAddCertificateMutation = useAddCertificateToZenkoConfigurationMutation as jest.MockedFunction<
+  typeof useAddCertificateToZenkoConfigurationMutation
+>;
 
 // Mock certificate validation
 jest.mock('@scality/certchain', () => ({
@@ -81,13 +75,11 @@ INVALID CERTIFICATE
 describe('ImportCertificate', () => {
   const selectors = {
     importButton: () => screen.getByRole('button', { name: /Import/i }),
-    importingButton: () =>
-      screen.queryByRole('button', { name: /Importing certificate.../i }),
+    importingButton: () => screen.queryByRole('button', { name: /Importing certificate.../i }),
     cancelButton: () => screen.getByRole('button', { name: /Cancel/i }),
     formTitle: () => screen.getByText(/Import a new Certificate/i),
     dragAndDropLabel: () => screen.getByText(/Drag and drop file here/i),
-    certificateInput: () =>
-      screen.getByPlaceholderText(/-----BEGIN CERTIFICATE-----/i),
+    certificateInput: () => screen.getByPlaceholderText(/-----BEGIN CERTIFICATE-----/i),
   };
 
   // Mock Zenko CR data with extraCACerts
@@ -153,9 +145,7 @@ describe('ImportCertificate', () => {
     server.resetHandlers();
     jest.clearAllMocks();
     mockMutate.mockReset();
-    (mockUseAddCertificateMutation as jest.Mock).mockReturnValue(
-      mockMutationResult,
-    );
+    (mockUseAddCertificateMutation as jest.Mock).mockReturnValue(mockMutationResult);
   });
 
   afterAll(() => {
@@ -183,10 +173,7 @@ describe('ImportCertificate', () => {
     renderWithCustomRoute(
       <Routes>
         <Route path="/truststore" element={<div>Truststore</div>} />
-        <Route
-          path="/truststore/import-certificate"
-          element={<ImportCertificate />}
-        />
+        <Route path="/truststore/import-certificate" element={<ImportCertificate />} />
       </Routes>,
       '/truststore/import-certificate',
     );
@@ -207,10 +194,7 @@ describe('ImportCertificate', () => {
     renderWithCustomRoute(
       <Routes>
         <Route path="/truststore" element={<div>Truststore</div>} />
-        <Route
-          path="/truststore/import-certificate"
-          element={<ImportCertificate />}
-        />
+        <Route path="/truststore/import-certificate" element={<ImportCertificate />} />
       </Routes>,
       '/truststore/import-certificate',
     );
@@ -220,9 +204,7 @@ describe('ImportCertificate', () => {
     await userEvent.click(selectors.importButton());
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Certificate imported successfully/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Certificate imported successfully/i)).toBeInTheDocument();
     });
     expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
   });
@@ -239,10 +221,7 @@ describe('ImportCertificate', () => {
     renderWithCustomRoute(
       <Routes>
         <Route path="/truststore" element={<div>Truststore</div>} />
-        <Route
-          path="/truststore/import-certificate"
-          element={<ImportCertificate />}
-        />
+        <Route path="/truststore/import-certificate" element={<ImportCertificate />} />
       </Routes>,
       '/truststore/import-certificate',
     );
@@ -252,9 +231,7 @@ describe('ImportCertificate', () => {
     await userEvent.click(selectors.importButton());
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Failed to import certificate/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Failed to import certificate/i)).toBeInTheDocument();
     });
   });
 
@@ -263,26 +240,21 @@ describe('ImportCertificate', () => {
     let capturedHookArgs: any;
 
     // Mock mutation to capture args
-    (mockUseAddCertificateMutation as jest.Mock).mockImplementation(
-      (hookArgs: any) => {
-        capturedHookArgs = hookArgs;
-        return {
-          ...mockMutationResult,
-          mutate: (args: any, options: any) => {
-            capturedArgs = args;
-            setTimeout(() => options?.onSuccess?.(), 0);
-          },
-        };
-      },
-    );
+    (mockUseAddCertificateMutation as jest.Mock).mockImplementation((hookArgs: any) => {
+      capturedHookArgs = hookArgs;
+      return {
+        ...mockMutationResult,
+        mutate: (args: any, options: any) => {
+          capturedArgs = args;
+          setTimeout(() => options?.onSuccess?.(), 0);
+        },
+      };
+    });
 
     renderWithCustomRoute(
       <Routes>
         <Route path="/truststore" element={<div>Truststore</div>} />
-        <Route
-          path="/truststore/import-certificate"
-          element={<ImportCertificate />}
-        />
+        <Route path="/truststore/import-certificate" element={<ImportCertificate />} />
       </Routes>,
       '/truststore/import-certificate',
     );
@@ -314,25 +286,20 @@ describe('ImportCertificate', () => {
     );
 
     // Mock mutation to capture hook args
-    (mockUseAddCertificateMutation as jest.Mock).mockImplementation(
-      (hookArgs: any) => {
-        capturedHookArgs = hookArgs;
-        return {
-          ...mockMutationResult,
-          mutate: (args: any, options: any) => {
-            setTimeout(() => options?.onSuccess?.(), 0);
-          },
-        };
-      },
-    );
+    (mockUseAddCertificateMutation as jest.Mock).mockImplementation((hookArgs: any) => {
+      capturedHookArgs = hookArgs;
+      return {
+        ...mockMutationResult,
+        mutate: (args: any, options: any) => {
+          setTimeout(() => options?.onSuccess?.(), 0);
+        },
+      };
+    });
 
     renderWithCustomRoute(
       <Routes>
         <Route path="/truststore" element={<div>Truststore</div>} />
-        <Route
-          path="/truststore/import-certificate"
-          element={<ImportCertificate />}
-        />
+        <Route path="/truststore/import-certificate" element={<ImportCertificate />} />
       </Routes>,
       '/truststore/import-certificate',
     );
@@ -364,17 +331,12 @@ describe('ImportCertificate', () => {
 
   it('should show error message and disable import button if certificate chain is invalid', async () => {
     render(<ImportCertificate />, { wrapper: NewWrapper() });
-    await userEvent.type(
-      selectors.certificateInput(),
-      mockedInvalidCertificate,
-    );
+    await userEvent.type(selectors.certificateInput(), mockedInvalidCertificate);
 
     await waitFor(() => {
       expect(selectors.importButton()).toBeDisabled();
       expect(
-        screen.getByText(
-          /Invalid certificate. The certificate should be a valid PEM x509 file/i,
-        ),
+        screen.getByText(/Invalid certificate. The certificate should be a valid PEM x509 file/i),
       ).toBeInTheDocument();
     });
   });

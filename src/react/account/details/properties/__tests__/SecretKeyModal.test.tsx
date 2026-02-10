@@ -1,9 +1,8 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
+import type { Account } from '../../../../../types/account';
 import { renderWithRouterMatch } from '../../../../utils/testUtil';
 import SecretKeyModal from '../SecretKeyModal';
-import { Account } from '../../../../../types/account';
 
 const account: Account = {
   Name: 'bart',

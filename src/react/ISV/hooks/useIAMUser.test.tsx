@@ -1,9 +1,9 @@
-import { renderHook, act } from '@testing-library/react-hooks';
-import { useIAMUser } from './useIAMUser';
-import { useIAMClient } from '../../IAMProvider';
-import { useAssumeRoleQuery } from '../../DataServiceRoleProvider';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { act, renderHook } from '@testing-library/react-hooks';
 import React from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { useAssumeRoleQuery } from '../../DataServiceRoleProvider';
+import { useIAMClient } from '../../IAMProvider';
+import { useIAMUser } from './useIAMUser';
 
 // Mock dependencies
 jest.mock('../../IAMProvider', () => ({
@@ -141,16 +141,10 @@ describe('useIAMUser', () => {
           return true;
         }
 
-        const { AccessKeyMetadata } = await mockIAMClient.listAccessKeys(
-          userName,
-        );
-        const activeKeys = AccessKeyMetadata.filter(
-          (key) => key.Status === 'Active',
-        );
+        const { AccessKeyMetadata } = await mockIAMClient.listAccessKeys(userName);
+        const activeKeys = AccessKeyMetadata.filter((key) => key.Status === 'Active');
 
-        const shouldGenerateKey = !AccessKeyMetadata.some(
-          (key) => key.Status === 'Active',
-        );
+        const shouldGenerateKey = !AccessKeyMetadata.some((key) => key.Status === 'Active');
         mockOnShouldGenerateKey(shouldGenerateKey);
         return shouldGenerateKey;
       } catch (error) {
@@ -187,13 +181,9 @@ describe('useIAMUser', () => {
     const checkUserAccessKeys = async (userName: string) => {
       try {
         const { AccessKeyMetadata } = await IAMClient.listAccessKeys(userName);
-        const activeKeys = AccessKeyMetadata.filter(
-          (key) => key.Status === 'Active',
-        );
+        const activeKeys = AccessKeyMetadata.filter((key) => key.Status === 'Active');
 
-        const shouldGenerateKey = !AccessKeyMetadata.some(
-          (key) => key.Status === 'Active',
-        );
+        const shouldGenerateKey = !AccessKeyMetadata.some((key) => key.Status === 'Active');
         mockOnShouldGenerateKey(shouldGenerateKey);
         return shouldGenerateKey;
       } catch (error) {
@@ -225,13 +215,9 @@ describe('useIAMUser', () => {
     const checkUserAccessKeys = async (userName: string) => {
       try {
         const { AccessKeyMetadata } = await IAMClient.listAccessKeys(userName);
-        const activeKeys = AccessKeyMetadata.filter(
-          (key) => key.Status === 'Active',
-        );
+        const activeKeys = AccessKeyMetadata.filter((key) => key.Status === 'Active');
 
-        const shouldGenerateKey = !AccessKeyMetadata.some(
-          (key) => key.Status === 'Active',
-        );
+        const shouldGenerateKey = !AccessKeyMetadata.some((key) => key.Status === 'Active');
         mockOnShouldGenerateKey(shouldGenerateKey);
         return shouldGenerateKey;
       } catch (error) {
@@ -249,9 +235,7 @@ describe('useIAMUser', () => {
   });
 
   it('should set status to error when mutation fails', async () => {
-    mockIAMClient.listUsers.mockRejectedValue(
-      new Error('Failed to list users'),
-    );
+    mockIAMClient.listUsers.mockRejectedValue(new Error('Failed to list users'));
 
     const { result, waitForNextUpdate } = renderHook(
       () =>

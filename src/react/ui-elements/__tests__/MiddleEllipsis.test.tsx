@@ -1,7 +1,9 @@
 /* eslint-disable */
-import MiddleEllipsis, { ellipseNode } from '../MiddleEllipsis';
+
 import React from 'react';
 import { testMount } from '../../utils/testUtil';
+import MiddleEllipsis, { ellipseNode } from '../MiddleEllipsis';
+
 describe('MiddleEllipsis', () => {
   const container = {
     offsetWidth: 50,

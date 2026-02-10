@@ -1,21 +1,19 @@
-import { Account, AccountKey } from '../../../../types/account';
-import { CustomModal as Modal, ModalBody } from '../../../ui-elements/Modal';
-import Table, * as T from '../../../ui-elements/TableKeyValue';
-import { Banner, Icon, Stack, Wrap, spacing } from '@scality/core-ui';
-import { Button, CopyButton, Box } from '@scality/core-ui/dist/next';
+import { Banner, Icon, Stack, spacing, Wrap } from '@scality/core-ui';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { useShellHooks } from '@scality/module-federation';
 import { useMutation, useQueryClient } from 'react-query';
-
-import { HideCredential } from '../../../ui-elements/Hide';
-
+import styled from 'styled-components';
+import type { Account, AccountKey } from '../../../../types/account';
+import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
-import { ACCESS_KEYS_QUERY_KEY } from './useAccessKeysQuery';
 import { useModalError } from '../../../ErrorProvider';
 import { useManagementClient } from '../../../ManagementProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
-import { notFalsyTypeGuard } from '../../../../types/typeGuards';
+import { HideCredential } from '../../../ui-elements/Hide';
+import { CustomModal as Modal, ModalBody } from '../../../ui-elements/Modal';
+import Table, * as T from '../../../ui-elements/TableKeyValue';
+import { ACCESS_KEYS_QUERY_KEY } from './useAccessKeysQuery';
 
-import styled from 'styled-components';
 type Props = {
   account: Account;
   isOpen: boolean;
@@ -90,12 +88,7 @@ function SecretKeyModal({ account, isOpen, accountKey, onClose, onKeyCreated }: 
   };
 
   return (
-    <Modal
-      close={onClose}
-      footer={modalFooter(accountKey)}
-      isOpen={isOpen}
-      title="Create Root user Access keys"
-    >
+    <Modal close={onClose} footer={modalFooter(accountKey)} isOpen={isOpen} title="Create Root user Access keys">
       {modalBody(accountKey)}
     </Modal>
   );
@@ -105,11 +98,9 @@ const modalBody = (key: AccountKey | null) => {
   if (key === null) {
     return (
       <ModalBody>
-        A Root user Access key ID and its Secret Access key will be created.{' '}
-        <br />
-        Note: <br />
-        - the Secret Access key will be visible only at this step, <br />- Root
-        user Access keys provide unrestricted access to the account resources.
+        A Root user Access key ID and its Secret Access key will be created. <br />
+        Note: <br />- the Secret Access key will be visible only at this step, <br />- Root user Access keys provide
+        unrestricted access to the account resources.
       </ModalBody>
     );
   }
@@ -117,10 +108,8 @@ const modalBody = (key: AccountKey | null) => {
   return (
     <ModalBody>
       <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
-        A Root user Access key ID and its Secret Access key have been created.{' '}
-        <br />
-        The Secret Access key cannot be retrieved afterwards, so make sure to
-        keep and secure it now. <br />
+        A Root user Access key ID and its Secret Access key have been created. <br />
+        The Secret Access key cannot be retrieved afterwards, so make sure to keep and secure it now. <br />
         You will be able to create new Access keys at any time.
       </Banner>
       <Table
@@ -154,10 +143,7 @@ const modalBody = (key: AccountKey | null) => {
           </T.Row>
         </T.Body>
       </Table>
-      <Box
-        display={'flex'}
-        style={{ alignItems: 'end', flexDirection: 'column' }}
-      >
+      <Box display={'flex'} style={{ alignItems: 'end', flexDirection: 'column' }}>
         <StyledCopybutton
           textToCopy={`Username\t${key.userName}\nAccess key ID\t${key.accessKey}\nSecret Access key\t${key.secretKey}`}
           label="to Clipboard"

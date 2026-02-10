@@ -1,21 +1,15 @@
+import { useShellHooks } from '@scality/module-federation';
 import { useEffect, useRef, useState } from 'react';
-import {
-  QueryKey,
-  UseQueryOptions,
-  UseQueryResult,
-  useQuery,
-} from 'react-query';
+import { type QueryKey, type UseQueryOptions, type UseQueryResult, useQuery } from 'react-query';
 import { useLocation } from 'react-router';
-import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
-import { ApiError } from '../../types/actions';
-import { Account, WebIdentityRoles } from '../../types/iam';
+import type { ApiError } from '../../types/actions';
+import type { Account, WebIdentityRoles } from '../../types/iam';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useDataServiceRole } from '../DataServiceRoleProvider';
-import { useShellHooks } from '@scality/module-federation';
 import { useErrorHandler } from '../ErrorProvider';
-import { errorParser } from '.';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
+import { addTrailingSlash, errorParser } from '.';
 import { useAwsPaginatedEntities } from './IAMhooks';
 
 export const useHeight = (myRef) => {
@@ -113,10 +107,7 @@ export function useQueryWithUnmountSupport<
   onUnmountOrSettled,
   ...args
 }: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey> & {
-  onUnmountOrSettled?: (
-    data: TData | undefined,
-    error: TError | { message: string } | null,
-  ) => void;
+  onUnmountOrSettled?: (data: TData | undefined, error: TError | { message: string } | null) => void;
 }): UseQueryResult<TData, TError> {
   useEffect(() => {
     return () => {
@@ -154,11 +145,7 @@ export const SCALITY_INTERNAL_ROLES = [
   DATA_CONSUMER_ROLE,
   DATA_ACCESSOR_ROLE,
 ];
-export const SCALITY_IAM_ROLES = [
-  STORAGE_ACCOUNT_OWNER_ROLE,
-  DATA_CONSUMER_ROLE,
-  DATA_ACCESSOR_ROLE,
-];
+export const SCALITY_IAM_ROLES = [STORAGE_ACCOUNT_OWNER_ROLE, DATA_CONSUMER_ROLE, DATA_ACCESSOR_ROLE];
 
 const defaultEventDispatcher = () => {
   const { handleClientError, showModalError } = useErrorHandler();
@@ -203,20 +190,12 @@ export const useAccounts = (
 
   const { notifyLoadingAccounts, notifyEnd, notifyError } = eventDispatcher();
 
-  const { data, status } = useAwsPaginatedEntities<
-    WebIdentityRoles,
-    Account,
-    ApiError
-  >(
+  const { data, status } = useAwsPaginatedEntities<WebIdentityRoles, Account, ApiError>(
     {
       queryKey: ['WebIdentityRoles'],
       queryFn: async (_, marker) => {
         notifyLoadingAccounts();
-        return getRolesForWebIdentity(
-          iamEndpoint,
-          notFalsyTypeGuard(await getToken()),
-          marker?.Marker,
-        );
+        return getRolesForWebIdentity(iamEndpoint, notFalsyTypeGuard(await getToken()), marker?.Marker);
       },
       enabled: !!iamEndpoint,
       staleTime: Infinity,
@@ -254,9 +233,7 @@ export const useAccounts = (
     ) || {},
   );
   return {
-    accounts: uniqueAccountsWithRoles.filter(
-      (account) => account.Name !== 'scality-internal-services',
-    ),
+    accounts: uniqueAccountsWithRoles.filter((account) => account.Name !== 'scality-internal-services'),
     status,
   };
 };

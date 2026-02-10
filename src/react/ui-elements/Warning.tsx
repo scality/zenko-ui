@@ -1,8 +1,7 @@
-import styled, { css } from 'styled-components';
+import { Icon, LargeText, spacing } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui';
-import { ReactNode } from 'react';
-import { Icon, LargeText } from '@scality/core-ui';
+import type { ReactNode } from 'react';
+import styled, { css } from 'styled-components';
 
 const Container = styled.div<{ centered?: boolean }>`
   ${(props) => {
@@ -36,13 +35,7 @@ type WarningProps = {
   btnAction?: () => void;
   centered?: boolean;
 };
-export const Warning = ({
-  icon,
-  title,
-  btnTitle,
-  btnAction,
-  centered,
-}: WarningProps) => (
+export const Warning = ({ icon, title, btnTitle, btnAction, centered }: WarningProps) => (
   <Container centered={centered}>
     <div>{icon}</div>
     <Title> {title} </Title>
@@ -76,11 +69,7 @@ export const ActionWrapper = styled.div`
   align-items: center;
   gap: ${spacing.r8};
 `;
-export const NoAccountWarning = ({
-  buttonSection,
-}: {
-  buttonSection: ReactNode;
-}) => (
+export const NoAccountWarning = ({ buttonSection }: { buttonSection: ReactNode }) => (
   <Container style={{ justifyContent: 'center' }}>
     <EmptyStateRow>
       <Icon name="Account" size="5x" withWrapper />
@@ -90,19 +79,14 @@ export const NoAccountWarning = ({
     </EmptyStateRow>
     <EmptyStateRow>
       <LargeText>
-        Launch configuration assitant to create resources needed for your use
-        case or create an account.
+        Launch configuration assitant to create resources needed for your use case or create an account.
       </LargeText>
     </EmptyStateRow>
     <ActionWrapper>{buttonSection}</ActionWrapper>
   </Container>
 );
 
-export const NoBucketsWarning = ({
-  buttonSection,
-}: {
-  buttonSection: ReactNode;
-}) => (
+export const NoBucketsWarning = ({ buttonSection }: { buttonSection: ReactNode }) => (
   <Container style={{ justifyContent: 'center', paddingTop: '10%' }}>
     <EmptyStateRow>
       <Icon name="Bucket" size="5x" withWrapper />
@@ -111,9 +95,7 @@ export const NoBucketsWarning = ({
       <LargeText>You don't have any bucket yet.</LargeText>
     </EmptyStateRow>
     <EmptyStateRow>
-      <LargeText>
-        Create a bucket to start using Data Browser.
-      </LargeText>
+      <LargeText>Create a bucket to start using Data Browser.</LargeText>
     </EmptyStateRow>
     <ActionWrapper>{buttonSection}</ActionWrapper>
   </Container>

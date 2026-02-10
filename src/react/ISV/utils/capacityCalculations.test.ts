@@ -1,7 +1,4 @@
-import {
-  calculateStorageConsumptionLimit,
-  parseCapacityBytes,
-} from './capacityCalculations';
+import { calculateStorageConsumptionLimit, parseCapacityBytes } from './capacityCalculations';
 
 describe('capacityCalculations', () => {
   it('converts string capacity bytes to integer', () => {

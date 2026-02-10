@@ -1,8 +1,8 @@
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { Wrap } from '@scality/core-ui/dist/spacing';
-import { CustomModal as Modal } from './Modal';
-import { JSX } from 'react';
+import type { JSX } from 'react';
 import { useModalError } from '../ErrorProvider';
+import { CustomModal as Modal } from './Modal';
 
 const ErrorHandlerModal = () => {
   const { modalError, clearModalError } = useModalError();
@@ -11,13 +11,7 @@ const ErrorHandlerModal = () => {
     return null;
   }
 
-  return (
-    <DumbErrorModal
-      errorMessage={modalError}
-      isOpen={true}
-      close={clearModalError}
-    />
-  );
+  return <DumbErrorModal errorMessage={modalError} isOpen={true} close={clearModalError} />;
 };
 
 export const DumbErrorModal = ({
