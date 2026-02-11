@@ -82,12 +82,7 @@ export type FullContext = RuntimeContext & RuntimeHelpers;
 // Previous Results (from useChainedMutations)
 // ============================================================================
 
-export type MutationResult<T = unknown> = {
-  data?: T;
-  error?: Error;
-};
-
-export type PreviousResults = Record<string, MutationResult>;
+export type PreviousResults = Record<string, { data?: unknown; error?: unknown }>;
 
 // ============================================================================
 // Field Definitions

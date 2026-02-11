@@ -39,7 +39,6 @@ import type {
   MutationDef,
   SingleMutationDef,
   ActionName,
-  PreviousResults,
   SOSAPIStatus,
 } from '../engine/types';
 import {
@@ -199,9 +198,8 @@ export function useMutationExecutor({
       } as MutationConfig);
 
       // Build variable resolver
-      // Cast library's PreviousResults to ISV engine's PreviousResults (structurally compatible)
       variableResolvers[def.id] = (prev) =>
-        def.variables(formData, prev as unknown as PreviousResults, context);
+        def.variables(formData, prev, context);
 
       // Resolve failure message for optional steps
       if (def.optional && def.failureMessage) {

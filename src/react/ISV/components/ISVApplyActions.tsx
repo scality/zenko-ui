@@ -63,7 +63,6 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
 
   const { platform, accessKey } = props;
 
-  const canContinue = allRequiredStepsComplete;
   const continueLabel = hasOptionalFailures && platform.continueWithOptionalFailuresLabel
     ? platform.continueWithOptionalFailuresLabel
     : 'Continue';
@@ -115,7 +114,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
               onClick={handleExit}
             />
             <Button
-              disabled={!canContinue}
+              disabled={!allRequiredStepsComplete}
               variant="primary"
               type="button"
               label={continueLabel}
