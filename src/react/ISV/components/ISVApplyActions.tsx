@@ -1,8 +1,8 @@
-import { Form, Icon, Stack, Text } from '@scality/core-ui';
+import { Banner, Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import Table, * as T from '../../ui-elements/Table';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { useCallback, memo, useState } from 'react';
+import { useCallback, memo, useMemo, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import styled, { useTheme } from 'styled-components';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -10,13 +10,14 @@ import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
 import { ISVSkipModal } from './ISVSkipModal';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { useChainedMutations } from '@scality/react-chained-query';
+import type { StepStatus } from '@scality/react-chained-query';
 import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import {
   useMutationExecutor,
   buildRuntimeContext,
 } from '../hooks/useMutationExecutor';
-import { ISVPlatform, FormData, BucketItem } from '../engine/types';
+import { ISVPlatform, FormData, BucketItem, OptionalFailure } from '../engine/types';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 
 const StatusBox = styled(Box)`
@@ -40,19 +41,17 @@ type ISVApplyActionsProps = FormData & {
 const ChainStatusDisplay = memo(function ChainStatusDisplay({
   props,
   steps,
-  isComplete,
+  allRequiredStepsComplete,
+  hasOptionalFailures,
+  optionalFailures,
   hasError,
   getResult,
 }: {
   props: ISVApplyActionsProps;
-  steps: Array<{
-    id: string;
-    label: string;
-    step: number;
-    status: 'idle' | 'pending' | 'success' | 'error';
-    retry: () => void;
-  }>;
-  isComplete: boolean;
+  steps: StepStatus[];
+  allRequiredStepsComplete: boolean;
+  hasOptionalFailures: boolean;
+  optionalFailures: OptionalFailure[];
   hasError: boolean;
   getResult: <T = unknown>(id: string) => T | undefined;
 }) {
@@ -63,6 +62,10 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
   const { next } = useStepper(ISVStepsIndexes.ApplyActions, ISV_STEPS);
 
   const { platform, accessKey } = props;
+
+  const continueLabel = hasOptionalFailures && platform.continueWithOptionalFailuresLabel
+    ? platform.continueWithOptionalFailuresLabel
+    : 'Continue';
 
   const accessKeyData = getResult<{
     AccessKey: { AccessKeyId: string; SecretAccessKey: string };
@@ -77,8 +80,9 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
       ...props,
       accessKey: finalAccessKey,
       secretKey: finalSecretKey,
+      optionalFailures: hasOptionalFailures ? optionalFailures : undefined,
     });
-  }, [props, finalAccessKey, finalSecretKey, queryClient, next]);
+  }, [props, finalAccessKey, finalSecretKey, queryClient, next, hasOptionalFailures, optionalFailures]);
 
   const handleExit = useCallback(() => {
     setConfirmCancel(true);
@@ -110,10 +114,10 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
               onClick={handleExit}
             />
             <Button
-              disabled={!isComplete}
+              disabled={!allRequiredStepsComplete}
               variant="primary"
               type="button"
-              label="Continue"
+              label={continueLabel}
               icon={<Icon name="Arrow-right" />}
               onClick={handleContinue}
             />
@@ -167,6 +171,12 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
             </T.Body>
           </Table>
         </div>
+        {hasOptionalFailures && allRequiredStepsComplete && (
+          <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
+            {platform.defaultOptionalFailureMessage ||
+              'Some optional configuration steps were unsuccessful. You may continue with manual configuration.'}
+          </Banner>
+        )}
       </Form>
     </>
   );
@@ -228,17 +238,37 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   });
 
   // Use the mutation executor to get mutations and variable resolvers
-  const { mutations, variables } = useMutationExecutor({
+  const { mutations, variables, failureMessages } = useMutationExecutor({
     platform,
     formData,
     context,
   });
 
-  const { Slots, steps, isComplete, hasError, getResult } = useChainedMutations(
-    {
-      mutations,
-      variables,
-    },
+  const {
+    Slots,
+    steps,
+    hasError,
+    getResult,
+    allRequiredStepsComplete,
+    hasOptionalFailures,
+    optionalFailures: libraryOptionalFailures,
+  } = useChainedMutations({
+    mutations,
+    variables,
+  });
+
+  // Build OptionalFailure[] with resolved failure messages from platform config
+  const optionalFailures: OptionalFailure[] = useMemo(
+    () =>
+      libraryOptionalFailures.map((f) => ({
+        id: f.id,
+        label: f.label,
+        message:
+          failureMessages[f.id] ||
+          platform.defaultOptionalFailureMessage ||
+          'This optional step was unsuccessful.',
+      })),
+    [libraryOptionalFailures, failureMessages, platform.defaultOptionalFailureMessage],
   );
 
   return (
@@ -247,7 +277,9 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
       <ChainStatusDisplay
         props={props}
         steps={steps}
-        isComplete={isComplete}
+        allRequiredStepsComplete={allRequiredStepsComplete}
+        hasOptionalFailures={hasOptionalFailures}
+        optionalFailures={optionalFailures}
         hasError={hasError}
         getResult={getResult}
       />
