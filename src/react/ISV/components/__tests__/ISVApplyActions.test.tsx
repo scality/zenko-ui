@@ -156,4 +156,94 @@ describe('ISVApplyActions', () => {
     render(<Wrapper><ISVApplyActions {...mockProps} /></Wrapper>);
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   });
+
+  describe('optional failures', () => {
+    const platformWithOptionalConfig = {
+      ...VeeamVBRPlatform,
+      continueWithOptionalFailuresLabel: 'Continue to manual setup',
+      defaultOptionalFailureMessage: 'Some optional steps failed. You may configure manually.',
+    };
+
+    const optionalFailureMockOverrides = {
+      steps: [
+        { id: 'step1', label: 'Create bucket', step: 1, status: 'success' as const, retry: mockRetry },
+        { id: 'step2', label: 'Auto-create repo', step: 2, status: 'error' as const, retry: mockRetry, optional: true },
+      ],
+      isComplete: false,
+      hasError: true,
+      allRequiredStepsComplete: true,
+      hasOptionalFailures: true,
+      optionalFailures: [{ id: 'step2', label: 'Auto-create repo', error: new Error('repo failed') }],
+    };
+
+    it('shows warning banner when optional steps fail and required steps complete', () => {
+      mockUseChainedMutations.mockReturnValue(createMockChainedMutations(optionalFailureMockOverrides));
+
+      render(
+        <Wrapper>
+          <ISVApplyActions {...mockProps} platform={platformWithOptionalConfig} />
+        </Wrapper>,
+      );
+
+      expect(screen.getByText('Some optional steps failed. You may configure manually.')).toBeInTheDocument();
+    });
+
+    it('uses platform continueWithOptionalFailuresLabel when optional steps fail', () => {
+      mockUseChainedMutations.mockReturnValue(createMockChainedMutations(optionalFailureMockOverrides));
+
+      render(
+        <Wrapper>
+          <ISVApplyActions {...mockProps} platform={platformWithOptionalConfig} />
+        </Wrapper>,
+      );
+
+      const continueButton = screen.getByRole('button', { name: 'Continue to manual setup' });
+      expect(continueButton).not.toBeDisabled();
+    });
+
+    it('falls back to default banner message when platform has no defaultOptionalFailureMessage', () => {
+      mockUseChainedMutations.mockReturnValue(createMockChainedMutations(optionalFailureMockOverrides));
+
+      const platformWithoutMessage = {
+        ...VeeamVBRPlatform,
+        continueWithOptionalFailuresLabel: 'Continue anyway',
+      };
+
+      render(
+        <Wrapper>
+          <ISVApplyActions {...mockProps} platform={platformWithoutMessage} />
+        </Wrapper>,
+      );
+
+      expect(
+        screen.getByText('Some optional configuration steps were unsuccessful. You may continue with manual configuration.'),
+      ).toBeInTheDocument();
+    });
+
+    it('keeps "Continue" label when platform has no continueWithOptionalFailuresLabel', () => {
+      mockUseChainedMutations.mockReturnValue(createMockChainedMutations(optionalFailureMockOverrides));
+
+      render(
+        <Wrapper>
+          <ISVApplyActions {...mockProps} />
+        </Wrapper>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Continue' })).not.toBeDisabled();
+    });
+
+    it('does not show warning banner when all steps succeed', () => {
+      mockUseChainedMutations.mockReturnValue(createMockChainedMutations());
+
+      render(
+        <Wrapper>
+          <ISVApplyActions {...mockProps} platform={platformWithOptionalConfig} />
+        </Wrapper>,
+      );
+
+      expect(
+        screen.queryByText('Some optional steps failed. You may configure manually.'),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
