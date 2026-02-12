@@ -218,7 +218,7 @@ export type SingleMutationDef = {
   when?: (form: FormData, ctx: FullContext) => boolean;
   variables: (form: FormData, prev: PreviousResults, ctx: FullContext) => Record<string, unknown>;
   optional?: boolean;
-  failureMessage?: string | ((form: FormData, ctx: FullContext) => string);
+  failureMessage?: ReactNode | ((form: FormData, ctx: FullContext) => ReactNode);
 };
 
 export type PerBucketStep = {
@@ -228,7 +228,7 @@ export type PerBucketStep = {
   when?: (form: FormData, bucket: BucketItem, ctx: FullContext) => boolean;
   variables: (form: FormData, bucket: BucketItem, prev: PreviousResults, ctx: FullContext) => Record<string, unknown>;
   optional?: boolean;
-  failureMessage?: string | ((form: FormData, bucket: BucketItem, ctx: FullContext) => string);
+  failureMessage?: ReactNode | ((form: FormData, bucket: BucketItem, ctx: FullContext) => ReactNode);
 };
 
 export type LoopMutationDef = {

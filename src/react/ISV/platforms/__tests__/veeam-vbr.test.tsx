@@ -1,5 +1,6 @@
-import { VeeamVBRPlatform } from '../veeam-vbr';
 import { VEEAM_BACKUP_REPLICATION } from '../../constants';
+import type { FormData, SummaryRenderProps } from '../../engine/types';
+import { VeeamVBRPlatform } from '../veeam-vbr';
 
 describe('VeeamVBRPlatform', () => {
   describe('basic properties', () => {
@@ -27,48 +28,36 @@ describe('VeeamVBRPlatform', () => {
 
   describe('generated fields', () => {
     it('should generate accountName field', () => {
-      const accountField = VeeamVBRPlatform.fields.find(
-        (f) => f.name === 'accountName',
-      );
+      const accountField = VeeamVBRPlatform.fields.find((f) => f.name === 'accountName');
       expect(accountField).toBeDefined();
       expect(accountField?.type).toBe('accountSelector');
       expect(accountField?.label).toBe('Account');
     });
 
     it('should generate buckets field with capacity itemFields', () => {
-      const bucketsField = VeeamVBRPlatform.fields.find(
-        (f) => f.name === 'buckets',
-      );
+      const bucketsField = VeeamVBRPlatform.fields.find((f) => f.name === 'buckets');
       expect(bucketsField).toBeDefined();
       expect(bucketsField?.type).toBe('bucketArray');
 
       if (bucketsField && 'itemFields' in bucketsField) {
-        const capacityField = bucketsField.itemFields.find(
-          (f) => f.name === 'capacity',
-        );
+        const capacityField = bucketsField.itemFields.find((f) => f.name === 'capacity');
         expect(capacityField).toBeDefined();
         expect(capacityField?.type).toBe('number');
 
-        const capacityUnitField = bucketsField.itemFields.find(
-          (f) => f.name === 'capacityUnit',
-        );
+        const capacityUnitField = bucketsField.itemFields.find((f) => f.name === 'capacityUnit');
         expect(capacityUnitField).toBeDefined();
         expect(capacityUnitField?.type).toBe('select');
       }
     });
 
     it('should generate IAMUserName field', () => {
-      const iamField = VeeamVBRPlatform.fields.find(
-        (f) => f.name === 'IAMUserName',
-      );
+      const iamField = VeeamVBRPlatform.fields.find((f) => f.name === 'IAMUserName');
       expect(iamField).toBeDefined();
       expect(iamField?.type).toBe('iamUserSelector');
     });
 
     it('should generate enableImmutableBackup field', () => {
-      const immutableField = VeeamVBRPlatform.fields.find(
-        (f) => f.name === 'enableImmutableBackup',
-      );
+      const immutableField = VeeamVBRPlatform.fields.find((f) => f.name === 'enableImmutableBackup');
       expect(immutableField).toBeDefined();
       expect(immutableField?.type).toBe('toggle');
       expect(immutableField?.label).toBe('Immutable Backup');
@@ -198,9 +187,7 @@ describe('VeeamVBRPlatform', () => {
     });
 
     it('should include enableSOSAPI mutation (sosAPI: true)', () => {
-      const sosMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'action' in m && m.action === 'enableSOSAPI',
-      );
+      const sosMutation = VeeamVBRPlatform.mutations.find((m) => 'action' in m && m.action === 'enableSOSAPI');
       expect(sosMutation).toBeDefined();
     });
 
@@ -212,9 +199,7 @@ describe('VeeamVBRPlatform', () => {
     });
 
     it('should include bucket loop mutation with perBucketSteps', () => {
-      const loopMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets',
-      );
+      const loopMutation = VeeamVBRPlatform.mutations.find((m) => 'each' in m && m.each === 'buckets');
       expect(loopMutation).toBeDefined();
 
       if (loopMutation && 'steps' in loopMutation) {
@@ -229,20 +214,14 @@ describe('VeeamVBRPlatform', () => {
     });
 
     it('should have perBucketSteps with putObject action', () => {
-      const loopMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets',
-      );
+      const loopMutation = VeeamVBRPlatform.mutations.find((m) => 'each' in m && m.each === 'buckets');
 
       if (loopMutation && 'steps' in loopMutation) {
-        const veeamSystemStep = loopMutation.steps.find(
-          (s) => s.id === 'veeamSystem',
-        );
+        const veeamSystemStep = loopMutation.steps.find((s) => s.id === 'veeamSystem');
         expect(veeamSystemStep).toBeDefined();
         expect(veeamSystemStep?.action).toBe('putObject');
 
-        const veeamCapacityStep = loopMutation.steps.find(
-          (s) => s.id === 'veeamCapacity',
-        );
+        const veeamCapacityStep = loopMutation.steps.find((s) => s.id === 'veeamCapacity');
         expect(veeamCapacityStep).toBeDefined();
         expect(veeamCapacityStep?.action).toBe('putObject');
       }
@@ -250,14 +229,7 @@ describe('VeeamVBRPlatform', () => {
 
     it('should include IAM mutations', () => {
       const iamMutations = VeeamVBRPlatform.mutations.filter(
-        (m) =>
-          'action' in m &&
-          [
-            'createIAMUser',
-            'createAccessKey',
-            'createPolicy',
-            'attachPolicy',
-          ].includes(m.action),
+        (m) => 'action' in m && ['createIAMUser', 'createAccessKey', 'createPolicy', 'attachPolicy'].includes(m.action),
       );
       expect(iamMutations.length).toBeGreaterThan(0);
     });
@@ -265,14 +237,10 @@ describe('VeeamVBRPlatform', () => {
 
   describe('perBucketSteps variables', () => {
     it('veeamSystem step should include correct variables', () => {
-      const loopMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets',
-      );
+      const loopMutation = VeeamVBRPlatform.mutations.find((m) => 'each' in m && m.each === 'buckets');
 
       if (loopMutation && 'steps' in loopMutation) {
-        const veeamSystemStep = loopMutation.steps.find(
-          (s) => s.id === 'veeamSystem',
-        );
+        const veeamSystemStep = loopMutation.steps.find((s) => s.id === 'veeamSystem');
 
         const mockForm = {
           accountName: 'test',
@@ -294,12 +262,7 @@ describe('VeeamVBRPlatform', () => {
           _s3ServicePoint: 'test-s3-service-point',
         };
 
-        const variables = veeamSystemStep?.variables(
-          mockForm,
-          mockBucket,
-          mockPrev,
-          mockCtx,
-        );
+        const variables = veeamSystemStep?.variables(mockForm, mockBucket, mockPrev, mockCtx);
 
         // data-browser-library hooks get s3Client from context, not from variables
         expect(variables).not.toHaveProperty('s3Client');
@@ -309,14 +272,10 @@ describe('VeeamVBRPlatform', () => {
     });
 
     it('veeamCapacity step should use bucket.capacityBytes', () => {
-      const loopMutation = VeeamVBRPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets',
-      );
+      const loopMutation = VeeamVBRPlatform.mutations.find((m) => 'each' in m && m.each === 'buckets');
 
       if (loopMutation && 'steps' in loopMutation) {
-        const veeamCapacityStep = loopMutation.steps.find(
-          (s) => s.id === 'veeamCapacity',
-        );
+        const veeamCapacityStep = loopMutation.steps.find((s) => s.id === 'veeamCapacity');
 
         const mockForm = {
           accountName: 'test',
@@ -341,12 +300,7 @@ describe('VeeamVBRPlatform', () => {
           _s3ServicePoint: 'test-s3-service-point',
         };
 
-        const variables = veeamCapacityStep?.variables(
-          mockForm,
-          mockBucket,
-          mockPrev,
-          mockCtx,
-        );
+        const variables = veeamCapacityStep?.variables(mockForm, mockBucket, mockPrev, mockCtx);
 
         expect(variables).toHaveProperty('Bucket', 'capacity-bucket');
         expect(variables?.Body).toContain('1099511627776');
@@ -361,9 +315,7 @@ describe('VeeamVBRPlatform', () => {
 
     it('should have immutabilityHelpText function', () => {
       expect(VeeamVBRPlatform.summary.immutabilityHelpText).toBeDefined();
-      expect(typeof VeeamVBRPlatform.summary.immutabilityHelpText).toBe(
-        'function',
-      );
+      expect(typeof VeeamVBRPlatform.summary.immutabilityHelpText).toBe('function');
     });
 
     it('should return help text when immutable is true', () => {
@@ -374,6 +326,68 @@ describe('VeeamVBRPlatform', () => {
     it('should return undefined when immutable is false', () => {
       const helpText = VeeamVBRPlatform.summary.immutabilityHelpText?.(false);
       expect(helpText).toBeUndefined();
+    });
+
+    describe('customRender', () => {
+      const { customRender } = VeeamVBRPlatform.summary;
+
+      if (!customRender) {
+        throw new Error('customRender should be defined on VeeamVBRPlatform');
+      }
+
+      const baseFormData: FormData = {
+        accountName: 'test',
+        accountNameType: 'create',
+        enableImmutableBackup: false,
+        buckets: [{ name: 'bucket-1' }],
+      };
+
+      const mockOnFinish = jest.fn();
+      const mockRenderDefault = jest.fn(() => <div>default summary</div>);
+
+      const buildProps = (overrides: Partial<SummaryRenderProps> = {}): SummaryRenderProps => ({
+        formData: baseFormData,
+        accessKey: 'ak',
+        secretKey: 'sk',
+        onFinish: mockOnFinish,
+        renderDefault: mockRenderDefault,
+        ...overrides,
+      });
+
+      beforeEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it('should call renderDefault when autoCreateRepository is false', () => {
+        customRender(buildProps({ formData: { ...baseFormData, autoCreateRepository: false } }));
+        expect(mockRenderDefault).toHaveBeenCalled();
+      });
+
+      it('should call renderDefault when autoCreateRepository is undefined', () => {
+        customRender(buildProps());
+        expect(mockRenderDefault).toHaveBeenCalled();
+      });
+
+      it('should call renderDefault when optionalFailures has items', () => {
+        customRender(
+          buildProps({
+            formData: { ...baseFormData, autoCreateRepository: true },
+            optionalFailures: [{ id: 'createVeeamRepo-0', label: 'Create Veeam Repository', message: 'Failed' }],
+          }),
+        );
+        expect(mockRenderDefault).toHaveBeenCalled();
+      });
+
+      it('should return VeeamRepositorySummary when autoCreateRepository is true and no optional failures', () => {
+        const result = customRender(
+          buildProps({
+            formData: { ...baseFormData, autoCreateRepository: true },
+            optionalFailures: [],
+          }),
+        );
+        expect(mockRenderDefault).not.toHaveBeenCalled();
+        expect(result).toBeDefined();
+      });
     });
   });
 

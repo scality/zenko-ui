@@ -5,6 +5,7 @@
  * by useChainedMutations (MutationConfig[] + VariablesResolvers).
  */
 
+import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useMutation } from 'react-query';
 import {
@@ -81,7 +82,7 @@ type UseMutationExecutorOptions = {
 type UseMutationExecutorResult = {
   mutations: MutationConfig[];
   variables: VariablesResolvers;
-  failureMessages: Record<string, string>;
+  failureMessages: Record<string, ReactNode>;
 };
 
 /**
@@ -165,7 +166,7 @@ export function useMutationExecutor({
   const { mutations, variables, failureMessages } = useMemo(() => {
     const mutationConfigs: MutationConfig[] = [];
     const variableResolvers: VariablesResolvers = {};
-    const resolvedFailureMessages: Record<string, string> = {};
+    const resolvedFailureMessages: Record<string, ReactNode> = {};
 
     for (const def of expandedMutations) {
       // Check `when` condition

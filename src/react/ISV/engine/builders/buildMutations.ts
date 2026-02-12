@@ -5,6 +5,7 @@
  * Handles the standard ISV flow with optional platform-specific steps.
  */
 
+import type { ReactNode } from 'react';
 import type {
   BucketItem,
   FormData,
@@ -282,7 +283,11 @@ export function expandLoopMutation(mutation: LoopMutationDef, form: FormData, ct
           failureMessage:
             typeof step.failureMessage === 'function'
               ? (f: FormData, c: FullContext) =>
-                  (step.failureMessage as (form: FormData, bucket: BucketItem, ctx: FullContext) => string)(f, item, c)
+                  (step.failureMessage as (form: FormData, bucket: BucketItem, ctx: FullContext) => ReactNode)(
+                    f,
+                    item,
+                    c,
+                  )
               : step.failureMessage,
         }),
       });
