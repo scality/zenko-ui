@@ -1,41 +1,33 @@
-import { useEffect } from 'react';
 import { Banner, Stack, Text } from '@scality/core-ui';
-import { definePlatform, VeeamVBRValidator } from '../engine';
-import type {
-  BucketItem,
-  FormData,
-  PreviousResults,
-  FullContext,
-  DisabledMessageProps,
-} from '../engine';
-import { GET_VEEAM_POLICY } from '../utils/ISVPolicy';
-import { VeeamLogo } from '../components/logos/VeeamLogo';
-import { VeeamMultipleBucketCapture } from '../components/veeam/VeeamMultipleBucketCapture';
+import { useEffect } from 'react';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
-import { VeeamRepositoryFields } from '../components/VeeamRepositoryFields';
-import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
+import { VeeamLogo } from '../components/logos/VeeamLogo';
 import {
   AccountTooltip,
   BucketNameTooltip,
-  VeeamImmutableBackupTooltip,
   CapacityTooltip,
+  VeeamImmutableBackupTooltip,
 } from '../components/shared/PlatformTooltips';
+import { VeeamRepositoryFields } from '../components/VeeamRepositoryFields';
+import { VeeamRepositorySummary } from '../components/VeeamRepositorySummary';
+import { VeeamMultipleBucketCapture } from '../components/veeam/VeeamMultipleBucketCapture';
 import {
-  VEEAM_BACKUP_REPLICATION,
-  VEEAM_XML_PREFIX,
-  SYSTEM_XML_CONTENT,
   GET_CAPACITY_XML_CONTENT,
+  SYSTEM_XML_CONTENT,
   VEEAM_ARCHIVE_FOLDER_PATH,
   VEEAM_BACKUP_CLIENTS_FOLDER_PATH,
   VEEAM_BACKUP_CONFIG_FOLDER_PATH,
+  VEEAM_BACKUP_REPLICATION,
+  VEEAM_XML_PREFIX,
 } from '../constants';
+import type { BucketItem, DisabledMessageProps, FormData, FullContext, PreviousResults } from '../engine';
+import { definePlatform, VeeamVBRValidator } from '../engine';
+import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
 import { calculateStorageConsumptionLimit } from '../utils/capacityCalculations';
-import { VeeamRepositorySummary } from '../components/VeeamRepositorySummary';
 import { ensureHttpsPrefix } from '../utils/ensureHttpsPrefix';
+import { GET_VEEAM_POLICY } from '../utils/ISVPolicy';
 
-const VeeamVBRDisabledMessage = ({
-  onDisabledChange,
-}: DisabledMessageProps) => {
+const VeeamVBRDisabledMessage = ({ onDisabledChange }: DisabledMessageProps) => {
   const status = useCheckSOSAPIStatus();
 
   useEffect(() => {
@@ -53,9 +45,8 @@ const VeeamVBRDisabledMessage = ({
   } else if (status === 'unauthorized') {
     return (
       <Text>
-        As Smart Object Storage API is not available, you need to be a platform
-        admin to configure Veeam Backup and Replication. You can also contact
-        your platform admin to enable the Smart Object Storage API.
+        As Smart Object Storage API is not available, you need to be a platform admin to configure Veeam Backup and
+        Replication. You can also contact your platform admin to enable the Smart Object Storage API.
       </Text>
     );
   }
@@ -64,15 +55,12 @@ const VeeamVBRDisabledMessage = ({
 
 const VeeamBucketBanner = () => (
   <Banner variant="warning" title="Configuration warning">
-    When configuring Veeam Backup and Replication (VBR) application, the option
-    "Automatic bucket creation" must be disabled to ensure Veeam connects
-    properly.
+    When configuring Veeam Backup and Replication (VBR) application, the option "Automatic bucket creation" must be
+    disabled to ensure Veeam connects properly.
     <br />
-    In VBR v12.3.1.1139 and above, Automatic Bucket Creation is enabled by
-    default.
+    In VBR v12.3.1.1139 and above, Automatic Bucket Creation is enabled by default.
     <br />
-    You'll find the option next to the Bucket name in the S3 compatible
-    repository wizard.
+    You'll find the option next to the Bucket name in the S3 compatible repository wizard.
     <VeeamMultipleBucketCapture />
   </Banner>
 );
@@ -82,8 +70,7 @@ export const VeeamVBRPlatform = definePlatform({
   name: 'Veeam',
   logo: <VeeamLogo />,
   policy: GET_VEEAM_POLICY,
-  documentationLink:
-    '/artesca/docs/partner_applications/backup_and_archives/veeam/index.html',
+  documentationLink: '/artesca/docs/partner_applications/backup_and_archives/veeam/index.html',
   disabledMessage: VeeamVBRDisabledMessage,
   bucketTag: VEEAM_BACKUP_REPLICATION,
   application: VEEAM_BACKUP_REPLICATION,
@@ -91,6 +78,14 @@ export const VeeamVBRPlatform = definePlatform({
   sosAPI: true,
   bucketCapacity: true,
   customValidator: VeeamVBRValidator,
+  continueWithOptionalFailuresLabel: 'Continue to manual configuration',
+  defaultOptionalFailureMessage: (
+    <>
+      The automatic Veeam Repository creation was unsuccessful.
+      <br />
+      You may continue to configure it manually.
+    </>
+  ),
 
   fieldOverrides: {
     accountName: {
@@ -123,12 +118,7 @@ export const VeeamVBRPlatform = definePlatform({
       id: 'veeamFolder',
       label: 'Create Veeam folder: {{name}}',
       action: 'putObject',
-      variables: (
-        _form: FormData,
-        bucket: BucketItem,
-        prev: PreviousResults,
-        _ctx: FullContext,
-      ) => ({
+      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/`,
         Body: '',
@@ -139,14 +129,8 @@ export const VeeamVBRPlatform = definePlatform({
       id: 'veeamArchiveFolder',
       label: `Create Archive folder: ${VEEAM_ARCHIVE_FOLDER_PATH}`,
       action: 'putObject',
-      when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
-        form.autoCreateRepository === true,
-      variables: (
-        _form: FormData,
-        bucket: BucketItem,
-        prev: PreviousResults,
-        _ctx: FullContext,
-      ) => ({
+      when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) => form.autoCreateRepository === true,
+      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
         s3Client: prev.assumeRole?.data,
         Bucket: bucket.name,
         Key: VEEAM_ARCHIVE_FOLDER_PATH,
@@ -157,14 +141,8 @@ export const VeeamVBRPlatform = definePlatform({
       id: 'veeamBackupClientsFolder',
       label: `Create Backup Clients folder: ${VEEAM_BACKUP_CLIENTS_FOLDER_PATH}`,
       action: 'putObject',
-      when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
-        form.autoCreateRepository === true,
-      variables: (
-        _form: FormData,
-        bucket: BucketItem,
-        prev: PreviousResults,
-        _ctx: FullContext,
-      ) => ({
+      when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) => form.autoCreateRepository === true,
+      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
         s3Client: prev.assumeRole?.data,
         Bucket: bucket.name,
         Key: VEEAM_BACKUP_CLIENTS_FOLDER_PATH,
@@ -178,12 +156,7 @@ export const VeeamVBRPlatform = definePlatform({
       when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) => {
         return form.autoCreateRepository === true;
       },
-      variables: (
-        _form: FormData,
-        bucket: BucketItem,
-        prev: PreviousResults,
-        _ctx: FullContext,
-      ) => ({
+      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
         s3Client: prev.assumeRole?.data,
         Bucket: bucket.name,
         Key: VEEAM_BACKUP_CONFIG_FOLDER_PATH,
@@ -194,12 +167,7 @@ export const VeeamVBRPlatform = definePlatform({
       id: 'veeamSystem',
       label: 'Setup repository: {{name}}',
       action: 'putObject',
-      variables: (
-        _form: FormData,
-        bucket: BucketItem,
-        prev: PreviousResults,
-        _ctx: FullContext,
-      ) => ({
+      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/system.xml`,
         Body: SYSTEM_XML_CONTENT,
@@ -210,12 +178,7 @@ export const VeeamVBRPlatform = definePlatform({
       id: 'veeamCapacity',
       label: 'Set capacity: {{name}}',
       action: 'putObject',
-      variables: (
-        _form: FormData,
-        bucket: BucketItem,
-        prev: PreviousResults,
-        _ctx: FullContext,
-      ) => ({
+      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
         Body: GET_CAPACITY_XML_CONTENT(String(bucket.capacityBytes ?? 0)),
@@ -231,17 +194,14 @@ export const VeeamVBRPlatform = definePlatform({
           id: 'createVeeamRepo',
           label: 'Create Veeam Repository: {{name}}',
           action: 'createVeeamRepository',
+          optional: true,
+          failureMessage: (_form: FormData, bucket: BucketItem, _ctx: FullContext) =>
+            `The automatic Veeam Repository creation for "${bucket.name}" was unsuccessful. You may continue to configure it manually.`,
           when: (form: FormData, _bucket: BucketItem, _ctx: FullContext) =>
             form.autoCreateRepository === true && _ctx.needsAccessKey,
-          variables: (
-            form: FormData,
-            bucket: BucketItem,
-            prev: PreviousResults,
-            ctx: FullContext,
-          ) => {
+          variables: (form: FormData, bucket: BucketItem, prev: PreviousResults, ctx: FullContext) => {
             const capacityBytes = bucket.capacityBytes ?? 0;
-            const { kind, count } =
-              calculateStorageConsumptionLimit(capacityBytes);
+            const { kind, count } = calculateStorageConsumptionLimit(capacityBytes);
             const servicePoint = ensureHttpsPrefix(ctx._s3ServicePoint);
 
             const accessKeyData = prev.createAccessKey?.data as
@@ -254,9 +214,7 @@ export const VeeamVBRPlatform = definePlatform({
               | undefined;
 
             if (!accessKeyData?.AccessKey) {
-              throw new Error(
-                'Access key not available. Ensure access key creation completed successfully.',
-              );
+              throw new Error('Access key not available. Ensure access key creation completed successfully.');
             }
 
             return {
@@ -281,11 +239,9 @@ export const VeeamVBRPlatform = definePlatform({
     bucketBanner: <VeeamBucketBanner />,
     immutabilityLabel: 'Immutable Backup',
     immutabilityHelpText: (enabled: boolean) =>
-      enabled
-        ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
-        : undefined,
-    customRender: ({ formData, onFinish, renderDefault }) => {
-      if (!formData.autoCreateRepository) {
+      enabled ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.' : undefined,
+    customRender: ({ formData, onFinish, optionalFailures, renderDefault }) => {
+      if (!formData.autoCreateRepository || optionalFailures?.length) {
         return renderDefault();
       }
 
@@ -305,9 +261,8 @@ export const VeeamVBRPlatform = definePlatform({
 
   skipModalContent: (
     <Text>
-      To start Veeam assistant configuration again, you can go to the{' '}
-      <b>Accounts</b> page or <b>Data Browser</b> page. If the platform doesn't
-      have any accounts, it will also prompt you on your next login.
+      To start Veeam assistant configuration again, you can go to the <b>Accounts</b> page or <b>Data Browser</b> page.
+      If the platform doesn't have any accounts, it will also prompt you on your next login.
     </Text>
   ),
   additionalFields: {

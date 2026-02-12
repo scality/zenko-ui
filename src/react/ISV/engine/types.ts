@@ -245,7 +245,7 @@ export type MutationDef = SingleMutationDef | LoopMutationDef;
 export type OptionalFailure = {
   id: string;
   label: string;
-  message: string;
+  message: ReactNode;
 };
 
 // ============================================================================
@@ -320,7 +320,7 @@ export type ISVPlatform = {
   skipModalContent?: ReactNode;
 
   bucketTag: string;
-  defaultOptionalFailureMessage?: string;
+  defaultOptionalFailureMessage?: ReactNode;
   continueWithOptionalFailuresLabel?: string;
 
   fields: FieldDef[];
@@ -357,7 +357,7 @@ export type PlatformConfig = {
   bucketTag?: string;
 
   // Optional step failure handling
-  defaultOptionalFailureMessage?: string;
+  defaultOptionalFailureMessage?: ReactNode;
   continueWithOptionalFailuresLabel?: string;
 
   // Feature switches

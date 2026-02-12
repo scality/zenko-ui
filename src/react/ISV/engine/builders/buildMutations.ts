@@ -6,26 +6,21 @@
  */
 
 import type {
-  PlatformConfig,
-  MutationDef,
-  SingleMutationDef,
-  LoopMutationDef,
-  PerBucketStep,
+  BucketItem,
   FormData,
   FullContext,
+  LoopMutationDef,
+  MutationDef,
+  PerBucketStep,
+  PlatformConfig,
   PreviousResults,
-  BucketItem,
+  SingleMutationDef,
 } from '../types';
 
 type AccountResponse = { id: string };
 
 function isAccountResponse(data: unknown): data is AccountResponse {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    'id' in data &&
-    typeof (data as AccountResponse).id === 'string'
-  );
+  return typeof data === 'object' && data !== null && 'id' in data && typeof (data as AccountResponse).id === 'string';
 }
 
 function getAccountId(prev: PreviousResults, ctx: FullContext): string {
@@ -50,11 +45,7 @@ export const STANDARD_BUCKET_STEPS: PerBucketStep[] = [
     id: 'createBucket',
     label: 'Create Bucket: {{name}}',
     action: 'createBucket',
-    variables: (
-      form: FormData,
-      bucket: BucketItem,
-      _prev: PreviousResults
-    ) => ({
+    variables: (form: FormData, bucket: BucketItem, _prev: PreviousResults) => ({
       Bucket: bucket.name,
       ObjectLockEnabledForBucket: form.enableImmutableBackup,
     }),
@@ -63,12 +54,7 @@ export const STANDARD_BUCKET_STEPS: PerBucketStep[] = [
     id: 'tagBucket',
     label: 'Tag Bucket: {{name}}',
     action: 'tagBucket',
-    variables: (
-      _form: FormData,
-      bucket: BucketItem,
-      _prev: PreviousResults,
-      ctx: FullContext
-    ) => ({
+    variables: (_form: FormData, bucket: BucketItem, _prev: PreviousResults, ctx: FullContext) => ({
       Bucket: bucket.name,
       Tagging: {
         TagSet: [{ Key: 'X-Scality-Application', Value: ctx._bucketTag }],
@@ -87,8 +73,7 @@ export function buildSOSAPIMutation(config: PlatformConfig): SingleMutationDef |
     id: 'enableSOSAPI',
     label: `Enable ${config.name} Smart Object Storage API`,
     action: 'enableSOSAPI',
-    when: (_form: FormData, ctx: FullContext) =>
-      ctx._sosApiStatus === 'available',
+    when: (_form: FormData, ctx: FullContext) => ctx._sosApiStatus === 'available',
     variables: () => ({}),
   };
 }
@@ -122,11 +107,7 @@ export function buildAccountMutations(config: PlatformConfig): SingleMutationDef
       id: 'assumeRole',
       label: 'Assume Account Role',
       action: 'assumeRole',
-      variables: (
-        _form: FormData,
-        prev: PreviousResults,
-        ctx: FullContext
-      ) => ({
+      variables: (_form: FormData, prev: PreviousResults, ctx: FullContext) => ({
         roleArn: ctx.isNewAccount
           ? `arn:aws:iam::${getAccountId(prev, ctx)}:role/scality-internal/storage-manager-role`
           : ctx._existingAccount!.roleArn,
@@ -139,10 +120,7 @@ export function buildAccountMutations(config: PlatformConfig): SingleMutationDef
  * Build the bucket loop mutation
  */
 export function buildBucketLoopMutation(config: PlatformConfig): LoopMutationDef {
-  const steps: PerBucketStep[] = [
-    ...STANDARD_BUCKET_STEPS,
-    ...(config.perBucketSteps ?? []),
-  ];
+  const steps: PerBucketStep[] = [...STANDARD_BUCKET_STEPS, ...(config.perBucketSteps ?? [])];
 
   return {
     each: 'buckets',
@@ -178,11 +156,7 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
       label: (_form: FormData, ctx: FullContext) =>
         ctx.isNewAccount || ctx.needsIAMUser ? 'Create Policy' : 'Update Policy',
       action: 'createPolicy',
-      variables: (
-        form: FormData,
-        prev: PreviousResults,
-        ctx: FullContext
-      ) => {
+      variables: (form: FormData, prev: PreviousResults, ctx: FullContext) => {
         const policyName = `${form.IAMUserName || form.accountName}-${ctx._platformId}-${
           form.enableImmutableBackup ? 'immutable' : 'non-immutable'
         }`;
@@ -200,11 +174,7 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
       id: 'attachPolicy',
       label: 'Attach Policy to User',
       action: 'attachPolicy',
-      variables: (
-        form: FormData,
-        prev: PreviousResults,
-        ctx: FullContext
-      ) => {
+      variables: (form: FormData, prev: PreviousResults, ctx: FullContext) => {
         const userName = form.IAMUserName || form.accountName;
         const accountId = getAccountId(prev, ctx);
         return {
@@ -268,9 +238,7 @@ export function buildMutations(config: PlatformConfig): MutationDef[] {
 /**
  * Check if a mutation definition is a loop mutation
  */
-export function isLoopMutation(
-  mutation: MutationDef
-): mutation is LoopMutationDef {
+export function isLoopMutation(mutation: MutationDef): mutation is LoopMutationDef {
   return 'each' in mutation;
 }
 
@@ -288,11 +256,7 @@ export function isLoopMutation(
  *   { id: 'setup-1', ... },
  * ]
  */
-export function expandLoopMutation(
-  mutation: LoopMutationDef,
-  form: FormData,
-  ctx: FullContext
-): SingleMutationDef[] {
+export function expandLoopMutation(mutation: LoopMutationDef, form: FormData, ctx: FullContext): SingleMutationDef[] {
   const items = form[mutation.each];
   if (!Array.isArray(items)) return [];
 
@@ -306,22 +270,19 @@ export function expandLoopMutation(
       }
 
       // Replace {{field}} placeholders in label
-      const label = step.label.replace(
-        /\{\{(\w+)\}\}/g,
-        (_, field) => String(item[field as keyof BucketItem] ?? '')
-      );
+      const label = step.label.replace(/\{\{(\w+)\}\}/g, (_, field) => String(item[field as keyof BucketItem] ?? ''));
 
       expanded.push({
         id: `${step.id}-${index}`,
         label,
         action: step.action,
-        variables: (f: FormData, prev: PreviousResults, c: FullContext) =>
-          step.variables(f, item, prev, c),
+        variables: (f: FormData, prev: PreviousResults, c: FullContext) => step.variables(f, item, prev, c),
         ...(step.optional && { optional: true }),
         ...(step.failureMessage && {
           failureMessage:
             typeof step.failureMessage === 'function'
-              ? (f: FormData, c: FullContext) => (step.failureMessage as (form: FormData, bucket: BucketItem, ctx: FullContext) => string)(f, item, c)
+              ? (f: FormData, c: FullContext) =>
+                  (step.failureMessage as (form: FormData, bucket: BucketItem, ctx: FullContext) => string)(f, item, c)
               : step.failureMessage,
         }),
       });
@@ -330,4 +291,3 @@ export function expandLoopMutation(
 
   return expanded;
 }
-

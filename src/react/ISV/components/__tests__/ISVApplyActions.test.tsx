@@ -207,6 +207,7 @@ describe('ISVApplyActions', () => {
       const platformWithoutMessage = {
         ...VeeamVBRPlatform,
         continueWithOptionalFailuresLabel: 'Continue anyway',
+        defaultOptionalFailureMessage: undefined,
       };
 
       render(
@@ -223,9 +224,14 @@ describe('ISVApplyActions', () => {
     it('keeps "Continue" label when platform has no continueWithOptionalFailuresLabel', () => {
       mockUseChainedMutations.mockReturnValue(createMockChainedMutations(optionalFailureMockOverrides));
 
+      const platformWithoutLabel = {
+        ...VeeamVBRPlatform,
+        continueWithOptionalFailuresLabel: undefined,
+      };
+
       render(
         <Wrapper>
-          <ISVApplyActions {...mockProps} />
+          <ISVApplyActions {...mockProps} platform={platformWithoutLabel} />
         </Wrapper>,
       );
 
