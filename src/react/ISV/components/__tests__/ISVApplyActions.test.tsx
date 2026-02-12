@@ -1,11 +1,8 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import ISVApplyActions from '../ISVApplyActions';
+import { type ChainedMutationsResult, useChainedMutations } from '@scality/react-chained-query';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Wrapper } from '../../../utils/testUtil';
 import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
-import {
-  useChainedMutations,
-  ChainedMutationsResult,
-} from '@scality/react-chained-query';
+import ISVApplyActions from '../ISVApplyActions';
 
 jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => ({
   useStepper: () => ({ next: jest.fn() }),
@@ -77,9 +74,7 @@ const mockGetResult = (id: string) => {
   return undefined;
 };
 
-const createMockChainedMutations = (
-  overrides = {},
-): ChainedMutationsResult => ({
+const createMockChainedMutations = (overrides = {}): ChainedMutationsResult => ({
   Slots: null,
   steps: [
     { id: 'step1', label: 'Create bucket', step: 1, status: 'success' as const, retry: mockRetry },
@@ -116,27 +111,41 @@ describe('ISVApplyActions', () => {
   });
 
   it('renders the configuration title correctly', () => {
-    render(<Wrapper><ISVApplyActions {...mockProps} /></Wrapper>);
+    render(
+      <Wrapper>
+        <ISVApplyActions {...mockProps} />
+      </Wrapper>,
+    );
     expect(screen.getByText(`Configure ARTESCA for ${mockProps.platform.name}`)).toBeInTheDocument();
   });
 
   it('shows success state when all steps complete successfully', () => {
-    render(<Wrapper><ISVApplyActions {...mockProps} /></Wrapper>);
+    render(
+      <Wrapper>
+        <ISVApplyActions {...mockProps} />
+      </Wrapper>,
+    );
     expect(screen.getAllByText('Success')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Continue' })).not.toBeDisabled();
   });
 
   it('shows error state and retry option when a step fails', () => {
-    mockUseChainedMutations.mockReturnValue(createMockChainedMutations({
-      steps: [
-        { id: 'step1', label: 'Create bucket', step: 1, status: 'success', retry: mockRetry },
-        { id: 'step2', label: 'Add tags', step: 2, status: 'error', retry: mockRetry },
-      ],
-      isComplete: false,
-      hasError: true,
-    }));
+    mockUseChainedMutations.mockReturnValue(
+      createMockChainedMutations({
+        steps: [
+          { id: 'step1', label: 'Create bucket', step: 1, status: 'success', retry: mockRetry },
+          { id: 'step2', label: 'Add tags', step: 2, status: 'error', retry: mockRetry },
+        ],
+        isComplete: false,
+        hasError: true,
+      }),
+    );
 
-    render(<Wrapper><ISVApplyActions {...mockProps} /></Wrapper>);
+    render(
+      <Wrapper>
+        <ISVApplyActions {...mockProps} />
+      </Wrapper>,
+    );
 
     expect(screen.getByText('Success')).toBeInTheDocument();
     expect(screen.getByText('Failed')).toBeInTheDocument();
@@ -147,13 +156,19 @@ describe('ISVApplyActions', () => {
   });
 
   it('disables continue button when there are required failures', () => {
-    mockUseChainedMutations.mockReturnValue(createMockChainedMutations({
-      isComplete: false,
-      hasError: true,
-      allRequiredStepsComplete: false,
-    }));
+    mockUseChainedMutations.mockReturnValue(
+      createMockChainedMutations({
+        isComplete: false,
+        hasError: true,
+        allRequiredStepsComplete: false,
+      }),
+    );
 
-    render(<Wrapper><ISVApplyActions {...mockProps} /></Wrapper>);
+    render(
+      <Wrapper>
+        <ISVApplyActions {...mockProps} />
+      </Wrapper>,
+    );
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   });
 
@@ -217,7 +232,9 @@ describe('ISVApplyActions', () => {
       );
 
       expect(
-        screen.getByText('Some optional configuration steps were unsuccessful. You may continue with manual configuration.'),
+        screen.getByText(
+          'Some optional configuration steps were unsuccessful. You may continue with manual configuration.',
+        ),
       ).toBeInTheDocument();
     });
 
@@ -247,9 +264,7 @@ describe('ISVApplyActions', () => {
         </Wrapper>,
       );
 
-      expect(
-        screen.queryByText('Some optional steps failed. You may configure manually.'),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Some optional steps failed. You may configure manually.')).not.toBeInTheDocument();
     });
   });
 });
