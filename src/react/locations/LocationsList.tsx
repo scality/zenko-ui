@@ -138,6 +138,7 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
       <>Delete location</>
     );
   };
+  const deleteLocationButtonAriaLabel = isDeletionDisabled ? 'Delete Location is disabled for this location' : 'Delete Location';
 
   const isEditButtonDisabled =
     rowValues.isBuiltin || rowValues.type === 'location-scality-hdclient-v2';
@@ -197,6 +198,7 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
               overlay: <TooltipOverlay />,
               overlayStyle: { textAlign: 'left' },
             }}
+            aria-label={deleteLocationButtonAriaLabel}
             disabled={isDeletionDisabled}
           />
         </Stack>

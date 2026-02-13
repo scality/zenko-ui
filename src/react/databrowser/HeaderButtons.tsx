@@ -27,7 +27,7 @@ export function RefreshButton() {
     }
   };
 
-  return <Button icon={<Icon name="Sync" />} onClick={handleRefreshClick} />;
+  return <Button icon={<Icon name="Sync" />} tooltip={{ overlay: 'Refresh data browser', placement: 'right' }} onClick={handleRefreshClick} />;
 }
 export default function Buttons() {
   return (
