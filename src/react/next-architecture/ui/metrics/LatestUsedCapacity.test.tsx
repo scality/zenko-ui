@@ -1,7 +1,4 @@
-import {
-  UsedCapacity,
-  UsedCapacityInlinePromiseResult,
-} from './LatestUsedCapacity';
+import { UsedCapacity, UsedCapacityInlinePromiseResult } from './LatestUsedCapacity';
 import { render, screen, waitFor } from '@testing-library/react';
 import { simpleRender } from '../../../utils/testUtil';
 import userEvent from '@testing-library/user-event';
@@ -17,18 +14,18 @@ const genCapacity = (current = 1024) => {
   };
 };
 
-const getTextOnHover = async (labelRegex: RegExp, text: string | RegExp) => {
-  await waitFor(() => {
-    return screen.getByLabelText(labelRegex).tagName === 'svg'
-      ? Promise.resolve()
-      : Promise.reject();
-  });
+const getTextOnHover = async (element: HTMLElement, text: string | RegExp) => {
+  expect(element).toBeInTheDocument();
 
-  await userEvent.hover(screen.getByLabelText(labelRegex));
+  await userEvent.hover(element);
   expect(screen.getByText(text)).toBeInTheDocument();
 };
 
 describe('UsedCapacityInlinePromiseResult', () => {
+  const selectors = {
+    iconHelp: () => screen.getByRole('button', { name: /more information/i }),
+    minusIcon: () => screen.getByLabelText(/Unknown/i),
+  }
   it('display loading on loading state', async () => {
     // S
     render(<UsedCapacityInlinePromiseResult result={{ status: 'loading' }} />);
@@ -46,9 +43,7 @@ describe('UsedCapacityInlinePromiseResult', () => {
   it('display error on error state', async () => {
     // S
     render(
-      <UsedCapacityInlinePromiseResult
-        result={{ status: 'error', title: 'errorTitle', reason: 'errorReason' }}
-      />,
+      <UsedCapacityInlinePromiseResult result={{ status: 'error', title: 'errorTitle', reason: 'errorReason' }} />,
     );
     // V
     expect(screen.getByText('Error')).toBeInTheDocument();
@@ -69,11 +64,16 @@ describe('UsedCapacityInlinePromiseResult', () => {
     expect(screen.getByText('129.75 KiB')).toBeInTheDocument();
 
     // E + V
-    await getTextOnHover(/Info/i, /Retrieved on 2023-05-22 15:00:05/i);
+    
+    await getTextOnHover(selectors.iconHelp(), /Retrieved on 2023-05-22 15:00:05/i);
   });
 });
 
 describe('UsedCapacity', () => {
+  const selectors = {
+    iconHelp: () => screen.getByRole('button', { name: /more information/i }),
+    minusIcon: () => screen.getByLabelText(/Unknown/i),
+  }
   it('display error', async () => {
     // S
     render(
@@ -99,7 +99,7 @@ describe('UsedCapacity', () => {
     );
 
     // E + V
-    await getTextOnHover(/minus/i, 'unknown');
+    await getTextOnHover(selectors.minusIcon(), 'unknown');
   });
 
   it('display the correct values', async () => {
@@ -110,7 +110,7 @@ describe('UsedCapacity', () => {
     expect(screen.getByText('129.75 KiB')).toBeInTheDocument();
 
     // E + V
-    await getTextOnHover(/Info/i, /Retrieved on 2023-05-22 15:00:05/i);
+    await getTextOnHover(selectors.iconHelp(), /Retrieved on 2023-05-22 15:00:05/i);
   });
 
   it('display the correct values 2', async () => {
@@ -122,6 +122,6 @@ describe('UsedCapacity', () => {
     expect(screen.getByText('1.00 KiB')).toBeInTheDocument();
 
     // E + V
-    await getTextOnHover(/Info/i, /Retrieved on 2023-05-22 15:00:05/i);
+    await getTextOnHover(selectors.iconHelp(), /Retrieved on 2023-05-22 15:00:05/i);
   });
 });

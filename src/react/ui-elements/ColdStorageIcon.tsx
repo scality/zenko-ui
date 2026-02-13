@@ -34,7 +34,7 @@ export const ColdStorageIconLabel = ({ label = 'Cold' }) => {
 export const ColdStorageIcon = () => {
   return (
     <Stack>
-      <Icon name="Snowflake" />
+      <Icon name="Snowflake" aria-label="Cold Storage" />
       <ColdStorageTemperatureToolTip />
     </Stack>
   );

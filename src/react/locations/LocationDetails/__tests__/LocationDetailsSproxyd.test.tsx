@@ -52,7 +52,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       '3',
     );
     await userEvent.type(
-      screen.getByLabelText(/bootstrap list/i),
+      screen.getByRole('textbox', { name: /bootstrap list/i }),
       'localhost:42',
     );
 
@@ -68,7 +68,7 @@ describe('class <LocationDetailsSproxyd />', () => {
         name: /Replication Factor for Small Objects /i,
       }),
     ).toHaveValue('0');
-    expect(screen.getByLabelText(/bootstrap list/i)).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: /bootstrap list/i })).toHaveValue('');
   });
 
   it('should show sproxyd details when editing an existing location', () => {
@@ -88,7 +88,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       }),
     ).toHaveValue('3');
 
-    const bootstrapInputs = screen.getAllByLabelText(/bootstrap list/i);
+    const bootstrapInputs = screen.getAllByRole('textbox', { name: /bootstrap list/i });
     expect(bootstrapInputs[0]).toHaveValue('localhost:44');
   });
 
