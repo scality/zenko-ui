@@ -66,7 +66,7 @@
     "joi": "^18.0.1",
     "@monaco-editor/react": "^4.4.5",
     "@scality/certchain": "1.4.0",
-    "@scality/core-ui": "github:scality/core-ui.git#improvement/accessibility-icon",
+    "@scality/core-ui": "0.197.0",
     "@scality/data-browser-library": "1.0.4",
     "@scality/module-federation": "1.6.1",
     "@scality/react-chained-query": "^2.0.1",
