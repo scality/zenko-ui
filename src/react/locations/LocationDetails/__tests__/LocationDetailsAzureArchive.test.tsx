@@ -1,4 +1,4 @@
-import { fireEvent, getByLabelText, getByPlaceholderText, getByRole, screen } from '@testing-library/react';
+import { fireEvent, getByPlaceholderText, getByRole, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Locationv1Details } from '../../../../js/managementClient/api';
 import { renderWithCustomRoute } from '../../../utils/testUtil';
@@ -61,7 +61,7 @@ type authType =
   | 'location-azure-client-secret'
   | 'location-azure-shared-access-signature'
   | 'location-azure-shared-key';
-const selectAuthenticationHelper = (auth: authType, container: HTMLElement) => {
+const selectAuthenticationHelper = async (auth: authType, container: HTMLElement) => {
   const selector = getByRole(container, 'textbox', { name: /Authentication type \*/i });
   fireEvent.keyDown(selector, {
     key: 'ArrowDown',
@@ -92,6 +92,17 @@ const selectAuthenticationHelper = (auth: authType, container: HTMLElement) => {
     which: 13,
     keyCode: 13,
   });
+
+  // Wait for form to re-render with new auth type fields
+  if (auth === 'location-azure-shared-access-signature') {
+    await waitFor(() => {
+      expect(getByRole(container, 'textbox', { name: /SAS token for Storage \*/i })).toBeInTheDocument();
+    });
+  } else if (auth === 'location-azure-shared-key') {
+    await waitFor(() => {
+      expect(getByRole(container, 'textbox', { name: /Azure Account Name \*/i })).toBeInTheDocument();
+    });
+  }
 };
 
 const azureArchiveCommonHelper = async (
@@ -99,11 +110,10 @@ const azureArchiveCommonHelper = async (
   endpoint: string,
   targetBucket: string,
 ) => {
-  await userEvent.type(getByRole(container, 'textbox', { name: /Blob Endpoint * /i }), endpoint);
-  await userEvent.type(
-    getByRole(container, 'textbox', { name: /Target Azure Container Name \*/i }),
-    targetBucket,
-  );
+  await userEvent.click(getByRole(container, 'textbox', { name: /Blob Endpoint * /i }));
+  await userEvent.paste(endpoint);
+  await userEvent.click(getByRole(container, 'textbox', { name: /Target Azure Container Name \*/i }));
+  await userEvent.paste(targetBucket);
 };
 
 type prefilledValues = [RegExp, string][];
@@ -111,8 +121,9 @@ const prefilledHelper = async (
   container: HTMLElement,
   values: prefilledValues,
 ) => {
-  for (let value of values) {
-    await userEvent.type(getByRole(container, 'textbox', { name: value[0] }), value[1]);
+  for (const value of values) {
+    await userEvent.click(getByRole(container, 'textbox', { name: value[0] }));
+    await userEvent.paste(value[1]);
   }
 
   values.forEach((v) => {
@@ -126,8 +137,9 @@ const prefilledPasswordHelper = async (
   container: HTMLElement,
   values: passwordValues,
 ) => {
-  for (let [placeholder, value] of values) {
-    await userEvent.type(getByPlaceholderText(container, placeholder), value);
+  for (const [placeholder, value] of values) {
+    await userEvent.click(getByPlaceholderText(container, placeholder));
+    await userEvent.paste(value);
   }
 
   values.forEach(([placeholder, value]) => {
@@ -309,7 +321,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
     await serviceBusTopicHelper(container);
 
-    selectAuthenticationHelper(
+    await selectAuthenticationHelper(
       'location-azure-shared-access-signature',
       container,
     );
@@ -375,7 +387,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
     await serviceBusQueueHelper(container);
 
-    selectAuthenticationHelper(
+    await selectAuthenticationHelper(
       'location-azure-shared-access-signature',
       container,
     );
@@ -441,7 +453,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
     await storageQueueHelper(container);
 
-    selectAuthenticationHelper(
+    await selectAuthenticationHelper(
       'location-azure-shared-access-signature',
       container,
     );
@@ -475,7 +487,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
     await storageQueueHelper(container);
 
-    selectAuthenticationHelper('location-azure-shared-key', container);
+    await selectAuthenticationHelper('location-azure-shared-key', container);
 
     await authSharedKey(container);
 
