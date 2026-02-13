@@ -21,12 +21,27 @@ import { Location } from '../next-architecture/domain/entities/location';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { LocationV1 } from '../../js/managementClient/api';
 
+export function isAzureOrGcpLocation(location: LocationInfo): boolean {
+  // LocationTypeEnum is typed as an enum but its values are plain strings at runtime.
+  // The double cast is needed because TS doesn't allow direct enum-to-string comparison.
+  const type = location.type as unknown as string;
+  return type === 'location-azure-v1' || type === 'location-gcp-v1';
+}
+
 export function checkSupportsReplicationTarget(
   locations: LocationInfo[],
 ): boolean {
   return locations.some(
     (l) => storageOptions[l.type]?.supportsReplicationTarget === true,
   );
+}
+
+export function isReplicationTarget(location: LocationInfo): boolean {
+  return storageOptions[location.type]?.supportsReplicationTarget === true;
+}
+
+export function isHdclientV2(location: LocationInfo): boolean {
+  return (location.type as unknown as string) === 'location-scality-hdclient-v2';
 }
 export function checkIfExternalLocation(locations: LocationInfo[]): boolean {
   return locations.some((l) => l.type !== LocationV1.LocationTypeEnum.FileV1);
@@ -112,8 +127,8 @@ export type GroupedStorageOption = {
 };
 
 const categoryLabels = {
-  'crr': 'CRR Location',
-  'scality': 'Scality S3 Locations',
+  crr: 'CRR Location',
+  scality: 'Scality S3 Locations',
   'public-cloud': 'Public Cloud Locations',
   'on-prem': 'On Prem Locations',
 };
@@ -159,11 +174,21 @@ export function selectStorageOptionsGrouped(
   labelFn?: LabelFunction,
   exceptHidden = true,
 ): Array<GroupedStorageOption> {
-  const options = selectStorageOptions(capabilities, locations, labelFn, exceptHidden);
-  
+  const options = selectStorageOptions(
+    capabilities,
+    locations,
+    labelFn,
+    exceptHidden,
+  );
+
   const groupedOptions: Array<GroupedStorageOption> = [];
-  const categoryOrder: Array<'crr' | 'scality' | 'public-cloud' | 'on-prem'> = ['crr', 'scality', 'public-cloud', 'on-prem'];
-  
+  const categoryOrder: Array<'crr' | 'scality' | 'public-cloud' | 'on-prem'> = [
+    'crr',
+    'scality',
+    'public-cloud',
+    'on-prem',
+  ];
+
   categoryOrder.forEach((category) => {
     const categoryOptions = options.filter((opt) => opt.category === category);
     if (categoryOptions.length > 0) {
@@ -173,7 +198,7 @@ export function selectStorageOptionsGrouped(
       });
     }
   });
-  
+
   return groupedOptions;
 }
 export function isIngestLocation(location, capabilities) {

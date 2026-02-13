@@ -10,6 +10,10 @@ import {
   ColumnConfig,
   DataBrowserUI,
 } from '@scality/data-browser-library';
+import { LocationSelector } from './buckets/LocationSelector';
+import { StorageClassSelector } from './buckets/StorageClassSelector';
+import { BucketCreateVersioning } from './buckets/BucketCreateVersioning';
+import { useBucketCreateConfig } from './buckets/useBucketCreateConfig';
 import { StorageLocationColumn } from './buckets/StorageLocationColumn';
 import { DataUsedColumn } from './buckets/DataUsedColumn';
 import { UseCaseSection } from './buckets/UseCaseSection';
@@ -48,6 +52,9 @@ export default function DataBrowser({
   const { basePath } = useConfig();
 
   const dataBrowserBasePath = `${basePath}/accounts/${accountName}`;
+
+  const { bucketCreateExtraFields, transformBucketCreateData } =
+    useBucketCreateConfig();
 
   const extraBucketListColumns = useMemo(() => {
     const columns: ColumnConfig<Bucket>[] = [
@@ -110,6 +117,12 @@ export default function DataBrowser({
         extraBucketOverviewSections={EXTRA_BUCKET_OVERVIEW_SECTIONS}
         extraBucketOverviewGeneral={EXTRA_BUCKET_OVERVIEW_GENERAL}
         extraBucketListActions={extraBucketListActions}
+        storageClassSelector={StorageClassSelector}
+        storageClassLabel="Location Name"
+        locationSelector={LocationSelector}
+        bucketCreateExtraFields={bucketCreateExtraFields}
+        transformBucketCreateData={transformBucketCreateData}
+        bucketCreateVersioning={BucketCreateVersioning}
       />
     </>
   );
