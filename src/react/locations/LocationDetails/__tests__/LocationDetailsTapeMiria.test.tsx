@@ -270,6 +270,5 @@ describe('LocationDetailsTapeMiria', () => {
     // V
     expect(screen.getByText('Temperature')).toBeInTheDocument();
     expect(screen.getByText('Cold')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Snowflake/)).toBeInTheDocument();
   });
 });

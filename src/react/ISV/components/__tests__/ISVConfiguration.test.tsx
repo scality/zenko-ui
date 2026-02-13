@@ -185,7 +185,7 @@ describe('ISVConfiguration', () => {
   it('should navigate to next step when add mutiple buckets and remove one', async () => {
     renderComponent(CommvaultPlatform);
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = screen.getByRole('spinbutton', { name: /number of buckets \*/i });
 
     await userEvent.click(selectors.createAccountRadio());
     await userEvent.type(
@@ -483,7 +483,7 @@ describe('ISVConfiguration', () => {
       );
 
       // Add buckets
-      const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+      const bucketNumberInput = screen.getByRole('spinbutton', { name: /number of buckets \*/i });
 
       fireEvent.change(bucketNumberInput, { target: { value: '2' } });
 

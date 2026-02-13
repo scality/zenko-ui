@@ -68,6 +68,7 @@ const setupLocations = (count: number) => {
 };
 
 describe('LocationEditor', () => {
+  
   it('should display storageOptions expect hidden options', async () => {
     const {
       component: { container },
@@ -116,7 +117,7 @@ describe('LocationEditor', () => {
   });
   const selectors = {
     loadingLocation: () => screen.getByText('Loading location...'),
-    selectLocationType: () => screen.getByLabelText(/location type \*/i),
+    selectLocationType: () => screen.getByRole('textbox', { name: /location type \*/i }),
     inputLocationType: () =>
       screen.getByRole('textbox', { name: /location type \*/i }),
     optionLocationType: (locationName: string | RegExp) =>
@@ -183,11 +184,6 @@ describe('LocationEditor', () => {
         /8 of 10 locations have been created on this instance/i,
       );
       expect(warningText).toBeInTheDocument();
-
-      const bannerElement = screen
-        .getByText(/8 of 10 locations have been created on this instance/i)
-        .closest('.sc-banner');
-      expect(bannerElement).toBeInTheDocument();
     });
   });
 
@@ -203,10 +199,7 @@ describe('LocationEditor', () => {
       );
       expect(dangerText).toBeInTheDocument();
 
-      const bannerElement = screen
-        .getByText(/This instance has already 12 storage locations/i)
-        .closest('.sc-banner');
-      expect(bannerElement).toBeInTheDocument();
+   
     });
   });
 

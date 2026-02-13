@@ -10,7 +10,6 @@ import {
   mockShellHooks,
 } from '../../../../utils/testUtil';
 import AccountInfo from '../AccountInfo';
-import Table from '../../../../ui-elements/TableKeyValue';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { INSTANCE_ID } from '../../../../../js/mock/managementClientMSWHandlers';

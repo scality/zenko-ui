@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { LocationDetails } from '../../../../types/config';
 import { NewWrapper, updateInputText } from '../../../utils/testUtil';
 import LocationDetailsWasabi from '../LocationDetailsWasabi';
+import { SECRET_KEY_PLACEHOLDER } from '../LocationDetailsOracle';
 
 const props = {
   details: {
@@ -18,6 +19,11 @@ const props = {
   locationType: 'location-wasabi-v1',
 };
 describe('class <LocationDetailsWasabi />', () => {
+  const selectors = {
+    accessKeySelector: () => screen.getByRole('textbox', { name: /Wasabi Access Key/ }),
+    secretKeySelector: () => screen.getByPlaceholderText(new RegExp(SECRET_KEY_PLACEHOLDER)),
+    bucketNameSelector: () => screen.getByRole('textbox', { name: /Wasabi Target Bucket Name/ }),
+  };
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
     render(<LocationDetailsWasabi {...props} onChange={onChangeFn} />, {
@@ -45,13 +51,13 @@ describe('class <LocationDetailsWasabi />', () => {
     });
 
     await waitFor(async () => {
-      await userEvent.type(screen.getByLabelText(/access key/i), 'ak');
+      await userEvent.type(selectors.accessKeySelector(), 'ak');
     });
     await waitFor(async () => {
-      await userEvent.type(screen.getByLabelText(/secret key/i), 'sk');
+      await userEvent.type(selectors.secretKeySelector(), 'sk');
     });
     await waitFor(async () => {
-      await userEvent.type(screen.getByLabelText(/bucket name/i), 'bn');
+      await userEvent.type(selectors.bucketNameSelector(), 'bn');
     });
   });
   it('should show wasabi details for empty details', () => {
@@ -59,9 +65,9 @@ describe('class <LocationDetailsWasabi />', () => {
       wrapper: NewWrapper(),
     });
 
-    expect(screen.getByLabelText(/access key/i)).toHaveValue('');
-    expect(screen.getByLabelText(/secret key/i)).toHaveValue('');
-    expect(screen.getByLabelText(/bucket name/i)).toHaveValue('');
+    expect(selectors.accessKeySelector()).toHaveValue('');
+    expect(selectors.secretKeySelector()).toHaveValue('');
+    expect(selectors.bucketNameSelector()).toHaveValue('');
   });
   it('should show custom details when editing an existing location', () => {
     const locationDetails = {
@@ -75,11 +81,11 @@ describe('class <LocationDetailsWasabi />', () => {
       wrapper: NewWrapper(),
     });
 
-    expect(screen.getByLabelText(/access key/i)).toHaveValue('ak');
-    expect(screen.getByLabelText(/secret key/i)).toHaveValue(''); // encrypted
-    expect(screen.getByLabelText(/bucket name/i)).toHaveValue('bn');
+    expect(selectors.accessKeySelector()).toHaveValue('ak');
+    expect(selectors.secretKeySelector()).toHaveValue(''); // encrypted
+    expect(selectors.bucketNameSelector()).toHaveValue('bn');
   });
-  it('should call onChange on location details updates', () => {
+  it('should call onChange on location details updates', async () => {
     const refLocation = {
       endpoint: 'https://s3.wasabisys.com',
       secretKey: 'sk',
@@ -88,15 +94,15 @@ describe('class <LocationDetailsWasabi />', () => {
       bucketMatch: false,
     };
     let location = {};
-    const { container } = render(
+    render(
       <LocationDetailsWasabi {...props} onChange={(l) => (location = l)} />,
       {
         wrapper: NewWrapper(),
       },
     );
-    updateInputText(container, 'accessKey', 'ak');
-    updateInputText(container, 'secretKey', 'sk');
-    updateInputText(container, 'bucketName', 'bn');
+    await userEvent.type(selectors.accessKeySelector(), 'ak');
+    await userEvent.type(selectors.secretKeySelector(), 'sk');
+    await userEvent.type(selectors.bucketNameSelector(), 'bn');
     expect(location).toEqual(refLocation);
   });
 });

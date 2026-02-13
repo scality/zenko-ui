@@ -1,4 +1,4 @@
-import { fireEvent, getByLabelText, screen } from '@testing-library/react';
+import { fireEvent, getByLabelText, getByPlaceholderText, getByRole, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Locationv1Details } from '../../../../js/managementClient/api';
 import { renderWithCustomRoute } from '../../../utils/testUtil';
@@ -24,7 +24,7 @@ type queueType =
   | 'location-azure-servicebus-queue-v1'
   | 'location-azure-storage-queue-v1';
 const selectQueueTypeHelper = (queue: queueType, container: HTMLElement) => {
-  const selector = getByLabelText(container, /Queue type \*/i);
+  const selector = getByRole(container, 'textbox', { name: /Queue type \*/i });
   fireEvent.keyDown(selector, {
     key: 'ArrowDown',
     which: 40,
@@ -62,7 +62,7 @@ type authType =
   | 'location-azure-shared-access-signature'
   | 'location-azure-shared-key';
 const selectAuthenticationHelper = (auth: authType, container: HTMLElement) => {
-  const selector = getByLabelText(container, /Authentication type \*/i);
+  const selector = getByRole(container, 'textbox', { name: /Authentication type \*/i });
   fireEvent.keyDown(selector, {
     key: 'ArrowDown',
     which: 40,
@@ -99,9 +99,9 @@ const azureArchiveCommonHelper = async (
   endpoint: string,
   targetBucket: string,
 ) => {
-  await userEvent.type(getByLabelText(container, 'Blob Endpoint *'), endpoint);
+  await userEvent.type(getByRole(container, 'textbox', { name: /Blob Endpoint * /i }), endpoint);
   await userEvent.type(
-    getByLabelText(container, /Target Azure Container Name \*/i),
+    getByRole(container, 'textbox', { name: /Target Azure Container Name \*/i }),
     targetBucket,
   );
 };
@@ -112,11 +112,26 @@ const prefilledHelper = async (
   values: prefilledValues,
 ) => {
   for (let value of values) {
-    await userEvent.type(getByLabelText(container, value[0]), value[1]);
+    await userEvent.type(getByRole(container, 'textbox', { name: value[0] }), value[1]);
   }
 
   values.forEach((v) => {
-    expect(getByLabelText(container, v[0])).toHaveValue(v[1]);
+    expect(getByRole(container, 'textbox', { name: v[0] })).toHaveValue(v[1]);
+  });
+};
+
+// Helper for password inputs (can't use textbox role)
+type passwordValues = [RegExp, string][]; // [placeholder, value]
+const prefilledPasswordHelper = async (
+  container: HTMLElement,
+  values: passwordValues,
+) => {
+  for (let [placeholder, value] of values) {
+    await userEvent.type(getByPlaceholderText(container, placeholder), value);
+  }
+
+  values.forEach(([placeholder, value]) => {
+    expect(getByPlaceholderText(container, placeholder)).toHaveValue(value);
   });
 };
 
@@ -146,12 +161,15 @@ const storageQueueHelper = async (container: HTMLElement) => {
 };
 
 const authClientSecretHelper = async (container: HTMLElement) => {
-  const values: [RegExp, string][] = [
+  const textboxValues: [RegExp, string][] = [
     [/Tenant ID \*/, 'mock-tenant-id'],
     [/Azure Client ID \*/, 'mock-azure-client-id'],
-    [/Azure Client Key \*/, 'mock-azure-client-key'],
   ];
-  await prefilledHelper(container, values);
+  const passwordValues: [RegExp, string][] = [
+    [/clientKey/i, 'mock-azure-client-key'],
+  ];
+  await prefilledHelper(container, textboxValues);
+  await prefilledPasswordHelper(container, passwordValues);
 };
 
 const authSharedAccessSignature = async (
@@ -172,11 +190,14 @@ const authSharedAccessSignature = async (
 };
 
 const authSharedKey = async (container: HTMLElement) => {
-  const values: [RegExp, string][] = [
+  const textboxValues: [RegExp, string][] = [
     [/Azure Account Name \*/, 'mock-azure-account-name'],
-    [/Azure Account Key \*/, 'mock-azure-account-key'],
   ];
-  await prefilledHelper(container, values);
+  const passwordValues: [RegExp, string][] = [
+    [/accountKey/i, 'mock-azure-account-key'],
+  ];
+  await prefilledHelper(container, textboxValues);
+  await prefilledPasswordHelper(container, passwordValues);
 };
 
 describe('<LocationDetailsAzureArchive />', () => {
@@ -195,12 +216,13 @@ describe('<LocationDetailsAzureArchive />', () => {
       /Authentication type \*/i,
       /Tenant ID \*/i,
       /Azure Client ID \*/i,
-      /Azure Client Key \*/i,
-    ];
 
+    ];
+    expect(screen.getByPlaceholderText(/clientKey/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/clientKey/i)).toHaveValue('');
     textGrep.forEach((text) => {
-      expect(screen.getByLabelText(text)).toBeInTheDocument();
-      expect(screen.getByLabelText(text)).toHaveValue('');
+      expect(screen.getByRole('textbox', { name: text })).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: text })).toHaveValue('');
     });
   });
 
@@ -210,7 +232,7 @@ describe('<LocationDetailsAzureArchive />', () => {
     selectQueueTypeHelper('location-azure-servicebus-topic-v1', container);
 
     // E
-    const selector = getByLabelText(container, /Authentication type \*/i);
+    const selector = getByRole(container, 'textbox', { name: /Authentication type \*/i });
 
     fireEvent.keyDown(selector, {
       key: 'ArrowDown',
@@ -232,7 +254,7 @@ describe('<LocationDetailsAzureArchive />', () => {
     selectQueueTypeHelper('location-azure-servicebus-queue-v1', container);
 
     // E
-    const selector = getByLabelText(container, /Authentication type \*/i);
+    const selector = getByRole(container, 'textbox', { name: /Authentication type \*/i });
     fireEvent.keyDown(selector, {
       key: 'ArrowDown',
       which: 40,

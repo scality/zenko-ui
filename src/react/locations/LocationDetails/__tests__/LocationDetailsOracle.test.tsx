@@ -1,15 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Wrapper } from '../../../utils/testUtil';
-import LocationDetailsOracle from '../LocationDetailsOracle';
+import LocationDetailsOracle, { SECRET_KEY_PLACEHOLDER } from '../LocationDetailsOracle';
 import { ORACLE_CLOUD_LOCATION_KEY } from '../../../../types/config';
 
 const selectors = {
-  namespaceSelector: () => screen.getByLabelText(/Namespace/),
-  regionSelector: () => screen.getByLabelText(/Region/),
-  targetBucketSelector: () => screen.getByLabelText(/Target Bucket Name/),
-  accessKeySelector: () => screen.getByLabelText(/Access Key/),
-  secretKeySelector: () => screen.getByLabelText(/Secret Key/),
+  namespaceSelector: () => screen.getByRole('textbox', { name: /Namespace/ }),
+  regionSelector: () => screen.getByRole('textbox', { name: /Region/ }),
+  targetBucketSelector: () => screen.getByRole('textbox', { name: /Target Bucket Name/ }),
+  accessKeySelector: () => screen.getByRole('textbox', { name: /Access Key/ }),
+  secretKeySelector: () => screen.getByPlaceholderText(new RegExp(SECRET_KEY_PLACEHOLDER)),
 };
 
 const namespace = 'namespace';

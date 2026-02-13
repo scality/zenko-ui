@@ -138,7 +138,7 @@ describe('ISVApplyActions', () => {
     expect(screen.getByText('Success')).toBeInTheDocument();
     expect(screen.getByText('Failed')).toBeInTheDocument();
 
-    const retryButton = screen.getByRole('button', { name: 'Redo Retry' });
+    const retryButton = screen.getByRole('button', { name: 'Retry' });
     fireEvent.click(retryButton);
     expect(mockRetry).toHaveBeenCalled();
   });
