@@ -172,7 +172,7 @@ describe('AccountCreateUser', () => {
 
     await waitFor(() => screen.getByText('Create a User'));
 
-    const nameInput = screen.getByLabelText(/User name/i);
+    const nameInput = screen.getByRole('textbox', { name: /User name/i });
     fireEvent.change(nameInput, { target: { value: NEW_USER_NAME } });
 
     const submitButton = screen.getByText('Create');
@@ -213,7 +213,7 @@ describe('AccountCreateUser', () => {
 
     await waitFor(() => screen.getByText('Create a User'));
 
-    const nameInput = screen.getByLabelText(/User name/i);
+    const nameInput = screen.getByRole('textbox', { name: /User name/i });
     fireEvent.change(nameInput, { target: { value: NEW_USER_NAME } });
 
     const submitButton = screen.getByText('Create');

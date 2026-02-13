@@ -91,8 +91,9 @@ describe('LocationDetailsCRR', () => {
 
       // Check for help tooltips - these are stored in labelHelpTooltip and might not be visible in textContent
       // Instead, check that the fields exist that have help text defined
-      expect(component.getByLabelText(/secret key/i)).toBeInTheDocument();
-      expect(component.getByLabelText(/sts endpoint/i)).toBeInTheDocument();
+      const { secretKeyInput, stsEndpointInput } = getFormInputs(component);
+      expect(secretKeyInput).toBeInTheDocument();
+      expect(stsEndpointInput).toBeInTheDocument();
 
       // The help text is defined in the component but may be shown via tooltip on hover
       // We can verify the structure is correct by checking that required fields are marked properly

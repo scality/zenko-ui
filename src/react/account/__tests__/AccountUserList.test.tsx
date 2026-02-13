@@ -62,7 +62,7 @@ describe('AccountUserList', () => {
     expect(screen.getAllByText('Loading users...')).toHaveLength(2);
 
     //Ensure tooltip is displayed on top of search field while loading users
-    fireEvent.pointerEnter(screen.getByPlaceholderText('Example: Search'));
+    fireEvent.pointerEnter(screen.getByPlaceholderText(/Search/i));
     expect(
       screen.getByText('Search is disabled while loading users'),
     ).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('AccountUserList', () => {
 
     /**********           Buttons 'search' and 'Create user' exist :         ************/
 
-    const searchZone = screen.getByPlaceholderText('Example: Search');
+    const searchZone = screen.getByPlaceholderText(/Search/i);
     expect(searchZone).toBeInTheDocument();
 
     const createButton = screen.getByText('Create User');

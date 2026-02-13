@@ -319,11 +319,6 @@ export const DefaultISVSummary = ({
             textToCopy={textToCopy}
             label="all"
             variant="outline"
-            tooltip={{
-              overlay:
-                'Copy all the information below and paste it in a safe place. You will not be able to retrieve the Secret Access key afterwards.',
-              placement: 'right',
-            }}
             size="inline"
             aria-label="copy all"
           />

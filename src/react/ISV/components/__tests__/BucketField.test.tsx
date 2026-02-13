@@ -33,6 +33,10 @@ const TestWrapper = ({ children }) => {
 };
 
 describe('BucketField', () => {
+  const selectors = {
+    bucketNumberInput: () => screen.getByRole('spinbutton', { name: /number of buckets \*/i }),
+    bucketNameInput: () => screen.getByRole('textbox', { name: /bucket name \*/i }),
+  };
   it('should render with default bucket number input', () => {
     render(
       <TestWrapper>
@@ -40,7 +44,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
     expect(bucketNumberInput).toBeInTheDocument();
     expect(bucketNumberInput).toHaveValue(1);
   });
@@ -52,7 +56,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNameInput = screen.getByLabelText(/bucket name/i);
+    const bucketNameInput = selectors.bucketNameInput();
     expect(bucketNameInput).toBeInTheDocument();
     expect(bucketNameInput).toHaveValue('');
   });
@@ -64,22 +68,22 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     // Increase to 3 buckets
     fireEvent.change(bucketNumberInput, { target: { value: '3' } });
     expect(bucketNumberInput).toHaveValue(3);
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(3);
 
     // Decrease to 2 buckets
     fireEvent.change(bucketNumberInput, { target: { value: '2' } });
     expect(bucketNumberInput).toHaveValue(2);
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(2);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(2);
 
     // Try to go below minimum (1) - should allow input but not create buckets
     fireEvent.change(bucketNumberInput, { target: { value: '0' } });
     expect(bucketNumberInput).toHaveValue(0);
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(2); // Keeps previous buckets
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(2); // Keeps previous buckets
   });
 
   it('should handle exceeding maximum value by limiting to max', () => {
@@ -89,17 +93,17 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     // Try to exceed maximum (20) - should immediately limit to 20
     fireEvent.change(bucketNumberInput, { target: { value: '21' } });
     expect(bucketNumberInput).toHaveValue(20);
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(20);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(20);
 
     // Try even higher value
     fireEvent.change(bucketNumberInput, { target: { value: '100' } });
     expect(bucketNumberInput).toHaveValue(20); // Should stay at 20
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(20);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(20);
   });
 
   it('should ignore non-numeric values in bucket number input', () => {
@@ -109,13 +113,13 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     fireEvent.change(bucketNumberInput, { target: { value: '3' } });
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(3);
 
     fireEvent.change(bucketNumberInput, { target: { value: 'abc' } });
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(3);
   });
 
   it('should add new buckets with default values when increasing bucket number', () => {
@@ -125,11 +129,11 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     fireEvent.change(bucketNumberInput, { target: { value: '2' } });
 
-    const bucketNameInputs = screen.getAllByLabelText(/bucket #\d+ name/i);
+    const bucketNameInputs = screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i });
     expect(bucketNameInputs).toHaveLength(2);
 
     expect(bucketNameInputs[1]).toHaveValue('');
@@ -146,15 +150,15 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     fireEvent.change(bucketNumberInput, { target: { value: '3' } });
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(3);
 
     fireEvent.change(bucketNumberInput, { target: { value: '2' } });
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(2);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(2);
 
-    const remainingBuckets = screen.getAllByLabelText(/bucket #\d+ name/i);
+    const remainingBuckets = screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i });
     expect(remainingBuckets[0]).toBeInTheDocument();
     expect(remainingBuckets[1]).toBeInTheDocument();
   });
@@ -172,7 +176,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    expect(screen.getByLabelText(/bucket name/i)).toBeInTheDocument();
+    expect(selectors.bucketNameInput()).toBeInTheDocument();
   });
 
   it('should render capacity fields for veeam platform', () => {
@@ -183,7 +187,7 @@ describe('BucketField', () => {
     );
 
     // For veeam platform, capacity fields should be visible
-    expect(screen.getByLabelText(/bucket name/i)).toBeInTheDocument();
+    expect(selectors.bucketNameInput()).toBeInTheDocument();
   });
 
   it('should initialize with correct default values', () => {
@@ -193,7 +197,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNameInput = screen.getByLabelText(/bucket name/i);
+    const bucketNameInput = selectors.bucketNameInput();
     expect(bucketNameInput).toHaveAttribute(
       'placeholder',
       'Example: test-platform-bucket-name',
@@ -207,7 +211,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     fireEvent.change(bucketNumberInput, { target: { value: '' } });
     expect((bucketNumberInput as HTMLInputElement).value).toBe('');
@@ -224,7 +228,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     fireEvent.change(bucketNumberInput, { target: { value: 'e' } });
 
@@ -240,7 +244,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     fireEvent.change(bucketNumberInput, { target: { value: '0' } });
     expect(bucketNumberInput).toHaveValue(0);
@@ -263,7 +267,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     // Input greater than max (20) - should immediately limit to 20
     fireEvent.change(bucketNumberInput, { target: { value: '25' } });
@@ -281,7 +285,7 @@ describe('BucketField', () => {
       </TestWrapper>,
     );
 
-    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+    const bucketNumberInput = selectors.bucketNumberInput();
 
     fireEvent.change(bucketNumberInput, { target: { value: '' } });
     expect((bucketNumberInput as HTMLInputElement).value).toBe('');
@@ -289,6 +293,6 @@ describe('BucketField', () => {
     fireEvent.change(bucketNumberInput, { target: { value: '3' } });
     expect(bucketNumberInput).toHaveValue(3);
 
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+    expect(screen.getAllByRole('textbox', { name: /bucket #\d+ name \*/i })).toHaveLength(3);
   });
 });

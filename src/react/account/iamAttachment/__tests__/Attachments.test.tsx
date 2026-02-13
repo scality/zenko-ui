@@ -1,21 +1,10 @@
-import {
-  fireEvent,
-  getByRole,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from '@testing-library/react';
+import { fireEvent, getByRole, screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import accountSeeds from '../../../../../public/assets/account-seeds.json';
 import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
-import {
-  TEST_API_BASE_URL,
-  mockOffsetSize,
-  renderWithRouterMatch,
-} from '../../../utils/testUtil';
+import { TEST_API_BASE_URL, mockOffsetSize, renderWithRouterMatch } from '../../../utils/testUtil';
 import Attachments from '../Attachments';
 import * as DSRProvider from '../../../DataServiceRoleProvider';
 import { debug } from 'jest-preview';
@@ -194,15 +183,10 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const setupPolicyRender = (
-  accountName = defaultAccountName,
-  policyArn = defaultPolicyArn,
-) => {
+const setupPolicyRender = (accountName = defaultAccountName, policyArn = defaultPolicyArn) => {
   renderWithRouterMatch(<Attachments />, {
     path: '/accounts/:accountName/policies/:policyArn/attachments',
-    route: `/accounts/${accountName}/policies/${encodeURIComponent(
-      policyArn,
-    )}/attachments`,
+    route: `/accounts/${accountName}/policies/${encodeURIComponent(policyArn)}/attachments`,
   });
 };
 
@@ -261,15 +245,9 @@ describe('Policy Attachments', () => {
     // S
     setupPolicyRender();
 
-    await waitFor(() =>
-      expect(
-        screen.getByPlaceholderText('Example: Search by entity name'),
-      ).not.toBeDisabled(),
-    );
+    await waitFor(() => expect(screen.getByPlaceholderText('Search by entity name')).not.toBeDisabled());
     //E
-    fireEvent.focus(
-      screen.getByPlaceholderText('Example: Search by entity name'),
-    );
+    fireEvent.focus(screen.getByPlaceholderText('Search by entity name'));
 
     await waitFor(() =>
       screen.getByRole('option', {
@@ -297,9 +275,7 @@ describe('Policy Attachments', () => {
     ).not.toBeDisabled();
 
     //E
-    await userEvent.click(
-      within(pendingUser).getByRole('button', { name: /remove/i }),
-    );
+    await userEvent.click(within(pendingUser).getByRole('button', { name: /remove/i }));
 
     //V
     expect(
@@ -315,15 +291,9 @@ describe('Policy Attachments', () => {
     // S
     setupPolicyRender();
 
-    await waitFor(() =>
-      expect(
-        screen.getByPlaceholderText('Example: Search by entity name'),
-      ).not.toBeDisabled(),
-    );
+    await waitFor(() => expect(screen.getByPlaceholderText('Search by entity name')).not.toBeDisabled());
     //E
-    fireEvent.focus(
-      screen.getByPlaceholderText('Example: Search by entity name'),
-    );
+    fireEvent.focus(screen.getByPlaceholderText('Search by entity name'));
 
     await waitFor(() =>
       screen.getByRole('option', {
@@ -340,10 +310,7 @@ describe('Policy Attachments', () => {
     //V
     expect(
       screen.getByRole('row', {
-        name: new RegExp(
-          `attach user ${tobeAttachedUserName} waiting for confirmation`,
-          'i',
-        ),
+        name: new RegExp(`attach user ${tobeAttachedUserName} waiting for confirmation`, 'i'),
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /confirm/i })).not.toBeDisabled();
@@ -373,11 +340,7 @@ describe('Policy Attachments', () => {
 
     //E
     await userEvent.click(screen.getByRole('tab', { name: /groups/i }));
-    await waitFor(() =>
-      expect(
-        screen.getByPlaceholderText('Example: Search by entity name'),
-      ).not.toBeDisabled(),
-    );
+    await waitFor(() => expect(screen.getByPlaceholderText('Search by entity name')).not.toBeDisabled());
 
     fireEvent.focus(
       screen.getByRole('searchbox', {
@@ -385,12 +348,8 @@ describe('Policy Attachments', () => {
       }),
     );
 
-    await waitFor(() =>
-      screen.getByRole('option', { name: new RegExp(groupName, 'i') }),
-    );
-    await userEvent.click(
-      screen.getByRole('option', { name: new RegExp(groupName, 'i') }),
-    );
+    await waitFor(() => screen.getByRole('option', { name: new RegExp(groupName, 'i') }));
+    await userEvent.click(screen.getByRole('option', { name: new RegExp(groupName, 'i') }));
     await userEvent.click(screen.getByRole('button', { name: /save/i }));
     await userEvent.click(screen.getByRole('button', { name: /confirm/i }));
 
@@ -415,11 +374,7 @@ describe('Policy Attachments', () => {
     );
 
     //V
-    await waitFor(() =>
-      expect(
-        screen.getByPlaceholderText('Example: Search by entity name'),
-      ).toBeDisabled(),
-    );
+    await waitFor(() => expect(screen.getByPlaceholderText('Search by entity name')).toBeDisabled());
   });
 
   it('should display error message if list attached entities failed', async () => {
@@ -487,9 +442,7 @@ describe('Policy Attachments', () => {
     //V
     const firstRow = screen.getAllByRole('row')[1];
 
-    expect(
-      screen.getByRole('row', { name: /attached-user/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('row', { name: /attached-user/i })).toBeInTheDocument();
 
     expect(
       getByRole(firstRow, 'button', {
@@ -524,9 +477,7 @@ describe('User Attachments', () => {
     await waitFor(() => screen.getByText('Attachment status'));
 
     //V
-    expect(
-      screen.getByRole('row', { name: /devs attached remove/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('row', { name: /devs attached remove/i })).toBeInTheDocument();
 
     const pendingGroup = screen.getByRole('row', {
       name: /devs attached remove/i,
@@ -538,9 +489,7 @@ describe('User Attachments', () => {
     ).not.toBeDisabled();
 
     //E
-    await userEvent.click(
-      within(pendingGroup).getByRole('button', { name: /remove/i }),
-    );
+    await userEvent.click(within(pendingGroup).getByRole('button', { name: /remove/i }));
     await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
     await waitFor(() => {
@@ -551,9 +500,7 @@ describe('User Attachments', () => {
       ).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: /confirm/i }));
-    await waitFor(() =>
-      expect(screen.getByText('Success')).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText('Success')).toBeInTheDocument());
     expect(screen.getByRole('button', { name: /exit/i })).toBeEnabled();
   });
 });

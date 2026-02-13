@@ -7,7 +7,7 @@ import {
 } from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
-
+export const SECRET_KEY_PLACEHOLDER = 'QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6';
 type State = {
   bucketMatch: boolean;
   accessKey: string;
@@ -150,7 +150,7 @@ export default function LocationDetailsOracle({
               name="secretKey"
               id="secretKey"
               type="password"
-              placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+              placeholder={SECRET_KEY_PLACEHOLDER}
               value={formState.secretKey}
               onChange={onFormItemChange}
               autoComplete="new-password"
