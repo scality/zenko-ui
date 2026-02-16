@@ -39,7 +39,8 @@ jest.mock('react-router', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('@scality/core-ui/dist/components/form/Form.component', () => ({
+jest.mock('@scality/core-ui', () => ({
+  ...jest.requireActual('@scality/core-ui'),
   FormGroup: ({ id, label, content, error, children }) => (
     <div>
       <div>{label}</div>
@@ -47,7 +48,6 @@ jest.mock('@scality/core-ui/dist/components/form/Form.component', () => ({
       {error && <div>{error}</div>}
     </div>
   ),
-  Form: ({ children }) => <form>{children}</form>,
 }));
 
 jest.mock('@scality/core-ui/dist/next', () => {

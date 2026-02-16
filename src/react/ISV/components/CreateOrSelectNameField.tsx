@@ -1,5 +1,4 @@
-import { FormGroup } from '@scality/core-ui/dist/components/form/Form.component';
-import { Stack } from '@scality/core-ui/dist/spacing';
+import { FormGroup, Stack } from '@scality/core-ui';
 import { Controller, useFormContext } from 'react-hook-form';
 import { RadioGroup } from './RadioGroup';
 import { Input, Select } from '@scality/core-ui/dist/next';
