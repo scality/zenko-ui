@@ -1,10 +1,34 @@
 import { ErrorPage500 } from '@scality/core-ui/dist/components/error-pages/ErrorPage500.component';
 import * as ModuleFederation from '@scality/module-federation';
 import { ErrorBoundary } from 'react-error-boundary';
+import type { UseMutationResult } from 'react-query';
+
+export type NewCredentialsStatus =
+  | 'IDLE'
+  | 'WAITING'
+  | 'VALID'
+  | 'INVALID'
+  | 'ERROR';
+
 export type ArtescaLibraryHooks = {
   useArtescaPlusVeeamDefaultOrOpenMode: () => {
     artescaPlusVeeamDefaultOrOpenMode: 'default' | 'open' | null;
     artescaPlusVeeamDefaultOrOpenModeStatus: 'loading' | 'error' | 'success';
+  };
+  useIsVeeamCredentialsValid: () => {
+    data: { isVeeamCredentialsValid: boolean } | undefined;
+    isLoading: boolean;
+    isError: boolean;
+  };
+  useChangeVeeamCredentials: (params: {
+    onNewCredentialsValid: () => void;
+  }) => {
+    changeCredentialsMutation: UseMutationResult<
+      unknown,
+      unknown,
+      { username: string; password: string }
+    >;
+    newCredentialsStatus: NewCredentialsStatus;
   };
   ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME: string;
 };
