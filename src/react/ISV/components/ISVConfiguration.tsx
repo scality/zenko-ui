@@ -15,6 +15,7 @@ import { FormRenderer } from './FormRenderer';
 import { FormData, ISVPlatform } from '../engine/types';
 import { ISVFormProvider, useISVFormContext } from './ISVFormContext';
 import { useSearchParams } from 'react-router';
+import { VeeamCredentialProvider } from '../contexts/VeeamCredentialContext';
 
 type ISVConfigurationInnerProps = {
   formMethods: UseFormReturn<FormData>;
@@ -167,8 +168,10 @@ export const ISVConfiguration = () => {
   });
 
   return (
-    <ISVFormProvider platform={platform} formMethods={formMethods}>
-      <ISVConfigurationInner formMethods={formMethods} />
-    </ISVFormProvider>
+    <VeeamCredentialProvider>
+      <ISVFormProvider platform={platform} formMethods={formMethods}>
+        <ISVConfigurationInner formMethods={formMethods} />
+      </ISVFormProvider>
+    </VeeamCredentialProvider>
   );
 };

@@ -8,6 +8,7 @@ import {
   CapacityTooltip,
   VeeamImmutableBackupTooltip,
 } from '../components/shared/PlatformTooltips';
+import { VeeamCredentialFields } from '../components/fields/VeeamCredentialFields';
 import { VeeamRepositoryFields } from '../components/VeeamRepositoryFields';
 import { VeeamRepositorySummary } from '../components/VeeamRepositorySummary';
 import { VeeamMultipleBucketCapture } from '../components/veeam/VeeamMultipleBucketCapture';
@@ -272,6 +273,12 @@ export const VeeamVBRPlatform = definePlatform({
         type: 'custom',
         label: '',
         render: () => <VeeamRepositoryFields />,
+      },
+      {
+        name: 'veeamCredentials',
+        type: 'custom',
+        label: '',
+        render: () => <VeeamCredentialFields />,
       },
     ],
   },
