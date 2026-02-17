@@ -2,9 +2,10 @@ import {
   BUCKET_TAG_APPLICATION,
   BUCKET_TAG_VEEAM_APPLICATION,
   COMMVAULT_APPLICATION,
+  KASTEN_APPLICATION,
   VEEAM_BACKUP_REPLICATION,
-  VeeamApplicationType,
   VEEAM_VBO_APPLICATION,
+  VeeamApplicationType,
 } from '../../ISV/constants';
 
 /**
@@ -30,9 +31,7 @@ export type BucketApplicationInfo = {
  * @param tags - Bucket tags as key-value pairs
  * @returns Application information including display name and feature flags
  */
-export function detectBucketApplication(
-  tags: Record<string, string>,
-): BucketApplicationInfo {
+export function detectBucketApplication(tags: Record<string, string>): BucketApplicationInfo {
   const modernTag = tags[BUCKET_TAG_APPLICATION];
   const legacyVeeamTag = tags[BUCKET_TAG_VEEAM_APPLICATION];
 
@@ -44,7 +43,15 @@ export function detectBucketApplication(
     };
   }
 
-  // Priority 2: Veeam (check both modern and legacy tags)
+  // Priority 2: Kasten
+  if (modernTag === KASTEN_APPLICATION) {
+    return {
+      displayName: KASTEN_APPLICATION,
+      shouldShowVeeamCapacity: false,
+    };
+  }
+
+  // Priority 3: Veeam (check both modern and legacy tags)
   if (isVeeamApplication(modernTag) || isVeeamApplication(legacyVeeamTag)) {
     return {
       displayName: modernTag || legacyVeeamTag,
@@ -52,7 +59,7 @@ export function detectBucketApplication(
     };
   }
 
-  // Priority 3: Generic S3 or other modern ISV applications
+  // Priority 4: Generic S3 or other modern ISV applications
   return {
     displayName: modernTag || 'S3 Generic',
     shouldShowVeeamCapacity: false,

@@ -1,13 +1,13 @@
 export const BUCKET_TAG_VEEAM_APPLICATION = 'X-Scality-Veeam-Application';
 export const BUCKET_TAG_APPLICATION = 'X-Scality-Application';
 export const VEEAM_BACKUP_REPLICATION = 'Veeam Backup & Replication';
-export const VEEAM_BACKUP_REPLICATION_XML_VALUE =
-  'Veeam Backup &#38; Replication';
+export const VEEAM_BACKUP_REPLICATION_XML_VALUE = 'Veeam Backup &#38; Replication';
 export const VEEAM_OFFICE_365 = 'Veeam Backup for Microsoft 365 (v6, v7)';
 export const VEEAM_OFFICE_365_V8 = 'Veeam Backup for Microsoft 365 (v8+)';
 export const VEEAM_VBO_APPLICATION = 'Veeam Backup for Microsoft 365';
 export const VEEAM_IMMUTABLE_POLICY_NAME = 'Scality-Veeam-Immutable-Policy';
 export const COMMVAULT_APPLICATION = 'Commvault';
+export const KASTEN_APPLICATION = 'Kasten';
 export const GET_VEEAM_IMMUTABLE_POLICY = (bucketName: string) =>
   JSON.stringify({
     Version: '2012-10-17',
@@ -30,10 +30,7 @@ export const GET_VEEAM_IMMUTABLE_POLICY = (bucketName: string) =>
           's3:PutObjectLegalHold',
           's3:DeleteObjectVersion',
         ],
-        Resource: [
-          `arn:aws:s3:::${bucketName}/*`,
-          `arn:aws:s3:::${bucketName}`,
-        ],
+        Resource: [`arn:aws:s3:::${bucketName}/*`, `arn:aws:s3:::${bucketName}`],
       },
       {
         Sid: 'VisualEditor1',
@@ -58,10 +55,7 @@ export const GET_VEEAM_NON_IMMUTABLE_POLICY = (bucketName: string) =>
           's3:GetBucketVersioning',
           's3:GetBucketObjectLockConfiguration',
         ],
-        Resource: [
-          `arn:aws:s3:::${bucketName}/*`,
-          `arn:aws:s3:::${bucketName}`,
-        ],
+        Resource: [`arn:aws:s3:::${bucketName}/*`, `arn:aws:s3:::${bucketName}`],
       },
       {
         Sid: 'SecureBucketPolicy1',
