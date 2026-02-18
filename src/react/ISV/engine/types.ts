@@ -1,5 +1,5 @@
 import type Joi from 'joi';
-import type { ComponentType, ReactElement, ReactNode } from 'react';
+import type { ComponentType, FC, ReactElement, ReactNode } from 'react';
 import type { Control, FieldErrors } from 'react-hook-form';
 
 // ============================================================================
@@ -334,6 +334,7 @@ export type ISVPlatform = {
   assistant: boolean;
   application?: string;
   disabledMessage?: DisabledMessageComponent;
+  contextProvider?: FC<{ children: ReactNode }>;
 };
 
 // ============================================================================
@@ -396,4 +397,6 @@ export type PlatformConfig = {
   // Additional mutations to append after auto-generated mutations
   // Use this when you want the standard flow + additional steps at the end
   additionalMutations?: MutationDef[];
+
+  contextProvider?: FC<{ children: ReactNode }>;
 };

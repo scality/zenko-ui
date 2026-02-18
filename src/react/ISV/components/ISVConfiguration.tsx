@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { Form, FormSection, Icon, Stack } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
@@ -166,9 +166,13 @@ export const ISVConfiguration = () => {
     shouldUnregister: false,
   });
 
+  const ContextProvider = platform.contextProvider ?? Fragment;
+
   return (
-    <ISVFormProvider platform={platform} formMethods={formMethods}>
-      <ISVConfigurationInner formMethods={formMethods} />
-    </ISVFormProvider>
+    <ContextProvider>
+      <ISVFormProvider platform={platform} formMethods={formMethods}>
+        <ISVConfigurationInner formMethods={formMethods} />
+      </ISVFormProvider>
+    </ContextProvider>
   );
 };

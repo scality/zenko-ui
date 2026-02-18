@@ -1,6 +1,5 @@
 import { createContext, useContext, useMemo } from 'react';
-import type { UseMutationResult } from 'react-query';
-import { useQueryClient } from 'react-query';
+import { useQueryClient, type UseMutationResult } from 'react-query';
 import {
   type ArtescaLibraryHooks,
   ArtescaLibraryNotAvailable,
@@ -31,7 +30,6 @@ const VeeamCredentialProviderInternal = ({
   artescaLibrary: ArtescaLibraryHooks;
 }) => {
   const queryClient = useQueryClient();
-
   const validationResult = artescaLibrary.useIsVeeamCredentialsValid();
 
   const updateResult = artescaLibrary.useChangeVeeamCredentials({
@@ -59,6 +57,15 @@ const VeeamCredentialProviderInternal = ({
   );
 };
 
+const defaultContextValue: VeeamCredentialContextValue = {
+  // When ArtescaLibrary is unavailable, credential validation doesn't apply.
+  isCredentialsValid: true,
+  isCheckingCredentials: false,
+  isCredentialCheckError: false,
+  changeCredentialsMutation: null,
+  newCredentialsStatus: 'IDLE',
+};
+
 export const VeeamCredentialProvider = ({
   children,
 }: {
@@ -67,7 +74,11 @@ export const VeeamCredentialProvider = ({
   const artescaLibrary = useArtescaLibrary();
 
   if (artescaLibrary instanceof ArtescaLibraryNotAvailable) {
-    return <>{children}</>;
+    return (
+      <VeeamCredentialContext.Provider value={defaultContextValue}>
+        {children}
+      </VeeamCredentialContext.Provider>
+    );
   }
 
   return (
