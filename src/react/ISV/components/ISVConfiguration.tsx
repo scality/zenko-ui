@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { Form, FormSection, Icon, Stack } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
@@ -15,7 +15,6 @@ import { FormRenderer } from './FormRenderer';
 import { FormData, ISVPlatform } from '../engine/types';
 import { ISVFormProvider, useISVFormContext } from './ISVFormContext';
 import { useSearchParams } from 'react-router';
-import { VeeamCredentialProvider } from '../contexts/VeeamCredentialContext';
 
 type ISVConfigurationInnerProps = {
   formMethods: UseFormReturn<FormData>;
@@ -167,11 +166,13 @@ export const ISVConfiguration = () => {
     shouldUnregister: false,
   });
 
+  const ContextProvider = platform.contextProvider ?? Fragment;
+
   return (
-    <VeeamCredentialProvider>
+    <ContextProvider>
       <ISVFormProvider platform={platform} formMethods={formMethods}>
         <ISVConfigurationInner formMethods={formMethods} />
       </ISVFormProvider>
-    </VeeamCredentialProvider>
+    </ContextProvider>
   );
 };

@@ -119,5 +119,6 @@ export function definePlatform(config: PlatformConfig): ISVPlatform {
     assistant: config.assistant ?? true,
     application: config.application,
     disabledMessage: config.disabledMessage,
+    contextProvider: config.contextProvider,
   };
 }
