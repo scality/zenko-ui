@@ -1,7 +1,0 @@
-node_modules
-dist
-build_ts
-#exclude automatically generated client
-src/js/managementClient
-*.test.ts
-*.test.tsx
