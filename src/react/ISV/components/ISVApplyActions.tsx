@@ -13,10 +13,7 @@ import { useChainedMutations } from '@scality/react-chained-query';
 import type { StepStatus } from '@scality/react-chained-query';
 import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
-import {
-  useMutationExecutor,
-  buildRuntimeContext,
-} from '../hooks/useMutationExecutor';
+import { useMutationExecutor, buildRuntimeContext } from '../hooks/useMutationExecutor';
 import { ISVPlatform, FormData, BucketItem, OptionalFailure } from '../engine/types';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 
@@ -63,15 +60,15 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
 
   const { platform, accessKey } = props;
 
-  const continueLabel = hasOptionalFailures && platform.continueWithOptionalFailuresLabel
-    ? platform.continueWithOptionalFailuresLabel
-    : 'Continue';
+  const continueLabel =
+    hasOptionalFailures && platform.continueWithOptionalFailuresLabel
+      ? platform.continueWithOptionalFailuresLabel
+      : 'Continue';
 
   const accessKeyData = getResult<{
     AccessKey: { AccessKeyId: string; SecretAccessKey: string };
   }>('createAccessKey');
-  const finalAccessKey =
-    accessKey || accessKeyData?.AccessKey?.AccessKeyId || '';
+  const finalAccessKey = accessKey || accessKeyData?.AccessKey?.AccessKeyId || '';
   const finalSecretKey = accessKeyData?.AccessKey?.SecretAccessKey || '';
 
   const handleContinue = useCallback(() => {
@@ -106,13 +103,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
         requireMode="all"
         rightActions={
           <Stack gap="r16">
-            <Button
-              type="button"
-              disabled={!hasError}
-              variant="outline"
-              label="Exit"
-              onClick={handleExit}
-            />
+            <Button type="button" disabled={!hasError} variant="outline" label="Exit" onClick={handleExit} />
             <Button
               disabled={!allRequiredStepsComplete}
               variant="primary"
@@ -125,58 +116,57 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
         }
         style={{ width: '50rem' }}
       >
-        <div style={{ height: '32rem' }}>
-          <Table>
-            <T.Head>
-              <T.HeadRow style={{ display: 'flex' }}>
-                <T.HeadCell style={{ width: '150px' }}>Step</T.HeadCell>
-                <T.HeadCell style={{ width: '50%' }}>Action</T.HeadCell>
-                <T.HeadCell style={{ width: '12.5%' }}>Status</T.HeadCell>
-              </T.HeadRow>
-            </T.Head>
-            <T.Body>
-              {steps.map((row) => (
-                <T.Row key={row.id} style={{ display: 'flex' }}>
-                  <T.Cell style={{ width: '150px' }}>{row.step}</T.Cell>
-                  <T.Cell style={{ width: '50%' }}>
-                    <Text>{row.label}</Text>
-                  </T.Cell>
-                  <T.Cell style={{ width: '12.5%' }}>
-                    {row.status === 'success' ? (
-                      <StatusBox>
-                        <Icon name="Check" color={theme.statusHealthy} />
-                        <span>Success</span>
-                      </StatusBox>
-                    ) : row.status === 'error' ? (
-                      <StatusBox>
-                        <Icon
-                          name="Exclamation-circle"
-                          color={theme.statusCritical}
-                        />
-                        <span>Failed</span>
-                        <Button
-                          icon={<Icon name="Redo" />}
-                          variant="secondary"
-                          type="button"
-                          label="Retry"
-                          onClick={row.retry}
-                        />
-                      </StatusBox>
-                    ) : (
-                      <span>Pending...</span>
-                    )}
-                  </T.Cell>
-                </T.Row>
-              ))}
-            </T.Body>
-          </Table>
-        </div>
-        {hasOptionalFailures && allRequiredStepsComplete && (
-          <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
-            {platform.defaultOptionalFailureMessage ||
-              'Some optional configuration steps were unsuccessful. You may continue with manual configuration.'}
-          </Banner>
-        )}
+        <Stack gap="r16" direction="vertical">
+          <div style={{ height: '32rem', overflow: 'auto' }}>
+            <Table>
+              <T.Head>
+                <T.HeadRow style={{ display: 'flex' }}>
+                  <T.HeadCell style={{ width: '150px' }}>Step</T.HeadCell>
+                  <T.HeadCell style={{ width: '50%' }}>Action</T.HeadCell>
+                  <T.HeadCell style={{ width: '12.5%' }}>Status</T.HeadCell>
+                </T.HeadRow>
+              </T.Head>
+              <T.Body>
+                {steps.map((row) => (
+                  <T.Row key={row.id} style={{ display: 'flex' }}>
+                    <T.Cell style={{ width: '150px' }}>{row.step}</T.Cell>
+                    <T.Cell style={{ width: '50%' }}>
+                      <Text>{row.label}</Text>
+                    </T.Cell>
+                    <T.Cell style={{ width: '12.5%' }}>
+                      {row.status === 'success' ? (
+                        <StatusBox>
+                          <Icon name="Check" color={theme.statusHealthy} />
+                          <span>Success</span>
+                        </StatusBox>
+                      ) : row.status === 'error' ? (
+                        <StatusBox>
+                          <Icon name="Exclamation-circle" color={theme.statusCritical} />
+                          <span>Failed</span>
+                          <Button
+                            icon={<Icon name="Redo" />}
+                            variant="secondary"
+                            type="button"
+                            label="Retry"
+                            onClick={row.retry}
+                          />
+                        </StatusBox>
+                      ) : (
+                        <span>Pending...</span>
+                      )}
+                    </T.Cell>
+                  </T.Row>
+                ))}
+              </T.Body>
+            </Table>
+          </div>
+          {hasOptionalFailures && allRequiredStepsComplete && (
+            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
+              {platform.defaultOptionalFailureMessage ||
+                'Some optional configuration steps were unsuccessful. You may continue with manual configuration.'}
+            </Banner>
+          )}
+        </Stack>
       </Form>
     </>
   );
@@ -225,10 +215,10 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     platform,
     account: account
       ? {
-        id: account.id,
-        name: account.name,
-        roleArn: account.preferredAssumableRoleArn,
-      }
+          id: account.id,
+          name: account.name,
+          roleArn: account.preferredAssumableRoleArn,
+        }
       : null,
     IAMUserNameType,
     generateKey,
@@ -264,9 +254,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
         id: f.id,
         label: f.label,
         message:
-          failureMessages[f.id] ||
-          platform.defaultOptionalFailureMessage ||
-          'This optional step was unsuccessful.',
+          failureMessages[f.id] || platform.defaultOptionalFailureMessage || 'This optional step was unsuccessful.',
       })),
     [libraryOptionalFailures, failureMessages, platform.defaultOptionalFailureMessage],
   );
