@@ -52,7 +52,7 @@ const useAssumeRoleQuery = () => {
 };
 
 const useS3ConfigFromAssumeRoleResult = () => {
-  const { zenkoEndpoint, features, s3InternalFQDN } = useConfig();
+  const { zenkoEndpoint, s3InternalFQDN } = useConfig();
   const endpoint = genClientEndpoint(zenkoEndpoint);
 
   return {
@@ -63,7 +63,7 @@ const useS3ConfigFromAssumeRoleResult = () => {
       endpoint,
       region: DEFAULT_REGION,
       forcePathStyle: true,
-      features: [...features, 'metadatasearch'],
+      features: ['ISV', 'metadatasearch'],
       cacheKey,
       proxy: {
         enabled: true,
