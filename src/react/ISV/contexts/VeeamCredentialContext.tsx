@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo } from 'react';
-import type { UseMutationResult } from 'react-query';
+import { useQueryClient, type UseMutationResult } from 'react-query';
 import {
   type ArtescaLibraryHooks,
   ArtescaLibraryNotAvailable,
@@ -29,10 +29,13 @@ const VeeamCredentialProviderInternal = ({
   children: React.ReactNode;
   artescaLibrary: ArtescaLibraryHooks;
 }) => {
+  const queryClient = useQueryClient();
   const validationResult = artescaLibrary.useIsVeeamCredentialsValid();
 
   const updateResult = artescaLibrary.useChangeVeeamCredentials({
-    onNewCredentialsValid: () => {},
+    onNewCredentialsValid: () => {
+      queryClient.invalidateQueries(['veeam_credential_valid']);
+    },
   });
 
   const value = useMemo(
