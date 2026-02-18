@@ -59,6 +59,14 @@ const VeeamCredentialProviderInternal = ({
   );
 };
 
+const defaultContextValue: VeeamCredentialContextValue = {
+  isCredentialsValid: true,
+  isCheckingCredentials: false,
+  isCredentialCheckError: false,
+  changeCredentialsMutation: null,
+  newCredentialsStatus: 'IDLE',
+};
+
 export const VeeamCredentialProvider = ({
   children,
 }: {
@@ -67,7 +75,11 @@ export const VeeamCredentialProvider = ({
   const artescaLibrary = useArtescaLibrary();
 
   if (artescaLibrary instanceof ArtescaLibraryNotAvailable) {
-    return <>{children}</>;
+    return (
+      <VeeamCredentialContext.Provider value={defaultContextValue}>
+        {children}
+      </VeeamCredentialContext.Provider>
+    );
   }
 
   return (

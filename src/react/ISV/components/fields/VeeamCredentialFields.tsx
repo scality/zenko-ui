@@ -10,13 +10,9 @@ import { Box, Button, Input } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import { useVeeamCredentialManagement } from '../../contexts/VeeamCredentialContext';
 
-export const VeeamCredentialFields = () => {
-  const {
-    isCredentialsValid,
-    changeCredentialsMutation,
-    newCredentialsStatus,
-  } = useVeeamCredentialManagement();
-
+const VeeamCredentialFieldsForm = () => {
+  const { changeCredentialsMutation, newCredentialsStatus } =
+    useVeeamCredentialManagement();
   const { showToast } = useToast();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -44,10 +40,6 @@ export const VeeamCredentialFields = () => {
       );
     }
   };
-
-  if (isCredentialsValid) {
-    return null;
-  }
 
   const isUpdating = newCredentialsStatus === 'WAITING';
 
@@ -121,4 +113,14 @@ export const VeeamCredentialFields = () => {
       </Box>
     </Stack>
   );
+};
+
+export const VeeamCredentialFields = () => {
+  const { isCredentialsValid } = useVeeamCredentialManagement();
+
+  if (isCredentialsValid) {
+    return null;
+  }
+
+  return <VeeamCredentialFieldsForm />;
 };

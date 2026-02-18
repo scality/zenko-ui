@@ -152,14 +152,16 @@ describe('useVeeamCredentialManagement', () => {
       mockUseArtescaLibrary.mockReturnValue(new ArtescaLibraryNotAvailable());
     });
 
-    it('should render children without providing context', () => {
+    it('should provide default context treating credentials as valid', () => {
       const { result } = renderHook(() => useVeeamCredentialManagement(), {
         wrapper,
       });
 
-      expect(() => result.current).toThrow(
-        'useVeeamCredentialManagement must be used within',
-      );
+      expect(result.current.isCredentialsValid).toBe(true);
+      expect(result.current.isCheckingCredentials).toBe(false);
+      expect(result.current.isCredentialCheckError).toBe(false);
+      expect(result.current.changeCredentialsMutation).toBeNull();
+      expect(result.current.newCredentialsStatus).toBe('IDLE');
     });
   });
 });
