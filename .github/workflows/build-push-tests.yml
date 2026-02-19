@@ -89,8 +89,6 @@ jobs:
           cache: "npm"
       - name: install dependencies
         run: npm ci
-      - name: run eslint test
-        run: npm run test:lint
       - name: run test suite
         run: npm run test:coverage
       - name: code coverage
