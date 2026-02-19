@@ -1,29 +1,16 @@
+import { ToastProvider } from '@scality/core-ui';
+import { coreUIAvailableThemes } from '@scality/core-ui/src/lib/style/theme';
+import { ShellHooksProvider } from '@scality/module-federation';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { QueryClient } from 'react-query';
-import {
-  mockShellAlerts,
-  mockShellHooks,
-  TEST_API_BASE_URL,
-} from '../../../react/utils/testUtil';
-import {
-  SelectAccountIAMRoleInternal as SelectAccountIAMRole,
-  extractAccountIdFromARN,
-} from '../SelectAccountIAMRole';
-
-import userEvent from '@testing-library/user-event';
-import {
-  USERS,
-  getConfigOverlay,
-} from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
-import { ToastProvider } from '@scality/core-ui';
-import { coreUIAvailableThemes } from '@scality/core-ui/src/lib/style/theme';
 import { ThemeProvider } from 'styled-components';
+import { getConfigOverlay, INSTANCE_ID, USERS } from '../../../js/mock/managementClientMSWHandlers';
 import { QueryClientProvider } from '../../../QueryClientProvider';
-import { ShellHooksProvider } from '@scality/module-federation';
-import { debug } from 'jest-preview';
+import { mockShellAlerts, mockShellHooks, TEST_API_BASE_URL } from '../../../react/utils/testUtil';
+import { extractAccountIdFromARN, SelectAccountIAMRoleInternal as SelectAccountIAMRole } from '../SelectAccountIAMRole';
 
 const testAccountId1 = '064609833007';
 const testAccountId2 = '377232323695';
@@ -77,7 +64,6 @@ jest.mock('../../DataServiceRoleProvider', () => {
 });
 
 const commonIAMHandlers = (getPayloadFn: jest.Mock, req, res, ctx) => {
-  //@ts-ignore
   const params = new URLSearchParams(req.body);
   getPayloadFn(params);
 
@@ -252,7 +238,7 @@ const commonIAMHandlers = (getPayloadFn: jest.Mock, req, res, ctx) => {
 
 const genFn = (getPayloadFn: jest.Mock, failingGetRole: boolean = false) => {
   return rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
-    //@ts-ignore
+    //@ts-expect-error
     const params = new URLSearchParams(req.body);
     const commonResponse = commonIAMHandlers(getPayloadFn, req, res, ctx);
     if (commonResponse) {
@@ -333,10 +319,7 @@ const LocalWrapper = ({ children }) => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={coreUIAvailableThemes.artescaLight}>
         <ToastProvider>
-          <ShellHooksProvider
-            shellHooks={mockShellHooks}
-            shellAlerts={mockShellAlerts}
-          >
+          <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
             {children}
           </ShellHooksProvider>
         </ToastProvider>
@@ -409,8 +392,7 @@ describe('SelectAccountIAMRole', () => {
         },
       ],
       canManageAccount: true,
-      canonicalId:
-        '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
+      canonicalId: '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
       creationDate: '2022-03-18T12:51:44.000Z',
       id: testAccountId1,
       name: 'no-bucket',
@@ -431,15 +413,9 @@ describe('SelectAccountIAMRole', () => {
       Tags: [],
     };
 
-    await waitFor(
-      () =>
-        expect(onChange).toHaveBeenCalledWith(
-          account,
-          role,
-          '11112::DataConsumer',
-        ),
-      { timeout: 10_000 },
-    );
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith(account, role, '11112::DataConsumer'), {
+      timeout: 10_000,
+    });
   });
 
   it('should display an error when failing to retrieve the role', async () => {
@@ -482,11 +458,7 @@ describe('SelectAccountIAMRole', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     await waitFor(() => {
-      expect(
-        screen.getByText(
-          /An error occured on our side while fetching the role's policy/i,
-        ),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/An error occured on our side while fetching the role's policy/i)).toBeInTheDocument();
     });
   });
 
@@ -531,13 +503,11 @@ describe('SelectAccountIAMRole', () => {
             },
           ],
           canManageAccount: true,
-          canonicalId:
-            '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
+          canonicalId: '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
           creationDate: '2022-03-18T12:51:44.000Z',
           id: '064609833007',
           name: 'no-bucket',
-          preferredAssumableRoleArn:
-            'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
+          preferredAssumableRoleArn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
           usedCapacity: {
             status: 'unknown',
           },
@@ -563,7 +533,7 @@ describe('SelectAccountIAMRole', () => {
 
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
-        //@ts-ignore
+        //@ts-expect-error
         const params = new URLSearchParams(req.body);
         getPayloadFn(params);
 
@@ -680,13 +650,11 @@ describe('SelectAccountIAMRole', () => {
             },
           ],
           canManageAccount: true,
-          canonicalId:
-            '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
+          canonicalId: '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
           creationDate: '2022-04-29T09:35:35.000Z',
           id: '377232323695',
           name: 'yanjin',
-          preferredAssumableRoleArn:
-            'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
+          preferredAssumableRoleArn: 'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
           usedCapacity: {
             status: 'unknown',
           },
@@ -763,9 +731,7 @@ describe('SelectAccountIAMRole', () => {
         <SelectAccountIAMRole
           onChange={onChange}
           filterOutInternalRoles
-          hideAccountRoles={[
-            { accountName: 'no-bucket', roleName: 'data-consumer-role' },
-          ]}
+          hideAccountRoles={[{ accountName: 'no-bucket', roleName: 'data-consumer-role' }]}
         />
       </LocalWrapper>,
     );
@@ -809,7 +775,6 @@ describe('SelectAccountIAMRole', () => {
     // Role select should be disabled and show "Please select an account"
     expect(seletors.roleSelect()).toHaveAttribute('disabled');
     expect(screen.getByText(/Please select an account/i)).toBeInTheDocument();
-
   });
 
   it('should display Loading option while roles are being fetched', async () => {
@@ -817,7 +782,7 @@ describe('SelectAccountIAMRole', () => {
     // Add a delayed handler for ListRoles to ensure we can see the loading state
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, async (req, res, ctx) => {
-        //@ts-ignore
+        //@ts-expect-error
         const params = new URLSearchParams(req.body);
 
         // Handle other actions normally
@@ -899,9 +864,7 @@ describe('SelectAccountIAMRole', () => {
 
     await userEvent.click(seletors.roleSelect());
 
-    expect(
-      screen.queryAllByRole('option', { name: /backbeat-gc-1/i }),
-    ).toHaveLength(0);
+    expect(screen.queryAllByRole('option', { name: /backbeat-gc-1/i })).toHaveLength(0);
   });
 
   it('should call onChange with empty keycloakRoleName if no keycloak role is found', async () => {
@@ -951,13 +914,11 @@ describe('SelectAccountIAMRole', () => {
           },
         ],
         canManageAccount: true,
-        canonicalId:
-          '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
+        canonicalId: '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
         creationDate: '2022-03-18T12:51:44.000Z',
         id: '064609833007',
         name: 'no-bucket',
-        preferredAssumableRoleArn:
-          'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
+        preferredAssumableRoleArn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
         usedCapacity: {
           status: 'unknown',
         },

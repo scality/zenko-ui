@@ -1,20 +1,19 @@
 import {
-  Endpoint,
+  type Endpoint,
   JAGUAR_S3_LOCATION_KEY,
-  Location as LegacyLocation,
-  LocationTypeKey,
+  type Location as LegacyLocation,
+  type LocationTypeKey,
   ORACLE_CLOUD_LOCATION_KEY,
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
   OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../types/config';
-import { BucketList } from '../../types/stats';
-import { LocationForm } from '../../types/location';
-import { storageOptions } from './LocationDetails';
+import type { LocationForm } from '../../types/location';
+import type { BucketList } from '../../types/stats';
+import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
+import type { Location as NextLocation } from '../next-architecture/domain/entities/location';
 import { getLocationType } from '../utils/storageOptions';
-
-import { Location as NextLocation } from '../next-architecture/domain/entities/location';
-import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
+import { storageOptions } from './LocationDetails';
 
 function newLocationDetails(): NextLocation {
   return {
@@ -57,10 +56,7 @@ function convertToLocation(locationState: LocationForm): LegacyLocation {
     isBuiltin: options.isBuiltin,
     //@ts-expect-error fix this when you are working on it
     isCold: !!options.isCold,
-    sizeLimitGB:
-      options.isSizeLimitChecked && options.sizeLimitGB
-        ? parseInt(options.sizeLimitGB, 10)
-        : 0,
+    sizeLimitGB: options.isSizeLimitChecked && options.sizeLimitGB ? parseInt(options.sizeLimitGB, 10) : 0,
     legacyAwsBehavior: locationState.options.legacyAwsBehavior,
   };
   //@ts-expect-error fix this when you are working on it
@@ -96,9 +92,7 @@ function getLocationDeletionBlocker(
 ): Record<string, boolean> {
   const isBuiltin = location.isBuiltin;
 
-  const hasBucket = !buckets.every(
-    (bucket) => bucket.location !== location.name,
-  );
+  const hasBucket = !buckets.every((bucket) => bucket.location !== location.name);
 
   const hasEndpoint = !endpoints.every((e) => e.locationName !== location.name);
 
@@ -114,9 +108,7 @@ function isLocationExists(location: string): boolean {
 }
 
 //disable the Cold Location as a source storage location
-function renderLocation(
-  location: LegacyLocation | Omit<NextLocation, 'usedCapacity'> | LocationInfo,
-) {
+function renderLocation(location: LegacyLocation | Omit<NextLocation, 'usedCapacity'> | LocationInfo) {
   const locationTypeName = getLocationType(location);
   if (location.isCold) {
     return `${location.name} (${locationTypeName}) - Cold Location can't be used`;

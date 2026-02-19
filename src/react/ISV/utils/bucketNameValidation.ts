@@ -1,7 +1,6 @@
 import Joi from 'joi';
 
-export const bucketErrorMessage =
-  'Bucket names can include only lowercase letters, numbers, dots (.), and hyphens (-)';
+export const bucketErrorMessage = 'Bucket names can include only lowercase letters, numbers, dots (.), and hyphens (-)';
 
 /**
  * Bucket name validation schema with uniqueness validation for ISV multi-bucket forms.

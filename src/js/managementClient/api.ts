@@ -14,7 +14,7 @@
 
 import * as url from 'url';
 import * as portableFetch from 'portable-fetch';
-import { Configuration } from './configuration';
+import type { Configuration } from './configuration';
 
 const BASE_PATH = 'http://localhost/api/v1'.replace(/\/+$/, '');
 
@@ -34,9 +34,7 @@ export const COLLECTION_FORMATS = {
  * @export
  * @interface FetchAPI
  */
-export interface FetchAPI {
-  (url: string, init?: any): Promise<Response>;
-}
+export type FetchAPI = (url: string, init?: any) => Promise<Response>;
 
 /**
  *
@@ -76,7 +74,10 @@ export class BaseAPI {
  */
 export class RequiredError extends window.Error {
   name: 'RequiredError';
-  constructor(public field: string, msg?: string) {
+  constructor(
+    public field: string,
+    msg?: string,
+  ) {
     super(msg);
   }
 }
@@ -701,7 +702,7 @@ export interface CpuStatTimesUnitV1 {
  * @export
  * @interface CrrScheduleV1
  */
-export interface CrrScheduleV1 {}
+export type CrrScheduleV1 = {};
 
 /**
  *
@@ -966,7 +967,7 @@ export interface IngestStatsUnitV1 extends WorkflowStatsUnitV1 {}
  * @export
  * @interface IngestionScheduleV1
  */
-export interface IngestionScheduleV1 {}
+export type IngestionScheduleV1 = {};
 
 /**
  *
@@ -1605,21 +1606,21 @@ export interface ItemCountsUnitV1 {
  * @export
  * @interface LocationAwsS3Custom
  */
-export interface LocationAwsS3Custom {}
+export type LocationAwsS3Custom = {};
 
 /**
  *
  * @export
  * @interface LocationAwsS3V1
  */
-export interface LocationAwsS3V1 {}
+export type LocationAwsS3V1 = {};
 
 /**
  *
  * @export
  * @interface LocationAzureArchiveV1
  */
-export interface LocationAzureArchiveV1 {}
+export type LocationAzureArchiveV1 = {};
 
 /**
  * Azure authentication method and parameters. If this field is not specified, shared-key authentication is performed using the values from the deprecated `accessKey` and `secretKey` fields.
@@ -1854,7 +1855,7 @@ export namespace LocationAzureStorageQueueV1 {}
  * @export
  * @interface LocationAzureV1
  */
-export interface LocationAzureV1 {}
+export type LocationAzureV1 = {};
 
 /**
  *
@@ -1868,7 +1869,7 @@ export interface LocationCephRadosgwS3V1 extends LocationAwsS3Custom {}
  * @export
  * @interface LocationDmfV1
  */
-export interface LocationDmfV1 {}
+export type LocationDmfV1 = {};
 
 /**
  *
@@ -1895,7 +1896,7 @@ export namespace LocationFileV1 {}
  * @export
  * @interface LocationGcpV1
  */
-export interface LocationGcpV1 {}
+export type LocationGcpV1 = {};
 
 /**
  *
@@ -1915,7 +1916,7 @@ export namespace LocationMemV1 {}
  * @export
  * @interface LocationNfsMountV1
  */
-export interface LocationNfsMountV1 {}
+export type LocationNfsMountV1 = {};
 
 /**
  *
@@ -1929,7 +1930,7 @@ export interface LocationScalityArtescaS3V1 extends LocationAwsS3Custom {}
  * @export
  * @interface LocationScalityHdclientV2
  */
-export interface LocationScalityHdclientV2 {}
+export type LocationScalityHdclientV2 = {};
 
 /**
  *
@@ -1943,7 +1944,7 @@ export interface LocationScalityRingS3V1 extends LocationAwsS3Custom {}
  * @export
  * @interface LocationScalitySproxydV1
  */
-export interface LocationScalitySproxydV1 {}
+export type LocationScalitySproxydV1 = {};
 
 /**
  *
@@ -3046,8 +3047,7 @@ export namespace ScheduleV1 {
  * @export
  * @interface SearchWorkflowsListV1
  */
-export interface SearchWorkflowsListV1
-  extends Array<Searchworkflowslistv1Inner> {}
+export interface SearchWorkflowsListV1 extends Array<Searchworkflowslistv1Inner> {}
 
 /**
  *
@@ -3445,99 +3445,69 @@ export interface WorkflowStatsUnitV1 extends WorkflowCounterSetV1 {
  * DefaultApi - fetch parameter creator
  * @export
  */
-export const DefaultApiFetchParamCreator = function (
-  configuration?: Configuration,
-) {
-  return {
-    /**
-     * Get health
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getHealth(options: any = {}): FetchArgs {
-      const localVarPath = `/health`;
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
+export const DefaultApiFetchParamCreator = (_configuration?: Configuration) => ({
+  /**
+   * Get health
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getHealth(options: any = {}): FetchArgs {
+    const localVarPath = `/health`;
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
 
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+});
 
 /**
  * DefaultApi - functional programming interface
  * @export
  */
-export const DefaultApiFp = function (configuration?: Configuration) {
-  return {
-    /**
-     * Get health
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getHealth(
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs =
-        DefaultApiFetchParamCreator(configuration).getHealth(options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-  };
-};
+export const DefaultApiFp = (configuration?: Configuration) => ({
+  /**
+   * Get health
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getHealth(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).getHealth(options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+});
 
 /**
  * DefaultApi - factory interface
  * @export
  */
-export const DefaultApiFactory = function (
-  configuration?: Configuration,
-  fetch?: FetchAPI,
-  basePath?: string,
-) {
-  return {
-    /**
-     * Get health
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getHealth(options?: any) {
-      return DefaultApiFp(configuration).getHealth(options)(fetch, basePath);
-    },
-  };
-};
+export const DefaultApiFactory = (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) => ({
+  /**
+   * Get health
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getHealth(options?: any) {
+    return DefaultApiFp(configuration).getHealth(options)(fetch, basePath);
+  },
+});
 
 /**
  * DefaultApi - object-oriented interface
@@ -3553,10 +3523,7 @@ export class DefaultApi extends BaseAPI {
    * @memberof DefaultApi
    */
   public getHealth(options?: any) {
-    return DefaultApiFp(this.configuration).getHealth(options)(
-      this.fetch,
-      this.basePath,
-    );
+    return DefaultApiFp(this.configuration).getHealth(options)(this.fetch, this.basePath);
   }
 }
 
@@ -3564,478 +3531,351 @@ export class DefaultApi extends BaseAPI {
  * ManagedInstanceApi - fetch parameter creator
  * @export
  */
-export const ManagedInstanceApiFetchParamCreator = function (
-  configuration?: Configuration,
-) {
-  return {
-    /**
-     * Get Server-managed configuration values for use by managed instances
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstanceConfigurationOverlay(
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getInstanceConfigurationOverlay.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}/config/overlay`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
+export const ManagedInstanceApiFetchParamCreator = (configuration?: Configuration) => ({
+  /**
+   * Get Server-managed configuration values for use by managed instances
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstanceConfigurationOverlay(uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling getInstanceConfigurationOverlay.',
       );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
+    }
+    const localVarPath = `/instance/{uuid}/config/overlay`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
 
-      // authentication managed-instance-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Instance-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Instance-Authentication-Token'] =
-          localVarApiKeyValue;
-      }
+    // authentication managed-instance-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Instance-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Instance-Authentication-Token'] = localVarApiKeyValue;
+    }
 
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Confirms the instance to indicate that tokens and keys are safely stored
+   * @param {string} uuid
+   * @param {InstanceConfirmationDataV1} confirmation
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  registerInstanceConfirm(uuid: string, confirmation: InstanceConfirmationDataV1, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling registerInstanceConfirm.',
       );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
+    }
+    // verify required parameter 'confirmation' is not null or undefined
+    if (confirmation === null || confirmation === undefined) {
+      throw new RequiredError(
+        'confirmation',
+        'Required parameter confirmation was null or undefined when calling registerInstanceConfirm.',
       );
+    }
+    const localVarPath = `/instance/{uuid}/confirm`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
 
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Confirms the instance to indicate that tokens and keys are safely stored
-     * @param {string} uuid
-     * @param {InstanceConfirmationDataV1} confirmation
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    registerInstanceConfirm(
-      uuid: string,
-      confirmation: InstanceConfirmationDataV1,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling registerInstanceConfirm.',
-        );
-      }
-      // verify required parameter 'confirmation' is not null or undefined
-      if (confirmation === null || confirmation === undefined) {
-        throw new RequiredError(
-          'confirmation',
-          'Required parameter confirmation was null or undefined when calling registerInstanceConfirm.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}/confirm`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
+    // authentication managed-instance-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Instance-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Instance-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'InstanceConfirmationDataV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(confirmation || {}) : confirmation || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Registers a Zenko instance and gives it an access token and encryption key
+   * @param {string} uuid
+   * @param {InstanceRegisterDataV1} registration
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  registerInstanceInitiate(uuid: string, registration: InstanceRegisterDataV1, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling registerInstanceInitiate.',
       );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication managed-instance-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Instance-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Instance-Authentication-Token'] =
-          localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
+    }
+    // verify required parameter 'registration' is not null or undefined
+    if (registration === null || registration === undefined) {
+      throw new RequiredError(
+        'registration',
+        'Required parameter registration was null or undefined when calling registerInstanceInitiate.',
       );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
+    }
+    const localVarPath = `/instance/{uuid}/register`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'InstanceRegisterDataV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(registration || {}) : registration || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Submit a new stats report
+   * @param {string} uuid
+   * @param {ReportV1} report
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  saveInstanceStats(uuid: string, report: ReportV1, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError('uuid', 'Required parameter uuid was null or undefined when calling saveInstanceStats.');
+    }
+    // verify required parameter 'report' is not null or undefined
+    if (report === null || report === undefined) {
+      throw new RequiredError(
+        'report',
+        'Required parameter report was null or undefined when calling saveInstanceStats.',
       );
-      const needsSerialization =
-        <any>'InstanceConfirmationDataV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(confirmation || {})
-        : confirmation || '';
+    }
+    const localVarPath = `/instance/{uuid}/stats`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
 
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Registers a Zenko instance and gives it an access token and encryption key
-     * @param {string} uuid
-     * @param {InstanceRegisterDataV1} registration
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    registerInstanceInitiate(
-      uuid: string,
-      registration: InstanceRegisterDataV1,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling registerInstanceInitiate.',
-        );
-      }
-      // verify required parameter 'registration' is not null or undefined
-      if (registration === null || registration === undefined) {
-        throw new RequiredError(
-          'registration',
-          'Required parameter registration was null or undefined when calling registerInstanceInitiate.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}/register`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
+    // authentication managed-instance-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Instance-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Instance-Authentication-Token'] = localVarApiKeyValue;
+    }
 
-      localVarHeaderParameter['Content-Type'] = 'application/json';
+    localVarHeaderParameter['Content-Type'] = 'application/json';
 
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'InstanceRegisterDataV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(registration || {})
-        : registration || '';
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'ReportV1' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(report || {}) : report || '';
 
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Submit a new stats report
-     * @param {string} uuid
-     * @param {ReportV1} report
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    saveInstanceStats(
-      uuid: string,
-      report: ReportV1,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling saveInstanceStats.',
-        );
-      }
-      // verify required parameter 'report' is not null or undefined
-      if (report === null || report === undefined) {
-        throw new RequiredError(
-          'report',
-          'Required parameter report was null or undefined when calling saveInstanceStats.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}/stats`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication managed-instance-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Instance-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Instance-Authentication-Token'] =
-          localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'ReportV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(report || {})
-        : report || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+});
 
 /**
  * ManagedInstanceApi - functional programming interface
  * @export
  */
-export const ManagedInstanceApiFp = function (configuration?: Configuration) {
-  return {
-    /**
-     * Get Server-managed configuration values for use by managed instances
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstanceConfigurationOverlay(
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<ConfigOverlayV1> {
-      const localVarFetchArgs = ManagedInstanceApiFetchParamCreator(
-        configuration,
-      ).getInstanceConfigurationOverlay(uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Confirms the instance to indicate that tokens and keys are safely stored
-     * @param {string} uuid
-     * @param {InstanceConfirmationDataV1} confirmation
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    registerInstanceConfirm(
-      uuid: string,
-      confirmation: InstanceConfirmationDataV1,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = ManagedInstanceApiFetchParamCreator(
-        configuration,
-      ).registerInstanceConfirm(uuid, confirmation, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Registers a Zenko instance and gives it an access token and encryption key
-     * @param {string} uuid
-     * @param {InstanceRegisterDataV1} registration
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    registerInstanceInitiate(
-      uuid: string,
-      registration: InstanceRegisterDataV1,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<InstanceCredentialsV1> {
-      const localVarFetchArgs = ManagedInstanceApiFetchParamCreator(
-        configuration,
-      ).registerInstanceInitiate(uuid, registration, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Submit a new stats report
-     * @param {string} uuid
-     * @param {ReportV1} report
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    saveInstanceStats(
-      uuid: string,
-      report: ReportV1,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<ReportV1> {
-      const localVarFetchArgs = ManagedInstanceApiFetchParamCreator(
-        configuration,
-      ).saveInstanceStats(uuid, report, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-  };
-};
+export const ManagedInstanceApiFp = (configuration?: Configuration) => ({
+  /**
+   * Get Server-managed configuration values for use by managed instances
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstanceConfigurationOverlay(
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<ConfigOverlayV1> {
+    const localVarFetchArgs = ManagedInstanceApiFetchParamCreator(configuration).getInstanceConfigurationOverlay(
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Confirms the instance to indicate that tokens and keys are safely stored
+   * @param {string} uuid
+   * @param {InstanceConfirmationDataV1} confirmation
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  registerInstanceConfirm(
+    uuid: string,
+    confirmation: InstanceConfirmationDataV1,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = ManagedInstanceApiFetchParamCreator(configuration).registerInstanceConfirm(
+      uuid,
+      confirmation,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Registers a Zenko instance and gives it an access token and encryption key
+   * @param {string} uuid
+   * @param {InstanceRegisterDataV1} registration
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  registerInstanceInitiate(
+    uuid: string,
+    registration: InstanceRegisterDataV1,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<InstanceCredentialsV1> {
+    const localVarFetchArgs = ManagedInstanceApiFetchParamCreator(configuration).registerInstanceInitiate(
+      uuid,
+      registration,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Submit a new stats report
+   * @param {string} uuid
+   * @param {ReportV1} report
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  saveInstanceStats(
+    uuid: string,
+    report: ReportV1,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<ReportV1> {
+    const localVarFetchArgs = ManagedInstanceApiFetchParamCreator(configuration).saveInstanceStats(
+      uuid,
+      report,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+});
 
 /**
  * ManagedInstanceApi - factory interface
  * @export
  */
-export const ManagedInstanceApiFactory = function (
-  configuration?: Configuration,
-  fetch?: FetchAPI,
-  basePath?: string,
-) {
-  return {
-    /**
-     * Get Server-managed configuration values for use by managed instances
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstanceConfigurationOverlay(uuid: string, options?: any) {
-      return ManagedInstanceApiFp(
-        configuration,
-      ).getInstanceConfigurationOverlay(uuid, options)(fetch, basePath);
-    },
-    /**
-     * Confirms the instance to indicate that tokens and keys are safely stored
-     * @param {string} uuid
-     * @param {InstanceConfirmationDataV1} confirmation
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    registerInstanceConfirm(
-      uuid: string,
-      confirmation: InstanceConfirmationDataV1,
-      options?: any,
-    ) {
-      return ManagedInstanceApiFp(configuration).registerInstanceConfirm(
-        uuid,
-        confirmation,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Registers a Zenko instance and gives it an access token and encryption key
-     * @param {string} uuid
-     * @param {InstanceRegisterDataV1} registration
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    registerInstanceInitiate(
-      uuid: string,
-      registration: InstanceRegisterDataV1,
-      options?: any,
-    ) {
-      return ManagedInstanceApiFp(configuration).registerInstanceInitiate(
-        uuid,
-        registration,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Submit a new stats report
-     * @param {string} uuid
-     * @param {ReportV1} report
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    saveInstanceStats(uuid: string, report: ReportV1, options?: any) {
-      return ManagedInstanceApiFp(configuration).saveInstanceStats(
-        uuid,
-        report,
-        options,
-      )(fetch, basePath);
-    },
-  };
-};
+export const ManagedInstanceApiFactory = (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) => ({
+  /**
+   * Get Server-managed configuration values for use by managed instances
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstanceConfigurationOverlay(uuid: string, options?: any) {
+    return ManagedInstanceApiFp(configuration).getInstanceConfigurationOverlay(uuid, options)(fetch, basePath);
+  },
+  /**
+   * Confirms the instance to indicate that tokens and keys are safely stored
+   * @param {string} uuid
+   * @param {InstanceConfirmationDataV1} confirmation
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  registerInstanceConfirm(uuid: string, confirmation: InstanceConfirmationDataV1, options?: any) {
+    return ManagedInstanceApiFp(configuration).registerInstanceConfirm(uuid, confirmation, options)(fetch, basePath);
+  },
+  /**
+   * Registers a Zenko instance and gives it an access token and encryption key
+   * @param {string} uuid
+   * @param {InstanceRegisterDataV1} registration
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  registerInstanceInitiate(uuid: string, registration: InstanceRegisterDataV1, options?: any) {
+    return ManagedInstanceApiFp(configuration).registerInstanceInitiate(uuid, registration, options)(fetch, basePath);
+  },
+  /**
+   * Submit a new stats report
+   * @param {string} uuid
+   * @param {ReportV1} report
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  saveInstanceStats(uuid: string, report: ReportV1, options?: any) {
+    return ManagedInstanceApiFp(configuration).saveInstanceStats(uuid, report, options)(fetch, basePath);
+  },
+});
 
 /**
  * ManagedInstanceApi - object-oriented interface
@@ -4052,9 +3892,10 @@ export class ManagedInstanceApi extends BaseAPI {
    * @memberof ManagedInstanceApi
    */
   public getInstanceConfigurationOverlay(uuid: string, options?: any) {
-    return ManagedInstanceApiFp(
-      this.configuration,
-    ).getInstanceConfigurationOverlay(uuid, options)(this.fetch, this.basePath);
+    return ManagedInstanceApiFp(this.configuration).getInstanceConfigurationOverlay(uuid, options)(
+      this.fetch,
+      this.basePath,
+    );
   }
 
   /**
@@ -4065,11 +3906,7 @@ export class ManagedInstanceApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof ManagedInstanceApi
    */
-  public registerInstanceConfirm(
-    uuid: string,
-    confirmation: InstanceConfirmationDataV1,
-    options?: any,
-  ) {
+  public registerInstanceConfirm(uuid: string, confirmation: InstanceConfirmationDataV1, options?: any) {
     return ManagedInstanceApiFp(this.configuration).registerInstanceConfirm(
       uuid,
       confirmation,
@@ -4085,11 +3922,7 @@ export class ManagedInstanceApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof ManagedInstanceApi
    */
-  public registerInstanceInitiate(
-    uuid: string,
-    registration: InstanceRegisterDataV1,
-    options?: any,
-  ) {
+  public registerInstanceInitiate(uuid: string, registration: InstanceRegisterDataV1, options?: any) {
     return ManagedInstanceApiFp(this.configuration).registerInstanceInitiate(
       uuid,
       registration,
@@ -4106,11 +3939,7 @@ export class ManagedInstanceApi extends BaseAPI {
    * @memberof ManagedInstanceApi
    */
   public saveInstanceStats(uuid: string, report: ReportV1, options?: any) {
-    return ManagedInstanceApiFp(this.configuration).saveInstanceStats(
-      uuid,
-      report,
-      options,
-    )(this.fetch, this.basePath);
+    return ManagedInstanceApiFp(this.configuration).saveInstanceStats(uuid, report, options)(this.fetch, this.basePath);
   }
 }
 
@@ -4118,460 +3947,340 @@ export class ManagedInstanceApi extends BaseAPI {
  * PensieveInternalApi - fetch parameter creator
  * @export
  */
-export const PensieveInternalApiFetchParamCreator = function (
-  configuration?: Configuration,
-) {
-  return {
-    /**
-     * Get a user profile by its id
-     * @param {string} userId
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getOrbitUserProfile(
-      userId: string,
-      xScalRequestUids?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'userId' is not null or undefined
-      if (userId === null || userId === undefined) {
-        throw new RequiredError(
-          'userId',
-          'Required parameter userId was null or undefined when calling getOrbitUserProfile.',
-        );
-      }
-      const localVarPath = `/user/profile/{userId}`.replace(
-        `{${'userId'}}`,
-        encodeURIComponent(String(userId)),
+export const PensieveInternalApiFetchParamCreator = (configuration?: Configuration) => ({
+  /**
+   * Get a user profile by its id
+   * @param {string} userId
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getOrbitUserProfile(userId: string, xScalRequestUids?: string, options: any = {}): FetchArgs {
+    // verify required parameter 'userId' is not null or undefined
+    if (userId === null || userId === undefined) {
+      throw new RequiredError(
+        'userId',
+        'Required parameter userId was null or undefined when calling getOrbitUserProfile.',
       );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
+    }
+    const localVarPath = `/user/profile/{userId}`.replace(`{${'userId'}}`, encodeURIComponent(String(userId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
 
-      // authentication internal-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Internal-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Internal-Authentication-Token'] =
-          localVarApiKeyValue;
-      }
+    // authentication internal-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Internal-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Internal-Authentication-Token'] = localVarApiKeyValue;
+    }
 
-      if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
-        localVarHeaderParameter['X-Scal-Request-Uids'] =
-          String(xScalRequestUids);
-      }
+    if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
+      localVarHeaderParameter['X-Scal-Request-Uids'] = String(xScalRequestUids);
+    }
 
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get a user profile by its email
+   * @param {string} email
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getOrbitUserProfileByEmail(email: string, xScalRequestUids?: string, options: any = {}): FetchArgs {
+    // verify required parameter 'email' is not null or undefined
+    if (email === null || email === undefined) {
+      throw new RequiredError(
+        'email',
+        'Required parameter email was null or undefined when calling getOrbitUserProfileByEmail.',
       );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
+    }
+    const localVarPath = `/user/profile/email/{email}`.replace(`{${'email'}}`, encodeURIComponent(String(email)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication internal-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Internal-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Internal-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
+      localVarHeaderParameter['X-Scal-Request-Uids'] = String(xScalRequestUids);
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   *
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  internalInform(xScalRequestUids?: string, options: any = {}): FetchArgs {
+    const localVarPath = `/internal/inform`;
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication internal-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Internal-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Internal-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
+      localVarHeaderParameter['X-Scal-Request-Uids'] = String(xScalRequestUids);
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Create a user profile
+   * @param {PortalUserV1} user
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  saveOrbitUserProfile(user: PortalUserV1, xScalRequestUids?: string, options: any = {}): FetchArgs {
+    // verify required parameter 'user' is not null or undefined
+    if (user === null || user === undefined) {
+      throw new RequiredError(
+        'user',
+        'Required parameter user was null or undefined when calling saveOrbitUserProfile.',
       );
+    }
+    const localVarPath = `/user/profile`;
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
 
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get a user profile by its email
-     * @param {string} email
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getOrbitUserProfileByEmail(
-      email: string,
-      xScalRequestUids?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'email' is not null or undefined
-      if (email === null || email === undefined) {
-        throw new RequiredError(
-          'email',
-          'Required parameter email was null or undefined when calling getOrbitUserProfileByEmail.',
-        );
-      }
-      const localVarPath = `/user/profile/email/{email}`.replace(
-        `{${'email'}}`,
-        encodeURIComponent(String(email)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
+    // authentication internal-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Internal-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Internal-Authentication-Token'] = localVarApiKeyValue;
+    }
 
-      // authentication internal-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Internal-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Internal-Authentication-Token'] =
-          localVarApiKeyValue;
-      }
+    if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
+      localVarHeaderParameter['X-Scal-Request-Uids'] = String(xScalRequestUids);
+    }
 
-      if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
-        localVarHeaderParameter['X-Scal-Request-Uids'] =
-          String(xScalRequestUids);
-      }
+    localVarHeaderParameter['Content-Type'] = 'application/json';
 
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'PortalUserV1' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(user || {}) : user || '';
 
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    internalInform(xScalRequestUids?: string, options: any = {}): FetchArgs {
-      const localVarPath = `/internal/inform`;
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication internal-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Internal-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Internal-Authentication-Token'] =
-          localVarApiKeyValue;
-      }
-
-      if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
-        localVarHeaderParameter['X-Scal-Request-Uids'] =
-          String(xScalRequestUids);
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Create a user profile
-     * @param {PortalUserV1} user
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    saveOrbitUserProfile(
-      user: PortalUserV1,
-      xScalRequestUids?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'user' is not null or undefined
-      if (user === null || user === undefined) {
-        throw new RequiredError(
-          'user',
-          'Required parameter user was null or undefined when calling saveOrbitUserProfile.',
-        );
-      }
-      const localVarPath = `/user/profile`;
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication internal-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Internal-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Internal-Authentication-Token'] =
-          localVarApiKeyValue;
-      }
-
-      if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
-        localVarHeaderParameter['X-Scal-Request-Uids'] =
-          String(xScalRequestUids);
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'PortalUserV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(user || {})
-        : user || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+});
 
 /**
  * PensieveInternalApi - functional programming interface
  * @export
  */
-export const PensieveInternalApiFp = function (configuration?: Configuration) {
-  return {
-    /**
-     * Get a user profile by its id
-     * @param {string} userId
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getOrbitUserProfile(
-      userId: string,
-      xScalRequestUids?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
-      const localVarFetchArgs = PensieveInternalApiFetchParamCreator(
-        configuration,
-      ).getOrbitUserProfile(userId, xScalRequestUids, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get a user profile by its email
-     * @param {string} email
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getOrbitUserProfileByEmail(
-      email: string,
-      xScalRequestUids?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
-      const localVarFetchArgs = PensieveInternalApiFetchParamCreator(
-        configuration,
-      ).getOrbitUserProfileByEmail(email, xScalRequestUids, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     *
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    internalInform(
-      xScalRequestUids?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = PensieveInternalApiFetchParamCreator(
-        configuration,
-      ).internalInform(xScalRequestUids, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Create a user profile
-     * @param {PortalUserV1} user
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    saveOrbitUserProfile(
-      user: PortalUserV1,
-      xScalRequestUids?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
-      const localVarFetchArgs = PensieveInternalApiFetchParamCreator(
-        configuration,
-      ).saveOrbitUserProfile(user, xScalRequestUids, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-  };
-};
+export const PensieveInternalApiFp = (configuration?: Configuration) => ({
+  /**
+   * Get a user profile by its id
+   * @param {string} userId
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getOrbitUserProfile(
+    userId: string,
+    xScalRequestUids?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
+    const localVarFetchArgs = PensieveInternalApiFetchParamCreator(configuration).getOrbitUserProfile(
+      userId,
+      xScalRequestUids,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get a user profile by its email
+   * @param {string} email
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getOrbitUserProfileByEmail(
+    email: string,
+    xScalRequestUids?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
+    const localVarFetchArgs = PensieveInternalApiFetchParamCreator(configuration).getOrbitUserProfileByEmail(
+      email,
+      xScalRequestUids,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   *
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  internalInform(xScalRequestUids?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = PensieveInternalApiFetchParamCreator(configuration).internalInform(
+      xScalRequestUids,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Create a user profile
+   * @param {PortalUserV1} user
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  saveOrbitUserProfile(
+    user: PortalUserV1,
+    xScalRequestUids?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
+    const localVarFetchArgs = PensieveInternalApiFetchParamCreator(configuration).saveOrbitUserProfile(
+      user,
+      xScalRequestUids,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+});
 
 /**
  * PensieveInternalApi - factory interface
  * @export
  */
-export const PensieveInternalApiFactory = function (
-  configuration?: Configuration,
-  fetch?: FetchAPI,
-  basePath?: string,
-) {
-  return {
-    /**
-     * Get a user profile by its id
-     * @param {string} userId
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getOrbitUserProfile(
-      userId: string,
-      xScalRequestUids?: string,
-      options?: any,
-    ) {
-      return PensieveInternalApiFp(configuration).getOrbitUserProfile(
-        userId,
-        xScalRequestUids,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get a user profile by its email
-     * @param {string} email
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getOrbitUserProfileByEmail(
-      email: string,
-      xScalRequestUids?: string,
-      options?: any,
-    ) {
-      return PensieveInternalApiFp(configuration).getOrbitUserProfileByEmail(
-        email,
-        xScalRequestUids,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     *
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    internalInform(xScalRequestUids?: string, options?: any) {
-      return PensieveInternalApiFp(configuration).internalInform(
-        xScalRequestUids,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Create a user profile
-     * @param {PortalUserV1} user
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    saveOrbitUserProfile(
-      user: PortalUserV1,
-      xScalRequestUids?: string,
-      options?: any,
-    ) {
-      return PensieveInternalApiFp(configuration).saveOrbitUserProfile(
-        user,
-        xScalRequestUids,
-        options,
-      )(fetch, basePath);
-    },
-  };
-};
+export const PensieveInternalApiFactory = (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) => ({
+  /**
+   * Get a user profile by its id
+   * @param {string} userId
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getOrbitUserProfile(userId: string, xScalRequestUids?: string, options?: any) {
+    return PensieveInternalApiFp(configuration).getOrbitUserProfile(userId, xScalRequestUids, options)(fetch, basePath);
+  },
+  /**
+   * Get a user profile by its email
+   * @param {string} email
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getOrbitUserProfileByEmail(email: string, xScalRequestUids?: string, options?: any) {
+    return PensieveInternalApiFp(configuration).getOrbitUserProfileByEmail(
+      email,
+      xScalRequestUids,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   *
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  internalInform(xScalRequestUids?: string, options?: any) {
+    return PensieveInternalApiFp(configuration).internalInform(xScalRequestUids, options)(fetch, basePath);
+  },
+  /**
+   * Create a user profile
+   * @param {PortalUserV1} user
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  saveOrbitUserProfile(user: PortalUserV1, xScalRequestUids?: string, options?: any) {
+    return PensieveInternalApiFp(configuration).saveOrbitUserProfile(user, xScalRequestUids, options)(fetch, basePath);
+  },
+});
 
 /**
  * PensieveInternalApi - object-oriented interface
@@ -4588,11 +4297,7 @@ export class PensieveInternalApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof PensieveInternalApi
    */
-  public getOrbitUserProfile(
-    userId: string,
-    xScalRequestUids?: string,
-    options?: any,
-  ) {
+  public getOrbitUserProfile(userId: string, xScalRequestUids?: string, options?: any) {
     return PensieveInternalApiFp(this.configuration).getOrbitUserProfile(
       userId,
       xScalRequestUids,
@@ -4608,11 +4313,7 @@ export class PensieveInternalApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof PensieveInternalApi
    */
-  public getOrbitUserProfileByEmail(
-    email: string,
-    xScalRequestUids?: string,
-    options?: any,
-  ) {
+  public getOrbitUserProfileByEmail(email: string, xScalRequestUids?: string, options?: any) {
     return PensieveInternalApiFp(this.configuration).getOrbitUserProfileByEmail(
       email,
       xScalRequestUids,
@@ -4628,10 +4329,10 @@ export class PensieveInternalApi extends BaseAPI {
    * @memberof PensieveInternalApi
    */
   public internalInform(xScalRequestUids?: string, options?: any) {
-    return PensieveInternalApiFp(this.configuration).internalInform(
-      xScalRequestUids,
-      options,
-    )(this.fetch, this.basePath);
+    return PensieveInternalApiFp(this.configuration).internalInform(xScalRequestUids, options)(
+      this.fetch,
+      this.basePath,
+    );
   }
 
   /**
@@ -4642,11 +4343,7 @@ export class PensieveInternalApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof PensieveInternalApi
    */
-  public saveOrbitUserProfile(
-    user: PortalUserV1,
-    xScalRequestUids?: string,
-    options?: any,
-  ) {
+  public saveOrbitUserProfile(user: PortalUserV1, xScalRequestUids?: string, options?: any) {
     return PensieveInternalApiFp(this.configuration).saveOrbitUserProfile(
       user,
       xScalRequestUids,
@@ -4659,5533 +4356,4466 @@ export class PensieveInternalApi extends BaseAPI {
  * UiFacingApi - fetch parameter creator
  * @export
  */
-export const UiFacingApiFetchParamCreator = function (
-  configuration?: Configuration,
-) {
-  return {
-    /**
-     * Claim an instance, linking it to the user's account
-     * @param {string} userId
-     * @param {string} instanceId
-     * @param {string} friendlyName
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    claimInstance(
-      userId: string,
-      instanceId: string,
-      friendlyName: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'userId' is not null or undefined
-      if (userId === null || userId === undefined) {
-        throw new RequiredError(
-          'userId',
-          'Required parameter userId was null or undefined when calling claimInstance.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling claimInstance.',
-        );
-      }
-      // verify required parameter 'friendlyName' is not null or undefined
-      if (friendlyName === null || friendlyName === undefined) {
-        throw new RequiredError(
-          'friendlyName',
-          'Required parameter friendlyName was null or undefined when calling claimInstance.',
-        );
-      }
-      const localVarPath = `/user/{userId}/claim/{instanceId}`
-        .replace(`{${'userId'}}`, encodeURIComponent(String(userId)))
-        .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'string' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(friendlyName || {})
-        : friendlyName || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Creates a bucket expiration workflow.
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling createBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling createBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling createBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling createBucketWorkflowExpiration.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/expiration`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'BucketWorkflowExpirationV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Creates a bucket replication workflow. Will Not enable versioning automatically. Will conflict if a rule already exists on the bucket.
-     * @param {ReplicationStreamInternalV1} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowReplication(
-      workflow: ReplicationStreamInternalV1,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling createBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling createBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling createBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling createBucketWorkflowReplication.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/replication`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'ReplicationStreamInternalV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Creates a bucket transition workflow.
-     * @param {BucketWorkflowTransitionV2} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV2,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling createBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling createBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling createBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling createBucketWorkflowTransition.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'BucketWorkflowTransitionV2' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Creates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling createConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling createConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling createConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      const localVarPath =
-        `/config/instance/{instanceId}/bucket/{bucketName}/workflow/expiration`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'BucketWorkflowExpirationV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Creates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV1,
-      bucketName: string,
-      instanceId: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling createConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling createConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling createConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      const localVarPath =
-        `/config/instance/{instanceId}/bucket/{bucketName}/workflow/transition`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'BucketWorkflowTransitionV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Adds an endpoint configuration item
-     * @param {EndpointV1} endpoint
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayEndpoint(
-      endpoint: EndpointV1,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'endpoint' is not null or undefined
-      if (endpoint === null || endpoint === undefined) {
-        throw new RequiredError(
-          'endpoint',
-          'Required parameter endpoint was null or undefined when calling createConfigurationOverlayEndpoint.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling createConfigurationOverlayEndpoint.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/endpoint`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'EndpointV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(endpoint || {})
-        : endpoint || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Adds location configuration item
-     * @param {LocationV1} location
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayLocation(
-      location: LocationV1,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'location' is not null or undefined
-      if (location === null || location === undefined) {
-        throw new RequiredError(
-          'location',
-          'Required parameter location was null or undefined when calling createConfigurationOverlayLocation.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling createConfigurationOverlayLocation.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/location`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'LocationV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(location || {})
-        : location || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Creates replication stream configuration item
-     * @param {ReplicationStreamInternalV1} replicationStream
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayReplicationStream(
-      replicationStream: ReplicationStreamInternalV1,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'replicationStream' is not null or undefined
-      if (replicationStream === null || replicationStream === undefined) {
-        throw new RequiredError(
-          'replicationStream',
-          'Required parameter replicationStream was null or undefined when calling createConfigurationOverlayReplicationStream.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling createConfigurationOverlayReplicationStream.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/replication`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'ReplicationStreamInternalV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(replicationStream || {})
-        : replicationStream || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Create a new user
-     * @param {UserV1} user
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayUser(
-      user: UserV1,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'user' is not null or undefined
-      if (user === null || user === undefined) {
-        throw new RequiredError(
-          'user',
-          'Required parameter user was null or undefined when calling createConfigurationOverlayUser.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling createConfigurationOverlayUser.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/user`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'UserV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(user || {})
-        : user || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Deletes a bucket expiration workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowExpiration(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling deleteBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling deleteBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling deleteBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling deleteBucketWorkflowExpiration.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/expiration/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Deletes a bucket replication workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowReplication(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling deleteBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling deleteBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling deleteBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling deleteBucketWorkflowReplication.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/replication/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Deletes a bucket transition workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowTransition(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling deleteBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling deleteBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling deleteBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling deleteBucketWorkflowTransition.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Deletes a bucket expiration workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayBucketWorkflowExpiration(
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling deleteConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling deleteConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling deleteConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      const localVarPath =
-        `/config/instance/{instanceId}/bucket/{bucketName}/workflow/expiration/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Deletes a bucket transition workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayBucketWorkflowTransition(
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling deleteConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling deleteConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling deleteConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      const localVarPath =
-        `/config/instance/{instanceId}/bucket/{bucketName}/workflow/transition/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Delete an endpoint definition
-     * @param {string} hostname
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayEndpoint(
-      hostname: string,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'hostname' is not null or undefined
-      if (hostname === null || hostname === undefined) {
-        throw new RequiredError(
-          'hostname',
-          'Required parameter hostname was null or undefined when calling deleteConfigurationOverlayEndpoint.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling deleteConfigurationOverlayEndpoint.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/endpoint/{hostname}`
-        .replace(`{${'hostname'}}`, encodeURIComponent(String(hostname)))
-        .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Deletes location configuration item
-     * @param {string} locationName
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayLocation(
-      locationName: string,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'locationName' is not null or undefined
-      if (locationName === null || locationName === undefined) {
-        throw new RequiredError(
-          'locationName',
-          'Required parameter locationName was null or undefined when calling deleteConfigurationOverlayLocation.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling deleteConfigurationOverlayLocation.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/location/{locationName}`
-        .replace(
-          `{${'locationName'}}`,
-          encodeURIComponent(String(locationName)),
-        )
-        .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Deletes a replication stream
-     * @param {string} streamId
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayReplicationStream(
-      streamId: string,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'streamId' is not null or undefined
-      if (streamId === null || streamId === undefined) {
-        throw new RequiredError(
-          'streamId',
-          'Required parameter streamId was null or undefined when calling deleteConfigurationOverlayReplicationStream.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling deleteConfigurationOverlayReplicationStream.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/replication/{streamId}`
-        .replace(`{${'streamId'}}`, encodeURIComponent(String(streamId)))
-        .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Delete a user
-     * @param {string} uuid
-     * @param {string} [accessKey]
-     * @param {string} [accountName]
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayUser(
-      uuid: string,
-      accessKey?: string,
-      accountName?: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling deleteConfigurationOverlayUser.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/user`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (accessKey !== undefined) {
-        localVarQueryParameter['accessKey'] = accessKey;
-      }
-
-      if (accountName !== undefined) {
-        localVarQueryParameter['accountName'] = accountName;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Generate account access key
-     * @param {string} uuid
-     * @param {string} accountName
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    generateKeyConfigurationOverlayUser(
-      uuid: string,
-      accountName: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling generateKeyConfigurationOverlayUser.',
-        );
-      }
-      // verify required parameter 'accountName' is not null or undefined
-      if (accountName === null || accountName === undefined) {
-        throw new RequiredError(
-          'accountName',
-          'Required parameter accountName was null or undefined when calling generateKeyConfigurationOverlayUser.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/user/{accountName}/key`
-        .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)))
-        .replace(`{${'accountName'}}`, encodeURIComponent(String(accountName)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get Server-managed configuration values for use by user frontend
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getConfigurationOverlayView(uuid: string, options: any = {}): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getConfigurationOverlayView.',
-        );
-      }
-      const localVarPath = `/config/overlay/view/{uuid}`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get current user's profile
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getCurrentUserProfile(
-      xScalRequestUids?: string,
-      options: any = {},
-    ): FetchArgs {
-      const localVarPath = `/profile/current`;
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
-        localVarHeaderParameter['X-Scal-Request-Uids'] =
-          String(xScalRequestUids);
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get instance
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstance(uuid: string, options: any = {}): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getInstance.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get latest statistics
-     * @param {string} uuid
-     * @param {number} [interval]
-     * @param {string} [startTime]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstanceStats(
-      uuid: string,
-      interval?: number,
-      startTime?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getInstanceStats.',
-        );
-      }
-      const localVarPath = `/stats/{uuid}`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (interval !== undefined) {
-        localVarQueryParameter['interval'] = interval;
-      }
-
-      if (startTime !== undefined) {
-        localVarQueryParameter['startTime'] = startTime;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get latest instance status snapshot
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getLatestInstanceStatus(uuid: string, options: any = {}): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getLatestInstanceStatus.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}/status`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get storage consumption metrics for an account
-     * @param {string} uuid
-     * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForAccount(
-      uuid: string,
-      accountCanonicalId: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForAccount.',
-        );
-      }
-      // verify required parameter 'accountCanonicalId' is not null or undefined
-      if (accountCanonicalId === null || accountCanonicalId === undefined) {
-        throw new RequiredError(
-          'accountCanonicalId',
-          'Required parameter accountCanonicalId was null or undefined when calling getStorageConsumptionMetricsForAccount.',
-        );
-      }
-      const localVarPath =
-        `/instance/{uuid}/account/{accountCanonicalId}/metrics`
-          .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)))
-          .replace(
-            `{${'accountCanonicalId'}}`,
-            encodeURIComponent(String(accountCanonicalId)),
-          );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get storage consumption metrics for accounts
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForAccounts(
-      uuid: string,
-      accounts: StorageConsumptionMetricEntityIdsV1,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForAccounts.',
-        );
-      }
-      // verify required parameter 'accounts' is not null or undefined
-      if (accounts === null || accounts === undefined) {
-        throw new RequiredError(
-          'accounts',
-          'Required parameter accounts was null or undefined when calling getStorageConsumptionMetricsForAccounts.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}/account/metrics`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(accounts || {})
-        : accounts || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get storage consumption metrics for buckets
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForBuckets(
-      uuid: string,
-      buckets: StorageConsumptionMetricEntityIdsV1,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForBuckets.',
-        );
-      }
-      // verify required parameter 'buckets' is not null or undefined
-      if (buckets === null || buckets === undefined) {
-        throw new RequiredError(
-          'buckets',
-          'Required parameter buckets was null or undefined when calling getStorageConsumptionMetricsForBuckets.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}/bucket/metrics`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(buckets || {})
-        : buckets || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Get storage consumption metrics for locations
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForLocations(
-      uuid: string,
-      locations: StorageConsumptionMetricEntityIdsV1,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForLocations.',
-        );
-      }
-      // verify required parameter 'locations' is not null or undefined
-      if (locations === null || locations === undefined) {
-        throw new RequiredError(
-          'locations',
-          'Required parameter locations was null or undefined when calling getStorageConsumptionMetricsForLocations.',
-        );
-      }
-      const localVarPath = `/instance/{uuid}/location/metrics`.replace(
-        `{${'uuid'}}`,
-        encodeURIComponent(String(uuid)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(locations || {})
-        : locations || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Invite users by email
-     * @param {string} userId
-     * @param {Array<Invites>} invites
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    inviteOrbitUsersByEmail(
-      userId: string,
-      invites: Array<Invites>,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'userId' is not null or undefined
-      if (userId === null || userId === undefined) {
-        throw new RequiredError(
-          'userId',
-          'Required parameter userId was null or undefined when calling inviteOrbitUsersByEmail.',
-        );
-      }
-      // verify required parameter 'invites' is not null or undefined
-      if (invites === null || invites === undefined) {
-        throw new RequiredError(
-          'invites',
-          'Required parameter invites was null or undefined when calling inviteOrbitUsersByEmail.',
-        );
-      }
-      const localVarPath = `/user/{userId}/invite`.replace(
-        `{${'userId'}}`,
-        encodeURIComponent(String(userId)),
-      );
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'Array&lt;Invites&gt;' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(invites || {})
-        : invites || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Create a new managed Zenko instance
-     * @param {string} [instanceName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    provisionHostedInstance(
-      instanceName?: string,
-      options: any = {},
-    ): FetchArgs {
-      const localVarPath = `/instance/type/managed/provision`;
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'string' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(instanceName || {})
-        : instanceName || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Regenerate a user's secret key
-     * @param {string} accessKey
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    rekeyConfigurationOverlayUser(
-      accessKey: string,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'accessKey' is not null or undefined
-      if (accessKey === null || accessKey === undefined) {
-        throw new RequiredError(
-          'accessKey',
-          'Required parameter accessKey was null or undefined when calling rekeyConfigurationOverlayUser.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling rekeyConfigurationOverlayUser.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/user/{accessKey}`
-        .replace(`{${'accessKey'}}`, encodeURIComponent(String(accessKey)))
-        .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Performs a search of bucket workflows. Currently returns replication and lifecycle workflows. Filtering ability is limited to all buckets or a list of buckets.
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {Filters} [filters]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    searchWorkflows(
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      filters?: Filters,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling searchWorkflows.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling searchWorkflows.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/workflow/search`
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'Filters' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(filters || {})
-        : filters || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Un-claim an instance, deleting it from the user's account
-     * @param {string} userId
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    unclaimInstance(
-      userId: string,
-      instanceId: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'userId' is not null or undefined
-      if (userId === null || userId === undefined) {
-        throw new RequiredError(
-          'userId',
-          'Required parameter userId was null or undefined when calling unclaimInstance.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling unclaimInstance.',
-        );
-      }
-      const localVarPath = `/user/{userId}/claim/{instanceId}`
-        .replace(`{${'userId'}}`, encodeURIComponent(String(userId)))
-        .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign(
-        { method: 'DELETE' },
-        options,
-      );
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Updates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling updateBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling updateBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling updateBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling updateBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling updateBucketWorkflowExpiration.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/expiration/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'BucketWorkflowExpirationV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Updates a bucket replication workflow
-     * @param {ReplicationStreamInternalV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowReplication(
-      workflow: ReplicationStreamInternalV1,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling updateBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling updateBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling updateBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling updateBucketWorkflowReplication.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling updateBucketWorkflowReplication.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/replication/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'ReplicationStreamInternalV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Updates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV2} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV2,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling updateBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling updateBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling updateBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'accountId' is not null or undefined
-      if (accountId === null || accountId === undefined) {
-        throw new RequiredError(
-          'accountId',
-          'Required parameter accountId was null or undefined when calling updateBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling updateBucketWorkflowTransition.',
-        );
-      }
-      const localVarPath =
-        `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      if (roleName !== undefined) {
-        localVarQueryParameter['roleName'] = roleName;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'BucketWorkflowTransitionV2' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * updates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling updateConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling updateConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling updateConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling updateConfigurationOverlayBucketWorkflowExpiration.',
-        );
-      }
-      const localVarPath =
-        `/config/instance/{instanceId}/bucket/{bucketName}/workflow/expiration/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'BucketWorkflowExpirationV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * updates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV1,
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'workflow' is not null or undefined
-      if (workflow === null || workflow === undefined) {
-        throw new RequiredError(
-          'workflow',
-          'Required parameter workflow was null or undefined when calling updateConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'bucketName' is not null or undefined
-      if (bucketName === null || bucketName === undefined) {
-        throw new RequiredError(
-          'bucketName',
-          'Required parameter bucketName was null or undefined when calling updateConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'instanceId' is not null or undefined
-      if (instanceId === null || instanceId === undefined) {
-        throw new RequiredError(
-          'instanceId',
-          'Required parameter instanceId was null or undefined when calling updateConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      // verify required parameter 'workflowId' is not null or undefined
-      if (workflowId === null || workflowId === undefined) {
-        throw new RequiredError(
-          'workflowId',
-          'Required parameter workflowId was null or undefined when calling updateConfigurationOverlayBucketWorkflowTransition.',
-        );
-      }
-      const localVarPath =
-        `/config/instance/{instanceId}/bucket/{bucketName}/workflow/transition/{workflowId}`
-          .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
-          .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
-          .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'BucketWorkflowTransitionV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(workflow || {})
-        : workflow || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Updates a location configuration item
-     * @param {string} locationName
-     * @param {string} uuid
-     * @param {LocationV1} location
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayLocation(
-      locationName: string,
-      uuid: string,
-      location: LocationV1,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'locationName' is not null or undefined
-      if (locationName === null || locationName === undefined) {
-        throw new RequiredError(
-          'locationName',
-          'Required parameter locationName was null or undefined when calling updateConfigurationOverlayLocation.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling updateConfigurationOverlayLocation.',
-        );
-      }
-      // verify required parameter 'location' is not null or undefined
-      if (location === null || location === undefined) {
-        throw new RequiredError(
-          'location',
-          'Required parameter location was null or undefined when calling updateConfigurationOverlayLocation.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/location/{locationName}`
-        .replace(
-          `{${'locationName'}}`,
-          encodeURIComponent(String(locationName)),
-        )
-        .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'LocationV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(location || {})
-        : location || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     * Updates a replication stream
-     * @param {string} streamId
-     * @param {ReplicationStreamInternalV1} replicationStream
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayReplicationStream(
-      streamId: string,
-      replicationStream: ReplicationStreamInternalV1,
-      uuid: string,
-      options: any = {},
-    ): FetchArgs {
-      // verify required parameter 'streamId' is not null or undefined
-      if (streamId === null || streamId === undefined) {
-        throw new RequiredError(
-          'streamId',
-          'Required parameter streamId was null or undefined when calling updateConfigurationOverlayReplicationStream.',
-        );
-      }
-      // verify required parameter 'replicationStream' is not null or undefined
-      if (replicationStream === null || replicationStream === undefined) {
-        throw new RequiredError(
-          'replicationStream',
-          'Required parameter replicationStream was null or undefined when calling updateConfigurationOverlayReplicationStream.',
-        );
-      }
-      // verify required parameter 'uuid' is not null or undefined
-      if (uuid === null || uuid === undefined) {
-        throw new RequiredError(
-          'uuid',
-          'Required parameter uuid was null or undefined when calling updateConfigurationOverlayReplicationStream.',
-        );
-      }
-      const localVarPath = `/config/{uuid}/replication/{streamId}`
-        .replace(`{${'streamId'}}`, encodeURIComponent(String(streamId)))
-        .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
-      const localVarUrlObj = url.parse(localVarPath, true);
-      const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication public-api required
-      if (configuration && configuration.apiKey) {
-        const localVarApiKeyValue =
-          typeof configuration.apiKey === 'function'
-            ? configuration.apiKey('X-Authentication-Token')
-            : configuration.apiKey;
-        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
-      }
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      localVarUrlObj.query = Object.assign(
-        {},
-        localVarUrlObj.query,
-        localVarQueryParameter,
-        options.query,
-      );
-      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-      delete localVarUrlObj.search;
-      localVarRequestOptions.headers = Object.assign(
-        {},
-        localVarHeaderParameter,
-        options.headers,
-      );
-      const needsSerialization =
-        <any>'ReplicationStreamInternalV1' !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
-      localVarRequestOptions.body = needsSerialization
-        ? JSON.stringify(replicationStream || {})
-        : replicationStream || '';
-
-      return {
-        url: url.format(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
+export const UiFacingApiFetchParamCreator = (configuration?: Configuration) => ({
+  /**
+   * Claim an instance, linking it to the user's account
+   * @param {string} userId
+   * @param {string} instanceId
+   * @param {string} friendlyName
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  claimInstance(userId: string, instanceId: string, friendlyName: string, options: any = {}): FetchArgs {
+    // verify required parameter 'userId' is not null or undefined
+    if (userId === null || userId === undefined) {
+      throw new RequiredError('userId', 'Required parameter userId was null or undefined when calling claimInstance.');
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling claimInstance.',
+      );
+    }
+    // verify required parameter 'friendlyName' is not null or undefined
+    if (friendlyName === null || friendlyName === undefined) {
+      throw new RequiredError(
+        'friendlyName',
+        'Required parameter friendlyName was null or undefined when calling claimInstance.',
+      );
+    }
+    const localVarPath = `/user/{userId}/claim/{instanceId}`
+      .replace(`{${'userId'}}`, encodeURIComponent(String(userId)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'string' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(friendlyName || {}) : friendlyName || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Creates a bucket expiration workflow.
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling createBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling createBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling createBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling createBucketWorkflowExpiration.',
+      );
+    }
+    const localVarPath = `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/expiration`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'BucketWorkflowExpirationV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Creates a bucket replication workflow. Will Not enable versioning automatically. Will conflict if a rule already exists on the bucket.
+   * @param {ReplicationStreamInternalV1} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowReplication(
+    workflow: ReplicationStreamInternalV1,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling createBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling createBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling createBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling createBucketWorkflowReplication.',
+      );
+    }
+    const localVarPath = `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/replication`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'ReplicationStreamInternalV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Creates a bucket transition workflow.
+   * @param {BucketWorkflowTransitionV2} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV2,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling createBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling createBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling createBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling createBucketWorkflowTransition.',
+      );
+    }
+    const localVarPath = `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'BucketWorkflowTransitionV2' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Creates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling createConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling createConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling createConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    const localVarPath = `/config/instance/{instanceId}/bucket/{bucketName}/workflow/expiration`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'BucketWorkflowExpirationV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Creates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV1,
+    bucketName: string,
+    instanceId: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling createConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling createConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling createConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    const localVarPath = `/config/instance/{instanceId}/bucket/{bucketName}/workflow/transition`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'BucketWorkflowTransitionV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Adds an endpoint configuration item
+   * @param {EndpointV1} endpoint
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayEndpoint(endpoint: EndpointV1, uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'endpoint' is not null or undefined
+    if (endpoint === null || endpoint === undefined) {
+      throw new RequiredError(
+        'endpoint',
+        'Required parameter endpoint was null or undefined when calling createConfigurationOverlayEndpoint.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling createConfigurationOverlayEndpoint.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/endpoint`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'EndpointV1' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(endpoint || {}) : endpoint || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Adds location configuration item
+   * @param {LocationV1} location
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayLocation(location: LocationV1, uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'location' is not null or undefined
+    if (location === null || location === undefined) {
+      throw new RequiredError(
+        'location',
+        'Required parameter location was null or undefined when calling createConfigurationOverlayLocation.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling createConfigurationOverlayLocation.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/location`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'LocationV1' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(location || {}) : location || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Creates replication stream configuration item
+   * @param {ReplicationStreamInternalV1} replicationStream
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayReplicationStream(
+    replicationStream: ReplicationStreamInternalV1,
+    uuid: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'replicationStream' is not null or undefined
+    if (replicationStream === null || replicationStream === undefined) {
+      throw new RequiredError(
+        'replicationStream',
+        'Required parameter replicationStream was null or undefined when calling createConfigurationOverlayReplicationStream.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling createConfigurationOverlayReplicationStream.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/replication`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'ReplicationStreamInternalV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization
+      ? JSON.stringify(replicationStream || {})
+      : replicationStream || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Create a new user
+   * @param {UserV1} user
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayUser(user: UserV1, uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'user' is not null or undefined
+    if (user === null || user === undefined) {
+      throw new RequiredError(
+        'user',
+        'Required parameter user was null or undefined when calling createConfigurationOverlayUser.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling createConfigurationOverlayUser.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/user`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'UserV1' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(user || {}) : user || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Deletes a bucket expiration workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowExpiration(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling deleteBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling deleteBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling deleteBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling deleteBucketWorkflowExpiration.',
+      );
+    }
+    const localVarPath =
+      `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/expiration/{workflowId}`
+        .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+        .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+        .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+        .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Deletes a bucket replication workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowReplication(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling deleteBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling deleteBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling deleteBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling deleteBucketWorkflowReplication.',
+      );
+    }
+    const localVarPath =
+      `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/replication/{workflowId}`
+        .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+        .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+        .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+        .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Deletes a bucket transition workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowTransition(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling deleteBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling deleteBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling deleteBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling deleteBucketWorkflowTransition.',
+      );
+    }
+    const localVarPath =
+      `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition/{workflowId}`
+        .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+        .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+        .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+        .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Deletes a bucket expiration workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayBucketWorkflowExpiration(
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling deleteConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling deleteConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling deleteConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    const localVarPath = `/config/instance/{instanceId}/bucket/{bucketName}/workflow/expiration/{workflowId}`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+      .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Deletes a bucket transition workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayBucketWorkflowTransition(
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling deleteConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling deleteConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling deleteConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    const localVarPath = `/config/instance/{instanceId}/bucket/{bucketName}/workflow/transition/{workflowId}`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+      .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Delete an endpoint definition
+   * @param {string} hostname
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayEndpoint(hostname: string, uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'hostname' is not null or undefined
+    if (hostname === null || hostname === undefined) {
+      throw new RequiredError(
+        'hostname',
+        'Required parameter hostname was null or undefined when calling deleteConfigurationOverlayEndpoint.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling deleteConfigurationOverlayEndpoint.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/endpoint/{hostname}`
+      .replace(`{${'hostname'}}`, encodeURIComponent(String(hostname)))
+      .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Deletes location configuration item
+   * @param {string} locationName
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayLocation(locationName: string, uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'locationName' is not null or undefined
+    if (locationName === null || locationName === undefined) {
+      throw new RequiredError(
+        'locationName',
+        'Required parameter locationName was null or undefined when calling deleteConfigurationOverlayLocation.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling deleteConfigurationOverlayLocation.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/location/{locationName}`
+      .replace(`{${'locationName'}}`, encodeURIComponent(String(locationName)))
+      .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Deletes a replication stream
+   * @param {string} streamId
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayReplicationStream(streamId: string, uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'streamId' is not null or undefined
+    if (streamId === null || streamId === undefined) {
+      throw new RequiredError(
+        'streamId',
+        'Required parameter streamId was null or undefined when calling deleteConfigurationOverlayReplicationStream.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling deleteConfigurationOverlayReplicationStream.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/replication/{streamId}`
+      .replace(`{${'streamId'}}`, encodeURIComponent(String(streamId)))
+      .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Delete a user
+   * @param {string} uuid
+   * @param {string} [accessKey]
+   * @param {string} [accountName]
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayUser(
+    uuid: string,
+    accessKey?: string,
+    accountName?: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling deleteConfigurationOverlayUser.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/user`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (accessKey !== undefined) {
+      localVarQueryParameter.accessKey = accessKey;
+    }
+
+    if (accountName !== undefined) {
+      localVarQueryParameter.accountName = accountName;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Generate account access key
+   * @param {string} uuid
+   * @param {string} accountName
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  generateKeyConfigurationOverlayUser(uuid: string, accountName: string, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling generateKeyConfigurationOverlayUser.',
+      );
+    }
+    // verify required parameter 'accountName' is not null or undefined
+    if (accountName === null || accountName === undefined) {
+      throw new RequiredError(
+        'accountName',
+        'Required parameter accountName was null or undefined when calling generateKeyConfigurationOverlayUser.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/user/{accountName}/key`
+      .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)))
+      .replace(`{${'accountName'}}`, encodeURIComponent(String(accountName)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get Server-managed configuration values for use by user frontend
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getConfigurationOverlayView(uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling getConfigurationOverlayView.',
+      );
+    }
+    const localVarPath = `/config/overlay/view/{uuid}`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get current user's profile
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getCurrentUserProfile(xScalRequestUids?: string, options: any = {}): FetchArgs {
+    const localVarPath = `/profile/current`;
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (xScalRequestUids !== undefined && xScalRequestUids !== null) {
+      localVarHeaderParameter['X-Scal-Request-Uids'] = String(xScalRequestUids);
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get instance
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstance(uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError('uuid', 'Required parameter uuid was null or undefined when calling getInstance.');
+    }
+    const localVarPath = `/instance/{uuid}`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get latest statistics
+   * @param {string} uuid
+   * @param {number} [interval]
+   * @param {string} [startTime]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstanceStats(uuid: string, interval?: number, startTime?: string, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError('uuid', 'Required parameter uuid was null or undefined when calling getInstanceStats.');
+    }
+    const localVarPath = `/stats/{uuid}`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (interval !== undefined) {
+      localVarQueryParameter.interval = interval;
+    }
+
+    if (startTime !== undefined) {
+      localVarQueryParameter.startTime = startTime;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get latest instance status snapshot
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getLatestInstanceStatus(uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling getLatestInstanceStatus.',
+      );
+    }
+    const localVarPath = `/instance/{uuid}/status`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get storage consumption metrics for an account
+   * @param {string} uuid
+   * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForAccount(uuid: string, accountCanonicalId: string, options: any = {}): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForAccount.',
+      );
+    }
+    // verify required parameter 'accountCanonicalId' is not null or undefined
+    if (accountCanonicalId === null || accountCanonicalId === undefined) {
+      throw new RequiredError(
+        'accountCanonicalId',
+        'Required parameter accountCanonicalId was null or undefined when calling getStorageConsumptionMetricsForAccount.',
+      );
+    }
+    const localVarPath = `/instance/{uuid}/account/{accountCanonicalId}/metrics`
+      .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)))
+      .replace(`{${'accountCanonicalId'}}`, encodeURIComponent(String(accountCanonicalId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get storage consumption metrics for accounts
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForAccounts(
+    uuid: string,
+    accounts: StorageConsumptionMetricEntityIdsV1,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForAccounts.',
+      );
+    }
+    // verify required parameter 'accounts' is not null or undefined
+    if (accounts === null || accounts === undefined) {
+      throw new RequiredError(
+        'accounts',
+        'Required parameter accounts was null or undefined when calling getStorageConsumptionMetricsForAccounts.',
+      );
+    }
+    const localVarPath = `/instance/{uuid}/account/metrics`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(accounts || {}) : accounts || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get storage consumption metrics for buckets
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForBuckets(
+    uuid: string,
+    buckets: StorageConsumptionMetricEntityIdsV1,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForBuckets.',
+      );
+    }
+    // verify required parameter 'buckets' is not null or undefined
+    if (buckets === null || buckets === undefined) {
+      throw new RequiredError(
+        'buckets',
+        'Required parameter buckets was null or undefined when calling getStorageConsumptionMetricsForBuckets.',
+      );
+    }
+    const localVarPath = `/instance/{uuid}/bucket/metrics`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(buckets || {}) : buckets || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Get storage consumption metrics for locations
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForLocations(
+    uuid: string,
+    locations: StorageConsumptionMetricEntityIdsV1,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForLocations.',
+      );
+    }
+    // verify required parameter 'locations' is not null or undefined
+    if (locations === null || locations === undefined) {
+      throw new RequiredError(
+        'locations',
+        'Required parameter locations was null or undefined when calling getStorageConsumptionMetricsForLocations.',
+      );
+    }
+    const localVarPath = `/instance/{uuid}/location/metrics`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(locations || {}) : locations || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Invite users by email
+   * @param {string} userId
+   * @param {Array<Invites>} invites
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  inviteOrbitUsersByEmail(userId: string, invites: Array<Invites>, options: any = {}): FetchArgs {
+    // verify required parameter 'userId' is not null or undefined
+    if (userId === null || userId === undefined) {
+      throw new RequiredError(
+        'userId',
+        'Required parameter userId was null or undefined when calling inviteOrbitUsersByEmail.',
+      );
+    }
+    // verify required parameter 'invites' is not null or undefined
+    if (invites === null || invites === undefined) {
+      throw new RequiredError(
+        'invites',
+        'Required parameter invites was null or undefined when calling inviteOrbitUsersByEmail.',
+      );
+    }
+    const localVarPath = `/user/{userId}/invite`.replace(`{${'userId'}}`, encodeURIComponent(String(userId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'Array&lt;Invites&gt;' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(invites || {}) : invites || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Create a new managed Zenko instance
+   * @param {string} [instanceName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  provisionHostedInstance(instanceName?: string, options: any = {}): FetchArgs {
+    const localVarPath = `/instance/type/managed/provision`;
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'string' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(instanceName || {}) : instanceName || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Regenerate a user's secret key
+   * @param {string} accessKey
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  rekeyConfigurationOverlayUser(accessKey: string, uuid: string, options: any = {}): FetchArgs {
+    // verify required parameter 'accessKey' is not null or undefined
+    if (accessKey === null || accessKey === undefined) {
+      throw new RequiredError(
+        'accessKey',
+        'Required parameter accessKey was null or undefined when calling rekeyConfigurationOverlayUser.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling rekeyConfigurationOverlayUser.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/user/{accessKey}`
+      .replace(`{${'accessKey'}}`, encodeURIComponent(String(accessKey)))
+      .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Performs a search of bucket workflows. Currently returns replication and lifecycle workflows. Filtering ability is limited to all buckets or a list of buckets.
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {Filters} [filters]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  searchWorkflows(
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    filters?: Filters,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling searchWorkflows.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling searchWorkflows.',
+      );
+    }
+    const localVarPath = `/instance/{instanceId}/account/{accountId}/workflow/search`
+      .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'Filters' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(filters || {}) : filters || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Un-claim an instance, deleting it from the user's account
+   * @param {string} userId
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  unclaimInstance(userId: string, instanceId: string, options: any = {}): FetchArgs {
+    // verify required parameter 'userId' is not null or undefined
+    if (userId === null || userId === undefined) {
+      throw new RequiredError(
+        'userId',
+        'Required parameter userId was null or undefined when calling unclaimInstance.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling unclaimInstance.',
+      );
+    }
+    const localVarPath = `/user/{userId}/claim/{instanceId}`
+      .replace(`{${'userId'}}`, encodeURIComponent(String(userId)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Updates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling updateBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling updateBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling updateBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling updateBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling updateBucketWorkflowExpiration.',
+      );
+    }
+    const localVarPath =
+      `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/expiration/{workflowId}`
+        .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+        .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+        .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+        .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'BucketWorkflowExpirationV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Updates a bucket replication workflow
+   * @param {ReplicationStreamInternalV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowReplication(
+    workflow: ReplicationStreamInternalV1,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling updateBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling updateBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling updateBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling updateBucketWorkflowReplication.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling updateBucketWorkflowReplication.',
+      );
+    }
+    const localVarPath =
+      `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/replication/{workflowId}`
+        .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+        .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+        .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+        .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'ReplicationStreamInternalV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Updates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV2} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV2,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling updateBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling updateBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling updateBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'accountId' is not null or undefined
+    if (accountId === null || accountId === undefined) {
+      throw new RequiredError(
+        'accountId',
+        'Required parameter accountId was null or undefined when calling updateBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling updateBucketWorkflowTransition.',
+      );
+    }
+    const localVarPath =
+      `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition/{workflowId}`
+        .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+        .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+        .replace(`{${'accountId'}}`, encodeURIComponent(String(accountId)))
+        .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    if (roleName !== undefined) {
+      localVarQueryParameter.roleName = roleName;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'BucketWorkflowTransitionV2' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * updates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling updateConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling updateConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling updateConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling updateConfigurationOverlayBucketWorkflowExpiration.',
+      );
+    }
+    const localVarPath = `/config/instance/{instanceId}/bucket/{bucketName}/workflow/expiration/{workflowId}`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+      .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'BucketWorkflowExpirationV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * updates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV1,
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'workflow' is not null or undefined
+    if (workflow === null || workflow === undefined) {
+      throw new RequiredError(
+        'workflow',
+        'Required parameter workflow was null or undefined when calling updateConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'bucketName' is not null or undefined
+    if (bucketName === null || bucketName === undefined) {
+      throw new RequiredError(
+        'bucketName',
+        'Required parameter bucketName was null or undefined when calling updateConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'instanceId' is not null or undefined
+    if (instanceId === null || instanceId === undefined) {
+      throw new RequiredError(
+        'instanceId',
+        'Required parameter instanceId was null or undefined when calling updateConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    // verify required parameter 'workflowId' is not null or undefined
+    if (workflowId === null || workflowId === undefined) {
+      throw new RequiredError(
+        'workflowId',
+        'Required parameter workflowId was null or undefined when calling updateConfigurationOverlayBucketWorkflowTransition.',
+      );
+    }
+    const localVarPath = `/config/instance/{instanceId}/bucket/{bucketName}/workflow/transition/{workflowId}`
+      .replace(`{${'bucketName'}}`, encodeURIComponent(String(bucketName)))
+      .replace(`{${'instanceId'}}`, encodeURIComponent(String(instanceId)))
+      .replace(`{${'workflowId'}}`, encodeURIComponent(String(workflowId)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'BucketWorkflowTransitionV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(workflow || {}) : workflow || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Updates a location configuration item
+   * @param {string} locationName
+   * @param {string} uuid
+   * @param {LocationV1} location
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayLocation(
+    locationName: string,
+    uuid: string,
+    location: LocationV1,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'locationName' is not null or undefined
+    if (locationName === null || locationName === undefined) {
+      throw new RequiredError(
+        'locationName',
+        'Required parameter locationName was null or undefined when calling updateConfigurationOverlayLocation.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling updateConfigurationOverlayLocation.',
+      );
+    }
+    // verify required parameter 'location' is not null or undefined
+    if (location === null || location === undefined) {
+      throw new RequiredError(
+        'location',
+        'Required parameter location was null or undefined when calling updateConfigurationOverlayLocation.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/location/{locationName}`
+      .replace(`{${'locationName'}}`, encodeURIComponent(String(locationName)))
+      .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'LocationV1' !== 'string' || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization ? JSON.stringify(location || {}) : location || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+  /**
+   * Updates a replication stream
+   * @param {string} streamId
+   * @param {ReplicationStreamInternalV1} replicationStream
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayReplicationStream(
+    streamId: string,
+    replicationStream: ReplicationStreamInternalV1,
+    uuid: string,
+    options: any = {},
+  ): FetchArgs {
+    // verify required parameter 'streamId' is not null or undefined
+    if (streamId === null || streamId === undefined) {
+      throw new RequiredError(
+        'streamId',
+        'Required parameter streamId was null or undefined when calling updateConfigurationOverlayReplicationStream.',
+      );
+    }
+    // verify required parameter 'replicationStream' is not null or undefined
+    if (replicationStream === null || replicationStream === undefined) {
+      throw new RequiredError(
+        'replicationStream',
+        'Required parameter replicationStream was null or undefined when calling updateConfigurationOverlayReplicationStream.',
+      );
+    }
+    // verify required parameter 'uuid' is not null or undefined
+    if (uuid === null || uuid === undefined) {
+      throw new RequiredError(
+        'uuid',
+        'Required parameter uuid was null or undefined when calling updateConfigurationOverlayReplicationStream.',
+      );
+    }
+    const localVarPath = `/config/{uuid}/replication/{streamId}`
+      .replace(`{${'streamId'}}`, encodeURIComponent(String(streamId)))
+      .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+    const localVarUrlObj = url.parse(localVarPath, true);
+    const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+    const localVarHeaderParameter = {} as any;
+    const localVarQueryParameter = {} as any;
+
+    // authentication public-api required
+    if (configuration?.apiKey) {
+      const localVarApiKeyValue =
+        typeof configuration.apiKey === 'function'
+          ? configuration.apiKey('X-Authentication-Token')
+          : configuration.apiKey;
+      localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+    }
+
+    localVarHeaderParameter['Content-Type'] = 'application/json';
+
+    localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+    // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+    delete localVarUrlObj.search;
+    localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+    const needsSerialization =
+      <any>'ReplicationStreamInternalV1' !== 'string' ||
+      localVarRequestOptions.headers['Content-Type'] === 'application/json';
+    localVarRequestOptions.body = needsSerialization
+      ? JSON.stringify(replicationStream || {})
+      : replicationStream || '';
+
+    return {
+      url: url.format(localVarUrlObj),
+      options: localVarRequestOptions,
+    };
+  },
+});
 
 /**
  * UiFacingApi - functional programming interface
  * @export
  */
-export const UiFacingApiFp = function (configuration?: Configuration) {
-  return {
-    /**
-     * Claim an instance, linking it to the user's account
-     * @param {string} userId
-     * @param {string} instanceId
-     * @param {string} friendlyName
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    claimInstance(
-      userId: string,
-      instanceId: string,
-      friendlyName: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).claimInstance(userId, instanceId, friendlyName, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
+export const UiFacingApiFp = (configuration?: Configuration) => ({
+  /**
+   * Claim an instance, linking it to the user's account
+   * @param {string} userId
+   * @param {string} instanceId
+   * @param {string} friendlyName
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  claimInstance(
+    userId: string,
+    instanceId: string,
+    friendlyName: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).claimInstance(
+      userId,
+      instanceId,
+      friendlyName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Creates a bucket expiration workflow.
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowExpirationV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).createBucketWorkflowExpiration(
+      workflow,
+      bucketName,
+      accountId,
+      instanceId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Creates a bucket replication workflow. Will Not enable versioning automatically. Will conflict if a rule already exists on the bucket.
+   * @param {ReplicationStreamInternalV1} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowReplication(
+    workflow: ReplicationStreamInternalV1,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<ReplicationStreamInternalV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).createBucketWorkflowReplication(
+      workflow,
+      bucketName,
+      accountId,
+      instanceId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Creates a bucket transition workflow.
+   * @param {BucketWorkflowTransitionV2} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV2,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowTransitionV2> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).createBucketWorkflowTransition(
+      workflow,
+      bucketName,
+      accountId,
+      instanceId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Creates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowExpirationV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(
+      configuration,
+    ).createConfigurationOverlayBucketWorkflowExpiration(workflow, bucketName, instanceId, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Creates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV1,
+    bucketName: string,
+    instanceId: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowTransitionV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(
+      configuration,
+    ).createConfigurationOverlayBucketWorkflowTransition(workflow, bucketName, instanceId, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Adds an endpoint configuration item
+   * @param {EndpointV1} endpoint
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayEndpoint(
+    endpoint: EndpointV1,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<EndpointV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).createConfigurationOverlayEndpoint(
+      endpoint,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Adds location configuration item
+   * @param {LocationV1} location
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayLocation(
+    location: LocationV1,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).createConfigurationOverlayLocation(
+      location,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Creates replication stream configuration item
+   * @param {ReplicationStreamInternalV1} replicationStream
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayReplicationStream(
+    replicationStream: ReplicationStreamInternalV1,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<ReplicationStreamInternalV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).createConfigurationOverlayReplicationStream(
+      replicationStream,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Create a new user
+   * @param {UserV1} user
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayUser(
+    user: UserV1,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<UserV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).createConfigurationOverlayUser(
+      user,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Deletes a bucket expiration workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowExpiration(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteBucketWorkflowExpiration(
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Deletes a bucket replication workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowReplication(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteBucketWorkflowReplication(
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Deletes a bucket transition workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowTransition(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteBucketWorkflowTransition(
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Deletes a bucket expiration workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayBucketWorkflowExpiration(
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(
+      configuration,
+    ).deleteConfigurationOverlayBucketWorkflowExpiration(bucketName, instanceId, workflowId, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Deletes a bucket transition workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayBucketWorkflowTransition(
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(
+      configuration,
+    ).deleteConfigurationOverlayBucketWorkflowTransition(bucketName, instanceId, workflowId, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Delete an endpoint definition
+   * @param {string} hostname
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayEndpoint(
+    hostname: string,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteConfigurationOverlayEndpoint(
+      hostname,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Deletes location configuration item
+   * @param {string} locationName
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayLocation(
+    locationName: string,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteConfigurationOverlayLocation(
+      locationName,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Deletes a replication stream
+   * @param {string} streamId
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayReplicationStream(
+    streamId: string,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteConfigurationOverlayReplicationStream(
+      streamId,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Delete a user
+   * @param {string} uuid
+   * @param {string} [accessKey]
+   * @param {string} [accountName]
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayUser(
+    uuid: string,
+    accessKey?: string,
+    accountName?: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteConfigurationOverlayUser(
+      uuid,
+      accessKey,
+      accountName,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Generate account access key
+   * @param {string} uuid
+   * @param {string} accountName
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  generateKeyConfigurationOverlayUser(
+    uuid: string,
+    accountName: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<UserV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).generateKeyConfigurationOverlayUser(
+      uuid,
+      accountName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get Server-managed configuration values for use by user frontend
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getConfigurationOverlayView(
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<ConfigOverlayV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getConfigurationOverlayView(uuid, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get current user's profile
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getCurrentUserProfile(
+    xScalRequestUids?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getCurrentUserProfile(
+      xScalRequestUids,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get instance
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstance(uuid: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<InstanceV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getInstance(uuid, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get latest statistics
+   * @param {string} uuid
+   * @param {number} [interval]
+   * @param {string} [startTime]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstanceStats(
+    uuid: string,
+    interval?: number,
+    startTime?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<AllStatsSeriesV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getInstanceStats(
+      uuid,
+      interval,
+      startTime,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get latest instance status snapshot
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getLatestInstanceStatus(
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<InlineResponse200> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getLatestInstanceStatus(uuid, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get storage consumption metrics for an account
+   * @param {string} uuid
+   * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForAccount(
+    uuid: string,
+    accountCanonicalId: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<StorageConsumptionMetricItemV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getStorageConsumptionMetricsForAccount(
+      uuid,
+      accountCanonicalId,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          if (response.status === 204) {
+            return {};
           }
-        });
-      };
-    },
-    /**
-     * Creates a bucket expiration workflow.
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<BucketWorkflowExpirationV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createBucketWorkflowExpiration(
-        workflow,
-        bucketName,
-        accountId,
-        instanceId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Creates a bucket replication workflow. Will Not enable versioning automatically. Will conflict if a rule already exists on the bucket.
-     * @param {ReplicationStreamInternalV1} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowReplication(
-      workflow: ReplicationStreamInternalV1,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<ReplicationStreamInternalV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createBucketWorkflowReplication(
-        workflow,
-        bucketName,
-        accountId,
-        instanceId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Creates a bucket transition workflow.
-     * @param {BucketWorkflowTransitionV2} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV2,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<BucketWorkflowTransitionV2> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createBucketWorkflowTransition(
-        workflow,
-        bucketName,
-        accountId,
-        instanceId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Creates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<BucketWorkflowExpirationV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createConfigurationOverlayBucketWorkflowExpiration(
-        workflow,
-        bucketName,
-        instanceId,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Creates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV1,
-      bucketName: string,
-      instanceId: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<BucketWorkflowTransitionV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createConfigurationOverlayBucketWorkflowTransition(
-        workflow,
-        bucketName,
-        instanceId,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Adds an endpoint configuration item
-     * @param {EndpointV1} endpoint
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayEndpoint(
-      endpoint: EndpointV1,
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<EndpointV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createConfigurationOverlayEndpoint(endpoint, uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Adds location configuration item
-     * @param {LocationV1} location
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayLocation(
-      location: LocationV1,
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createConfigurationOverlayLocation(location, uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Creates replication stream configuration item
-     * @param {ReplicationStreamInternalV1} replicationStream
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayReplicationStream(
-      replicationStream: ReplicationStreamInternalV1,
-      uuid: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<ReplicationStreamInternalV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createConfigurationOverlayReplicationStream(
-        replicationStream,
-        uuid,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Create a new user
-     * @param {UserV1} user
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayUser(
-      user: UserV1,
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<UserV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).createConfigurationOverlayUser(user, uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Deletes a bucket expiration workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowExpiration(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteBucketWorkflowExpiration(
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Deletes a bucket replication workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowReplication(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteBucketWorkflowReplication(
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Deletes a bucket transition workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowTransition(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteBucketWorkflowTransition(
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Deletes a bucket expiration workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayBucketWorkflowExpiration(
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteConfigurationOverlayBucketWorkflowExpiration(
-        bucketName,
-        instanceId,
-        workflowId,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Deletes a bucket transition workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayBucketWorkflowTransition(
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteConfigurationOverlayBucketWorkflowTransition(
-        bucketName,
-        instanceId,
-        workflowId,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Delete an endpoint definition
-     * @param {string} hostname
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayEndpoint(
-      hostname: string,
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteConfigurationOverlayEndpoint(hostname, uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Deletes location configuration item
-     * @param {string} locationName
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayLocation(
-      locationName: string,
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteConfigurationOverlayLocation(locationName, uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Deletes a replication stream
-     * @param {string} streamId
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayReplicationStream(
-      streamId: string,
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteConfigurationOverlayReplicationStream(streamId, uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Delete a user
-     * @param {string} uuid
-     * @param {string} [accessKey]
-     * @param {string} [accountName]
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayUser(
-      uuid: string,
-      accessKey?: string,
-      accountName?: string,
-      roleName?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).deleteConfigurationOverlayUser(
-        uuid,
-        accessKey,
-        accountName,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Generate account access key
-     * @param {string} uuid
-     * @param {string} accountName
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    generateKeyConfigurationOverlayUser(
-      uuid: string,
-      accountName: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<UserV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).generateKeyConfigurationOverlayUser(uuid, accountName, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get Server-managed configuration values for use by user frontend
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getConfigurationOverlayView(
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<ConfigOverlayV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getConfigurationOverlayView(uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get current user's profile
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getCurrentUserProfile(
-      xScalRequestUids?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getCurrentUserProfile(xScalRequestUids, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get instance
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstance(
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<InstanceV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getInstance(uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get latest statistics
-     * @param {string} uuid
-     * @param {number} [interval]
-     * @param {string} [startTime]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstanceStats(
-      uuid: string,
-      interval?: number,
-      startTime?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<AllStatsSeriesV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getInstanceStats(uuid, interval, startTime, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get latest instance status snapshot
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getLatestInstanceStatus(
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<InlineResponse200> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getLatestInstanceStatus(uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get storage consumption metrics for an account
-     * @param {string} uuid
-     * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForAccount(
-      uuid: string,
-      accountCanonicalId: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<StorageConsumptionMetricItemV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getStorageConsumptionMetricsForAccount(
-        uuid,
-        accountCanonicalId,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            if (response.status === 204) {
-              return {};
-            }
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get storage consumption metrics for accounts
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForAccounts(
-      uuid: string,
-      accounts: StorageConsumptionMetricEntityIdsV1,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<StorageConsumptionMetricsV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getStorageConsumptionMetricsForAccounts(uuid, accounts, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get storage consumption metrics for buckets
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForBuckets(
-      uuid: string,
-      buckets: StorageConsumptionMetricEntityIdsV1,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<StorageConsumptionMetricsV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getStorageConsumptionMetricsForBuckets(uuid, buckets, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Get storage consumption metrics for locations
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForLocations(
-      uuid: string,
-      locations: StorageConsumptionMetricEntityIdsV1,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<StorageConsumptionMetricsV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).getStorageConsumptionMetricsForLocations(uuid, locations, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Invite users by email
-     * @param {string} userId
-     * @param {Array<Invites>} invites
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    inviteOrbitUsersByEmail(
-      userId: string,
-      invites: Array<Invites>,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).inviteOrbitUsersByEmail(userId, invites, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response;
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Create a new managed Zenko instance
-     * @param {string} [instanceName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    provisionHostedInstance(
-      instanceName?: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<InstanceV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).provisionHostedInstance(instanceName, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Regenerate a user's secret key
-     * @param {string} accessKey
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    rekeyConfigurationOverlayUser(
-      accessKey: string,
-      uuid: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<UserV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).rekeyConfigurationOverlayUser(accessKey, uuid, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Performs a search of bucket workflows. Currently returns replication and lifecycle workflows. Filtering ability is limited to all buckets or a list of buckets.
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {Filters} [filters]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    searchWorkflows(
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      filters?: Filters,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<SearchWorkflowsListV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).searchWorkflows(accountId, instanceId, roleName, filters, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Un-claim an instance, deleting it from the user's account
-     * @param {string} userId
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    unclaimInstance(
-      userId: string,
-      instanceId: string,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).unclaimInstance(userId, instanceId, options);
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Updates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<BucketWorkflowExpirationV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).updateBucketWorkflowExpiration(
-        workflow,
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Updates a bucket replication workflow
-     * @param {ReplicationStreamInternalV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowReplication(
-      workflow: ReplicationStreamInternalV1,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<ReplicationStreamInternalV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).updateBucketWorkflowReplication(
-        workflow,
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Updates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV2} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV2,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<BucketWorkflowTransitionV2> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).updateBucketWorkflowTransition(
-        workflow,
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * updates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<BucketWorkflowExpirationV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).updateConfigurationOverlayBucketWorkflowExpiration(
-        workflow,
-        bucketName,
-        instanceId,
-        workflowId,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * updates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV1,
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<BucketWorkflowTransitionV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).updateConfigurationOverlayBucketWorkflowTransition(
-        workflow,
-        bucketName,
-        instanceId,
-        workflowId,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Updates a location configuration item
-     * @param {string} locationName
-     * @param {string} uuid
-     * @param {LocationV1} location
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayLocation(
-      locationName: string,
-      uuid: string,
-      location: LocationV1,
-      options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<LocationV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).updateConfigurationOverlayLocation(
-        locationName,
-        uuid,
-        location,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-    /**
-     * Updates a replication stream
-     * @param {string} streamId
-     * @param {ReplicationStreamInternalV1} replicationStream
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayReplicationStream(
-      streamId: string,
-      replicationStream: ReplicationStreamInternalV1,
-      uuid: string,
-      options?: any,
-    ): (
-      fetch?: FetchAPI,
-      basePath?: string,
-    ) => Promise<ReplicationStreamInternalV1> {
-      const localVarFetchArgs = UiFacingApiFetchParamCreator(
-        configuration,
-      ).updateConfigurationOverlayReplicationStream(
-        streamId,
-        replicationStream,
-        uuid,
-        options,
-      );
-      return (
-        fetch: FetchAPI = portableFetch,
-        basePath: string = BASE_PATH,
-      ) => {
-        return fetch(
-          basePath + localVarFetchArgs.url,
-          localVarFetchArgs.options,
-        ).then((response) => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json();
-          } else {
-            throw response;
-          }
-        });
-      };
-    },
-  };
-};
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get storage consumption metrics for accounts
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForAccounts(
+    uuid: string,
+    accounts: StorageConsumptionMetricEntityIdsV1,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<StorageConsumptionMetricsV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getStorageConsumptionMetricsForAccounts(
+      uuid,
+      accounts,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get storage consumption metrics for buckets
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForBuckets(
+    uuid: string,
+    buckets: StorageConsumptionMetricEntityIdsV1,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<StorageConsumptionMetricsV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getStorageConsumptionMetricsForBuckets(
+      uuid,
+      buckets,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Get storage consumption metrics for locations
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForLocations(
+    uuid: string,
+    locations: StorageConsumptionMetricEntityIdsV1,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<StorageConsumptionMetricsV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getStorageConsumptionMetricsForLocations(
+      uuid,
+      locations,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Invite users by email
+   * @param {string} userId
+   * @param {Array<Invites>} invites
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  inviteOrbitUsersByEmail(
+    userId: string,
+    invites: Array<Invites>,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).inviteOrbitUsersByEmail(
+      userId,
+      invites,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Create a new managed Zenko instance
+   * @param {string} [instanceName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  provisionHostedInstance(
+    instanceName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<InstanceV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).provisionHostedInstance(
+      instanceName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Regenerate a user's secret key
+   * @param {string} accessKey
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  rekeyConfigurationOverlayUser(
+    accessKey: string,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<UserV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).rekeyConfigurationOverlayUser(
+      accessKey,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Performs a search of bucket workflows. Currently returns replication and lifecycle workflows. Filtering ability is limited to all buckets or a list of buckets.
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {Filters} [filters]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  searchWorkflows(
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    filters?: Filters,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<SearchWorkflowsListV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).searchWorkflows(
+      accountId,
+      instanceId,
+      roleName,
+      filters,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Un-claim an instance, deleting it from the user's account
+   * @param {string} userId
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  unclaimInstance(
+    userId: string,
+    instanceId: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<PortalUserV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).unclaimInstance(userId, instanceId, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Updates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowExpirationV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).updateBucketWorkflowExpiration(
+      workflow,
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Updates a bucket replication workflow
+   * @param {ReplicationStreamInternalV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowReplication(
+    workflow: ReplicationStreamInternalV1,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<ReplicationStreamInternalV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).updateBucketWorkflowReplication(
+      workflow,
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Updates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV2} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV2,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowTransitionV2> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).updateBucketWorkflowTransition(
+      workflow,
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * updates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowExpirationV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(
+      configuration,
+    ).updateConfigurationOverlayBucketWorkflowExpiration(workflow, bucketName, instanceId, workflowId, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * updates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV1,
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowTransitionV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(
+      configuration,
+    ).updateConfigurationOverlayBucketWorkflowTransition(workflow, bucketName, instanceId, workflowId, options);
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Updates a location configuration item
+   * @param {string} locationName
+   * @param {string} uuid
+   * @param {LocationV1} location
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayLocation(
+    locationName: string,
+    uuid: string,
+    location: LocationV1,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<LocationV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).updateConfigurationOverlayLocation(
+      locationName,
+      uuid,
+      location,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+  /**
+   * Updates a replication stream
+   * @param {string} streamId
+   * @param {ReplicationStreamInternalV1} replicationStream
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayReplicationStream(
+    streamId: string,
+    replicationStream: ReplicationStreamInternalV1,
+    uuid: string,
+    options?: any,
+  ): (fetch?: FetchAPI, basePath?: string) => Promise<ReplicationStreamInternalV1> {
+    const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).updateConfigurationOverlayReplicationStream(
+      streamId,
+      replicationStream,
+      uuid,
+      options,
+    );
+    return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+      return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          throw response;
+        }
+      });
+    };
+  },
+});
 
 /**
  * UiFacingApi - factory interface
  * @export
  */
-export const UiFacingApiFactory = function (
-  configuration?: Configuration,
-  fetch?: FetchAPI,
-  basePath?: string,
-) {
-  return {
-    /**
-     * Claim an instance, linking it to the user's account
-     * @param {string} userId
-     * @param {string} instanceId
-     * @param {string} friendlyName
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    claimInstance(
-      userId: string,
-      instanceId: string,
-      friendlyName: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).claimInstance(
-        userId,
-        instanceId,
-        friendlyName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Creates a bucket expiration workflow.
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).createBucketWorkflowExpiration(
-        workflow,
-        bucketName,
-        accountId,
-        instanceId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Creates a bucket replication workflow. Will Not enable versioning automatically. Will conflict if a rule already exists on the bucket.
-     * @param {ReplicationStreamInternalV1} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowReplication(
-      workflow: ReplicationStreamInternalV1,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).createBucketWorkflowReplication(
-        workflow,
-        bucketName,
-        accountId,
-        instanceId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Creates a bucket transition workflow.
-     * @param {BucketWorkflowTransitionV2} workflow
-     * @param {string} bucketName
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV2,
-      bucketName: string,
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).createBucketWorkflowTransition(
-        workflow,
-        bucketName,
-        accountId,
-        instanceId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Creates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).createConfigurationOverlayBucketWorkflowExpiration(
-        workflow,
-        bucketName,
-        instanceId,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Creates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV1,
-      bucketName: string,
-      instanceId: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).createConfigurationOverlayBucketWorkflowTransition(
-        workflow,
-        bucketName,
-        instanceId,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Adds an endpoint configuration item
-     * @param {EndpointV1} endpoint
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayEndpoint(
-      endpoint: EndpointV1,
-      uuid: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).createConfigurationOverlayEndpoint(
-        endpoint,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Adds location configuration item
-     * @param {LocationV1} location
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayLocation(
-      location: LocationV1,
-      uuid: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).createConfigurationOverlayLocation(
-        location,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Creates replication stream configuration item
-     * @param {ReplicationStreamInternalV1} replicationStream
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayReplicationStream(
-      replicationStream: ReplicationStreamInternalV1,
-      uuid: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).createConfigurationOverlayReplicationStream(
-        replicationStream,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Create a new user
-     * @param {UserV1} user
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createConfigurationOverlayUser(user: UserV1, uuid: string, options?: any) {
-      return UiFacingApiFp(configuration).createConfigurationOverlayUser(
-        user,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Deletes a bucket expiration workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowExpiration(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).deleteBucketWorkflowExpiration(
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Deletes a bucket replication workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowReplication(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).deleteBucketWorkflowReplication(
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Deletes a bucket transition workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteBucketWorkflowTransition(
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).deleteBucketWorkflowTransition(
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Deletes a bucket expiration workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayBucketWorkflowExpiration(
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).deleteConfigurationOverlayBucketWorkflowExpiration(
-        bucketName,
-        instanceId,
-        workflowId,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Deletes a bucket transition workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayBucketWorkflowTransition(
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).deleteConfigurationOverlayBucketWorkflowTransition(
-        bucketName,
-        instanceId,
-        workflowId,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Delete an endpoint definition
-     * @param {string} hostname
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayEndpoint(
-      hostname: string,
-      uuid: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).deleteConfigurationOverlayEndpoint(
-        hostname,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Deletes location configuration item
-     * @param {string} locationName
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayLocation(
-      locationName: string,
-      uuid: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).deleteConfigurationOverlayLocation(
-        locationName,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Deletes a replication stream
-     * @param {string} streamId
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayReplicationStream(
-      streamId: string,
-      uuid: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).deleteConfigurationOverlayReplicationStream(
-        streamId,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Delete a user
-     * @param {string} uuid
-     * @param {string} [accessKey]
-     * @param {string} [accountName]
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteConfigurationOverlayUser(
-      uuid: string,
-      accessKey?: string,
-      accountName?: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).deleteConfigurationOverlayUser(
-        uuid,
-        accessKey,
-        accountName,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Generate account access key
-     * @param {string} uuid
-     * @param {string} accountName
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    generateKeyConfigurationOverlayUser(
-      uuid: string,
-      accountName: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).generateKeyConfigurationOverlayUser(
-        uuid,
-        accountName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get Server-managed configuration values for use by user frontend
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getConfigurationOverlayView(uuid: string, options?: any) {
-      return UiFacingApiFp(configuration).getConfigurationOverlayView(
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get current user's profile
-     * @param {string} [xScalRequestUids]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getCurrentUserProfile(xScalRequestUids?: string, options?: any) {
-      return UiFacingApiFp(configuration).getCurrentUserProfile(
-        xScalRequestUids,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get instance
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstance(uuid: string, options?: any) {
-      return UiFacingApiFp(configuration).getInstance(uuid, options)(
-        fetch,
-        basePath,
-      );
-    },
-    /**
-     * Get latest statistics
-     * @param {string} uuid
-     * @param {number} [interval]
-     * @param {string} [startTime]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getInstanceStats(
-      uuid: string,
-      interval?: number,
-      startTime?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).getInstanceStats(
-        uuid,
-        interval,
-        startTime,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get latest instance status snapshot
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getLatestInstanceStatus(uuid: string, options?: any) {
-      return UiFacingApiFp(configuration).getLatestInstanceStatus(
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get storage consumption metrics for an account
-     * @param {string} uuid
-     * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForAccount(
-      uuid: string,
-      accountCanonicalId: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).getStorageConsumptionMetricsForAccount(
-        uuid,
-        accountCanonicalId,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get storage consumption metrics for accounts
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForAccounts(
-      uuid: string,
-      accounts: StorageConsumptionMetricEntityIdsV1,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).getStorageConsumptionMetricsForAccounts(
-        uuid,
-        accounts,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get storage consumption metrics for buckets
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForBuckets(
-      uuid: string,
-      buckets: StorageConsumptionMetricEntityIdsV1,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).getStorageConsumptionMetricsForBuckets(
-        uuid,
-        buckets,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Get storage consumption metrics for locations
-     * @param {string} uuid
-     * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getStorageConsumptionMetricsForLocations(
-      uuid: string,
-      locations: StorageConsumptionMetricEntityIdsV1,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).getStorageConsumptionMetricsForLocations(
-        uuid,
-        locations,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Invite users by email
-     * @param {string} userId
-     * @param {Array<Invites>} invites
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    inviteOrbitUsersByEmail(
-      userId: string,
-      invites: Array<Invites>,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).inviteOrbitUsersByEmail(
-        userId,
-        invites,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Create a new managed Zenko instance
-     * @param {string} [instanceName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    provisionHostedInstance(instanceName?: string, options?: any) {
-      return UiFacingApiFp(configuration).provisionHostedInstance(
-        instanceName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Regenerate a user's secret key
-     * @param {string} accessKey
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    rekeyConfigurationOverlayUser(
-      accessKey: string,
-      uuid: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).rekeyConfigurationOverlayUser(
-        accessKey,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Performs a search of bucket workflows. Currently returns replication and lifecycle workflows. Filtering ability is limited to all buckets or a list of buckets.
-     * @param {string} accountId
-     * @param {string} instanceId
-     * @param {string} [roleName]
-     * @param {Filters} [filters]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    searchWorkflows(
-      accountId: string,
-      instanceId: string,
-      roleName?: string,
-      filters?: Filters,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).searchWorkflows(
-        accountId,
-        instanceId,
-        roleName,
-        filters,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Un-claim an instance, deleting it from the user's account
-     * @param {string} userId
-     * @param {string} instanceId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    unclaimInstance(userId: string, instanceId: string, options?: any) {
-      return UiFacingApiFp(configuration).unclaimInstance(
-        userId,
-        instanceId,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Updates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).updateBucketWorkflowExpiration(
-        workflow,
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Updates a bucket replication workflow
-     * @param {ReplicationStreamInternalV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowReplication(
-      workflow: ReplicationStreamInternalV1,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).updateBucketWorkflowReplication(
-        workflow,
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Updates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV2} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} accountId
-     * @param {string} workflowId
-     * @param {string} [roleName]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV2,
-      bucketName: string,
-      instanceId: string,
-      accountId: string,
-      workflowId: string,
-      roleName?: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).updateBucketWorkflowTransition(
-        workflow,
-        bucketName,
-        instanceId,
-        accountId,
-        workflowId,
-        roleName,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * updates a bucket expiration workflow
-     * @param {BucketWorkflowExpirationV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayBucketWorkflowExpiration(
-      workflow: BucketWorkflowExpirationV1,
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).updateConfigurationOverlayBucketWorkflowExpiration(
-        workflow,
-        bucketName,
-        instanceId,
-        workflowId,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * updates a bucket transition workflow
-     * @param {BucketWorkflowTransitionV1} workflow
-     * @param {string} bucketName
-     * @param {string} instanceId
-     * @param {string} workflowId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayBucketWorkflowTransition(
-      workflow: BucketWorkflowTransitionV1,
-      bucketName: string,
-      instanceId: string,
-      workflowId: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).updateConfigurationOverlayBucketWorkflowTransition(
-        workflow,
-        bucketName,
-        instanceId,
-        workflowId,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Updates a location configuration item
-     * @param {string} locationName
-     * @param {string} uuid
-     * @param {LocationV1} location
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayLocation(
-      locationName: string,
-      uuid: string,
-      location: LocationV1,
-      options?: any,
-    ) {
-      return UiFacingApiFp(configuration).updateConfigurationOverlayLocation(
-        locationName,
-        uuid,
-        location,
-        options,
-      )(fetch, basePath);
-    },
-    /**
-     * Updates a replication stream
-     * @param {string} streamId
-     * @param {ReplicationStreamInternalV1} replicationStream
-     * @param {string} uuid
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateConfigurationOverlayReplicationStream(
-      streamId: string,
-      replicationStream: ReplicationStreamInternalV1,
-      uuid: string,
-      options?: any,
-    ) {
-      return UiFacingApiFp(
-        configuration,
-      ).updateConfigurationOverlayReplicationStream(
-        streamId,
-        replicationStream,
-        uuid,
-        options,
-      )(fetch, basePath);
-    },
-  };
-};
+export const UiFacingApiFactory = (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) => ({
+  /**
+   * Claim an instance, linking it to the user's account
+   * @param {string} userId
+   * @param {string} instanceId
+   * @param {string} friendlyName
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  claimInstance(userId: string, instanceId: string, friendlyName: string, options?: any) {
+    return UiFacingApiFp(configuration).claimInstance(userId, instanceId, friendlyName, options)(fetch, basePath);
+  },
+  /**
+   * Creates a bucket expiration workflow.
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).createBucketWorkflowExpiration(
+      workflow,
+      bucketName,
+      accountId,
+      instanceId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Creates a bucket replication workflow. Will Not enable versioning automatically. Will conflict if a rule already exists on the bucket.
+   * @param {ReplicationStreamInternalV1} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowReplication(
+    workflow: ReplicationStreamInternalV1,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).createBucketWorkflowReplication(
+      workflow,
+      bucketName,
+      accountId,
+      instanceId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Creates a bucket transition workflow.
+   * @param {BucketWorkflowTransitionV2} workflow
+   * @param {string} bucketName
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV2,
+    bucketName: string,
+    accountId: string,
+    instanceId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).createBucketWorkflowTransition(
+      workflow,
+      bucketName,
+      accountId,
+      instanceId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Creates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).createConfigurationOverlayBucketWorkflowExpiration(
+      workflow,
+      bucketName,
+      instanceId,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Creates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV1,
+    bucketName: string,
+    instanceId: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).createConfigurationOverlayBucketWorkflowTransition(
+      workflow,
+      bucketName,
+      instanceId,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Adds an endpoint configuration item
+   * @param {EndpointV1} endpoint
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayEndpoint(endpoint: EndpointV1, uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).createConfigurationOverlayEndpoint(endpoint, uuid, options)(fetch, basePath);
+  },
+  /**
+   * Adds location configuration item
+   * @param {LocationV1} location
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayLocation(location: LocationV1, uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).createConfigurationOverlayLocation(location, uuid, options)(fetch, basePath);
+  },
+  /**
+   * Creates replication stream configuration item
+   * @param {ReplicationStreamInternalV1} replicationStream
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayReplicationStream(
+    replicationStream: ReplicationStreamInternalV1,
+    uuid: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).createConfigurationOverlayReplicationStream(
+      replicationStream,
+      uuid,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Create a new user
+   * @param {UserV1} user
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  createConfigurationOverlayUser(user: UserV1, uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).createConfigurationOverlayUser(user, uuid, options)(fetch, basePath);
+  },
+  /**
+   * Deletes a bucket expiration workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowExpiration(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).deleteBucketWorkflowExpiration(
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Deletes a bucket replication workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowReplication(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).deleteBucketWorkflowReplication(
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Deletes a bucket transition workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteBucketWorkflowTransition(
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).deleteBucketWorkflowTransition(
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Deletes a bucket expiration workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayBucketWorkflowExpiration(
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).deleteConfigurationOverlayBucketWorkflowExpiration(
+      bucketName,
+      instanceId,
+      workflowId,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Deletes a bucket transition workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayBucketWorkflowTransition(
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).deleteConfigurationOverlayBucketWorkflowTransition(
+      bucketName,
+      instanceId,
+      workflowId,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Delete an endpoint definition
+   * @param {string} hostname
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayEndpoint(hostname: string, uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).deleteConfigurationOverlayEndpoint(hostname, uuid, options)(fetch, basePath);
+  },
+  /**
+   * Deletes location configuration item
+   * @param {string} locationName
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayLocation(locationName: string, uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).deleteConfigurationOverlayLocation(
+      locationName,
+      uuid,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Deletes a replication stream
+   * @param {string} streamId
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayReplicationStream(streamId: string, uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).deleteConfigurationOverlayReplicationStream(
+      streamId,
+      uuid,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Delete a user
+   * @param {string} uuid
+   * @param {string} [accessKey]
+   * @param {string} [accountName]
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  deleteConfigurationOverlayUser(
+    uuid: string,
+    accessKey?: string,
+    accountName?: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).deleteConfigurationOverlayUser(
+      uuid,
+      accessKey,
+      accountName,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Generate account access key
+   * @param {string} uuid
+   * @param {string} accountName
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  generateKeyConfigurationOverlayUser(uuid: string, accountName: string, options?: any) {
+    return UiFacingApiFp(configuration).generateKeyConfigurationOverlayUser(
+      uuid,
+      accountName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Get Server-managed configuration values for use by user frontend
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getConfigurationOverlayView(uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).getConfigurationOverlayView(uuid, options)(fetch, basePath);
+  },
+  /**
+   * Get current user's profile
+   * @param {string} [xScalRequestUids]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getCurrentUserProfile(xScalRequestUids?: string, options?: any) {
+    return UiFacingApiFp(configuration).getCurrentUserProfile(xScalRequestUids, options)(fetch, basePath);
+  },
+  /**
+   * Get instance
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstance(uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).getInstance(uuid, options)(fetch, basePath);
+  },
+  /**
+   * Get latest statistics
+   * @param {string} uuid
+   * @param {number} [interval]
+   * @param {string} [startTime]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getInstanceStats(uuid: string, interval?: number, startTime?: string, options?: any) {
+    return UiFacingApiFp(configuration).getInstanceStats(uuid, interval, startTime, options)(fetch, basePath);
+  },
+  /**
+   * Get latest instance status snapshot
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getLatestInstanceStatus(uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).getLatestInstanceStatus(uuid, options)(fetch, basePath);
+  },
+  /**
+   * Get storage consumption metrics for an account
+   * @param {string} uuid
+   * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForAccount(uuid: string, accountCanonicalId: string, options?: any) {
+    return UiFacingApiFp(configuration).getStorageConsumptionMetricsForAccount(
+      uuid,
+      accountCanonicalId,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Get storage consumption metrics for accounts
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForAccounts(uuid: string, accounts: StorageConsumptionMetricEntityIdsV1, options?: any) {
+    return UiFacingApiFp(configuration).getStorageConsumptionMetricsForAccounts(
+      uuid,
+      accounts,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Get storage consumption metrics for buckets
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForBuckets(uuid: string, buckets: StorageConsumptionMetricEntityIdsV1, options?: any) {
+    return UiFacingApiFp(configuration).getStorageConsumptionMetricsForBuckets(uuid, buckets, options)(fetch, basePath);
+  },
+  /**
+   * Get storage consumption metrics for locations
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  getStorageConsumptionMetricsForLocations(
+    uuid: string,
+    locations: StorageConsumptionMetricEntityIdsV1,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).getStorageConsumptionMetricsForLocations(
+      uuid,
+      locations,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Invite users by email
+   * @param {string} userId
+   * @param {Array<Invites>} invites
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  inviteOrbitUsersByEmail(userId: string, invites: Array<Invites>, options?: any) {
+    return UiFacingApiFp(configuration).inviteOrbitUsersByEmail(userId, invites, options)(fetch, basePath);
+  },
+  /**
+   * Create a new managed Zenko instance
+   * @param {string} [instanceName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  provisionHostedInstance(instanceName?: string, options?: any) {
+    return UiFacingApiFp(configuration).provisionHostedInstance(instanceName, options)(fetch, basePath);
+  },
+  /**
+   * Regenerate a user's secret key
+   * @param {string} accessKey
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  rekeyConfigurationOverlayUser(accessKey: string, uuid: string, options?: any) {
+    return UiFacingApiFp(configuration).rekeyConfigurationOverlayUser(accessKey, uuid, options)(fetch, basePath);
+  },
+  /**
+   * Performs a search of bucket workflows. Currently returns replication and lifecycle workflows. Filtering ability is limited to all buckets or a list of buckets.
+   * @param {string} accountId
+   * @param {string} instanceId
+   * @param {string} [roleName]
+   * @param {Filters} [filters]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  searchWorkflows(accountId: string, instanceId: string, roleName?: string, filters?: Filters, options?: any) {
+    return UiFacingApiFp(configuration).searchWorkflows(
+      accountId,
+      instanceId,
+      roleName,
+      filters,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Un-claim an instance, deleting it from the user's account
+   * @param {string} userId
+   * @param {string} instanceId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  unclaimInstance(userId: string, instanceId: string, options?: any) {
+    return UiFacingApiFp(configuration).unclaimInstance(userId, instanceId, options)(fetch, basePath);
+  },
+  /**
+   * Updates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).updateBucketWorkflowExpiration(
+      workflow,
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Updates a bucket replication workflow
+   * @param {ReplicationStreamInternalV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowReplication(
+    workflow: ReplicationStreamInternalV1,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).updateBucketWorkflowReplication(
+      workflow,
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Updates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV2} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} accountId
+   * @param {string} workflowId
+   * @param {string} [roleName]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV2,
+    bucketName: string,
+    instanceId: string,
+    accountId: string,
+    workflowId: string,
+    roleName?: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).updateBucketWorkflowTransition(
+      workflow,
+      bucketName,
+      instanceId,
+      accountId,
+      workflowId,
+      roleName,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * updates a bucket expiration workflow
+   * @param {BucketWorkflowExpirationV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayBucketWorkflowExpiration(
+    workflow: BucketWorkflowExpirationV1,
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).updateConfigurationOverlayBucketWorkflowExpiration(
+      workflow,
+      bucketName,
+      instanceId,
+      workflowId,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * updates a bucket transition workflow
+   * @param {BucketWorkflowTransitionV1} workflow
+   * @param {string} bucketName
+   * @param {string} instanceId
+   * @param {string} workflowId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayBucketWorkflowTransition(
+    workflow: BucketWorkflowTransitionV1,
+    bucketName: string,
+    instanceId: string,
+    workflowId: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).updateConfigurationOverlayBucketWorkflowTransition(
+      workflow,
+      bucketName,
+      instanceId,
+      workflowId,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Updates a location configuration item
+   * @param {string} locationName
+   * @param {string} uuid
+   * @param {LocationV1} location
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayLocation(locationName: string, uuid: string, location: LocationV1, options?: any) {
+    return UiFacingApiFp(configuration).updateConfigurationOverlayLocation(
+      locationName,
+      uuid,
+      location,
+      options,
+    )(fetch, basePath);
+  },
+  /**
+   * Updates a replication stream
+   * @param {string} streamId
+   * @param {ReplicationStreamInternalV1} replicationStream
+   * @param {string} uuid
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+  updateConfigurationOverlayReplicationStream(
+    streamId: string,
+    replicationStream: ReplicationStreamInternalV1,
+    uuid: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(configuration).updateConfigurationOverlayReplicationStream(
+      streamId,
+      replicationStream,
+      uuid,
+      options,
+    )(fetch, basePath);
+  },
+});
 
 /**
  * UiFacingApi - object-oriented interface
@@ -10203,12 +8833,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public claimInstance(
-    userId: string,
-    instanceId: string,
-    friendlyName: string,
-    options?: any,
-  ) {
+  public claimInstance(userId: string, instanceId: string, friendlyName: string, options?: any) {
     return UiFacingApiFp(this.configuration).claimInstance(
       userId,
       instanceId,
@@ -10319,9 +8944,7 @@ export class UiFacingApi extends BaseAPI {
     instanceId: string,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).createConfigurationOverlayBucketWorkflowExpiration(
+    return UiFacingApiFp(this.configuration).createConfigurationOverlayBucketWorkflowExpiration(
       workflow,
       bucketName,
       instanceId,
@@ -10344,9 +8967,7 @@ export class UiFacingApi extends BaseAPI {
     instanceId: string,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).createConfigurationOverlayBucketWorkflowTransition(
+    return UiFacingApiFp(this.configuration).createConfigurationOverlayBucketWorkflowTransition(
       workflow,
       bucketName,
       instanceId,
@@ -10362,11 +8983,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public createConfigurationOverlayEndpoint(
-    endpoint: EndpointV1,
-    uuid: string,
-    options?: any,
-  ) {
+  public createConfigurationOverlayEndpoint(endpoint: EndpointV1, uuid: string, options?: any) {
     return UiFacingApiFp(this.configuration).createConfigurationOverlayEndpoint(
       endpoint,
       uuid,
@@ -10382,11 +8999,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public createConfigurationOverlayLocation(
-    location: LocationV1,
-    uuid: string,
-    options?: any,
-  ) {
+  public createConfigurationOverlayLocation(location: LocationV1, uuid: string, options?: any) {
     return UiFacingApiFp(this.configuration).createConfigurationOverlayLocation(
       location,
       uuid,
@@ -10407,9 +9020,7 @@ export class UiFacingApi extends BaseAPI {
     uuid: string,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).createConfigurationOverlayReplicationStream(
+    return UiFacingApiFp(this.configuration).createConfigurationOverlayReplicationStream(
       replicationStream,
       uuid,
       options,
@@ -10424,11 +9035,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public createConfigurationOverlayUser(
-    user: UserV1,
-    uuid: string,
-    options?: any,
-  ) {
+  public createConfigurationOverlayUser(user: UserV1, uuid: string, options?: any) {
     return UiFacingApiFp(this.configuration).createConfigurationOverlayUser(
       user,
       uuid,
@@ -10538,9 +9145,7 @@ export class UiFacingApi extends BaseAPI {
     workflowId: string,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).deleteConfigurationOverlayBucketWorkflowExpiration(
+    return UiFacingApiFp(this.configuration).deleteConfigurationOverlayBucketWorkflowExpiration(
       bucketName,
       instanceId,
       workflowId,
@@ -10563,9 +9168,7 @@ export class UiFacingApi extends BaseAPI {
     workflowId: string,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).deleteConfigurationOverlayBucketWorkflowTransition(
+    return UiFacingApiFp(this.configuration).deleteConfigurationOverlayBucketWorkflowTransition(
       bucketName,
       instanceId,
       workflowId,
@@ -10581,11 +9184,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public deleteConfigurationOverlayEndpoint(
-    hostname: string,
-    uuid: string,
-    options?: any,
-  ) {
+  public deleteConfigurationOverlayEndpoint(hostname: string, uuid: string, options?: any) {
     return UiFacingApiFp(this.configuration).deleteConfigurationOverlayEndpoint(
       hostname,
       uuid,
@@ -10601,11 +9200,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public deleteConfigurationOverlayLocation(
-    locationName: string,
-    uuid: string,
-    options?: any,
-  ) {
+  public deleteConfigurationOverlayLocation(locationName: string, uuid: string, options?: any) {
     return UiFacingApiFp(this.configuration).deleteConfigurationOverlayLocation(
       locationName,
       uuid,
@@ -10621,14 +9216,8 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public deleteConfigurationOverlayReplicationStream(
-    streamId: string,
-    uuid: string,
-    options?: any,
-  ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).deleteConfigurationOverlayReplicationStream(
+  public deleteConfigurationOverlayReplicationStream(streamId: string, uuid: string, options?: any) {
+    return UiFacingApiFp(this.configuration).deleteConfigurationOverlayReplicationStream(
       streamId,
       uuid,
       options,
@@ -10669,14 +9258,8 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public generateKeyConfigurationOverlayUser(
-    uuid: string,
-    accountName: string,
-    options?: any,
-  ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).generateKeyConfigurationOverlayUser(
+  public generateKeyConfigurationOverlayUser(uuid: string, accountName: string, options?: any) {
+    return UiFacingApiFp(this.configuration).generateKeyConfigurationOverlayUser(
       uuid,
       accountName,
       options,
@@ -10691,10 +9274,7 @@ export class UiFacingApi extends BaseAPI {
    * @memberof UiFacingApi
    */
   public getConfigurationOverlayView(uuid: string, options?: any) {
-    return UiFacingApiFp(this.configuration).getConfigurationOverlayView(
-      uuid,
-      options,
-    )(this.fetch, this.basePath);
+    return UiFacingApiFp(this.configuration).getConfigurationOverlayView(uuid, options)(this.fetch, this.basePath);
   }
 
   /**
@@ -10705,10 +9285,10 @@ export class UiFacingApi extends BaseAPI {
    * @memberof UiFacingApi
    */
   public getCurrentUserProfile(xScalRequestUids?: string, options?: any) {
-    return UiFacingApiFp(this.configuration).getCurrentUserProfile(
-      xScalRequestUids,
-      options,
-    )(this.fetch, this.basePath);
+    return UiFacingApiFp(this.configuration).getCurrentUserProfile(xScalRequestUids, options)(
+      this.fetch,
+      this.basePath,
+    );
   }
 
   /**
@@ -10719,10 +9299,7 @@ export class UiFacingApi extends BaseAPI {
    * @memberof UiFacingApi
    */
   public getInstance(uuid: string, options?: any) {
-    return UiFacingApiFp(this.configuration).getInstance(uuid, options)(
-      this.fetch,
-      this.basePath,
-    );
+    return UiFacingApiFp(this.configuration).getInstance(uuid, options)(this.fetch, this.basePath);
   }
 
   /**
@@ -10734,12 +9311,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public getInstanceStats(
-    uuid: string,
-    interval?: number,
-    startTime?: string,
-    options?: any,
-  ) {
+  public getInstanceStats(uuid: string, interval?: number, startTime?: string, options?: any) {
     return UiFacingApiFp(this.configuration).getInstanceStats(
       uuid,
       interval,
@@ -10756,10 +9328,7 @@ export class UiFacingApi extends BaseAPI {
    * @memberof UiFacingApi
    */
   public getLatestInstanceStatus(uuid: string, options?: any) {
-    return UiFacingApiFp(this.configuration).getLatestInstanceStatus(
-      uuid,
-      options,
-    )(this.fetch, this.basePath);
+    return UiFacingApiFp(this.configuration).getLatestInstanceStatus(uuid, options)(this.fetch, this.basePath);
   }
 
   /**
@@ -10770,14 +9339,8 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public getStorageConsumptionMetricsForAccount(
-    uuid: string,
-    accountCanonicalId: string,
-    options?: any,
-  ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).getStorageConsumptionMetricsForAccount(
+  public getStorageConsumptionMetricsForAccount(uuid: string, accountCanonicalId: string, options?: any) {
+    return UiFacingApiFp(this.configuration).getStorageConsumptionMetricsForAccount(
       uuid,
       accountCanonicalId,
       options,
@@ -10797,9 +9360,7 @@ export class UiFacingApi extends BaseAPI {
     accounts: StorageConsumptionMetricEntityIdsV1,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).getStorageConsumptionMetricsForAccounts(
+    return UiFacingApiFp(this.configuration).getStorageConsumptionMetricsForAccounts(
       uuid,
       accounts,
       options,
@@ -10819,9 +9380,7 @@ export class UiFacingApi extends BaseAPI {
     buckets: StorageConsumptionMetricEntityIdsV1,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).getStorageConsumptionMetricsForBuckets(
+    return UiFacingApiFp(this.configuration).getStorageConsumptionMetricsForBuckets(
       uuid,
       buckets,
       options,
@@ -10841,9 +9400,7 @@ export class UiFacingApi extends BaseAPI {
     locations: StorageConsumptionMetricEntityIdsV1,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).getStorageConsumptionMetricsForLocations(
+    return UiFacingApiFp(this.configuration).getStorageConsumptionMetricsForLocations(
       uuid,
       locations,
       options,
@@ -10858,11 +9415,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public inviteOrbitUsersByEmail(
-    userId: string,
-    invites: Array<Invites>,
-    options?: any,
-  ) {
+  public inviteOrbitUsersByEmail(userId: string, invites: Array<Invites>, options?: any) {
     return UiFacingApiFp(this.configuration).inviteOrbitUsersByEmail(
       userId,
       invites,
@@ -10878,10 +9431,7 @@ export class UiFacingApi extends BaseAPI {
    * @memberof UiFacingApi
    */
   public provisionHostedInstance(instanceName?: string, options?: any) {
-    return UiFacingApiFp(this.configuration).provisionHostedInstance(
-      instanceName,
-      options,
-    )(this.fetch, this.basePath);
+    return UiFacingApiFp(this.configuration).provisionHostedInstance(instanceName, options)(this.fetch, this.basePath);
   }
 
   /**
@@ -10892,11 +9442,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public rekeyConfigurationOverlayUser(
-    accessKey: string,
-    uuid: string,
-    options?: any,
-  ) {
+  public rekeyConfigurationOverlayUser(accessKey: string, uuid: string, options?: any) {
     return UiFacingApiFp(this.configuration).rekeyConfigurationOverlayUser(
       accessKey,
       uuid,
@@ -10914,13 +9460,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public searchWorkflows(
-    accountId: string,
-    instanceId: string,
-    roleName?: string,
-    filters?: Filters,
-    options?: any,
-  ) {
+  public searchWorkflows(accountId: string, instanceId: string, roleName?: string, filters?: Filters, options?: any) {
     return UiFacingApiFp(this.configuration).searchWorkflows(
       accountId,
       instanceId,
@@ -10939,11 +9479,7 @@ export class UiFacingApi extends BaseAPI {
    * @memberof UiFacingApi
    */
   public unclaimInstance(userId: string, instanceId: string, options?: any) {
-    return UiFacingApiFp(this.configuration).unclaimInstance(
-      userId,
-      instanceId,
-      options,
-    )(this.fetch, this.basePath);
+    return UiFacingApiFp(this.configuration).unclaimInstance(userId, instanceId, options)(this.fetch, this.basePath);
   }
 
   /**
@@ -11059,9 +9595,7 @@ export class UiFacingApi extends BaseAPI {
     workflowId: string,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).updateConfigurationOverlayBucketWorkflowExpiration(
+    return UiFacingApiFp(this.configuration).updateConfigurationOverlayBucketWorkflowExpiration(
       workflow,
       bucketName,
       instanceId,
@@ -11087,9 +9621,7 @@ export class UiFacingApi extends BaseAPI {
     workflowId: string,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).updateConfigurationOverlayBucketWorkflowTransition(
+    return UiFacingApiFp(this.configuration).updateConfigurationOverlayBucketWorkflowTransition(
       workflow,
       bucketName,
       instanceId,
@@ -11107,12 +9639,7 @@ export class UiFacingApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
-  public updateConfigurationOverlayLocation(
-    locationName: string,
-    uuid: string,
-    location: LocationV1,
-    options?: any,
-  ) {
+  public updateConfigurationOverlayLocation(locationName: string, uuid: string, location: LocationV1, options?: any) {
     return UiFacingApiFp(this.configuration).updateConfigurationOverlayLocation(
       locationName,
       uuid,
@@ -11136,9 +9663,7 @@ export class UiFacingApi extends BaseAPI {
     uuid: string,
     options?: any,
   ) {
-    return UiFacingApiFp(
-      this.configuration,
-    ).updateConfigurationOverlayReplicationStream(
+    return UiFacingApiFp(this.configuration).updateConfigurationOverlayReplicationStream(
       streamId,
       replicationStream,
       uuid,

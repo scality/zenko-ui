@@ -1,20 +1,20 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { WelcomeModalInternal } from './WelcomeModal';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
+import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../../ISV/constants';
+import { useAlerts } from '../../../next-architecture/ui/AlertProvider';
 import {
-  TEST_API_BASE_URL,
-  Wrapper,
   expectElementNotToBeInDocument,
   mockOffsetSize,
   queryClient,
+  TEST_API_BASE_URL,
+  Wrapper,
 } from '../../../utils/testUtil';
-import { setupServer } from 'msw/node';
-import { rest } from 'msw';
-import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
-import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../../ISV/constants';
-import { useNextLogin } from '../../hooks/useNextLogin';
-import { useAlerts } from '../../../next-architecture/ui/AlertProvider';
 import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
+import { useNextLogin } from '../../hooks/useNextLogin';
+import { WelcomeModalInternal } from './WelcomeModal';
 
 jest.mock('../../hooks/useNextLogin', () => ({
   useNextLogin: jest.fn(),
@@ -43,7 +43,7 @@ jest.mock('../../hooks/useIsVeeamVBROnly', () => ({
 
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 const server = setupServer(
-  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+  rest.post(`${TEST_API_BASE_URL}/`, (_req, res, ctx) => {
     return res(
       ctx.json({
         IsTruncated: false,
@@ -80,10 +80,8 @@ describe('WelcomeModal', () => {
   afterAll(() => server.close());
 
   const selectors = {
-    welcomeModal: () =>
-      screen.getByRole('dialog', { name: /Welcome to ARTESCA/i }),
-    welcomeModalVeeamOnly: () =>
-      screen.getByRole('dialog', { name: /Welcome to Artesca Plus/i }),
+    welcomeModal: () => screen.getByRole('dialog', { name: /Welcome to ARTESCA/i }),
+    welcomeModalVeeamOnly: () => screen.getByRole('dialog', { name: /Welcome to Artesca Plus/i }),
     skipButton: () => screen.getByRole('button', { name: /Skip/i }),
   };
   const WelcomeModalComponent = (

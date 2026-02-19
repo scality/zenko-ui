@@ -1,5 +1,6 @@
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
+
 // WARNING: FormContainer is depreciated, use FormLayout components instead.
 const FormContainer = styled.form`
   display: flex;

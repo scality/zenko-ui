@@ -1,6 +1,7 @@
+import type { JSX } from 'react';
 import {
   JAGUAR_S3_LOCATION_KEY,
-  LocationTypeKey,
+  type LocationTypeKey,
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
   OUTSCALE_SNC_S3_LOCATION_KEY,
@@ -9,6 +10,7 @@ import LocationDetailsAws from './LocationDetailsAws';
 import LocationDetailsAwsCustom from './LocationDetailsAwsCustom';
 import LocationDetailsAzure from './LocationDetailsAzure';
 import LocationDetailsAzureArchive from './LocationDetailsAzureArchive';
+import LocationDetailsCRR from './LocationDetailsCRR';
 import LocationDetailsDOSpaces from './LocationDetailsDOSpaces';
 import LocationDetailsGcp from './LocationDetailsGcp';
 import LocationDetailsHyperdriveV2 from './LocationDetailsHyperdriveV2';
@@ -18,8 +20,6 @@ import LocationDetailsSproxyd from './LocationDetailsSproxyd';
 import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
 import LocationDetailsTapeMiria from './LocationDetailsTapeMiria';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
-import LocationDetailsCRR from './LocationDetailsCRR';
-import { JSX } from 'react';
 
 export type StorageOptionValues = {
   name: string;

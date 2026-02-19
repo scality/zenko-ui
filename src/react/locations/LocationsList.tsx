@@ -1,43 +1,29 @@
-import {
-  Banner,
-  EmptyState,
-  Icon,
-  IconHelp,
-  Loader,
-  Stack,
-  Wrap,
-  spacing,
-} from '@scality/core-ui';
+import { Banner, EmptyState, Icon, IconHelp, Loader, Stack, spacing, Wrap } from '@scality/core-ui';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate, useShellHooks } from '@scality/module-federation';
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { CellProps, CoreUIColumn } from 'react-table';
-
-import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import type { CellProps, CoreUIColumn } from 'react-table';
+import styled from 'styled-components';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
-import {
-  queries,
-  useAccountsLocationsAndEndpoints,
-} from '../next-architecture/domain/business/accounts';
+import { queries, useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useListLocations } from '../next-architecture/domain/business/locations';
-import { Location } from '../next-architecture/domain/entities/location';
+import type { Location } from '../next-architecture/domain/entities/location';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
+import { useBucketList } from '../queries/instanceStatusQuery';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
+import { TableHeaderWrapper } from '../ui-elements/Table';
 import { getLocationType } from '../utils/storageOptions';
 import { PauseAndResume } from './PauseAndResume';
 import { getLocationDeletionBlocker } from './utils';
-import { useBucketList } from '../queries/instanceStatusQuery';
-import styled from 'styled-components';
-import { TableHeaderWrapper } from '../ui-elements/Table';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import { useShellHooks } from '@scality/module-federation';
 
 const TooltipList = styled.ul`
   margin-left: ${spacing.r8};
@@ -54,12 +40,10 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
   const navigate = useBasenameRelativeNavigate();
   const { bucketList: buckets, status: bucketListStatus } = useBucketList();
   const [showModal, setShowModal] = useState(false);
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const {
-    accountsLocationsAndEndpoints,
-    refetchAccountsLocationsEndpointsMutation,
-  } = useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints(
+    { accountsLocationsEndpointsAdapter },
+  );
 
   const managementClient = useManagementClient();
   const instanceId = useInstanceId();
@@ -69,10 +53,7 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
     mutationFn: async (locationName: string) => {
       const client = notFalsyTypeGuard(managementClient);
       client.setToken(await getToken());
-      return client.deleteConfigurationOverlayLocation(
-        locationName,
-        instanceId,
-      );
+      return client.deleteConfigurationOverlayLocation(locationName, instanceId);
     },
   });
   const {
@@ -88,15 +69,11 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
           onSuccess: () => {
             const newAccountsLocationsEndpoints = {
               ...accountsLocationsAndEndpoints,
-              locations: accountsLocationsAndEndpoints?.locations.filter(
-                (location) => location.name !== locationName,
-              ),
+              locations: accountsLocationsAndEndpoints?.locations.filter((location) => location.name !== locationName),
             };
 
             queryClient.setQueryData(
-              queries.listAccountsLocationAndEndpoints(
-                accountsLocationsEndpointsAdapter,
-              ).queryKey,
+              queries.listAccountsLocationAndEndpoints(accountsLocationsEndpointsAdapter).queryKey,
               newAccountsLocationsEndpoints,
             );
             waitForRunningConfigurationVersionToBeUpdated();
@@ -110,7 +87,7 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
     if (waiterStatus === 'success') {
       refetchAccountsLocationsEndpointsMutation.mutate();
     }
-  }, [waiterStatus]);
+  }, [waiterStatus, refetchAccountsLocationsEndpointsMutation.mutate]);
 
   const { isBuiltin, hasBucket, hasEndpoint } = getLocationDeletionBlocker(
     rowValues,
@@ -138,10 +115,11 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
       <>Delete location</>
     );
   };
-  const deleteLocationButtonAriaLabel = isDeletionDisabled ? 'Delete Location is disabled for this location' : 'Delete Location';
+  const deleteLocationButtonAriaLabel = isDeletionDisabled
+    ? 'Delete Location is disabled for this location'
+    : 'Delete Location';
 
-  const isEditButtonDisabled =
-    rowValues.isBuiltin || rowValues.type === 'location-scality-hdclient-v2';
+  const isEditButtonDisabled = rowValues.isBuiltin || rowValues.type === 'location-scality-hdclient-v2';
 
   return (
     <div>
@@ -154,12 +132,8 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
           <>
             Permanently remove the following location {locationName}?
             <Box marginTop={spacing.r16}>
-              <Banner
-                variant="warning"
-                icon={<Icon name="Exclamation-circle" color="statusWarning" />}
-              >
-                Please ensure this location is not used by any replication or
-                lifecycle rules before deleting.
+              <Banner variant="warning" icon={<Icon name="Exclamation-circle" color="statusWarning" />}>
+                Please ensure this location is not used by any replication or lifecycle rules before deleting.
               </Banner>
             </Box>
           </>
@@ -209,8 +183,7 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
 
 export function LocationsList() {
   const navigate = useBasenameRelativeNavigate();
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
   const metricsAdapter = useMetricsAdapter();
   const { locations } = useListLocations({
     accountsLocationsEndpointsAdapter,
@@ -295,11 +268,10 @@ export function LocationsList() {
             overlayStyle={{ width: '24rem' }}
             tooltipMessage={
               <>
-                Pausing the replication will halt asynchronous metadata updates
-                and replication targeting this location.
+                Pausing the replication will halt asynchronous metadata updates and replication targeting this location.
                 <br /> <br />
-                Any new object added to the source location will be queued and
-                processed only once the replication is resumed.
+                Any new object added to the source location will be queued and processed only once the replication is
+                resumed.
               </>
             }
           />
@@ -312,9 +284,7 @@ export function LocationsList() {
         flex: '0.5',
         width: 'unset',
       },
-      Cell: ({ row: { original } }) => (
-        <PauseAndResume locationName={original.name} />
-      ),
+      Cell: ({ row: { original } }) => <PauseAndResume locationName={original.name} />,
     });
 
     columns.push({
@@ -334,7 +304,7 @@ export function LocationsList() {
       },
     });
     return columns;
-  }, [locations]);
+  }, []);
 
   if (locations.status === 'loading' || locations.status === 'unknown') {
     return (
@@ -369,9 +339,7 @@ export function LocationsList() {
         }}
       >
         <TableHeaderWrapper
-          search={
-            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
-          }
+          search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />}
           actions={
             <Button
               icon={<Icon name="Create-add" />}
@@ -388,9 +356,7 @@ export function LocationsList() {
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"
           //@ts-expect-error fix this when you are working on it
-          customItemKey={(index: number, data: Array<Location>) =>
-            data[index].name
-          }
+          customItemKey={(index: number, data: Array<Location>) => data[index].name}
           //@ts-expect-error fix this when you are working on it
           key={(index: number, data: Array<Location>) => data[index].name}
         >

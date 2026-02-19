@@ -1,7 +1,7 @@
-import { useMutation, useQuery } from 'react-query';
 import { useMemo } from 'react';
-import { useIAMClient } from '../../IAMProvider';
+import { useMutation, useQuery } from 'react-query';
 import { useAssumeRoleQuery } from '../../DataServiceRoleProvider';
+import { useIAMClient } from '../../IAMProvider';
 
 export interface IAMUser {
   id: string;
@@ -14,11 +14,7 @@ interface UseIAMUserProps {
   onShouldGenerateKey?: (shouldGenerate: boolean) => void;
 }
 
-export const useIAMUser = ({
-  IAMUserName,
-  onIAMUsersLoaded,
-  onShouldGenerateKey,
-}: UseIAMUserProps) => {
+export const useIAMUser = ({ IAMUserName, onIAMUsersLoaded, onShouldGenerateKey }: UseIAMUserProps) => {
   const IAMClient = useIAMClient();
   const { getQuery } = useAssumeRoleQuery();
 
@@ -29,15 +25,11 @@ export const useIAMUser = ({
         return { shouldGenerateKey: true, activeKeys: [] };
       }
       try {
-        const { AccessKeyMetadata } = await IAMClient.listAccessKeys(
-          IAMUserName,
-        );
-        const activeKeys = AccessKeyMetadata.filter(
-          (key) => key.Status === 'Active',
-        );
+        const { AccessKeyMetadata } = await IAMClient.listAccessKeys(IAMUserName);
+        const activeKeys = AccessKeyMetadata.filter((key) => key.Status === 'Active');
         const shouldGenerateKey = !activeKeys.length;
         return { shouldGenerateKey, activeKeys };
-      } catch (error) {
+      } catch (_error) {
         return { shouldGenerateKey: true, activeKeys: [] };
       }
     },
@@ -69,9 +61,7 @@ export const useIAMUser = ({
   });
 
   const isUserExist = useMemo(
-    () =>
-      mutation.status === 'success' &&
-      mutation.data?.Users.some((user) => user.UserName === IAMUserName),
+    () => mutation.status === 'success' && mutation.data?.Users.some((user) => user.UserName === IAMUserName),
     [IAMUserName, mutation.status, mutation.data],
   );
 
@@ -83,8 +73,7 @@ export const useIAMUser = ({
         name,
       })) ?? [],
     getIAMUsersMutation: mutation,
-    accessKeys:
-      accessKeysData?.activeKeys.map((key) => key.AccessKeyId) ?? null,
+    accessKeys: accessKeysData?.activeKeys.map((key) => key.AccessKeyId) ?? null,
     accessKeysStatus,
   } as const;
 };

@@ -3,17 +3,13 @@ import type { BucketCreateVersioningProps } from '@scality/data-browser-library'
 import { useFormContext } from 'react-hook-form';
 import { useWatchedLocation } from './useWatchedLocation';
 
-export function BucketCreateVersioning({
-  isVersioning,
-  isObjectLockEnabled,
-}: BucketCreateVersioningProps) {
+export function BucketCreateVersioning({ isVersioning, isObjectLockEnabled }: BucketCreateVersioningProps) {
   const { watch, register } = useFormContext();
   const isAsyncNotification = watch('isAsyncNotification');
 
   const { isAzureOrGcp } = useWatchedLocation();
 
-  const isDisabled =
-    isObjectLockEnabled || isAsyncNotification || isAzureOrGcp;
+  const isDisabled = isObjectLockEnabled || isAsyncNotification || isAzureOrGcp;
 
   const helpText = isAzureOrGcp
     ? 'Selected Storage Location does not support versioning.'
@@ -34,14 +30,10 @@ export function BucketCreateVersioning({
       labelHelpTooltip={
         <ul>
           <li>
-            Versioning keeps multiple versions of each objects in your bucket.
-            You can restore deleted or overwritten objects as a result of
-            unintended user actions or application failures.
+            Versioning keeps multiple versions of each objects in your bucket. You can restore deleted or overwritten
+            objects as a result of unintended user actions or application failures.
           </li>
-          <li>
-            It's possible to enable and suspend versioning at the bucket level
-            after the bucket creation.
-          </li>
+          <li>It's possible to enable and suspend versioning at the bucket level after the bucket creation.</li>
         </ul>
       }
       helpErrorPosition="bottom"

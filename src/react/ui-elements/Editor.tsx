@@ -1,7 +1,7 @@
-import MonacoEditor, { EditorProps, loader } from '@monaco-editor/react';
-import React, { useMemo, useState } from 'react';
-
+import MonacoEditor, { type EditorProps, loader } from '@monaco-editor/react';
 import { useCurrentApp, useShellHooks } from '@scality/module-federation';
+import type React from 'react';
+import { useMemo, useState } from 'react';
 
 type Props = {
   width?: string;
@@ -12,15 +12,7 @@ type Props = {
   onChange: (data: React.ChangeEvent) => void;
 } & EditorProps;
 
-const Editor = ({
-  height,
-  width,
-  language,
-  value,
-  onChange,
-  readOnly,
-  ...rest
-}: Props) => {
+const Editor = ({ height, width, language, value, onChange, readOnly, ...rest }: Props) => {
   const [theme, setTheme] = useState('');
   const { useShellThemeSelector } = useShellHooks();
   const { themeMode } = useShellThemeSelector();
@@ -31,7 +23,7 @@ const Editor = ({
   }, [themeMode]);
 
   useMemo(() => {
-    loader.config({ paths: { vs: url + '/vs' } });
+    loader.config({ paths: { vs: `${url}/vs` } });
   }, [url]);
 
   return (

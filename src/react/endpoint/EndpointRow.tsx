@@ -1,9 +1,10 @@
-import * as T from '../ui-elements/Table';
-import React, { memo } from 'react';
-import { Endpoint } from '../../types/config';
-import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
+import { memo } from 'react';
+import { areEqual } from 'react-window';
+import type { Endpoint } from '../../types/config';
+import * as T from '../ui-elements/Table';
+
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {
   id: number;
@@ -46,11 +47,7 @@ const Row = ({ data: { rows, prepareRow }, index, style }: RowProps) => {
       {row.cells.map((cell) => {
         const cellProps = cell.getCellProps();
         return (
-          <T.Cell
-            key={cell.id}
-            {...cellProps}
-            style={{ ...cell.column.cellStyle, ...cellProps.style }}
-          >
+          <T.Cell key={cell.id} {...cellProps} style={{ ...cell.column.cellStyle, ...cellProps.style }}>
             {cell.render('Cell')}
           </T.Cell>
         );

@@ -1,35 +1,24 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { UseMutationResult } from 'react-query';
 import { useQueryClient } from 'react-query';
 import {
+  type ArtescaLibraryHooks,
   ArtescaLibraryNotAvailable,
   useArtescaLibrary,
-  type ArtescaLibraryHooks,
 } from '../../next-architecture/ui/ArtescaLibraryProvider';
-import {
-  VeeamCredentialProvider,
-  useVeeamCredentialManagement,
-} from '../contexts/VeeamCredentialContext';
+import { useVeeamCredentialManagement, VeeamCredentialProvider } from '../contexts/VeeamCredentialContext';
 
 jest.mock('react-query');
 jest.mock('../../next-architecture/ui/ArtescaLibraryProvider');
 
-const mockUseQueryClient = useQueryClient as jest.MockedFunction<
-  typeof useQueryClient
->;
-const mockUseArtescaLibrary = useArtescaLibrary as jest.MockedFunction<
-  typeof useArtescaLibrary
->;
+const mockUseQueryClient = useQueryClient as jest.MockedFunction<typeof useQueryClient>;
+const mockUseArtescaLibrary = useArtescaLibrary as jest.MockedFunction<typeof useArtescaLibrary>;
 
 describe('useVeeamCredentialManagement', () => {
   const mockChangeCredentialsMutation = {
     mutate: jest.fn(),
-  } as unknown as UseMutationResult<
-    unknown,
-    unknown,
-    { username: string; password: string }
-  >;
+  } as unknown as UseMutationResult<unknown, unknown, { username: string; password: string }>;
   const mockUseIsVeeamCredentialsValid = jest.fn();
   const mockUseChangeVeeamCredentials = jest.fn();
 
@@ -73,9 +62,7 @@ describe('useVeeamCredentialManagement', () => {
       expect(result.current.isCredentialsValid).toBe(true);
       expect(result.current.isCheckingCredentials).toBe(false);
       expect(result.current.isCredentialCheckError).toBe(false);
-      expect(result.current.changeCredentialsMutation).toBe(
-        mockChangeCredentialsMutation,
-      );
+      expect(result.current.changeCredentialsMutation).toBe(mockChangeCredentialsMutation);
     });
 
     it('should return invalid credentials status when credentials are invalid', () => {
@@ -124,13 +111,7 @@ describe('useVeeamCredentialManagement', () => {
         isError: false,
       });
 
-      const statuses = [
-        'IDLE',
-        'WAITING',
-        'VALID',
-        'INVALID',
-        'ERROR',
-      ] as const;
+      const statuses = ['IDLE', 'WAITING', 'VALID', 'INVALID', 'ERROR'] as const;
 
       statuses.forEach((status) => {
         mockUseChangeVeeamCredentials.mockReturnValue({

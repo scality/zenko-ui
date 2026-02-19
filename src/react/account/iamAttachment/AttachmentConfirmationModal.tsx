@@ -1,33 +1,21 @@
-import { useState } from 'react';
+import { Icon, LargerText, SecondaryText, Stack, spacing, Wrap } from '@scality/core-ui';
 
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
-import { CustomModal as Modal, ModalBody } from '../../ui-elements/Modal';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useState } from 'react';
 import { useIsMutating, useMutation, useQueryClient } from 'react-query';
-import { useIAMClient } from '../../IAMProvider';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import {
-  AttachmentOperation,
-  AttachmentAction,
-  ResourceType,
-  EntityType,
-} from './AttachmentTypes';
 import { useTheme } from 'styled-components';
+import { notFalsyTypeGuard } from '../../../types/typeGuards';
+import { useCurrentAccount } from '../../DataServiceRoleProvider';
+import { useIAMClient } from '../../IAMProvider';
 import {
   getListAttachedUserPoliciesQuery,
   getListEntitiesForPolicyQuery,
   getListPoliciesQuery,
   getUserListGroupsQuery,
 } from '../../queries';
-import { useCurrentAccount } from '../../DataServiceRoleProvider';
-import {
-  Icon,
-  LargerText,
-  SecondaryText,
-  Stack,
-  Wrap,
-  spacing,
-} from '@scality/core-ui';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { CustomModal as Modal, ModalBody } from '../../ui-elements/Modal';
+import { AttachmentAction, type AttachmentOperation, type EntityType, type ResourceType } from './AttachmentTypes';
 
 type AttachmentStatus = 'Waiting for confirmation' | 'Error' | 'Success';
 
@@ -78,20 +66,12 @@ function AttachmentConfirmationModal({
   };
   const IAMClient = useIAMClient();
 
-  const [attachmentOperationsStatuses, setAttachmentOperationsStatuses] =
-    useState<Record<string, AttachmentStatus>>({});
+  const [attachmentOperationsStatuses, setAttachmentOperationsStatuses] = useState<Record<string, AttachmentStatus>>(
+    {},
+  );
 
   const attachUserPolicyMutation = useMutation(
-    ({
-      action,
-      type,
-      id,
-    }: {
-      action: AttachmentAction;
-      type: EntityType;
-      entityName: string;
-      id: string;
-    }) => {
+    ({ action, type, id }: { action: AttachmentAction; type: EntityType; entityName: string; id: string }) => {
       if (action === AttachmentAction.ADD && type === 'user') {
         return IAMClient.attachUserPolicy(id, resourceId);
       } else if (action === AttachmentAction.REMOVE && type === 'user') {
@@ -126,41 +106,22 @@ function AttachmentConfirmationModal({
           [flatEntity.id]: error ? 'Error' : 'Success',
         }));
         if (resourceType === 'policy') {
-          queryClient.invalidateQueries(
-            getListEntitiesForPolicyQuery(resourceId, IAMClient),
-          );
-          queryClient.refetchQueries(
-            getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient),
-          );
+          queryClient.invalidateQueries(getListEntitiesForPolicyQuery(resourceId, IAMClient));
+          queryClient.refetchQueries(getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient));
           if (flatEntity.type === 'user') {
             queryClient.refetchQueries(
-              getListAttachedUserPoliciesQuery(
-                flatEntity.id,
-                notFalsyTypeGuard(account).Name,
-                IAMClient,
-              ),
+              getListAttachedUserPoliciesQuery(flatEntity.id, notFalsyTypeGuard(account).Name, IAMClient),
             );
           }
         }
         if (resourceType === 'user') {
           queryClient.invalidateQueries(
-            getListAttachedUserPoliciesQuery(
-              resourceId,
-              notFalsyTypeGuard(account).Name,
-              IAMClient,
-            ),
+            getListAttachedUserPoliciesQuery(resourceId, notFalsyTypeGuard(account).Name, IAMClient),
           );
-          queryClient.invalidateQueries(
-            getUserListGroupsQuery(resourceId, IAMClient),
-          );
+          queryClient.invalidateQueries(getUserListGroupsQuery(resourceId, IAMClient));
           if (flatEntity.type === 'policy') {
-            queryClient.refetchQueries(
-              getListEntitiesForPolicyQuery(flatEntity.id, IAMClient),
-            );
-            queryClient.invalidateQueries(
-              getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient)
-                .queryKey,
-            );
+            queryClient.refetchQueries(getListEntitiesForPolicyQuery(flatEntity.id, IAMClient));
+            queryClient.invalidateQueries(getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient).queryKey);
           }
         }
       },
@@ -184,8 +145,7 @@ function AttachmentConfirmationModal({
   const attach = () => {
     attachmentOperationsFlat.forEach((attachmentOperationFlat) => {
       if (
-        attachmentOperationsStatuses[attachmentOperationFlat.id] ===
-          'Waiting for confirmation' ||
+        attachmentOperationsStatuses[attachmentOperationFlat.id] === 'Waiting for confirmation' ||
         attachmentOperationsStatuses[attachmentOperationFlat.id] === 'Error' ||
         !attachmentOperationsStatuses[attachmentOperationFlat.id]
       ) {
@@ -202,35 +162,23 @@ function AttachmentConfirmationModal({
     });
   };
   const isAttachNotDone = attachmentOperationsFlat.find(
-    (attachmentOperation) =>
-      !attachmentOperationsStatuses[attachmentOperation.id],
+    (attachmentOperation) => !attachmentOperationsStatuses[attachmentOperation.id],
   );
   const modalFooter = () => {
     return (
       <Wrap>
         <p></p>
         <Stack>
-          {isAttachNotDone ? (
-            <>
-              <Button variant="outline" onClick={handleClose} label="Cancel" />
-              <Button
-                icon={<Icon name="Arrow-right" />}
-                variant="primary"
-                onClick={attach}
-                label="Confirm"
-                disabled={loading}
-              />
-            </>
-          ) : (
-            <Button
-              icon={<Icon name="Arrow-right" />}
-              variant="primary"
-              onClick={() => navigate(redirectUrl)}
-              label="Exit"
-              disabled={loading}
-            />
+          {isAttachNotDone && (
+            <Button variant="outline" onClick={handleClose} label="Cancel" />
           )}
-          <></>
+          <Button
+            icon={<Icon name="Arrow-right" />}
+            variant="primary"
+            onClick={isAttachNotDone ? attach : () => navigate(redirectUrl)}
+            label={isAttachNotDone ? 'Confirm' : 'Exit'}
+            disabled={loading}
+          />
         </Stack>
       </Wrap>
     );
@@ -286,12 +234,7 @@ function AttachmentConfirmationModal({
               <Box display="flex" gap={8} alignItems="center">
                 <Icon color="statusCritical" name="Times-circle" />
                 {attachmentOperationsStatuses[resourceId]}{' '}
-                <Button
-                  onClick={attach}
-                  size="inline"
-                  variant="outline"
-                  label="Retry"
-                />
+                <Button onClick={attach} size="inline" variant="outline" label="Retry" />
               </Box>
             );
           }
@@ -303,12 +246,7 @@ function AttachmentConfirmationModal({
               </Box>
             );
           }
-          return (
-            <>
-              {attachmentOperationsStatuses[resourceId] ||
-                'Waiting for confirmation'}
-            </>
-          );
+          return <>{attachmentOperationsStatuses[resourceId] || 'Waiting for confirmation'}</>;
         },
       },
     ];
@@ -339,17 +277,8 @@ function AttachmentConfirmationModal({
 
   return (
     <>
-      <Box
-        display="flex"
-        justifyContent="flex-end"
-        gap={8}
-        marginBottom={spacing.r16}
-      >
-        <Button
-          label="Cancel"
-          variant="outline"
-          onClick={() => navigate(redirectUrl)}
-        />
+      <Box display="flex" justifyContent="flex-end" gap={8} marginBottom={spacing.r16}>
+        <Button label="Cancel" variant="outline" onClick={() => navigate(redirectUrl)} />
         <Button
           icon={<Icon name="Save" />}
           label="Save"

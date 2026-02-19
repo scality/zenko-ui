@@ -28,15 +28,12 @@ export const HelpLocationCreationAsyncNotification = () => (
     overlayStyle={{ width: '24rem' }}
     tooltipMessage={
       <>
-        Your storage account is informed of updates and changes to the external
-        Backend (public cloud, RING or other) through an async metadata updater
-        mechanism.
+        Your storage account is informed of updates and changes to the external Backend (public cloud, RING or other)
+        through an async metadata updater mechanism.
         <br />
-        It will be able to view and manage all data on this backend without
-        being on the data path.
+        It will be able to view and manage all data on this backend without being on the data path.
         <br />
-        This maintains standard access from applications to the external
-        Backend.
+        This maintains standard access from applications to the external Backend.
       </>
     }
   />

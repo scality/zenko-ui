@@ -1,30 +1,22 @@
-import { renderHook } from '@testing-library/react-hooks';
+import type { ParsedCertificate } from '@scality/certchain';
+import { extractPemParts, parseCertificateFromPEM } from '@scality/certchain';
 import { waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+import { useK8sSecretQueries } from '../../queries';
 import {
   useParseBundleCertificates,
   useParseSecretCertificates,
-  ZenkoCRCertificateBundleWithIndex,
+  type ZenkoCRCertificateBundleWithIndex,
 } from '../hooks';
-import type { ParsedCertificate } from '@scality/certchain';
-
-import { parseCertificateFromPEM, extractPemParts } from '@scality/certchain';
-import { useK8sSecretQueries } from '../../queries';
 
 jest.mock('@scality/certchain');
 jest.mock('../../queries', () => ({
   useK8sSecretQueries: jest.fn(),
 }));
 
-const mockParseCertificateFromPEM =
-  parseCertificateFromPEM as jest.MockedFunction<
-    typeof parseCertificateFromPEM
-  >;
-const mockExtractPemParts = extractPemParts as jest.MockedFunction<
-  typeof extractPemParts
->;
-const mockUseK8sSecretQueries = useK8sSecretQueries as jest.MockedFunction<
-  typeof useK8sSecretQueries
->;
+const mockParseCertificateFromPEM = parseCertificateFromPEM as jest.MockedFunction<typeof parseCertificateFromPEM>;
+const mockExtractPemParts = extractPemParts as jest.MockedFunction<typeof extractPemParts>;
+const mockUseK8sSecretQueries = useK8sSecretQueries as jest.MockedFunction<typeof useK8sSecretQueries>;
 
 const mockCertificate1: ParsedCertificate = {
   name: 'Test Certificate 1',
@@ -42,8 +34,7 @@ const mockCertificate1: ParsedCertificate = {
   postalCodes: ['12345'],
   serialNumber: '123456',
   certificateHash: '123456',
-  publicKey:
-    '-----BEGIN PUBLIC KEY-----\nMockPublicKey1\n-----END PUBLIC KEY----- ',
+  publicKey: '-----BEGIN PUBLIC KEY-----\nMockPublicKey1\n-----END PUBLIC KEY----- ',
   rsaPublicKey: {
     modulus: 'mockModulus1',
     exponent: '01 00 01',
@@ -66,8 +57,7 @@ const mockCertificate2: ParsedCertificate = {
   postalCodes: ['12345'],
   serialNumber: '789012',
   certificateHash: '123456',
-  publicKey:
-    '-----BEGIN PUBLIC KEY-----\nMockPublicKey2\n-----END PUBLIC KEY----- ',
+  publicKey: '-----BEGIN PUBLIC KEY-----\nMockPublicKey2\n-----END PUBLIC KEY----- ',
   rsaPublicKey: {
     modulus: 'mockModulus2',
     exponent: '01 00 01',
@@ -75,14 +65,10 @@ const mockCertificate2: ParsedCertificate = {
 };
 
 // Common PEM certificate strings used across tests
-const MOCK_PEM_CERT_1 =
-  '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
-const MOCK_PEM_CERT_2 =
-  '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
-const MOCK_PEM_INVALID =
-  '-----BEGIN CERTIFICATE-----\nInvalidCert\n-----END CERTIFICATE-----';
-const MOCK_PEM_BUNDLE_CERT =
-  '-----BEGIN CERTIFICATE-----\nBundleCert\n-----END CERTIFICATE-----';
+const MOCK_PEM_CERT_1 = '-----BEGIN CERTIFICATE-----\nMockCert1\n-----END CERTIFICATE-----';
+const MOCK_PEM_CERT_2 = '-----BEGIN CERTIFICATE-----\nMockCert2\n-----END CERTIFICATE-----';
+const MOCK_PEM_INVALID = '-----BEGIN CERTIFICATE-----\nInvalidCert\n-----END CERTIFICATE-----';
+const MOCK_PEM_BUNDLE_CERT = '-----BEGIN CERTIFICATE-----\nBundleCert\n-----END CERTIFICATE-----';
 
 describe('useParseBundleCertificates', () => {
   beforeEach(() => {
@@ -102,9 +88,7 @@ describe('useParseBundleCertificates', () => {
       index: 0,
     };
 
-    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [
-      mockCertificateBundle,
-    ];
+    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [mockCertificateBundle];
 
     mockExtractPemParts.mockReturnValue([
       {
@@ -114,9 +98,7 @@ describe('useParseBundleCertificates', () => {
     ]);
     mockParseCertificateFromPEM.mockResolvedValue(mockCertificate1);
 
-    const { result } = renderHook(() =>
-      useParseBundleCertificates(certificateBundles),
-    );
+    const { result } = renderHook(() => useParseBundleCertificates(certificateBundles));
 
     // Should start loading
     expect(result.current.isLoading).toBe(true);
@@ -127,15 +109,11 @@ describe('useParseBundleCertificates', () => {
 
     expect(result.current.parsedCertificates).toEqual([
       {
-        parsedCertificates: [
-          { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-        ],
+        parsedCertificates: [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
         index: 0,
       },
     ]);
-    expect(mockExtractPemParts).toHaveBeenCalledWith(
-      mockCertificateBundle['ca.crt'],
-    );
+    expect(mockExtractPemParts).toHaveBeenCalledWith(mockCertificateBundle['ca.crt']);
     expect(mockParseCertificateFromPEM).toHaveBeenCalledWith(MOCK_PEM_CERT_1);
   });
 
@@ -149,10 +127,7 @@ describe('useParseBundleCertificates', () => {
       index: 1,
     };
 
-    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [
-      mockCertificateBundle1,
-      mockCertificateBundle2,
-    ];
+    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [mockCertificateBundle1, mockCertificateBundle2];
 
     // Setup mocks - need to return different values for each call
     mockExtractPemParts
@@ -169,13 +144,9 @@ describe('useParseBundleCertificates', () => {
         },
       ]);
 
-    mockParseCertificateFromPEM
-      .mockResolvedValueOnce(mockCertificate1)
-      .mockResolvedValueOnce(mockCertificate2);
+    mockParseCertificateFromPEM.mockResolvedValueOnce(mockCertificate1).mockResolvedValueOnce(mockCertificate2);
 
-    const { result } = renderHook(() =>
-      useParseBundleCertificates(certificateBundles),
-    );
+    const { result } = renderHook(() => useParseBundleCertificates(certificateBundles));
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -183,15 +154,11 @@ describe('useParseBundleCertificates', () => {
 
     expect(result.current.parsedCertificates).toEqual([
       {
-        parsedCertificates: [
-          { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-        ],
+        parsedCertificates: [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
         index: 0,
       },
       {
-        parsedCertificates: [
-          { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
-        ],
+        parsedCertificates: [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
         index: 1,
       },
     ]);
@@ -203,9 +170,7 @@ describe('useParseBundleCertificates', () => {
       index: 0,
     };
 
-    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [
-      mockCertificateBundle,
-    ];
+    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [mockCertificateBundle];
 
     // Setup mocks - extractPemParts returns 2 certificates from 1 bundle
     mockExtractPemParts.mockReturnValue([
@@ -219,13 +184,9 @@ describe('useParseBundleCertificates', () => {
       },
     ]);
 
-    mockParseCertificateFromPEM
-      .mockResolvedValueOnce(mockCertificate1)
-      .mockResolvedValueOnce(mockCertificate2);
+    mockParseCertificateFromPEM.mockResolvedValueOnce(mockCertificate1).mockResolvedValueOnce(mockCertificate2);
 
-    const { result } = renderHook(() =>
-      useParseBundleCertificates(certificateBundles),
-    );
+    const { result } = renderHook(() => useParseBundleCertificates(certificateBundles));
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -248,13 +209,9 @@ describe('useParseBundleCertificates', () => {
       index: 0,
     };
 
-    const consoleErrorSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [
-      mockCertificateBundle,
-    ];
+    const certificateBundles: ZenkoCRCertificateBundleWithIndex[] = [mockCertificateBundle];
 
     // Setup mocks to throw error
     mockExtractPemParts.mockReturnValue([
@@ -263,23 +220,16 @@ describe('useParseBundleCertificates', () => {
         base64Cert: 'InvalidCert',
       },
     ]);
-    mockParseCertificateFromPEM.mockRejectedValue(
-      new Error('Invalid certificate format'),
-    );
+    mockParseCertificateFromPEM.mockRejectedValue(new Error('Invalid certificate format'));
 
-    const { result } = renderHook(() =>
-      useParseBundleCertificates(certificateBundles),
-    );
+    const { result } = renderHook(() => useParseBundleCertificates(certificateBundles));
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.parsedCertificates).toEqual([]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error parsing certificates:',
-      expect.any(Error),
-    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error parsing certificates:', expect.any(Error));
 
     consoleErrorSpy.mockRestore();
   });
@@ -353,16 +303,12 @@ describe('useParseSecretCertificates', () => {
     ]);
     mockParseCertificateFromPEM.mockResolvedValue(mockCertificate1);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
         {
-          parsedCertificates: [
-            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-          ],
+          parsedCertificates: [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
           index: 0,
         },
       ]);
@@ -432,26 +378,18 @@ describe('useParseSecretCertificates', () => {
         },
       ]);
 
-    mockParseCertificateFromPEM
-      .mockResolvedValueOnce(mockCertificate1)
-      .mockResolvedValueOnce(mockCertificate2);
+    mockParseCertificateFromPEM.mockResolvedValueOnce(mockCertificate1).mockResolvedValueOnce(mockCertificate2);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
         {
-          parsedCertificates: [
-            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-          ],
+          parsedCertificates: [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
           index: 0,
         },
         {
-          parsedCertificates: [
-            { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
-          ],
+          parsedCertificates: [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
           index: 1,
         },
       ]);
@@ -502,16 +440,12 @@ describe('useParseSecretCertificates', () => {
     ]);
     mockParseCertificateFromPEM.mockResolvedValue(mockCertificate1);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
         {
-          parsedCertificates: [
-            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-          ],
+          parsedCertificates: [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
           index: 0,
         },
       ]);
@@ -567,13 +501,9 @@ describe('useParseSecretCertificates', () => {
       },
     ]);
 
-    mockParseCertificateFromPEM
-      .mockResolvedValueOnce(mockCertificate1)
-      .mockResolvedValueOnce(mockCertificate2);
+    mockParseCertificateFromPEM.mockResolvedValueOnce(mockCertificate1).mockResolvedValueOnce(mockCertificate2);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
@@ -616,9 +546,7 @@ describe('useParseSecretCertificates', () => {
       remove: jest.fn(),
     } as any);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     expect(result.current.isLoading).toBe(true);
     expect(result.current.parsedSecretCertificates).toEqual([]);
@@ -650,9 +578,7 @@ describe('useParseSecretCertificates', () => {
       remove: jest.fn(),
     } as any);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([]);
@@ -670,9 +596,7 @@ describe('useParseSecretCertificates', () => {
       },
     ];
 
-    const consoleErrorSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     mockUseK8sSecretQueries.mockReturnValue({
       status: 'success',
@@ -698,18 +622,13 @@ describe('useParseSecretCertificates', () => {
       remove: jest.fn(),
     } as any);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([]);
     });
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error parsing secret certificates:',
-      expect.any(Error),
-    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error parsing secret certificates:', expect.any(Error));
 
     consoleErrorSpy.mockRestore();
   });
@@ -740,9 +659,7 @@ describe('useParseSecretCertificates', () => {
       remove: jest.fn(),
     } as any);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([]);
@@ -760,9 +677,7 @@ describe('useParseSecretCertificates', () => {
       },
     ];
 
-    const consoleErrorSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const base64Cert = Buffer.from(MOCK_PEM_INVALID).toString('base64');
 
@@ -795,22 +710,15 @@ describe('useParseSecretCertificates', () => {
         base64Cert: 'InvalidCert',
       },
     ]);
-    mockParseCertificateFromPEM.mockRejectedValue(
-      new Error('Invalid certificate format'),
-    );
+    mockParseCertificateFromPEM.mockRejectedValue(new Error('Invalid certificate format'));
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([]);
     });
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error parsing secret certificates:',
-      expect.any(Error),
-    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error parsing secret certificates:', expect.any(Error));
 
     consoleErrorSpy.mockRestore();
   });
@@ -862,16 +770,12 @@ describe('useParseSecretCertificates', () => {
     ]);
     mockParseCertificateFromPEM.mockResolvedValue(mockCertificate1);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
         {
-          parsedCertificates: [
-            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-          ],
+          parsedCertificates: [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
           index: 1,
         },
       ]);
@@ -945,35 +849,24 @@ describe('useParseSecretCertificates', () => {
         },
       ]);
 
-    mockParseCertificateFromPEM
-      .mockResolvedValueOnce(mockCertificate1)
-      .mockResolvedValueOnce(mockCertificate2);
+    mockParseCertificateFromPEM.mockResolvedValueOnce(mockCertificate1).mockResolvedValueOnce(mockCertificate2);
 
-    const { result } = renderHook(() =>
-      useParseSecretCertificates(extraCACerts),
-    );
+    const { result } = renderHook(() => useParseSecretCertificates(extraCACerts));
 
     await waitFor(() => {
       expect(result.current.parsedSecretCertificates).toEqual([
         {
-          parsedCertificates: [
-            { ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 },
-          ],
+          parsedCertificates: [{ ...mockCertificate1, originalPEM: MOCK_PEM_CERT_1 }],
           index: 1,
         },
         {
-          parsedCertificates: [
-            { ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 },
-          ],
+          parsedCertificates: [{ ...mockCertificate2, originalPEM: MOCK_PEM_CERT_2 }],
           index: 2,
         },
       ]);
     });
 
     // Should only extract and query the secret certificates, not the bundle
-    expect(mockUseK8sSecretQueries).toHaveBeenCalledWith([
-      'test-secret-1',
-      'test-secret-2',
-    ]);
+    expect(mockUseK8sSecretQueries).toHaveBeenCalledWith(['test-secret-1', 'test-secret-2']);
   });
 });

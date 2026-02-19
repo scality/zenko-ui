@@ -1,32 +1,16 @@
-import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
-import { useCombobox, UseComboboxStateChange } from 'downshift';
-import {
-  AWS_PAGINATED_QUERY,
-  useAwsPaginatedEntities,
-} from '../../utils/IAMhooks';
+import { Icon, Loader, SearchInput, SecondaryText, Stack, spacing, Tooltip } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
-import {
-  GentleEmphaseSecondaryText,
-  InlineButton,
-} from '../../ui-elements/Table';
-import {
-  Icon,
-  Loader,
-  SearchInput,
-  SecondaryText,
-  spacing,
-  Stack,
-  Tooltip,
-  Wrap,
-} from '@scality/core-ui';
+import { type UseComboboxStateChange, useCombobox } from 'downshift';
+import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { GentleEmphaseSecondaryText, InlineButton } from '../../ui-elements/Table';
+import { type AWS_PAGINATED_QUERY, useAwsPaginatedEntities } from '../../utils/IAMhooks';
 import {
-  AttachableEntity,
-  AttachmentOperation,
+  type AttachableEntity,
   AttachmentAction,
-  EntityDisplayText,
+  type AttachmentOperation,
+  type EntityDisplayText,
 } from './AttachmentTypes';
-import { tableRowHeight } from '@scality/core-ui/dist/components/tablev2/TableUtils';
 
 type AttachableEntityWithPendingStatus = {
   isPending?: boolean;
@@ -38,15 +22,10 @@ export type AttachmentTableProps<
   },
 > = {
   initiallyAttachedEntities: AttachableEntity[];
-  getAllEntitiesPaginatedQuery: () => AWS_PAGINATED_QUERY<
-    API_RESPONSE,
-    AttachableEntity
-  >;
+  getAllEntitiesPaginatedQuery: () => AWS_PAGINATED_QUERY<API_RESPONSE, AttachableEntity>;
   getEntitiesFromResult: (response: API_RESPONSE) => AttachableEntity[];
   initialAttachmentOperations: AttachmentOperation[];
-  onAttachmentsOperationsChanged: (
-    attachmentOperations: AttachmentOperation[],
-  ) => void;
+  onAttachmentsOperationsChanged: (attachmentOperations: AttachmentOperation[]) => void;
   entity: EntityDisplayText;
 };
 
@@ -146,32 +125,20 @@ export const AttachmentTable = <
     ) => {
       switch (action.action) {
         case AttachmentAction.ADD:
-          if (
-            !state.desiredAttachedEntities.find(
-              (entity) => entity.id === action.entity.id,
-            )
-          ) {
+          if (!state.desiredAttachedEntities.find((entity) => entity.id === action.entity.id)) {
             const newAttachmentsOperations = [...state.attachmentsOperations];
-            const existingOperationIndexOnThisEntity =
-              state.attachmentsOperations.findIndex(
-                (operation) => operation.entity.id === action.entity.id,
-              );
+            const existingOperationIndexOnThisEntity = state.attachmentsOperations.findIndex(
+              (operation) => operation.entity.id === action.entity.id,
+            );
             //When ADD, we check if it's already exist in operations. If so, we delete the previous operation and not proceed to the ADD.
             if (
               existingOperationIndexOnThisEntity !== -1 &&
-              state.attachmentsOperations[existingOperationIndexOnThisEntity]
-                .action === AttachmentAction.REMOVE
+              state.attachmentsOperations[existingOperationIndexOnThisEntity].action === AttachmentAction.REMOVE
             ) {
-              newAttachmentsOperations.splice(
-                existingOperationIndexOnThisEntity,
-                1,
-              );
+              newAttachmentsOperations.splice(existingOperationIndexOnThisEntity, 1);
               const newState = {
                 ...state,
-                desiredAttachedEntities: [
-                  { ...action.entity },
-                  ...state.desiredAttachedEntities,
-                ],
+                desiredAttachedEntities: [{ ...action.entity }, ...state.desiredAttachedEntities],
                 attachmentsOperations: [...newAttachmentsOperations],
               };
               onAttachmentsOperationsChanged(newState.attachmentsOperations);
@@ -179,10 +146,7 @@ export const AttachmentTable = <
             } else {
               const newState = {
                 ...state,
-                desiredAttachedEntities: [
-                  { ...action.entity, isPending: true },
-                  ...state.desiredAttachedEntities,
-                ],
+                desiredAttachedEntities: [{ ...action.entity, isPending: true }, ...state.desiredAttachedEntities],
                 attachmentsOperations: [...newAttachmentsOperations, action],
               };
               onAttachmentsOperationsChanged(newState.attachmentsOperations);
@@ -191,38 +155,24 @@ export const AttachmentTable = <
           }
           break;
         case AttachmentAction.REMOVE:
-          if (
-            state.desiredAttachedEntities.find(
-              (entity) => entity.id === action.entity.id,
-            )
-          ) {
-            const newDesiredAttachedEntities = [
-              ...state.desiredAttachedEntities,
-            ];
+          if (state.desiredAttachedEntities.find((entity) => entity.id === action.entity.id)) {
+            const newDesiredAttachedEntities = [...state.desiredAttachedEntities];
             newDesiredAttachedEntities.splice(
-              state.desiredAttachedEntities.findIndex(
-                (entity) => entity.id === action.entity.id,
-              ),
+              state.desiredAttachedEntities.findIndex((entity) => entity.id === action.entity.id),
               1,
             );
             const newAttachmentsOperations = [...state.attachmentsOperations];
-            const existingOperationIndexOnThisEntity =
-              state.attachmentsOperations.findIndex(
-                (operation) => operation.entity.id === action.entity.id,
-              );
+            const existingOperationIndexOnThisEntity = state.attachmentsOperations.findIndex(
+              (operation) => operation.entity.id === action.entity.id,
+            );
             if (
               existingOperationIndexOnThisEntity !== -1 &&
-              state.attachmentsOperations[existingOperationIndexOnThisEntity]
-                .action === AttachmentAction.ADD
+              state.attachmentsOperations[existingOperationIndexOnThisEntity].action === AttachmentAction.ADD
             ) {
-              newAttachmentsOperations.splice(
-                existingOperationIndexOnThisEntity,
-                1,
-              );
+              newAttachmentsOperations.splice(existingOperationIndexOnThisEntity, 1);
             } else if (
               existingOperationIndexOnThisEntity !== -1 &&
-              state.attachmentsOperations[existingOperationIndexOnThisEntity]
-                .action === AttachmentAction.REMOVE
+              state.attachmentsOperations[existingOperationIndexOnThisEntity].action === AttachmentAction.REMOVE
             ) {
               return state;
             } else {
@@ -243,12 +193,7 @@ export const AttachmentTable = <
     {
       desiredAttachedEntities: [
         ...initiallyAttachedEntities
-          .filter(
-            (attachedEntities) =>
-              !initialAttachmentOperations.find(
-                (op) => op.entity.id === attachedEntities.id,
-              ),
-          )
+          .filter((attachedEntities) => !initialAttachmentOperations.find((op) => op.entity.id === attachedEntities.id))
           .map((entity) => ({
             ...entity,
             isPending: false,
@@ -266,29 +211,23 @@ export const AttachmentTable = <
     },
   );
 
-  const resetRef = useRef<() => void | null>(null);
+  const resetRef = useRef<(() => void) | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  const onSelectedItemChange = useCallback(
-    (changes: UseComboboxStateChange<AttachableEntity>) => {
-      if (changes.selectedItem) {
-        dispatch({
-          action: AttachmentAction.ADD,
-          entity: changes.selectedItem,
-        });
-        if (resetRef.current) resetRef.current();
-        if (searchInputRef.current) searchInputRef.current.blur();
-      }
-    },
-    [resetRef],
-  );
+  const onSelectedItemChange = useCallback((changes: UseComboboxStateChange<AttachableEntity>) => {
+    if (changes.selectedItem) {
+      dispatch({
+        action: AttachmentAction.ADD,
+        entity: changes.selectedItem,
+      });
+      if (resetRef.current) resetRef.current();
+      if (searchInputRef.current) searchInputRef.current.blur();
+    }
+  }, []);
 
   //Search box and entities fetching logic
 
-  const [
-    { filteredEntities, numberOfFilteredEntities },
-    dispatchEntitiesEvent,
-  ] = useReducer(
+  const [{ filteredEntities, numberOfFilteredEntities }, dispatchEntitiesEvent] = useReducer(
     (
       state: {
         allEntities: AttachableEntity[];
@@ -296,9 +235,7 @@ export const AttachmentTable = <
         query: string;
         numberOfFilteredEntities: number;
       },
-      action:
-        | { type: 'RECEIVED_ENTITIES'; entities: AttachableEntity[] }
-        | { type: 'FILTER_ENTITIES'; query?: string },
+      action: { type: 'RECEIVED_ENTITIES'; entities: AttachableEntity[] } | { type: 'FILTER_ENTITIES'; query?: string },
     ) => {
       switch (action.type) {
         case 'RECEIVED_ENTITIES': {
@@ -314,9 +251,7 @@ export const AttachmentTable = <
         }
         case 'FILTER_ENTITIES': {
           const allFilteredEntities = state.allEntities.filter((item) =>
-            item.name
-              .toLowerCase()
-              .startsWith(action.query?.toLowerCase() || ''),
+            item.name.toLowerCase().startsWith(action.query?.toLowerCase() || ''),
           );
           return {
             ...state,
@@ -336,15 +271,7 @@ export const AttachmentTable = <
     },
   );
 
-  const {
-    isOpen,
-    getMenuProps,
-    getInputProps,
-    getComboboxProps,
-    openMenu,
-    getItemProps,
-    reset,
-  } = useCombobox({
+  const { isOpen, getMenuProps, getInputProps, getComboboxProps, openMenu, getItemProps, reset } = useCombobox({
     items: filteredEntities,
     onSelectedItemChange,
     onInputValueChange: ({ inputValue }) => {
@@ -376,11 +303,7 @@ export const AttachmentTable = <
         {...getComboboxProps({
           ref: (element) => {
             if (element?.firstElementChild) {
-              setSearchWidth(
-                element.firstElementChild.getBoundingClientRect().width -
-                2 +
-                'px',
-              );
+              setSearchWidth(element.firstElementChild.getBoundingClientRect().width - 2 + 'px');
             }
           },
         })}
@@ -413,9 +336,7 @@ export const AttachmentTable = <
                   setSearchInputIsFocused(false);
                 }}
                 disableToggle
-                disabled={
-                  firstPageStatus === 'error' || firstPageStatus === 'loading'
-                }
+                disabled={firstPageStatus === 'error' || firstPageStatus === 'loading'}
               />
               <Loader />
             </Box>
@@ -451,30 +372,20 @@ export const AttachmentTable = <
               {item.name}
             </li>
           ))}
-        {isOpen && filteredEntities.length === 0 && status === 'loading' && (
-          <li>Searching...</li>
-        )}
+        {isOpen && filteredEntities.length === 0 && status === 'loading' && <li>Searching...</li>}
         {isOpen && numberOfFilteredEntities > filteredEntities.length && (
           <li>
             <GentleEmphaseSecondaryText alignRight>
-              There{' '}
-              {numberOfFilteredEntities - filteredEntities.length === 1
-                ? 'is'
-                : 'are'}{' '}
+              There {numberOfFilteredEntities - filteredEntities.length === 1 ? 'is' : 'are'}{' '}
               {numberOfFilteredEntities - filteredEntities.length} more{' '}
-              {numberOfFilteredEntities - filteredEntities.length === 1
-                ? 'entity'
-                : 'entities'}{' '}
-              matching your search. Suggestion: try more specific search
-              expression.
+              {numberOfFilteredEntities - filteredEntities.length === 1 ? 'entity' : 'entities'} matching your search.
+              Suggestion: try more specific search expression.
             </GentleEmphaseSecondaryText>
           </li>
         )}
         {isOpen && filteredEntities.length === 0 && status === 'success' && (
           <li>
-            <GentleEmphaseSecondaryText>
-              No entities found matching your search.
-            </GentleEmphaseSecondaryText>
+            <GentleEmphaseSecondaryText>No entities found matching your search.</GentleEmphaseSecondaryText>
           </li>
         )}
       </MenuContainer>
@@ -510,11 +421,7 @@ export const AttachmentTable = <
                 marginLeft: 'auto',
                 marginRight: '0.5rem',
               },
-              Cell: ({
-                row: { original: entity },
-              }: {
-                row: { original: AttachableEntity };
-              }) => (
+              Cell: ({ row: { original: entity } }: { row: { original: AttachableEntity } }) => (
                 <InlineButton
                   onClick={() => {
                     dispatch({
@@ -541,17 +448,12 @@ export const AttachmentTable = <
           }))}
           defaultSortingKey="name"
         >
-          <Table.SingleSelectableContent
-            rowHeight={rowHeight}
-            separationLineVariant="backgroundLevel2"
-          >
+          <Table.SingleSelectableContent rowHeight={rowHeight} separationLineVariant="backgroundLevel2">
             {(rows) => (
               <>
                 {desiredAttachedEntities.length === 0 && (
-                  <Stack direction="vertical" gap='r16' style={{ padding: spacing.r16, }}>
-                    <CenterredSecondaryText>
-                      No {entity.plural} attached.
-                    </CenterredSecondaryText>
+                  <Stack direction="vertical" gap="r16" style={{ padding: spacing.r16 }}>
+                    <CenterredSecondaryText>No {entity.plural} attached.</CenterredSecondaryText>
                     <CenterredSecondaryText>
                       <Icon name="Search" /> Use the search bar to attach a {entity.singular}.
                     </CenterredSecondaryText>

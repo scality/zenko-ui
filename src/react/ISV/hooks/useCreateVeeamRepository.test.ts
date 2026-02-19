@@ -1,7 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import React, { type ReactNode } from 'react';
+import type React from 'react';
+import type { ReactNode } from 'react';
 import { NewWrapper } from '../../utils/testUtil';
 import { useCreateVeeamRepository } from './useCreateVeeamRepository';
 
@@ -31,7 +32,7 @@ describe('useCreateVeeamRepository', () => {
     };
 
     server.use(
-      rest.post(`*/api/veeam-automation/create-s3-repo`, (req, res, ctx) => {
+      rest.post(`*/api/veeam-automation/create-s3-repo`, (_req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json({
@@ -75,7 +76,7 @@ describe('useCreateVeeamRepository', () => {
     };
 
     server.use(
-      rest.post(`*/api/veeam-automation/create-s3-repo`, (req, res, ctx) => {
+      rest.post(`*/api/veeam-automation/create-s3-repo`, (_req, res, ctx) => {
         return res(
           ctx.status(400),
           ctx.json({
@@ -97,8 +98,6 @@ describe('useCreateVeeamRepository', () => {
       expect(result.current.isError).toBe(true);
     });
 
-    expect((result.current.error as { message?: string })?.message).toBe(
-      'Invalid repository configuration',
-    );
+    expect((result.current.error as { message?: string })?.message).toBe('Invalid repository configuration');
   });
 });

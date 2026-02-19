@@ -1,9 +1,10 @@
-import { InputList } from '../../ui-elements/FormLayout';
-import { LocationDetails } from '../../../types/config';
-import React from 'react';
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import React from 'react';
+import type { LocationDetails } from '../../../types/config';
+import { InputList } from '../../ui-elements/FormLayout';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+
 type Props = {
   details: LocationDetails;
   onChange: (details: LocationDetails) => void;
@@ -19,10 +20,7 @@ const INIT_STATE = {
   chordCos: 0,
 };
 const SPROXYD_LIMIT = 6;
-export default class LocationDetailsSproxyd extends React.Component<
-  Props,
-  State
-> {
+export default class LocationDetailsSproxyd extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
@@ -35,14 +33,16 @@ export default class LocationDetailsSproxyd extends React.Component<
   };
   onChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
     const target = e.target;
+    // biome-ignore lint/suspicious/noImplicitAnyLet: mixed types from form handler
     let value;
 
     //@ts-expect-error fix this when you are working on it
     switch (target.name) {
       case 'chordCos':
         value =
-          //@ts-expect-error fix this when you are working on it
-          isNaN(target.value) || target.value === ''
+          Number
+            //@ts-expect-error fix this when you are working on it
+            .isNaN(target.value) || target.value === ''
             ? ''
             : //@ts-expect-error fix this when you are working on it
               parseInt(target.value, 10);
@@ -71,7 +71,7 @@ export default class LocationDetailsSproxyd extends React.Component<
     this.updateForm();
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
+  shouldComponentUpdate(_nextProps: Props, nextState: State) {
     return this.state !== nextState;
   }
 

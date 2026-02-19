@@ -1,42 +1,31 @@
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from '@testing-library/react';
-import { setupServer } from 'msw/node';
+import { screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import {
   ACCOUNT_ID,
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
+  INSTANCE_ID,
 } from '../../../js/mock/managementClientMSWHandlers';
+import { _DataServiceRoleContext } from '../../DataServiceRoleProvider';
 import {
-  TEST_API_BASE_URL,
   mockOffsetSize,
   renderWithRouterMatch,
-  zenkoUITestConfig,
+  TEST_API_BASE_URL,
   TEST_ROLE_PATH_NAME,
+  zenkoUITestConfig,
 } from '../../utils/testUtil';
-import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
-import { LocationsList } from '../LocationsList';
-import { _DataServiceRoleContext } from '../../DataServiceRoleProvider';
 import { ReplicationControlProvider } from '../contexts/ReplicationControlContext';
+import { LocationsList } from '../LocationsList';
 
 jest.setTimeout(30_000);
 
 const server = setupServer(
   getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
-  ...getStorageConsumptionMetricsHandlers(
-    zenkoUITestConfig.managementEndpoint,
-    INSTANCE_ID,
-  ),
-  rest.get(
-    `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-    (req, res, ctx) => res(ctx.json({})),
-  ),
+  ...getStorageConsumptionMetricsHandlers(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
+  rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) => res(ctx.json({}))),
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
-    //@ts-ignore
+    //@ts-expect-error
     const params = new URLSearchParams(req.body);
 
     if (params.get('Action') === 'GetRolesForWebIdentity') {
@@ -79,7 +68,7 @@ describe('LocationList', () => {
     const customRole = {
       roleArn: `arn:aws:iam::${ACCOUNT_ID}:role/${TEST_ROLE_PATH_NAME}`,
     };
-    
+
     const Component = () => (
       <_DataServiceRoleContext.Provider
         value={{
@@ -94,7 +83,7 @@ describe('LocationList', () => {
         </ReplicationControlProvider>
       </_DataServiceRoleContext.Provider>
     );
-    
+
     renderWithRouterMatch(<Component />, {});
     //E
 

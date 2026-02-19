@@ -1,13 +1,9 @@
 /* eslint-disable */
-import { act, render, screen, waitFor } from '@testing-library/react';
-import {
-  themeMount as mount,
-  NewWrapper,
-  updateInputText,
-} from '../../../utils/testUtil';
-import LocationDetailsNFS from '../LocationDetailsNFS';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { debug } from 'jest-preview';
+import { themeMount as mount, NewWrapper } from '../../../utils/testUtil';
+import LocationDetailsNFS from '../LocationDetailsNFS';
 
 const props = {
   details: {},
@@ -37,14 +33,9 @@ describe('class <LocationDetailsNFS />', () => {
   });
   it('should correctly translate state values to location details', async () => {
     const onChangeFn = jest.fn();
-    render(
-      <LocationDetailsNFS
-        locationType={'location-file-v1'}
-        {...props}
-        onChange={onChangeFn}
-      />,
-      { wrapper: NewWrapper() },
-    );
+    render(<LocationDetailsNFS locationType={'location-file-v1'} {...props} onChange={onChangeFn} />, {
+      wrapper: NewWrapper(),
+    });
 
     // Simuler les interactions ou les changements nécessaires pour atteindre l'état
     userEvent.type(screen.getByLabelText(/server/i), 'ep');
@@ -63,16 +54,12 @@ describe('class <LocationDetailsNFS />', () => {
     });
   });
   it('should call onChange on state update', async () => {
-    const refLocation = {
+    const _refLocation = {
       endpoint: 'tcp+v3://ep/export/path?hard&async',
     };
     const onChangeFn = jest.fn();
-    const component = render(
-      <LocationDetailsNFS
-        locationType={'location-file-v1'}
-        {...props}
-        onChange={onChangeFn}
-      />,
+    const _component = render(
+      <LocationDetailsNFS locationType={'location-file-v1'} {...props} onChange={onChangeFn} />,
       { wrapper: NewWrapper() },
     );
 
@@ -83,10 +70,7 @@ describe('class <LocationDetailsNFS />', () => {
     expect(onChangeFn).toHaveBeenCalled();
   });
   it('should show NFS details for empty details', () => {
-    render(
-      <LocationDetailsNFS locationType={'location-file-v1'} {...props} />,
-      { wrapper: NewWrapper() },
-    );
+    render(<LocationDetailsNFS locationType={'location-file-v1'} {...props} />, { wrapper: NewWrapper() });
 
     expect(screen.getByLabelText(/protocol/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/version/i)).toBeInTheDocument();
@@ -95,6 +79,7 @@ describe('class <LocationDetailsNFS />', () => {
     expect(screen.getByLabelText(/options/i)).toBeInTheDocument();
 
     const inputs = screen.getAllByRole('textbox');
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: intentional
     inputs.forEach((input) => expect(input).toBeEnabled());
   });
   it('should show NFS details when editing an existing location', () => {
@@ -102,12 +87,7 @@ describe('class <LocationDetailsNFS />', () => {
       endpoint: 'tcp+v3://ep/export/path?hard&async',
     };
     render(
-      <LocationDetailsNFS
-        locationType={'location-file-v1'}
-        {...props}
-        editingExisting
-        details={locationDetails}
-      />,
+      <LocationDetailsNFS locationType={'location-file-v1'} {...props} editingExisting details={locationDetails} />,
       { wrapper: NewWrapper() },
     );
 
@@ -118,6 +98,7 @@ describe('class <LocationDetailsNFS />', () => {
     expect(screen.getByLabelText(/options/i)).toBeInTheDocument();
 
     const inputs = screen.getAllByRole('textbox');
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: intentional
     inputs.forEach((input) => expect(input).toBeDisabled());
   });
   it('should call onChange on location details updates', async () => {
@@ -128,6 +109,7 @@ describe('class <LocationDetailsNFS />', () => {
     render(
       <LocationDetailsNFS
         {...props}
+        // biome-ignore lint/suspicious/noAssignInExpressions: test re-render pattern
         onChange={(l) => (location = l)}
         // @ts-expect-error - FIX ME LATER
         value="udp"

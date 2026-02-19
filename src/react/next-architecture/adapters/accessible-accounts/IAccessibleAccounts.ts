@@ -1,5 +1,5 @@
-import { AccountInfo, Role } from '../../domain/entities/account';
-import { PromiseResult } from '../../domain/entities/promise';
+import type { AccountInfo, Role } from '../../domain/entities/account';
+import type { PromiseResult } from '../../domain/entities/promise';
 
 export interface IAccessibleAccounts {
   useListAccessibleAccounts(): {

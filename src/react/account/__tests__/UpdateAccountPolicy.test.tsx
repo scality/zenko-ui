@@ -78,18 +78,11 @@ describe('UpdateAccountPolicy', () => {
   it('should render readonly form when the policy is internal', async () => {
     renderWithRouterMatch(<UpdateAccountPolicy />, {
       path: '/accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy',
-      route: `/accounts/scality}/policies/${encodeURIComponent(
-        policyArn,
-      )}/${defaultVersionId}/update-policy`,
+      route: `/accounts/scality}/policies/${encodeURIComponent(policyArn)}/${defaultVersionId}/update-policy`,
     });
-    await waitForElementToBeRemoved(
-      () => [...screen.queryAllByText(/Loading/i)],
-      { timeout: 8000 },
-    );
+    await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Loading/i)], { timeout: 8000 });
     expect(screen.getByText('Policy')).toBeInTheDocument();
-    expect(
-      screen.getByText('We are supporting AWS IAM standards.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('We are supporting AWS IAM standards.')).toBeInTheDocument();
 
     expect(screen.getByText('Policy Name')).toBeInTheDocument();
     expect(screen.getByText('Policy ARN')).toBeInTheDocument();
@@ -105,15 +98,10 @@ describe('UpdateAccountPolicy', () => {
     const policyArn = 'arn:aws:iam::137489910101:policy/custom-policy';
     renderWithRouterMatch(<UpdateAccountPolicy />, {
       path: '/accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy',
-      route: `/accounts/scality}/policies/${encodeURIComponent(
-        policyArn,
-      )}/${defaultVersionId}/update-policy`,
+      route: `/accounts/scality}/policies/${encodeURIComponent(policyArn)}/${defaultVersionId}/update-policy`,
     });
 
-    await waitForElementToBeRemoved(
-      () => [...screen.queryAllByText(/Loading/i)],
-      { timeout: 8000 },
-    );
+    await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Loading/i)], { timeout: 8000 });
     expect(screen.getByText('Policy Edition')).toBeInTheDocument();
 
     expect(screen.getByText('Policy Name')).toBeInTheDocument();
@@ -132,14 +120,9 @@ describe('UpdateAccountPolicy', () => {
   it('should display fields policy name and ARN not empty', async () => {
     renderWithRouterMatch(<UpdateAccountPolicy />, {
       path: '/accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy',
-      route: `/accounts/scality}/policies/${encodeURIComponent(
-        policyArn,
-      )}/${defaultVersionId}/update-policy`,
+      route: `/accounts/scality}/policies/${encodeURIComponent(policyArn)}/${defaultVersionId}/update-policy`,
     });
-    await waitForElementToBeRemoved(
-      () => [...screen.queryAllByText(/Loading/i)],
-      { timeout: 8000 },
-    );
+    await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Loading/i)], { timeout: 8000 });
 
     const policyNameElement = screen.getByText(policyName);
     expect(policyNameElement).toBeInTheDocument();
@@ -151,15 +134,10 @@ describe('UpdateAccountPolicy', () => {
     const policyArn = 'arn:aws:iam::137489910101:policy/custom-policy';
     renderWithRouterMatch(<UpdateAccountPolicy />, {
       path: '/accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy',
-      route: `/accounts/scality}/policies/${encodeURIComponent(
-        policyArn,
-      )}/${defaultVersionId}/update-policy`,
+      route: `/accounts/scality}/policies/${encodeURIComponent(policyArn)}/${defaultVersionId}/update-policy`,
     });
 
-    await waitForElementToBeRemoved(
-      () => [...screen.queryAllByText(/Loading/i)],
-      { timeout: 8000 },
-    );
+    await waitForElementToBeRemoved(() => [...screen.queryAllByText(/Loading/i)], { timeout: 8000 });
 
     const createButton = screen.getByRole('button', { name: /Save/i });
     expect(createButton).toBeDisabled();

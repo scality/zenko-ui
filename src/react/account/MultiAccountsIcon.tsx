@@ -1,12 +1,6 @@
 export const MultiAccountsIcon = () => {
   return (
-    <svg
-      width="44"
-      height="28"
-      viewBox="0 0 44 28"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="44" height="28" viewBox="0 0 44 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path
         fillRule="evenodd"
         clipRule="evenodd"

@@ -1,13 +1,13 @@
 import { BasicText, EmphaseText, LargerText } from '@scality/core-ui';
 import { useState } from 'react';
-import { matchPath, useParams, useLocation } from 'react-router';
+import { matchPath, useLocation, useParams } from 'react-router';
 import styled from 'styled-components';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { regexArn } from '../../utils/hooks';
 import AttachmentConfirmationModal from './AttachmentConfirmationModal';
 import AttachmentTabs from './AttachmentTabs';
-import { AttachmentOperation, ResourceType } from './AttachmentTypes';
-import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import type { AttachmentOperation, ResourceType } from './AttachmentTypes';
 
 const AttachmentContainer = styled.div`
   padding-top: 1%;
@@ -48,12 +48,10 @@ const Attachments = () => {
   const location = useLocation();
   const { basePath } = useConfig();
   const isAttachToPolicy = matchPath(
-    basePath + '/accounts/:accountName/policies/:policyArn/attachments',
+    `${basePath}/accounts/:accountName/policies/:policyArn/attachments`,
     location.pathname,
   );
-  const [attachmentOperations, setAttachmentOperations] = useState<
-    AttachmentOperation[]
-  >([]);
+  const [attachmentOperations, setAttachmentOperations] = useState<AttachmentOperation[]>([]);
   const resourceType: ResourceType = isAttachToPolicy ? 'policy' : 'user';
   const { policyArn: encodedPolicyArn } = useParams<{ policyArn: string }>();
   const policyArn = decodeURIComponent(encodedPolicyArn);
@@ -61,19 +59,15 @@ const Attachments = () => {
   const { IAMUserName } = useParams<{ IAMUserName: string }>();
 
   const resourceId = resourceType === 'policy' ? policyArn : IAMUserName;
-  const resourceName = isAttachToPolicy
-    ? regexArn.exec(policyArn)?.groups?.name || ''
-    : IAMUserName;
+  const resourceName = isAttachToPolicy ? regexArn.exec(policyArn)?.groups?.name || '' : IAMUserName;
 
   return (
     <>
       <AttachmentContainer>
         <TitleBlock>Attach entities</TitleBlock>
         <DescriptiveBlock>
-          Search for the entries you want to attach or click remove for the
-          items you want to detach from the{' '}
-          {isAttachToPolicy ? 'Policy' : 'User'}:{' '}
-          <EmphaseText>{resourceName}</EmphaseText>
+          Search for the entries you want to attach or click remove for the items you want to detach from the{' '}
+          {isAttachToPolicy ? 'Policy' : 'User'}: <EmphaseText>{resourceName}</EmphaseText>
         </DescriptiveBlock>
 
         <AttachmentTabs
@@ -89,11 +83,7 @@ const Attachments = () => {
           resourceId={resourceId}
           resourceName={resourceName}
           resourceType={resourceType}
-          redirectUrl={
-            isAttachToPolicy
-              ? `/accounts/${account?.Name}/policies`
-              : `/accounts/${account?.Name}/users`
-          }
+          redirectUrl={isAttachToPolicy ? `/accounts/${account?.Name}/policies` : `/accounts/${account?.Name}/users`}
         />
       </AttachmentFooterContainer>
     </>

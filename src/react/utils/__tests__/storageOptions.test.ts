@@ -1,8 +1,4 @@
-import {
-  JAGUAR_S3_LOCATION_KEY,
-  Locations,
-  ORANGE_S3_LOCATION_KEY,
-} from '../../../types/config';
+import { JAGUAR_S3_LOCATION_KEY, type Locations, ORANGE_S3_LOCATION_KEY } from '../../../types/config';
 import { getLocationTypeKey } from '../storageOptions';
 
 const location: Locations = {
@@ -61,26 +57,18 @@ const location: Locations = {
 
 describe('test getLocationTypeKey', () => {
   it('should return Orange correct location key', () => {
-    expect(getLocationTypeKey(location['orange-location'])).toBe(
-      ORANGE_S3_LOCATION_KEY,
-    );
+    expect(getLocationTypeKey(location['orange-location'])).toBe(ORANGE_S3_LOCATION_KEY);
   });
   it('should return Jaguar correct location key', () => {
-    expect(getLocationTypeKey(location['jaguar-location'])).toBe(
-      JAGUAR_S3_LOCATION_KEY,
-    );
+    expect(getLocationTypeKey(location['jaguar-location'])).toBe(JAGUAR_S3_LOCATION_KEY);
   });
   it('should return locationType from the object', () => {
     const locationKey1 = 'test';
     const locationKey2 = 'us-east-1';
-    expect(getLocationTypeKey(location[locationKey1])).toBe(
-      location[locationKey1].locationType,
-    );
-    expect(getLocationTypeKey(location[locationKey2])).toBe(
-      location[locationKey2].locationType,
-    );
+    expect(getLocationTypeKey(location[locationKey1])).toBe(location[locationKey1].locationType);
+    expect(getLocationTypeKey(location[locationKey2])).toBe(location[locationKey2].locationType);
   });
   it('should return empty string', () => {
-    expect(getLocationTypeKey(location['wrong'])).toBe('');
+    expect(getLocationTypeKey(location.wrong)).toBe('');
   });
 });

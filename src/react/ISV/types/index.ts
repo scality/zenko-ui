@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import type { DisabledMessageComponent, ISVId } from '../engine/types';
 
 // Re-export ISVId for convenience

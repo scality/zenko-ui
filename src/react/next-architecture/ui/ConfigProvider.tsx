@@ -1,11 +1,7 @@
-import { useCurrentApp } from '@scality/module-federation';
+import { useCurrentApp, useShellHooks } from '@scality/module-federation';
 import { createContext } from 'react';
-import {
-  BuildtimeWebFinger,
-  RuntimeWebFinger,
-} from 'shell/moduleFederation/ConfigurationProvider';
-import { AppConfig } from '../../../types/entities';
-import { useShellHooks } from '@scality/module-federation';
+import type { BuildtimeWebFinger, RuntimeWebFinger } from 'shell/moduleFederation/ConfigurationProvider';
+import type { AppConfig } from '../../../types/entities';
 
 export const _ConfigContext = createContext<AppConfig | null>(null);
 

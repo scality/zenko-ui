@@ -1,16 +1,13 @@
-import {
-  useGetBucketTagging,
-  useGetObject,
-} from '@scality/data-browser-library';
+import { PrettyBytes } from '@scality/core-ui';
+import { useGetBucketTagging, useGetObject } from '@scality/data-browser-library';
 import * as T from '../../../ui-elements/TableKeyValue2';
-import { VeeamCapacityModal } from './VeeamCapacityModal';
 import {
   BUCKET_TAG_APPLICATION,
   BUCKET_TAG_VEEAM_APPLICATION,
   VEEAM_OBJECT_KEY,
   VeeamApplicationType,
 } from '../../constants';
-import { PrettyBytes } from '@scality/core-ui';
+import { VeeamCapacityModal } from './VeeamCapacityModal';
 
 const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
   const { data: taggingData, status: taggingStatus } = useGetBucketTagging({
@@ -26,11 +23,9 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
     });
   }
 
-  const veeamTagApplication =
-    tags[BUCKET_TAG_VEEAM_APPLICATION] || tags[BUCKET_TAG_APPLICATION];
+  const veeamTagApplication = tags[BUCKET_TAG_VEEAM_APPLICATION] || tags[BUCKET_TAG_APPLICATION];
 
-  const isSOSAPIEnabled =
-    veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION;
+  const isSOSAPIEnabled = veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION;
 
   const {
     data: veeamObjectData,
@@ -52,9 +47,7 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
   const regex = /<Capacity>([\s\S]*?)<\/Capacity>/;
   const matches = xml?.match(regex);
   const capacity = parseFloat(
-    new DOMParser()
-      ?.parseFromString(xml || '', 'application/xml')
-      ?.querySelector('Capacity')?.textContent ||
+    new DOMParser()?.parseFromString(xml || '', 'application/xml')?.querySelector('Capacity')?.textContent ||
       matches?.[1] ||
       '0',
   );
@@ -64,21 +57,9 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
       <T.Row>
         <T.Key> Max repository Capacity </T.Key>
         <T.GroupValues>
-          <>
-            {isLoading ? (
-              'Loading...'
-            ) : isError ? (
-              'Error'
-            ) : (
-              <PrettyBytes bytes={capacity} decimals={2} />
-            )}
-          </>
+          {isLoading ? 'Loading...' : isError ? 'Error' : <PrettyBytes bytes={capacity} decimals={2} />}
           {!isLoading && !isError && (
-            <VeeamCapacityModal
-              bucketName={bucketName}
-              maxCapacity={capacity}
-              status={veeamObjectStatus}
-            />
+            <VeeamCapacityModal bucketName={bucketName} maxCapacity={capacity} status={veeamObjectStatus} />
           )}
         </T.GroupValues>
       </T.Row>
@@ -88,10 +69,6 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
   return <></>;
 };
 
-export const VeeamCapacityOverviewRow = ({
-  bucketName,
-}: {
-  bucketName: string;
-}) => {
+export const VeeamCapacityOverviewRow = ({ bucketName }: { bucketName: string }) => {
   return <VeeamCapacityContent bucketName={bucketName} />;
 };

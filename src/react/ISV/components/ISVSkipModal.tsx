@@ -1,13 +1,13 @@
 import { Modal, Stack, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import type { ReactNode } from 'react';
 import styled from 'styled-components';
-import { JSX } from 'react';
 
 type ISVSkipModalProps = {
   isOpen: boolean;
   close: () => void;
   exitAction: () => void;
-  modalContent: JSX.Element;
+  modalContent: ReactNode;
   title: string;
 };
 
@@ -15,13 +15,7 @@ const ModalContent = styled.div`
   max-width: 30rem;
 `;
 
-export const ISVSkipModal = ({
-  isOpen,
-  close,
-  title,
-  exitAction,
-  modalContent,
-}: ISVSkipModalProps) => {
+export const ISVSkipModal = ({ isOpen, close, title, exitAction, modalContent }: ISVSkipModalProps) => {
   return (
     <Modal
       isOpen={isOpen}

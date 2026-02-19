@@ -7,13 +7,7 @@ export const VeeamKastenLogo = () => {
   const fill = themeMode === 'dark' ? '#fff' : '#000';
 
   return (
-    <svg
-      width="157"
-      height="25"
-      viewBox="0 0 157 25"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="157" height="25" viewBox="0 0 157 25" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g clip-path="url(#clip0_23468_25248)">
         <path
           d="M6.72589 0.649236C6.01257 0.649236 5.32567 0.932726 4.8221 1.43582L0.740724 5.50689C0.236356 6.00999 -0.0478516 6.69435 -0.0478516 7.40587V24.6269L73.2217 24.5838C73.935 24.5838 74.6218 24.3003 75.1254 23.7971L79.1612 19.7716C79.6655 19.2685 79.9498 18.5842 79.9498 17.8727L79.9521 0.648438L6.72589 0.649236Z"
@@ -73,20 +67,10 @@ export const VeeamKastenLogo = () => {
       </g>
       <defs>
         <clipPath id="clip0_23468_25248">
-          <rect
-            width="157"
-            height="24"
-            fill="white"
-            transform="translate(0 0.90625)"
-          />
+          <rect width="157" height="24" fill="white" transform="translate(0 0.90625)" />
         </clipPath>
         <clipPath id="clip1_23468_25248">
-          <rect
-            width="73"
-            height="19"
-            fill="white"
-            transform="translate(84 2.8125)"
-          />
+          <rect width="73" height="19" fill="white" transform="translate(84 2.8125)" />
         </clipPath>
       </defs>
     </svg>

@@ -1,28 +1,21 @@
 import { Banner, Icon, Link, Modal, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { ShellHooksProvider, useShellHooks } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
+import { useLocation } from 'react-router';
+import type { ShellAlerts, ShellHooks } from 'shell/compiled-types/src/hooks/useShellHooks';
 import styled from 'styled-components';
-
+import AlertProvider, { useAlerts } from '../../../next-architecture/ui/AlertProvider';
 import { useAccounts, useAuthGroups } from '../../../utils/hooks';
 import { setSessionState } from '../../../utils/localStorage';
-import { ArtescaLogo } from '../ArtescaLogo';
-
-import { useNextLogin } from '../../hooks/useNextLogin';
-import AlertProvider, {
-  useAlerts,
-} from '../../../next-architecture/ui/AlertProvider';
-import { ShellHooksProvider, useShellHooks } from '@scality/module-federation';
-import { ISVModalContent } from './ISVModal';
-import { ISVCardConfig } from '../../types';
-import { useLocation } from 'react-router';
-import {
-  ShellAlerts,
-  ShellHooks,
-} from 'shell/compiled-types/src/hooks/useShellHooks';
 import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
+import { useNextLogin } from '../../hooks/useNextLogin';
 import { ISVList } from '../../ISVList';
 import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
+import type { ISVCardConfig } from '../../types';
+import { ArtescaLogo } from '../ArtescaLogo';
 import { ArtescaPlusLogo } from '../ArtescaPLusLogo';
+import { ISVModalContent } from './ISVModal';
 import VeeamLogo from './Logos/VeeamLogo';
 
 const CustomModal = styled(Modal)`
@@ -48,9 +41,7 @@ type NavbarUpdaterComponentProps = {
   shellAlerts: ShellAlerts;
 };
 
-export const WelcomeModalInternal = (
-  props: Omit<NavbarUpdaterComponentProps, 'shellHooks' | 'shellAlerts'>,
-) => {
+export const WelcomeModalInternal = (props: Omit<NavbarUpdaterComponentProps, 'shellHooks' | 'shellAlerts'>) => {
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const { accounts, status } = useAccounts();
   const { alerts } = useAlerts({
@@ -61,10 +52,8 @@ export const WelcomeModalInternal = (
   const isVeeamVBROnly = useIsVeeamVBROnly();
 
   const isZeroAccountCreated = status === 'success' && accounts.length === 0;
-  const isAlreadyInConfigurationView =
-    location.pathname.endsWith('/configuration');
-  const isTrialLicenseModalDisplayed =
-    alerts?.length > 0 && props.isFirstTimeLogin && isPlatformAdmin;
+  const isAlreadyInConfigurationView = location.pathname.endsWith('/configuration');
+  const isTrialLicenseModalDisplayed = alerts?.length > 0 && props.isFirstTimeLogin && isPlatformAdmin;
   /*
    We display the  welcome modal only if the following conditions are met:
 
@@ -94,15 +83,11 @@ const useWelcomeModal = (defaultISV?: ISVCardConfig) => {
   const { useLinkOpener, useDeployedApps, useAuth } = useShellHooks();
   const { openLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
-  const zenkoUI = deployedApps.find(
-    (app: { kind: string }) => app.kind === 'zenko-ui',
-  );
+  const zenkoUI = deployedApps.find((app: { kind: string }) => app.kind === 'zenko-ui');
 
   const currentApp =
     deployedApps.find(
-      (app) =>
-        window.location.pathname.startsWith(app.appHistoryBasePath) &&
-        app.appHistoryBasePath !== '',
+      (app) => window.location.pathname.startsWith(app.appHistoryBasePath) && app.appHistoryBasePath !== '',
     )?.kind ?? deployedApps.find((app) => app.appHistoryBasePath === '')?.kind;
 
   const zenkoUIConfigurationView = useMemo(() => {
@@ -170,8 +155,7 @@ const useWelcomeModal = (defaultISV?: ISVCardConfig) => {
 
 const VeeamOnlyModalComponent = () => {
   const veeamISV = ISVList.find((isv) => isv.id === VeeamVBRPlatform.id);
-  const { isOpen, handleContinueClick, handleSkipClick } =
-    useWelcomeModal(veeamISV);
+  const { isOpen, handleContinueClick, handleSkipClick } = useWelcomeModal(veeamISV);
   return (
     <SmallModal
       title={
@@ -208,9 +192,8 @@ const VeeamOnlyModalComponent = () => {
       <Banner variant="base" icon={<Icon name="Info-circle"></Icon>}>
         <Text>
           <Text>
-            Start with the Veeam Assistant – a guided setup that creates the
-            resources needed to configure ARTESCA for Veeam. For more details,
-            you can follow the
+            Start with the Veeam Assistant – a guided setup that creates the resources needed to configure ARTESCA for
+            Veeam. For more details, you can follow the
           </Text>{' '}
           <Link href={veeamISV.documentationLink} target="_blank">
             documentation <Icon name="External-link"></Icon>
@@ -219,23 +202,16 @@ const VeeamOnlyModalComponent = () => {
       </Banner>
       <br />
       <Text color="textSecondary" variant="Smaller">
-        If you skip now but want to start the assistant again, you can launch it
-        from the Accounts page or the Data Browser page.
-        <br /> If the platform doesn't have any accounts, it will also prompt
-        you on your next login.{' '}
+        If you skip now but want to start the assistant again, you can launch it from the Accounts page or the Data
+        Browser page.
+        <br /> If the platform doesn't have any accounts, it will also prompt you on your next login.{' '}
       </Text>
     </SmallModal>
   );
 };
 
 const ModalComponent = () => {
-  const {
-    isOpen,
-    selectedISV,
-    setSelectedISV,
-    handleContinueClick,
-    handleSkipClick,
-  } = useWelcomeModal();
+  const { isOpen, selectedISV, setSelectedISV, handleContinueClick, handleSkipClick } = useWelcomeModal();
 
   return (
     <CustomModal
@@ -251,20 +227,12 @@ const ModalComponent = () => {
         <Wrap>
           <p></p>
           <Stack>
-            <Button
-              variant="outline"
-              label={'Skip'}
-              onClick={handleSkipClick}
-            />
+            <Button variant="outline" label={'Skip'} onClick={handleSkipClick} />
             <Button
               variant="primary"
               icon={<Icon name="Arrow-right" />}
               label={
-                selectedISV
-                  ? selectedISV?.assistant
-                    ? 'Continue to assistant'
-                    : 'Continue to account'
-                  : 'Continue'
+                selectedISV ? (selectedISV?.assistant ? 'Continue to assistant' : 'Continue to account') : 'Continue'
               }
               disabled={!selectedISV}
               onClick={handleContinueClick}
@@ -273,20 +241,14 @@ const ModalComponent = () => {
         </Wrap>
       }
     >
-      <ISVModalContent
-        selectedISV={selectedISV}
-        setSelectedISV={setSelectedISV}
-      ></ISVModalContent>
+      <ISVModalContent selectedISV={selectedISV} setSelectedISV={setSelectedISV}></ISVModalContent>
     </CustomModal>
   );
 };
 
 export default function WelcomeModal(props: NavbarUpdaterComponentProps) {
   return (
-    <ShellHooksProvider
-      shellHooks={props.shellHooks}
-      shellAlerts={props.shellAlerts}
-    >
+    <ShellHooksProvider shellHooks={props.shellHooks} shellAlerts={props.shellAlerts}>
       <AlertProvider>
         <WelcomeModalInternal {...props} />
       </AlertProvider>

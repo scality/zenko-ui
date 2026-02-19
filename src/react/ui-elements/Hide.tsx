@@ -1,7 +1,7 @@
-import { useState, JSX } from 'react';
-
-import styled from 'styled-components';
 import { ConstrainedText, spacing } from '@scality/core-ui';
+import { type JSX, useState } from 'react';
+import styled from 'styled-components';
+
 const HideContainer = styled.div`
   display: flex;
   align-items: center;
@@ -23,23 +23,13 @@ export function HideCredential({ credentials }: { credentials: string }) {
   const [shown, setShown] = useState(false);
   return (
     <HideContainer>
-      <HideValue shown={shown}>
-        {shown ? <ConstrainedText text={credentials} /> : '*********'}
-      </HideValue>
-      <HideAction onClick={() => setShown(!shown)}>
-        {shown ? 'Hide' : 'Show'}
-      </HideAction>
+      <HideValue shown={shown}>{shown ? <ConstrainedText text={credentials} /> : '*********'}</HideValue>
+      <HideAction onClick={() => setShown(!shown)}>{shown ? 'Hide' : 'Show'}</HideAction>
     </HideContainer>
   );
 }
 
-function Hide({
-  isHidden,
-  children,
-}: {
-  isHidden: boolean;
-  children: JSX.Element;
-}) {
+function Hide({ isHidden, children }: { isHidden: boolean; children: JSX.Element }) {
   if (isHidden) {
     return null;
   }

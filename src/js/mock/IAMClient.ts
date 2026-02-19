@@ -1,5 +1,5 @@
-import { IamAccessKey, ListAccessKeysResponse } from '../../types/user';
-import { MockAWSError } from './error';
+import type { IamAccessKey, ListAccessKeysResponse } from '../../types/user';
+import type { MockAWSError } from './error';
 
 export const accountAccessKeys: Array<IamAccessKey> = [
   {

@@ -4,10 +4,9 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import accountSeeds from '../../../../../public/assets/account-seeds.json';
 import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
-import { TEST_API_BASE_URL, mockOffsetSize, renderWithRouterMatch } from '../../../utils/testUtil';
-import Attachments from '../Attachments';
 import * as DSRProvider from '../../../DataServiceRoleProvider';
-import { debug } from 'jest-preview';
+import { mockOffsetSize, renderWithRouterMatch, TEST_API_BASE_URL } from '../../../utils/testUtil';
+import Attachments from '../Attachments';
 
 const defaultAccountName = 'account1';
 const userName = 'user1';
@@ -162,7 +161,7 @@ const initialMock = (req, res, ctx) => {
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, initialMock),
 
-  rest.get('http://localhost/account-seeds.json', (req, res, ctx) => {
+  rest.get('http://localhost/account-seeds.json', (_req, res, ctx) => {
     return res(ctx.json(accountSeeds));
   }),
 );
@@ -408,7 +407,7 @@ describe('Policy Attachments', () => {
     // S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, initialMock),
-      rest.get('http://localhost/account-seeds.json', (req, res, ctx) => {
+      rest.get('http://localhost/account-seeds.json', (_req, res, ctx) => {
         return res(
           ctx.json([
             {

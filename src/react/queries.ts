@@ -1,6 +1,6 @@
 import { useShellHooks } from '@scality/module-federation';
-import { AWSError } from 'aws-sdk';
-import {
+import type { AWSError } from 'aws-sdk';
+import type {
   AccessKeyMetadata,
   Group,
   ListAccessKeysResponse,
@@ -15,21 +15,17 @@ import {
   User,
 } from 'aws-sdk/clients/iam';
 import { useMemo } from 'react';
-import { QueryOptions, useQuery } from 'react-query';
-import IAMClient from '../js/IAMClient';
+import { type QueryOptions, useQuery } from 'react-query';
+import type IAMClient from '../js/IAMClient';
 import { getAccountSeeds } from '../js/vault';
 import { useDeployedMetalk8sInstances } from './next-architecture/ui/ConfigProvider';
-import { ZenkoCR } from './truststore/Truststore';
-import { AWS_PAGINATED_QUERY } from './utils/IAMhooks';
+import type { ZenkoCR } from './truststore/Truststore';
+import type { AWS_PAGINATED_QUERY } from './utils/IAMhooks';
 
 export const getUserAccessKeysQuery = (
   userName: string,
   IAMClient: IAMClient,
-): AWS_PAGINATED_QUERY<
-  ListAccessKeysResponse,
-  AccessKeyMetadata,
-  AWSError
-> => ({
+): AWS_PAGINATED_QUERY<ListAccessKeysResponse, AccessKeyMetadata, AWSError> => ({
   queryKey: ['listIAMUserAccessKey', userName],
   queryFn: (_ctx, marker) => IAMClient.listAccessKeys(userName, marker?.Marker),
   enabled: !!IAMClient && !!IAMClient.client,
@@ -81,8 +77,7 @@ export const getListEntitiesForPolicyQuery = (
   IAMClient: IAMClient,
 ): AWS_PAGINATED_QUERY<ListEntitiesForPolicyResponse, unknown, AWSError> => ({
   queryKey: ['listEntitiesForPolicy', policyArn],
-  queryFn: (_ctx, marker) =>
-    IAMClient.listEntitiesForPolicy(policyArn, 1000, marker?.Marker),
+  queryFn: (_ctx, marker) => IAMClient.listEntitiesForPolicy(policyArn, 1000, marker?.Marker),
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -112,11 +107,7 @@ export const getListRolesQuery = (
   refetchOnWindowFocus: false,
 });
 
-export const getListAttachedUserPoliciesQuery = (
-  userName: string,
-  accountName: string,
-  IAMClient: IAMClient,
-) => ({
+export const getListAttachedUserPoliciesQuery = (userName: string, accountName: string, IAMClient: IAMClient) => ({
   queryKey: ['listAttachedUserPolicies', userName, accountName],
   queryFn: () => IAMClient.listAttachedUserPolicies(userName),
   staleTime: Infinity,
@@ -125,31 +116,21 @@ export const getListAttachedUserPoliciesQuery = (
   refetchOnWindowFocus: false,
 });
 
-export const getPolicyQuery = (
-  policyArn: string,
-  defaultVersionId: string,
-  IAMClient: IAMClient,
-) => ({
+export const getPolicyQuery = (policyArn: string, defaultVersionId: string, IAMClient: IAMClient) => ({
   queryKey: ['getPolicy', policyArn, defaultVersionId],
   queryFn: () => IAMClient.getPolicyVersion(policyArn, defaultVersionId),
   enabled: IAMClient !== null,
   refetchOnWindowFocus: false,
 });
 
-export const getPolicyInfoQuery = (
-  policyArn: string,
-  IAMClient: IAMClient,
-) => ({
+export const getPolicyInfoQuery = (policyArn: string, IAMClient: IAMClient) => ({
   queryKey: ['getPolicyInfo', policyArn],
   queryFn: () => IAMClient.getPolicy(policyArn),
   enabled: IAMClient !== null,
   refetchOnWindowFocus: false,
 });
 
-export const getListPolicyVersionsQuery = (
-  policyArn: string,
-  IAMClient: IAMClient,
-) => {
+export const getListPolicyVersionsQuery = (policyArn: string, IAMClient: IAMClient) => {
   return {
     queryKey: ['listPolicyVersions', policyArn],
     queryFn: () => IAMClient.listPolicyVersions(policyArn),
@@ -177,9 +158,7 @@ export const getZenkoCRQuery = (): QueryOptions<ZenkoCR> => {
         name: instances[0].name,
       });
       const url = runTimeConfig?.spec.selfConfiguration.url;
-      return (
-        url + '/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data'
-      );
+      return `${url}/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data`;
     }
   };
   return {
@@ -211,8 +190,7 @@ export const useK8sSecretQueries = (secretNames: string[]) => {
         name: instances[0].name,
       });
       const url = runTimeConfig?.spec.selfConfiguration.url;
-      return (secretName: string) =>
-        url ? `${url}/api/v1/namespaces/zenko/secrets/${secretName}` : null;
+      return (secretName: string) => (url ? `${url}/api/v1/namespaces/zenko/secrets/${secretName}` : null);
     }
     return () => null;
   }, [instances, retrieveConfiguration]);
@@ -247,7 +225,7 @@ export const useK8sSecretQueries = (secretNames: string[]) => {
       },
       enabled: !!secretNames.length && instances.length > 0,
     }),
-    [getURL, getToken, instances.length],
+    [getURL, getToken, instances.length, secretNames],
   );
 
   return useQuery(queryConfig);

@@ -1,14 +1,11 @@
-import { FederatedComponent, useShellAlerts } from '@scality/module-federation';
-import { useShellHooks } from '@scality/module-federation';
+import { FederatedComponent, useShellAlerts, useShellHooks } from '@scality/module-federation';
 
 export const CertificateDownloadButton = () => {
   const shellHooks = useShellHooks();
   const shellAlerts = useShellAlerts();
   const { useDeployedApps, useConfigRetriever } = shellHooks;
   const deployedApps = useDeployedApps();
-  const artescaUI = deployedApps.find(
-    (app: { kind: string }) => app.kind === 'artesca-base-ui',
-  );
+  const artescaUI = deployedApps.find((app: { kind: string }) => app.kind === 'artesca-base-ui');
   const { retrieveConfiguration } = useConfigRetriever();
 
   if (artescaUI) {

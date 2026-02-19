@@ -1,13 +1,11 @@
-import React, { JSX } from 'react';
-import {
-  Alert,
-  FilterLabels,
-} from 'shell/compiled-types/src/alerts/services/alertUtils';
-import { useXcoreRuntimeConfig } from './ConfigProvider';
 import { useShellAlerts } from '@scality/module-federation';
+import type React from 'react';
+import type { JSX } from 'react';
+import type { Alert, FilterLabels } from 'shell/compiled-types/src/alerts/services/alertUtils';
+import { useXcoreRuntimeConfig } from './ConfigProvider';
 
 export const highestAlertToStatus = (alerts?: Alert[]): string => {
-  return (alerts?.[0] && alerts[0].severity) || 'healthy';
+  return alerts?.[0]?.severity || 'healthy';
 };
 
 export const useAlerts = (filters: FilterLabels) => {
@@ -26,11 +24,7 @@ const AlertProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('The alert manager is not available.');
   }
 
-  return (
-    <AlertsProvider alertManagerUrl={alertManagerUrl}>
-      {children as JSX.Element}
-    </AlertsProvider>
-  );
+  return <AlertsProvider alertManagerUrl={alertManagerUrl}>{children as JSX.Element}</AlertsProvider>;
 };
 
 export default AlertProvider;

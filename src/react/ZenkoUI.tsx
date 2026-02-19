@@ -1,14 +1,13 @@
-import { Container } from './ui-elements/Container';
-import Activity from './ui-elements/Activity';
 import { Banner, Icon, ScrollbarWrapper } from '@scality/core-ui';
+import { useAuthLoading } from './AuthLoadingProvider';
+import Routes from './Routes';
+import Activity from './ui-elements/Activity';
+import { Container } from './ui-elements/Container';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';
-import Routes from './Routes';
-import { useAuthLoading } from './AuthLoadingProvider';
 
 function ZenkoUI() {
-  const { isConfigLoaded, configFailure, configFailureErrorMessage } =
-    useAuthLoading();
+  const { isConfigLoaded, configFailure, configFailureErrorMessage } = useAuthLoading();
 
   function content() {
     if (configFailure) {

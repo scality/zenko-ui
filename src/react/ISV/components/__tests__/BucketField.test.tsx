@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
-import BucketField from '../BucketField';
 import { Wrapper } from '../../../utils/testUtil';
+import BucketField from '../BucketField';
 
 // Mock XCoreLibraryProvider
 jest.mock('../../../next-architecture/ui/XCoreLibraryProvider', () => {
@@ -137,10 +137,7 @@ describe('BucketField', () => {
     expect(bucketNameInputs).toHaveLength(2);
 
     expect(bucketNameInputs[1]).toHaveValue('');
-    expect(bucketNameInputs[1]).toHaveAttribute(
-      'placeholder',
-      'Example: test-platform-bucket-name',
-    );
+    expect(bucketNameInputs[1]).toHaveAttribute('placeholder', 'Example: test-platform-bucket-name');
   });
 
   it('should remove buckets when decreasing bucket number', () => {
@@ -198,10 +195,7 @@ describe('BucketField', () => {
     );
 
     const bucketNameInput = selectors.bucketNameInput();
-    expect(bucketNameInput).toHaveAttribute(
-      'placeholder',
-      'Example: test-platform-bucket-name',
-    );
+    expect(bucketNameInput).toHaveAttribute('placeholder', 'Example: test-platform-bucket-name');
   });
 
   it('should allow temporarily empty input but restore to min value on blur', () => {

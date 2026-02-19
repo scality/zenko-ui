@@ -1,18 +1,8 @@
-import {
-  screen,
-  waitFor,
-  fireEvent,
-  getAllByRole,
-  getByText,
-} from '@testing-library/react';
-import AccountUserList from '../AccountUserList';
+import { fireEvent, getAllByRole, getByText, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import {
-  mockOffsetSize,
-  testRender,
-  TEST_API_BASE_URL,
-} from '../../utils/testUtil';
+import { mockOffsetSize, TEST_API_BASE_URL, testRender } from '../../utils/testUtil';
+import AccountUserList from '../AccountUserList';
 
 const SAMPLE_USER_ID = 'GENERATED_ID';
 const SAMPLE_USER_NAME = 'test';
@@ -21,7 +11,7 @@ const SAMPLE_ARN = `arn:aws:iam::970343539682:user/${SAMPLE_USER_NAME}`;
 const nbrOfColumnsExpected = 4;
 
 const server = setupServer(
-  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+  rest.post(`${TEST_API_BASE_URL}/`, (_req, res, ctx) => {
     return res(
       ctx.xml(`
     <ListUsersResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
@@ -63,9 +53,7 @@ describe('AccountUserList', () => {
 
     //Ensure tooltip is displayed on top of search field while loading users
     fireEvent.pointerEnter(screen.getByPlaceholderText(/Search/i));
-    expect(
-      screen.getByText('Search is disabled while loading users'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Search is disabled while loading users')).toBeInTheDocument();
 
     //Wait for loading to complete
     await waitFor(() => screen.getByText(SAMPLE_USER_NAME), { timeout: 2000 });
@@ -84,18 +72,14 @@ describe('AccountUserList', () => {
     expect(editButton).toBeInTheDocument();
 
     const createdOnOfFirstRow = getAllByRole(firstRow, 'gridcell');
-    expect(
-      getByText(createdOnOfFirstRow[2], /2022-03-02/i),
-    ).toBeInTheDocument();
+    expect(getByText(createdOnOfFirstRow[2], /2022-03-02/i)).toBeInTheDocument();
   });
   it('should render header buttons and column names', async () => {
     testRender(<AccountUserList accountName="account" />);
 
     /**********           Number of columns :         ************/
 
-    expect(screen.getAllByRole('columnheader').length).toEqual(
-      nbrOfColumnsExpected,
-    );
+    expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpected);
 
     /**********           Buttons 'search' and 'Create user' exist :         ************/
 
@@ -111,23 +95,11 @@ describe('AccountUserList', () => {
     expect(screen.getByText('Created On')).toBeInTheDocument();
   });
   it('handles server error', async () => {
-    server.use(
-      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
-        res(ctx.status(500, 'error')),
-      ),
-    );
+    server.use(rest.post(`${TEST_API_BASE_URL}/`, (_req, res, ctx) => res(ctx.status(500, 'error'))));
 
     testRender(<AccountUserList accountName="account" />);
 
-    await waitFor(() =>
-      screen.getByText(
-        'An error occurred while loading the users, please refresh the page.',
-      ),
-    );
-    expect(
-      screen.getByText(
-        'An error occurred while loading the users, please refresh the page.',
-      ),
-    ).toBeInTheDocument();
+    await waitFor(() => screen.getByText('An error occurred while loading the users, please refresh the page.'));
+    expect(screen.getByText('An error occurred while loading the users, please refresh the page.')).toBeInTheDocument();
   });
 });

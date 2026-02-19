@@ -1,30 +1,21 @@
-import {
-  Banner,
-  Form,
-  FormGroup,
-  FormSection,
-  Icon,
-  Stack,
-} from '@scality/core-ui';
+import { Banner, Form, FormGroup, FormSection, Icon, Loader as LoaderCoreUI, Stack } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-
-import { ChangeEvent, useMemo, useState } from 'react';
+import { useShellHooks } from '@scality/module-federation';
+import { type ChangeEvent, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
-import { LocationV1 } from '../../js/managementClient/api';
+import type { LocationV1 } from '../../js/managementClient/api';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
-import { LocationTypeKey } from '../../types/config';
+import type { LocationTypeKey } from '../../types/config';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useCapabilities } from '../queries/instanceStatusQuery';
 import Loader from '../ui-elements/Loader';
-import {
-  getLocationTypeKey,
-  selectStorageOptionsGrouped,
-} from '../utils/storageOptions';
+import { getLocationTypeKey, selectStorageOptionsGrouped } from '../utils/storageOptions';
 import { LocationDetails, storageOptions } from './LocationDetails';
 import LocationOptions from './LocationOptions';
 import locationFormCheck from './locationFormCheck';
@@ -36,9 +27,6 @@ import {
   newLocationDetails,
   newLocationForm,
 } from './utils';
-import { useCapabilities } from '../queries/instanceStatusQuery';
-import { Loader as LoaderCoreUI } from '@scality/core-ui';
-import { useShellHooks } from '@scality/module-federation';
 
 //Temporary hack waiting for the layout
 const StyledForm = styled(Form)`
@@ -62,31 +50,18 @@ const makeLabel = (locationType: LocationTypeKey) => {
 function LocationEditor() {
   const navigate = useNavigate();
   const { locationName } = useParams<{ locationName: string }>();
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const {
-    accountsLocationsAndEndpoints,
-    refetchAccountsLocationsEndpointsMutation,
-    status,
-  } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
-  });
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, refetchAccountsLocationsEndpointsMutation, status } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
   const locations = accountsLocationsAndEndpoints?.locations;
-  const locationEditing = locations?.find(
-    (location) => location.name === locationName,
-  );
+  const locationEditing = locations?.find((location) => location.name === locationName);
   const { capabilities } = useCapabilities();
-  const editingExisting = !!(locationEditing && locationEditing.id);
-  const [location, setLocation] = useState(
-    convertToForm({ ...newLocationDetails(), ...locationEditing }),
-  );
+  const editingExisting = !!locationEditing?.id;
+  const [location, setLocation] = useState(convertToForm({ ...newLocationDetails(), ...locationEditing }));
   const selectOptionsGrouped = useMemo(() => {
-    return selectStorageOptionsGrouped(
-      capabilities,
-      locations,
-      makeLabel,
-      !editingExisting,
-    );
+    return selectStorageOptionsGrouped(capabilities, locations, makeLabel, !editingExisting);
   }, [capabilities, editingExisting, locations]);
   useMemo(() => {
     if (locationEditing) {
@@ -95,8 +70,7 @@ function LocationEditor() {
   }, [locationEditing]);
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value =
-      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     const l = { ...location, [e.target.name]: value };
     setLocation(l);
   };
@@ -109,13 +83,11 @@ function LocationEditor() {
     mutationFn: async (location: LocationV1) => {
       const client = notFalsyTypeGuard(managementClient);
       client.setToken(await getToken());
-      return client
-        .createConfigurationOverlayLocation(location, instanceId)
-        .catch(async (error) => {
-          if (error.status === 422) {
-            throw await error.json();
-          }
-        });
+      return client.createConfigurationOverlayLocation(location, instanceId).catch(async (error) => {
+        if (error.status === 422) {
+          throw await error.json();
+        }
+      });
     },
   });
   const updateLocationMutation = useMutation({
@@ -180,12 +152,9 @@ function LocationEditor() {
         },
       });
     }
-  }, [waiterStatus]);
+  }, [waiterStatus, navigate, refetchAccountsLocationsEndpointsMutation.mutate]);
 
-  const loading =
-    createLocationMutation.isLoading ||
-    updateLocationMutation.isLoading ||
-    waiterStatus === 'waiting';
+  const loading = createLocationMutation.isLoading || updateLocationMutation.isLoading || waiterStatus === 'waiting';
 
   const cancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (e) {
@@ -215,8 +184,7 @@ function LocationEditor() {
   };
 
   const onOptionsChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value =
-      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     const l = {
       ...location,
       options: { ...location.options, [e.target.name]: value },
@@ -244,12 +212,9 @@ function LocationEditor() {
 
   //@ts-expect-error fix this when you are working on it
   const { disable, errorMessageFront } = locationFormCheck(location);
-  let displayErrorMessage;
+  let displayErrorMessage: string | undefined;
 
-  const hasError =
-    createLocationMutation.isError ||
-    updateLocationMutation.isError ||
-    waiterStatus === 'error';
+  const hasError = createLocationMutation.isError || updateLocationMutation.isError || waiterStatus === 'error';
 
   const errorMessage =
     //@ts-expect-error fix this when you are working on it
@@ -280,46 +245,22 @@ function LocationEditor() {
       requireMode="partial"
       banner={
         displayErrorMessage && (
-          <Banner
-            icon={<Icon name="Exclamation-circle" />}
-            title="Error"
-            variant="danger"
-          >
+          <Banner icon={<Icon name="Exclamation-circle" />} title="Error" variant="danger">
             {displayErrorMessage}
           </Banner>
         )
       }
       rightActions={
         <Stack gap="r16">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={loading}
-            onClick={cancel}
-            label="Cancel"
-          />
+          <Button type="button" variant="outline" disabled={loading} onClick={cancel} label="Cancel" />
 
           <Button
             type="button"
             variant="primary"
-            icon={
-              loading ? (
-                <LoaderCoreUI size="small" />
-              ) : (
-                locationEditing && <Icon name="Save" />
-              )
-            }
-            disabled={
-              disable || loading || !isLocationExists(location.locationType)
-            }
+            icon={loading ? <LoaderCoreUI size="small" /> : locationEditing && <Icon name="Save" />}
+            disabled={disable || loading || !isLocationExists(location.locationType)}
             onClick={save}
-            label={
-              loading
-                ? 'Saving...'
-                : locationEditing
-                  ? 'Save Changes'
-                  : 'Create'
-            }
+            label={loading ? 'Saving...' : locationEditing ? 'Save Changes' : 'Create'}
           />
         </Stack>
       }
@@ -328,12 +269,8 @@ function LocationEditor() {
         <Banner
           icon={
             <Icon
-              color={
-                locations.length >= 10 ? 'statusCritical' : 'statusWarning'
-              }
-              name={
-                locations.length >= 10 ? 'Times-circle' : 'Exclamation-circle'
-              }
+              color={locations.length >= 10 ? 'statusCritical' : 'statusWarning'}
+              name={locations.length >= 10 ? 'Times-circle' : 'Exclamation-circle'}
             />
           }
           variant={locations.length >= 10 ? 'danger' : 'warning'}
@@ -343,10 +280,7 @@ function LocationEditor() {
             : `${locations.length} of 10 locations have been created on this instance. You are approaching the platform limit.`}
         </Banner>
       )}
-      <FormSection
-        title={{ name: 'General' }}
-        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
-      >
+      <FormSection title={{ name: 'General' }} forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="name"
           content={
@@ -365,8 +299,8 @@ function LocationEditor() {
           helpErrorPosition="bottom"
           labelHelpTooltip={
             <>
-              Location name that will be used in ARTESCA Data Services. It is
-              not known to the storage provider. <br /> <br />
+              Location name that will be used in ARTESCA Data Services. It is not known to the storage provider. <br />{' '}
+              <br />
               Use only lowercase letters, numbers, and dashes.
             </>
           }
@@ -379,8 +313,7 @@ function LocationEditor() {
             <>
               Each Storage location type has its own requirements.
               <br /> <br />
-              Unlike ARTESCA local storage, all public clouds require
-              authentication information.
+              Unlike ARTESCA local storage, all public clouds require authentication information.
             </>
           }
           required
@@ -396,19 +329,13 @@ function LocationEditor() {
               value={locationTypeKey}
             >
               {selectOptionsGrouped.flatMap((group, groupIndex) => [
-                <StyledSelect.Option
-                  key={`group-${groupIndex}`}
-                  value={`__group_${groupIndex}__`}
-                  disabled={true}
-                >
+                // biome-ignore lint/suspicious/noArrayIndexKey: no stable key available
+                <StyledSelect.Option key={`group-${groupIndex}`} value={`__group_${groupIndex}__`} disabled={true}>
                   {group.label}
                 </StyledSelect.Option>,
                 ...group.options.map((opt, i) => (
-                  <StyledSelect.Option
-                    key={`${groupIndex}-${i}`}
-                    value={opt.value}
-                    disabled={opt.disabled}
-                  >
+                  // biome-ignore lint/suspicious/noArrayIndexKey: no stable key available
+                  <StyledSelect.Option key={`${groupIndex}-${i}`} value={opt.value} disabled={opt.disabled}>
                     {opt.label}
                   </StyledSelect.Option>
                 )),

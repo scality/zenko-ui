@@ -36,5 +36,15 @@
   "assist": {
     "enabled": true,
     "actions": { "source": { "organizeImports": "on" } }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/Breadcrumb.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": { "noLabelWithoutControl": "off" }
+        }
+      }
+    }
+  ]
 }

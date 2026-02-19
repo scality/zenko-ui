@@ -7,24 +7,12 @@ const KastenLogo = () => (
     xmlns="http://www.w3.org/2000/svg"
     xmlnsXlink="http://www.w3.org/1999/xlink"
     style={{ backgroundColor: 'white' }}
+    aria-hidden="true"
   >
-    <rect
-      width="44"
-      height="30"
-      fill="url(#pattern0_18710_290079)"
-      enableBackground={'white'}
-    />
+    <rect width="44" height="30" fill="url(#pattern0_18710_290079)" enableBackground={'white'} />
     <defs>
-      <pattern
-        id="pattern0_18710_290079"
-        patternContentUnits="objectBoundingBox"
-        width="1"
-        height="1"
-      >
-        <use
-          xlinkHref="#image0_18710_290079"
-          transform="scale(0.0025 0.003663)"
-        />
+      <pattern id="pattern0_18710_290079" patternContentUnits="objectBoundingBox" width="1" height="1">
+        <use xlinkHref="#image0_18710_290079" transform="scale(0.0025 0.003663)" />
       </pattern>
       <image
         id="image0_18710_290079"

@@ -1,10 +1,10 @@
 import { FormGroup, Stack } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
-import { Controller, useFormContext } from 'react-hook-form';
+import { useShellHooks } from '@scality/module-federation';
 
 import { useEffect } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 import { useXcoreRuntimeConfig } from '../../next-architecture/ui/ConfigProvider';
-import { useShellHooks } from '@scality/module-federation';
 import { unitChoices } from '../constants';
 import { useCapacityUnit } from '../hooks/useCapacityUnit';
 import { CapacityTooltip } from './shared/PlatformTooltips';
@@ -40,17 +40,14 @@ export const CapacityFormWithXcore = ({
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const xCoreConfig = useXcoreRuntimeConfig();
-  const { clusterCapacity, clusterCapacityStatus } = useClusterCapacity(
-    xCoreConfig,
-    getToken,
-  );
+  const { clusterCapacity, clusterCapacityStatus } = useClusterCapacity(xCoreConfig, getToken);
   const { setValue } = useFormContext();
 
   const safeCapacity =
     clusterCapacityStatus === 'success' &&
     typeof clusterCapacity === 'number' &&
-    !isNaN(clusterCapacity) &&
-    isFinite(clusterCapacity) &&
+    !Number.isNaN(clusterCapacity) &&
+    Number.isFinite(clusterCapacity) &&
     bucketNumber > 0
       ? clusterCapacity * (0.8 / bucketNumber)
       : 0;
@@ -61,25 +58,12 @@ export const CapacityFormWithXcore = ({
       setValue(`buckets.${index}.capacity`, capacityValue);
       setValue(`buckets.${index}.capacityUnit`, capacityUnit);
     }
-  }, [
-    clusterCapacityStatus,
-    bucketNumber,
-    index,
-    setValue,
-    capacityValue,
-    capacityUnit,
-  ]);
+  }, [clusterCapacityStatus, index, setValue, capacityValue, capacityUnit, safeCapacity]);
 
   return <CapacityFormSection index={index} />;
 };
 
-export const CapacityFormSection = ({
-  autoFocusEnabled,
-  index,
-}: {
-  autoFocusEnabled?: boolean;
-  index: number;
-}) => {
+export const CapacityFormSection = ({ autoFocusEnabled, index }: { autoFocusEnabled?: boolean; index: number }) => {
   const {
     register,
     control,
@@ -110,23 +94,21 @@ export const CapacityFormSection = ({
             control={control}
             render={({ field: { value, onChange } }) => {
               return (
-                <>
-                  <Select
-                    menuPosition="fixed"
-                    id={`buckets.${index}.capacityUnit`}
-                    onChange={onChange}
-                    value={value}
-                    size="1/3"
-                  >
-                    {Object.entries(unitChoices).map(([key]) => {
-                      return (
-                        <Select.Option key={key} value={key}>
-                          {key}
-                        </Select.Option>
-                      );
-                    })}
-                  </Select>
-                </>
+                <Select
+                  menuPosition="fixed"
+                  id={`buckets.${index}.capacityUnit`}
+                  onChange={onChange}
+                  value={value}
+                  size="1/3"
+                >
+                  {Object.entries(unitChoices).map(([key]) => {
+                    return (
+                      <Select.Option key={key} value={key}>
+                        {key}
+                      </Select.Option>
+                    );
+                  })}
+                </Select>
               );
             }}
           ></Controller>

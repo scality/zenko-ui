@@ -1,46 +1,36 @@
-import { useState } from 'react';
-import lodashSet from 'lodash.set';
 import { FormGroup, FormSection } from '@scality/core-ui';
-import { Select, Input } from '@scality/core-ui/dist/next';
-
-import { LocationDetailsFormProps } from '.';
+import { Input, Select } from '@scality/core-ui/dist/next';
+import lodashSet from 'lodash.set';
+import { useState } from 'react';
 import {
-  LocationAzureServicebusQueueV1,
-  LocationAzureServicebusTopicV1,
-  LocationAzureStorageQueueV1,
-  LocationAzureQueue,
-  LocationAzureClientSecret,
-  LocationAzureSharedAccessSignature,
-  LocationAzureSharedKey,
   LocationAzureAuth,
+  type LocationAzureClientSecret,
+  LocationAzureQueue,
+  type LocationAzureServicebusQueueV1,
+  type LocationAzureServicebusTopicV1,
+  type LocationAzureSharedAccessSignature,
+  type LocationAzureSharedKey,
+  type LocationAzureStorageQueueV1,
 } from '../../../js/managementClient/api';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
 
 type State = {
   endpoint: string;
   bucketName: string;
-  queue:
-    | LocationAzureServicebusTopicV1
-    | LocationAzureServicebusQueueV1
-    | LocationAzureStorageQueueV1;
+  queue: LocationAzureServicebusTopicV1 | LocationAzureServicebusQueueV1 | LocationAzureStorageQueueV1;
 
-  auth:
-    | LocationAzureClientSecret
-    | LocationAzureSharedAccessSignature
-    | LocationAzureSharedKey;
+  auth: LocationAzureClientSecret | LocationAzureSharedAccessSignature | LocationAzureSharedKey;
 };
 
-const LocationDetailsAzureArchive = ({
-  details,
-  onChange,
-}: LocationDetailsFormProps) => {
+const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormProps) => {
   const [formState, setFormState] = useState<State>({
     endpoint: '',
     bucketName: '',
     ...details,
     queue: {
-      type: LocationAzureQueue.TypeEnum['ServicebusTopicV1'],
+      type: LocationAzureQueue.TypeEnum.ServicebusTopicV1,
       topicName: '',
       topicSubscriptionId: '',
       // Optional field
@@ -48,7 +38,7 @@ const LocationDetailsAzureArchive = ({
       ...details.queue,
     },
     auth: {
-      type: LocationAzureAuth.TypeEnum['ClientSecret'],
+      type: LocationAzureAuth.TypeEnum.ClientSecret,
       tenantId: '',
       clientId: '',
       clientKey: '',
@@ -57,9 +47,7 @@ const LocationDetailsAzureArchive = ({
   });
 
   // This function mostly help set `formState.queue` and `formState.auth`
-  const onInternalStateChange = (
-    newStates: [string, string | boolean | object][],
-  ) => {
+  const onInternalStateChange = (newStates: [string, string | boolean | object][]) => {
     const newState = newStates.reduce(
       (prev, curr) => {
         const [key, value] = curr;
@@ -76,8 +64,7 @@ const LocationDetailsAzureArchive = ({
 
   const onFormItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
-    let value: string | boolean | object =
-      target.type === 'checkbox' ? target.checked : target.value;
+    let value: string | boolean | object = target.type === 'checkbox' ? target.checked : target.value;
     let targetName = target.name;
 
     if (target.name.includes('.')) {
@@ -189,18 +176,13 @@ const LocationDetailsAzureArchive = ({
   };
 
   const isServiceBus =
-    formState.queue.type === LocationAzureQueue.TypeEnum['ServicebusTopicV1'] ||
-    formState.queue.type === LocationAzureQueue.TypeEnum['ServicebusQueueV1'];
+    formState.queue.type === LocationAzureQueue.TypeEnum.ServicebusTopicV1 ||
+    formState.queue.type === LocationAzureQueue.TypeEnum.ServicebusQueueV1;
 
   return (
     <>
       <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
-        <FormGroup
-          id="temperature"
-          label="Temperature"
-          helpErrorPosition="bottom"
-          content={<ColdStorageIconLabel />}
-        />
+        <FormGroup id="temperature" label="Temperature" helpErrorPosition="bottom" content={<ColdStorageIconLabel />} />
         <FormGroup
           id="endpoint"
           label="Blob Endpoint"
@@ -236,10 +218,7 @@ const LocationDetailsAzureArchive = ({
           }
         />
       </FormSection>
-      <FormSection
-        title={{ name: 'Queue' }}
-        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
-      >
+      <FormSection title={{ name: 'Queue' }} forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="queue.type"
           label="Queue type"
@@ -252,21 +231,13 @@ const LocationDetailsAzureArchive = ({
               onChange={onChangeQueueType}
               value={formState.queue.type.toString()}
             >
-              <Select.Option value={'location-azure-servicebus-topic-v1'}>
-                Azure Service Bus Topic
-              </Select.Option>
-              <Select.Option value={'location-azure-servicebus-queue-v1'}>
-                Azure Service Bus Queue
-              </Select.Option>
-              <Select.Option value={'location-azure-storage-queue-v1'}>
-                Azure Storage Queue
-              </Select.Option>
+              <Select.Option value={'location-azure-servicebus-topic-v1'}>Azure Service Bus Topic</Select.Option>
+              <Select.Option value={'location-azure-servicebus-queue-v1'}>Azure Service Bus Queue</Select.Option>
+              <Select.Option value={'location-azure-storage-queue-v1'}>Azure Storage Queue</Select.Option>
             </Select>
           }
         />
-        {formState.queue.type ===
-          LocationAzureQueue.TypeEnum['ServicebusTopicV1'] &&
-        'topicName' in formState.queue ? (
+        {formState.queue.type === LocationAzureQueue.TypeEnum.ServicebusTopicV1 && 'topicName' in formState.queue ? (
           <>
             <FormGroup
               id="queue.topicName"
@@ -325,8 +296,7 @@ const LocationDetailsAzureArchive = ({
           <></>
         )}
 
-        {formState.queue.type ===
-          LocationAzureQueue.TypeEnum['ServicebusQueueV1'] &&
+        {formState.queue.type === LocationAzureQueue.TypeEnum.ServicebusQueueV1 &&
         'queueName' in formState.queue &&
         'endpoint' in formState.queue ? (
           <>
@@ -370,9 +340,7 @@ const LocationDetailsAzureArchive = ({
           <></>
         )}
 
-        {formState.queue.type ===
-          LocationAzureQueue.TypeEnum['StorageQueueV1'] &&
-        'endpoint' in formState.queue ? (
+        {formState.queue.type === LocationAzureQueue.TypeEnum.StorageQueueV1 && 'endpoint' in formState.queue ? (
           <>
             <FormGroup
               label="Queue Name"
@@ -414,10 +382,7 @@ const LocationDetailsAzureArchive = ({
           <></>
         )}
       </FormSection>
-      <FormSection
-        title={{ name: 'Authentication' }}
-        forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}
-      >
+      <FormSection title={{ name: 'Authentication' }} forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
           id="auth"
           label="Authentication type"
@@ -430,23 +395,17 @@ const LocationDetailsAzureArchive = ({
               onChange={onAuthTypeChange}
               value={formState.auth.type.toString()}
             >
-              <Select.Option value={'location-azure-client-secret'}>
-                Azure Client Secret
-              </Select.Option>
+              <Select.Option value={'location-azure-client-secret'}>Azure Client Secret</Select.Option>
               <Select.Option value={'location-azure-shared-access-signature'}>
                 Azure Shared Access Signature
               </Select.Option>
-              <Select.Option
-                disabled={isServiceBus}
-                value={'location-azure-shared-key'}
-              >
+              <Select.Option disabled={isServiceBus} value={'location-azure-shared-key'}>
                 Azure Shared Key
               </Select.Option>
             </Select>
           }
         />
-        {'accountName' in formState.auth &&
-        formState.auth.type === LocationAzureAuth.TypeEnum['SharedKey'] ? (
+        {'accountName' in formState.auth && formState.auth.type === LocationAzureAuth.TypeEnum.SharedKey ? (
           <>
             <FormGroup
               label="Azure Account Name"
@@ -489,8 +448,7 @@ const LocationDetailsAzureArchive = ({
           <></>
         )}
 
-        {'clientId' in formState.auth &&
-        formState.auth.type === LocationAzureAuth.TypeEnum['ClientSecret'] ? (
+        {'clientId' in formState.auth && formState.auth.type === LocationAzureAuth.TypeEnum.ClientSecret ? (
           <>
             <FormGroup
               label="Tenant ID"
@@ -550,8 +508,7 @@ const LocationDetailsAzureArchive = ({
         )}
 
         {'storageSasToken' in formState.auth &&
-        formState.auth.type ===
-          LocationAzureAuth.TypeEnum['SharedAccessSignature'] ? (
+        formState.auth.type === LocationAzureAuth.TypeEnum.SharedAccessSignature ? (
           <>
             <FormGroup
               label="SAS token for Storage"

@@ -9,7 +9,7 @@ const expectedBasePath = 'http://testurl';
 const useAuth = mockShellHooks.useAuth;
 
 const server = setupServer(
-  rest.get(`http://localhost/config-shell.json`, (req, res, ctx) => {
+  rest.get(`http://localhost/config-shell.json`, (_req, res, ctx) => {
     return res(
       ctx.json({
         options: { main: { [expectedBasePath]: { en: 'Overview' } } },
@@ -41,13 +41,9 @@ describe('AdvancedMetricsButton', () => {
     renderWithRouterMatch(<AuthorizedAdvancedMetricsButton />);
 
     //Wait for loading to complete
-    await waitFor(() =>
-      screen.getByRole('button', { name: /Advanced Metrics/i }),
-    );
+    await waitFor(() => screen.getByRole('button', { name: /Advanced Metrics/i }));
 
-    expect(
-      screen.getByRole('button', { name: /Advanced Metrics/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Advanced Metrics/i })).toBeInTheDocument();
   });
 
   it("should not display the button when groups doesn't contains StorageManager", async () => {
@@ -68,9 +64,7 @@ describe('AdvancedMetricsButton', () => {
     await expect(
       (async () => {
         //Wait for loading to complete
-        await waitFor(() =>
-          screen.getByRole('button', { name: /Advanced Metrics/i }),
-        );
+        await waitFor(() => screen.getByRole('button', { name: /Advanced Metrics/i }));
       })(),
     ).rejects.not.toBeNull();
   });

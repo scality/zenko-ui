@@ -1,24 +1,22 @@
-import React from 'react';
-import { LocationDetailsFormProps } from '.';
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
+import React from 'react';
 import {
   LocationAzureAuth,
-  LocationAzureClientSecret,
-  LocationAzureSharedAccessSignature,
-  LocationAzureSharedKey,
+  type LocationAzureClientSecret,
+  type LocationAzureSharedAccessSignature,
+  type LocationAzureSharedKey,
 } from '../../../js/managementClient/api';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
+
 type State = {
   bucketMatch: boolean;
   accessKey?: string;
   secretKey?: string;
   bucketName: string;
   endpoint: string;
-  auth:
-    | LocationAzureClientSecret
-    | LocationAzureSharedAccessSignature
-    | LocationAzureSharedKey;
+  auth: LocationAzureClientSecret | LocationAzureSharedAccessSignature | LocationAzureSharedKey;
 };
 const INIT_STATE: Omit<State, 'auth'> = {
   bucketMatch: false,
@@ -27,17 +25,12 @@ const INIT_STATE: Omit<State, 'auth'> = {
   bucketName: '',
   endpoint: '',
 };
-export default class LocationDetailsAzure extends React.Component<
-  LocationDetailsFormProps,
-  State
-> {
+export default class LocationDetailsAzure extends React.Component<LocationDetailsFormProps, State> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
-    const auth:
-      | LocationAzureClientSecret
-      | LocationAzureSharedAccessSignature
-      | LocationAzureSharedKey = this.props.details.auth || {
-      type: LocationAzureAuth.TypeEnum['SharedKey'],
+    const auth: LocationAzureClientSecret | LocationAzureSharedAccessSignature | LocationAzureSharedKey = this.props
+      .details.auth || {
+      type: LocationAzureAuth.TypeEnum.SharedKey,
       accountKey: '',
       accountName: this.props.details.accessKey || '',
     };
@@ -52,10 +45,7 @@ export default class LocationDetailsAzure extends React.Component<
       this.state.auth.clientKey = '';
     }
 
-    if (
-      'storageSasToken' in this.state.auth &&
-      this.state.auth.storageSasToken
-    ) {
+    if ('storageSasToken' in this.state.auth && this.state.auth.storageSasToken) {
       this.state.auth.storageSasToken = '';
     }
   }
@@ -85,7 +75,7 @@ export default class LocationDetailsAzure extends React.Component<
       case 'location-azure-shared-key':
         this.setState({
           auth: {
-            type: LocationAzureAuth.TypeEnum['SharedKey'],
+            type: LocationAzureAuth.TypeEnum.SharedKey,
             accountName: '',
             accountKey: '',
           },
@@ -94,7 +84,7 @@ export default class LocationDetailsAzure extends React.Component<
       case 'location-azure-client-secret':
         this.setState({
           auth: {
-            type: LocationAzureAuth.TypeEnum['ClientSecret'],
+            type: LocationAzureAuth.TypeEnum.ClientSecret,
             clientId: '',
             clientKey: '',
           },
@@ -103,7 +93,7 @@ export default class LocationDetailsAzure extends React.Component<
       case 'location-azure-shared-access-signature':
         this.setState({
           auth: {
-            type: LocationAzureAuth.TypeEnum['SharedAccessSignature'],
+            type: LocationAzureAuth.TypeEnum.SharedAccessSignature,
             storageSasToken: '',
           },
         });
@@ -186,12 +176,8 @@ export default class LocationDetailsAzure extends React.Component<
               onChange={this.onAuthTypeChange}
               value={this.state.auth.type.toString()}
             >
-              <Select.Option value={'location-azure-shared-key'}>
-                Azure Shared Key
-              </Select.Option>
-              <Select.Option value={'location-azure-client-secret'}>
-                Azure Client Secret
-              </Select.Option>
+              <Select.Option value={'location-azure-shared-key'}>Azure Shared Key</Select.Option>
+              <Select.Option value={'location-azure-client-secret'}>Azure Client Secret</Select.Option>
               <Select.Option value={'location-azure-shared-access-signature'}>
                 Azure Shared Access Signature
               </Select.Option>
@@ -199,8 +185,7 @@ export default class LocationDetailsAzure extends React.Component<
           }
         />
 
-        {'accountName' in this.state.auth &&
-        this.state.auth.type === LocationAzureAuth.TypeEnum['SharedKey'] ? (
+        {'accountName' in this.state.auth && this.state.auth.type === LocationAzureAuth.TypeEnum.SharedKey ? (
           <>
             <FormGroup
               label="Storage Account Name"
@@ -243,8 +228,7 @@ export default class LocationDetailsAzure extends React.Component<
           <></>
         )}
 
-        {'clientId' in this.state.auth &&
-        this.state.auth.type === LocationAzureAuth.TypeEnum['ClientSecret'] ? (
+        {'clientId' in this.state.auth && this.state.auth.type === LocationAzureAuth.TypeEnum.ClientSecret ? (
           <>
             <FormGroup
               label="Tenant ID"
@@ -305,29 +289,26 @@ export default class LocationDetailsAzure extends React.Component<
         )}
 
         {'storageSasToken' in this.state.auth &&
-        this.state.auth.type ===
-          LocationAzureAuth.TypeEnum['SharedAccessSignature'] ? (
-          <>
-            <FormGroup
-              label="SAS Token"
-              labelHelpTooltip="The query string that includes all of the information required to authenticate the SAS, 
+        this.state.auth.type === LocationAzureAuth.TypeEnum.SharedAccessSignature ? (
+          <FormGroup
+            label="SAS Token"
+            labelHelpTooltip="The query string that includes all of the information required to authenticate the SAS, 
               as well as to specify the service, resource, and permissions available for access, and the time interval over which the signature is valid."
-              id="storageSasToken"
-              helpErrorPosition="bottom"
-              required
-              content={
-                <Input
-                  name="storageSasToken"
-                  id="storageSasToken"
-                  type="text"
-                  placeholder="storage-sas-token"
-                  value={this.state.auth.storageSasToken}
-                  autoComplete="off"
-                  onChange={this.onAuthChange}
-                />
-              }
-            />
-          </>
+            id="storageSasToken"
+            helpErrorPosition="bottom"
+            required
+            content={
+              <Input
+                name="storageSasToken"
+                id="storageSasToken"
+                type="text"
+                placeholder="storage-sas-token"
+                value={this.state.auth.storageSasToken}
+                autoComplete="off"
+                onChange={this.onAuthChange}
+              />
+            }
+          />
         ) : (
           <></>
         )}

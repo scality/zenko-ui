@@ -1,11 +1,4 @@
-import {
-  AppContainer,
-  EmptyState,
-  ErrorPage401,
-  Icon,
-  Loader,
-  Sidebar,
-} from '@scality/core-ui';
+import { AppContainer, EmptyState, ErrorPage401, Icon, Loader, Sidebar } from '@scality/core-ui';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useCallback, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation } from 'react-router';
@@ -19,9 +12,7 @@ import AccountUserAccessKeys from './account/AccountUserAccessKeys';
 import CreateAccountPolicy from './account/CreateAccountPolicy';
 import Attachments from './account/iamAttachment/Attachments';
 import UpdateAccountPolicy from './account/UpdateAccountPolicy';
-import DataServiceRoleProvider, {
-  useCurrentAccount,
-} from './DataServiceRoleProvider';
+import DataServiceRoleProvider, { useCurrentAccount } from './DataServiceRoleProvider';
 import DataBrowser from './databrowser/DataBrowser';
 import EndpointCreate from './endpoint/EndpointCreate';
 import Endpoints from './endpoint/Endpoints';
@@ -63,11 +54,7 @@ const RedirectToAccount = () => {
   const { isStorageManager } = useAuthGroups();
 
   if (selectedAccount) {
-    return (
-      <Navigate
-        to={`${config.basePath}/accounts/${selectedAccount.Name}${pathname}${search}`}
-      />
-    );
+    return <Navigate to={`${config.basePath}/accounts/${selectedAccount.Name}${pathname}${search}`} />;
   } else if (isStorageManager) {
     return (
       <EmptyState
@@ -82,11 +69,7 @@ const RedirectToAccount = () => {
   }
 };
 
-export function PrivateRoutes({
-  hideSideBar = false,
-}: {
-  hideSideBar?: boolean;
-}) {
+export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }) {
   const { isClientsLoaded } = useAuthLoading();
   const config = useConfig();
 
@@ -152,7 +135,6 @@ export function PrivateRoutes({
         }
       />
 
-
       <Route
         path="create-dataservice/*"
         element={
@@ -170,7 +152,6 @@ export function PrivateRoutes({
         }
       />
 
-
       <Route
         path="locations/*"
         element={
@@ -182,10 +163,7 @@ export function PrivateRoutes({
       {isPlatformAdmin && isMetalK8sEnabled && (
         <>
           <Route path="truststore/*" element={<Truststore />} />
-          <Route
-            path="truststore/import-certificate/*"
-            element={<ImportCertificate />}
-          />
+          <Route path="truststore/import-certificate/*" element={<ImportCertificate />} />
         </>
       )}
       <Route
@@ -277,18 +255,14 @@ export function PrivateRoutes({
         }
       />
       <Route path="/" element={<Navigate to="accounts" replace />} />
-      <Route
-        path="*"
-        element={<Navigate to={`${config.basePath}/accounts`} replace />}
-      />
+      <Route path="*" element={<Navigate to={`${config.basePath}/accounts`} replace />} />
     </Routes>
   );
 }
 
 function InternalRoutes() {
   const [isSideBarOpen, setIsSideBarOpen] = useState(
-    localStorage.getItem('isSideBarOpen') === null ||
-    localStorage.getItem('isSideBarOpen') === 'true',
+    localStorage.getItem('isSideBarOpen') === null || localStorage.getItem('isSideBarOpen') === 'true',
   );
   const location = useLocation();
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
@@ -301,17 +275,9 @@ function InternalRoutes() {
   const doesRouteMatch = useCallback(
     (paths: string | string[]) => {
       if (Array.isArray(paths)) {
-        return paths.some((path) =>
-          matchPath(
-            { path: config.basePath + path, end: true },
-            location.pathname,
-          ),
-        );
+        return paths.some((path) => matchPath({ path: config.basePath + path, end: true }, location.pathname));
       } else {
-        return !!matchPath(
-          { path: config.basePath + paths, end: true },
-          location.pathname,
-        );
+        return !!matchPath({ path: config.basePath + paths, end: true }, location.pathname);
       }
     },
     [location.pathname, config.basePath],
@@ -379,14 +345,15 @@ function InternalRoutes() {
         },
         active: doesRouteMatch('/locations'),
       },
-      isPlatformAdmin && isMetalK8sEnabled && {
-        label: 'Truststore',
-        icon: <Icon name="ID-card" />,
-        onClick: () => {
-          navigate('/truststore');
+      isPlatformAdmin &&
+        isMetalK8sEnabled && {
+          label: 'Truststore',
+          icon: <Icon name="ID-card" />,
+          onClick: () => {
+            navigate('/truststore');
+          },
+          active: doesRouteMatch('/truststore'),
         },
-        active: doesRouteMatch('/truststore'),
-      },
       isStorageManager && {
         label: 'Data Services',
         icon: <Icon name="Cubes" />,
@@ -403,10 +370,7 @@ function InternalRoutes() {
       <DataServiceRoleProvider>
         <ReauthDialog />
       </DataServiceRoleProvider>
-      <AppContainer
-        hasPadding
-        sidebarNavigation={hideSideBar ? null : <Sidebar {...sidebarConfig} />}
-      >
+      <AppContainer hasPadding sidebarNavigation={hideSideBar ? null : <Sidebar {...sidebarConfig} />}>
         <RemoveTrailingSlash />
         <ManagementProvider>
           <STSProvider>

@@ -1,11 +1,11 @@
 import { FormGroup, Stack } from '@scality/core-ui';
-import { Controller, useFormContext } from 'react-hook-form';
-import { RadioGroup } from './RadioGroup';
-import { Input, Select } from '@scality/core-ui/dist/next';
 import { Loader } from '@scality/core-ui/dist/components/loader/Loader.component';
-import { JSX, Ref } from 'react';
+import type { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import { Input, Select } from '@scality/core-ui/dist/next';
+import type { JSX, Ref } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
-import { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import { RadioGroup } from './RadioGroup';
 
 export interface Option {
   name: string;
@@ -36,11 +36,7 @@ const FORM_FIELDS = {
   GENERATE_KEY: 'generateKey',
 };
 
-const getRadioOptions = (
-  isAccount: boolean,
-  disableCreate: boolean,
-  disableExisting: boolean,
-) => {
+const getRadioOptions = (isAccount: boolean, disableCreate: boolean, disableExisting: boolean) => {
   return [
     {
       value: 'create',
@@ -74,27 +70,16 @@ export const CreateOrSelectNameField = ({
     control,
     formState: { errors },
   } = useFormContext();
-  const isAccount = onFieldNameChange ? true : false;
-  const typeFieldName = isAccount
-    ? FORM_FIELDS.ACCOUNT_NAME_TYPE
-    : FORM_FIELDS.IAM_USER_NAME_TYPE;
+  const isAccount = !!onFieldNameChange;
+  const typeFieldName = isAccount ? FORM_FIELDS.ACCOUNT_NAME_TYPE : FORM_FIELDS.IAM_USER_NAME_TYPE;
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
-  const isParamsAccountNameInOptions = options.some(
-    (option) => option.name === paramsAccountName,
-  );
-  const isExistingDisabled =
-    (isAccount && isParamsAccountNameInOptions && isExist) ||
-    options.length === 0;
+  const isParamsAccountNameInOptions = options.some((option) => option.name === paramsAccountName);
+  const isExistingDisabled = (isAccount && isParamsAccountNameInOptions && isExist) || options.length === 0;
   const isCreateDisabled = isAccount && isExist && isParamsAccountNameInOptions;
-  const isSelectAccountDisabled =
-    isAccount && isParamsAccountNameInOptions && isExist;
+  const isSelectAccountDisabled = isAccount && isParamsAccountNameInOptions && isExist;
 
-  const radioOptions = getRadioOptions(
-    isAccount,
-    isCreateDisabled,
-    isExistingDisabled,
-  );
+  const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled);
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -133,7 +118,7 @@ export const CreateOrSelectNameField = ({
         error={
           isExist && type === 'create'
             ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
-            : (errors[fieldName]?.message as string) ?? ''
+            : ((errors[fieldName]?.message as string) ?? '')
         }
         content={
           <Stack gap="r8" direction="vertical">
@@ -142,11 +127,7 @@ export const CreateOrSelectNameField = ({
                 id={fieldName}
                 type="text"
                 autoComplete="off"
-                placeholder={
-                  status === 'success' && options.length !== 0
-                    ? `${platform}`
-                    : undefined
-                }
+                placeholder={status === 'success' && options.length !== 0 ? `${platform}` : undefined}
                 {...register(fieldName)}
               />
             ) : (
@@ -168,9 +149,7 @@ export const CreateOrSelectNameField = ({
                       }}
                       value={value}
                       disabled={isSelectAccountDisabled && isAccount}
-                      placeholder={`Select existing ${
-                        isAccount ? 'account' : 'user'
-                      }`}
+                      placeholder={`Select existing ${isAccount ? 'account' : 'user'}`}
                     >
                       {status === 'loading' && (
                         <Select.Option

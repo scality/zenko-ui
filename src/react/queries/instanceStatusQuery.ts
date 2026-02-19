@@ -1,13 +1,13 @@
+import { useShellHooks } from '@scality/module-federation';
 import { useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { useManagementClient } from '../ManagementProvider';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
-import { useShellHooks } from '@scality/module-federation';
+import type { InlineResponse200 } from '../../js/managementClient/api';
+import type { ApiError } from '../../types/actions';
+import type { Capabilities } from '../../types/stats';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useErrorHandler } from '../ErrorProvider';
-import { ApiError } from '../../types/actions';
-import { InlineResponse200 } from '../../js/managementClient/api';
-import { Capabilities } from '../../types/stats';
+import { useManagementClient } from '../ManagementProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 export const INSTANCE_STATUS_QUERY_KEY = 'instanceStatus';
 
@@ -56,7 +56,7 @@ export const useBucketList = () => {
 
   const bucketList = useMemo(() => {
     return rawBucketList || [];
-  }, [JSON.stringify(rawBucketList)]);
+  }, [rawBucketList]);
 
   return { bucketList, status, isFetching, error };
 };
@@ -71,7 +71,7 @@ export const useCapabilities = () => {
 
   const capabilities = useMemo(() => {
     return rawCapabilities as Capabilities | undefined;
-  }, [JSON.stringify(rawCapabilities)]);
+  }, [rawCapabilities]);
 
   return { capabilities, status, error };
 };

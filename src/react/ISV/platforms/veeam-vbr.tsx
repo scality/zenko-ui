@@ -1,5 +1,6 @@
 import { Banner, Stack, Text } from '@scality/core-ui';
 import { useEffect } from 'react';
+import { VeeamCredentialFields } from '../components/fields/VeeamCredentialFields';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
 import { VeeamLogo } from '../components/logos/VeeamLogo';
 import {
@@ -8,8 +9,6 @@ import {
   CapacityTooltip,
   VeeamImmutableBackupTooltip,
 } from '../components/shared/PlatformTooltips';
-import { VeeamCredentialFields } from '../components/fields/VeeamCredentialFields';
-import { VeeamCredentialProvider } from '../contexts/VeeamCredentialContext';
 import { VeeamRepositoryFields } from '../components/VeeamRepositoryFields';
 import { VeeamRepositorySummary } from '../components/VeeamRepositorySummary';
 import { VeeamMultipleBucketCapture } from '../components/veeam/VeeamMultipleBucketCapture';
@@ -22,6 +21,7 @@ import {
   VEEAM_BACKUP_REPLICATION,
   VEEAM_XML_PREFIX,
 } from '../constants';
+import { VeeamCredentialProvider } from '../contexts/VeeamCredentialContext';
 import type { BucketItem, DisabledMessageProps, FormData, FullContext, PreviousResults } from '../engine';
 import { definePlatform, VeeamVBRValidator } from '../engine';
 import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
@@ -121,7 +121,7 @@ export const VeeamVBRPlatform = definePlatform({
       id: 'veeamFolder',
       label: 'Create Veeam folder: {{name}}',
       action: 'putObject',
-      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
+      variables: (_form: FormData, bucket: BucketItem, _prev: PreviousResults, _ctx: FullContext) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/`,
         Body: '',
@@ -170,7 +170,7 @@ export const VeeamVBRPlatform = definePlatform({
       id: 'veeamSystem',
       label: 'Setup repository: {{name}}',
       action: 'putObject',
-      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
+      variables: (_form: FormData, bucket: BucketItem, _prev: PreviousResults, _ctx: FullContext) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/system.xml`,
         Body: SYSTEM_XML_CONTENT,
@@ -181,7 +181,7 @@ export const VeeamVBRPlatform = definePlatform({
       id: 'veeamCapacity',
       label: 'Set capacity: {{name}}',
       action: 'putObject',
-      variables: (_form: FormData, bucket: BucketItem, prev: PreviousResults, _ctx: FullContext) => ({
+      variables: (_form: FormData, bucket: BucketItem, _prev: PreviousResults, _ctx: FullContext) => ({
         Bucket: bucket.name,
         Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
         Body: GET_CAPACITY_XML_CONTENT(String(bucket.capacityBytes ?? 0)),

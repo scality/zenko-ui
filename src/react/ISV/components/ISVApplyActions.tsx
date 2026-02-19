@@ -1,21 +1,21 @@
 import { Banner, Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
-import Table, * as T from '../../ui-elements/Table';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { useCallback, memo, useMemo, useState } from 'react';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import type { StepStatus } from '@scality/react-chained-query';
+import { useChainedMutations } from '@scality/react-chained-query';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import styled, { useTheme } from 'styled-components';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
-import { ISVSkipModal } from './ISVSkipModal';
-import { Account } from '../../next-architecture/domain/entities/account';
-import { useChainedMutations } from '@scality/react-chained-query';
-import type { StepStatus } from '@scality/react-chained-query';
-import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
+import type { Account } from '../../next-architecture/domain/entities/account';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
-import { useMutationExecutor, buildRuntimeContext } from '../hooks/useMutationExecutor';
-import { ISVPlatform, FormData, BucketItem, OptionalFailure } from '../engine/types';
+import Table, * as T from '../../ui-elements/Table';
+import type { BucketItem, FormData, ISVPlatform, OptionalFailure } from '../engine/types';
+import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
+import { buildRuntimeContext, useMutationExecutor } from '../hooks/useMutationExecutor';
+import { ISVSkipModal } from './ISVSkipModal';
+import { ISV_STEPS, ISVStepsIndexes } from './ISVSteps';
 
 const StatusBox = styled(Box)`
   display: flex;
@@ -93,7 +93,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
         close={() => setConfirmCancel(false)}
         exitAction={() => navigate('/')}
         title={`Exit ${platform.name} Assistant Configuration`}
-        modalContent={<>{platform.skipModalContent}</>}
+        modalContent={platform.skipModalContent}
       />
       <Form
         layout={{

@@ -1,12 +1,6 @@
 const VeeamLogo = () => {
   return (
-    <svg
-      width="80"
-      height="25"
-      viewBox="0 0 80 25"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="80" height="25" viewBox="0 0 80 25" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g clip-path="url(#clip0_22765_333701)">
         <path
           d="M6.72589 0.836736C6.01257 0.836736 5.32567 1.12023 4.8221 1.62332L0.740724 5.69439C0.236356 6.19749 -0.0478516 6.88185 -0.0478516 7.59337V24.8144L73.2217 24.7713C73.9349 24.7713 74.6218 24.4878 75.1254 23.9846L79.1612 19.9591C79.6655 19.456 79.9498 18.7717 79.9498 18.0602L79.9521 0.835938L6.72589 0.836736Z"
@@ -40,12 +34,7 @@ const VeeamLogo = () => {
       </g>
       <defs>
         <clipPath id="clip0_22765_333701">
-          <rect
-            width="80"
-            height="24"
-            fill="white"
-            transform="translate(0 0.90625)"
-          />
+          <rect width="80" height="24" fill="white" transform="translate(0 0.90625)" />
         </clipPath>
       </defs>
     </svg>

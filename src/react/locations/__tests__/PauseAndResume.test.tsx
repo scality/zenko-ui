@@ -1,15 +1,11 @@
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { renderWithRouterMatch, TEST_API_BASE_URL } from '../../utils/testUtil';
-import { PauseAndResume } from '../PauseAndResume';
-import { ReplicationControlProvider } from '../contexts/ReplicationControlContext';
 import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
+import { renderWithRouterMatch, TEST_API_BASE_URL } from '../../utils/testUtil';
+import { ReplicationControlProvider } from '../contexts/ReplicationControlContext';
+import { PauseAndResume } from '../PauseAndResume';
 
 const renderPauseAndResume = (locationName: string) => {
   return renderWithRouterMatch(
@@ -22,13 +18,9 @@ const renderPauseAndResume = (locationName: string) => {
 describe('PauseAndResume', () => {
   const locationName = 'someLocation';
   const server = setupServer(
-    rest.post(
-      `${TEST_API_BASE_URL}/_/backbeat/api/crr/pause/someLocation`,
-      (req, res, ctx) => res(ctx.status(200)),
-    ),
-    rest.post(
-      `${TEST_API_BASE_URL}/_/backbeat/api/ingestion/pause/someLocation`,
-      (req, res, ctx) => res(ctx.status(200)),
+    rest.post(`${TEST_API_BASE_URL}/_/backbeat/api/crr/pause/someLocation`, (_req, res, ctx) => res(ctx.status(200))),
+    rest.post(`${TEST_API_BASE_URL}/_/backbeat/api/ingestion/pause/someLocation`, (_req, res, ctx) =>
+      res(ctx.status(200)),
     ),
   );
 
@@ -46,19 +38,17 @@ describe('PauseAndResume', () => {
 
   it('should render the component with pause label when ingestion is enabled', async () => {
     server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-        (req, res, ctx) =>
-          res(
-            ctx.json({
-              metrics: {
-                ['ingest-schedule']: {
-                  states: { [locationName]: 'enabled' },
-                },
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'ingest-schedule': {
+                states: { [locationName]: 'enabled' },
               },
-              state: null,
-            }),
-          ),
+            },
+            state: null,
+          }),
+        ),
       ),
     );
     renderPauseAndResume(locationName);
@@ -73,20 +63,18 @@ describe('PauseAndResume', () => {
 
   it('should render the component with pause label when ingestion is an empty object', async () => {
     server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-        (req, res, ctx) =>
-          res(
-            ctx.json({
-              metrics: {
-                ['crr-schedule']: {
-                  states: { [locationName]: 'enabled' },
-                },
-                ['ingest-schedule']: {},
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'crr-schedule': {
+                states: { [locationName]: 'enabled' },
               },
-              state: null,
-            }),
-          ),
+              'ingest-schedule': {},
+            },
+            state: null,
+          }),
+        ),
       ),
     );
     renderPauseAndResume(locationName);
@@ -101,17 +89,15 @@ describe('PauseAndResume', () => {
 
   it('should render the component with pause label when replication is enabled', async () => {
     server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-        (req, res, ctx) =>
-          res(
-            ctx.json({
-              metrics: {
-                ['crr-schedule']: { states: { [locationName]: 'enabled' } },
-              },
-              state: null,
-            }),
-          ),
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'crr-schedule': { states: { [locationName]: 'enabled' } },
+            },
+            state: null,
+          }),
+        ),
       ),
     );
     renderPauseAndResume(locationName);
@@ -126,20 +112,18 @@ describe('PauseAndResume', () => {
 
   it('should render the component with pause label when both replication and ingestion are enabled', async () => {
     server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-        (req, res, ctx) =>
-          res(
-            ctx.json({
-              metrics: {
-                ['ingest-schedule']: {
-                  states: { [locationName]: 'enabled' },
-                },
-                ['crr-schedule']: { states: { [locationName]: 'enabled' } },
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'ingest-schedule': {
+                states: { [locationName]: 'enabled' },
               },
-              state: null,
-            }),
-          ),
+              'crr-schedule': { states: { [locationName]: 'enabled' } },
+            },
+            state: null,
+          }),
+        ),
       ),
     );
 
@@ -161,31 +145,27 @@ describe('PauseAndResume', () => {
     it(`should disable the pause button while performing the action and then resolve with a resume button for {ingestionStatus: ${testCase.ingestionStatus}, replicationStatus: ${testCase.replicationStatus}}`, async () => {
       //S
       server.use(
-        rest.get(
-          `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-          (req, res, ctx) =>
-            res(
-              ctx.json({
-                metrics: {
-                  ['ingest-schedule']: testCase.ingestionStatus
-                    ? {
-                        states: { [locationName]: testCase.ingestionStatus },
-                      }
-                    : {},
-                  ['crr-schedule']: testCase.replicationStatus
-                    ? { states: { [locationName]: testCase.replicationStatus } }
-                    : {},
-                },
-                state: null,
-              }),
-            ),
+        rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) =>
+          res(
+            ctx.json({
+              metrics: {
+                'ingest-schedule': testCase.ingestionStatus
+                  ? {
+                      states: { [locationName]: testCase.ingestionStatus },
+                    }
+                  : {},
+                'crr-schedule': testCase.replicationStatus
+                  ? { states: { [locationName]: testCase.replicationStatus } }
+                  : {},
+              },
+              state: null,
+            }),
+          ),
         ),
       );
 
-      const pauseButtonSelector = () =>
-        screen.getByRole('button', { name: /Pause/i });
-      const resumeButtonSelector = () =>
-        screen.getByRole('button', { name: /resume/i });
+      const pauseButtonSelector = () => screen.getByRole('button', { name: /Pause/i });
+      const resumeButtonSelector = () => screen.getByRole('button', { name: /resume/i });
 
       renderPauseAndResume(locationName);
 
@@ -204,26 +184,21 @@ describe('PauseAndResume', () => {
 
       //S
       server.use(
-        rest.get(
-          `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-          (req, res, ctx) => {
-            return res(
-              ctx.json({
-                metrics: {
-                  ['ingest-schedule']: testCase.ingestionStatus
-                    ? {
-                        states: { [locationName]: 'disabled' },
-                      }
-                    : {},
-                  ['crr-schedule']: testCase.replicationStatus
-                    ? { states: { [locationName]: 'disabled' } }
-                    : {},
-                },
-                state: null,
-              }),
-            );
-          },
-        ),
+        rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) => {
+          return res(
+            ctx.json({
+              metrics: {
+                'ingest-schedule': testCase.ingestionStatus
+                  ? {
+                      states: { [locationName]: 'disabled' },
+                    }
+                  : {},
+                'crr-schedule': testCase.replicationStatus ? { states: { [locationName]: 'disabled' } } : {},
+              },
+              state: null,
+            }),
+          );
+        }),
       );
 
       //E
@@ -235,19 +210,17 @@ describe('PauseAndResume', () => {
 
   it('should render the component with resume label when ingestion is disabled', async () => {
     server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-        (req, res, ctx) =>
-          res(
-            ctx.json({
-              metrics: {
-                ['ingest-schedule']: {
-                  states: { [locationName]: 'disabled' },
-                },
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'ingest-schedule': {
+                states: { [locationName]: 'disabled' },
               },
-              state: null,
-            }),
-          ),
+            },
+            state: null,
+          }),
+        ),
       ),
     );
 
@@ -263,17 +236,15 @@ describe('PauseAndResume', () => {
 
   it('should render the component with resume label when replication is disabled', async () => {
     server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-        (req, res, ctx) =>
-          res(
-            ctx.json({
-              metrics: {
-                ['crr-schedule']: { states: { [locationName]: 'disabled' } },
-              },
-              state: null,
-            }),
-          ),
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'crr-schedule': { states: { [locationName]: 'disabled' } },
+            },
+            state: null,
+          }),
+        ),
       ),
     );
     renderPauseAndResume(locationName);
@@ -288,20 +259,18 @@ describe('PauseAndResume', () => {
 
   it('should render the component with pause label when one of the two processes are enabled (while loading/processing an action)', async () => {
     server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
-        (req, res, ctx) =>
-          res(
-            ctx.json({
-              metrics: {
-                ['ingest-schedule']: {
-                  states: { [locationName]: 'enabled' },
-                },
-                ['crr-schedule']: { states: { [locationName]: 'disabled' } },
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'ingest-schedule': {
+                states: { [locationName]: 'enabled' },
               },
-              state: null,
-            }),
-          ),
+              'crr-schedule': { states: { [locationName]: 'disabled' } },
+            },
+            state: null,
+          }),
+        ),
       ),
     );
 

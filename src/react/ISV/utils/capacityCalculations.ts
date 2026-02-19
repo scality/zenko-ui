@@ -9,21 +9,16 @@ export interface StorageConsumptionLimit {
 }
 
 export function parseCapacityBytes(capacityBytes: string | number): number {
-  const parsed =
-    typeof capacityBytes === 'string'
-      ? parseInt(capacityBytes, 10)
-      : capacityBytes;
+  const parsed = typeof capacityBytes === 'string' ? parseInt(capacityBytes, 10) : capacityBytes;
 
-  if (isNaN(parsed) || parsed < 0) {
+  if (Number.isNaN(parsed) || parsed < 0) {
     return 0;
   }
 
   return parsed;
 }
 
-export function calculateStorageConsumptionLimit(
-  capacityBytes: number,
-): StorageConsumptionLimit {
+export function calculateStorageConsumptionLimit(capacityBytes: number): StorageConsumptionLimit {
   if (capacityBytes >= BYTES_IN_PIB) {
     return {
       kind: 'PB',

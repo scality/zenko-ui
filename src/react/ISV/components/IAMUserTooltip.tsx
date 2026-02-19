@@ -4,12 +4,10 @@ import { ListItem } from './shared/StyledComponents';
 export const IAMUSerTooltip = ({ platform }: { platform: string }) => {
   return (
     <Stack direction="vertical" gap="r8">
-      <>
-        {`${platform} requires an IAM User with access keys (AK/SK) to use a bucket
+      {`${platform} requires an IAM User with access keys (AK/SK) to use a bucket
         as a backup target within the Object Storage context. The user will have
         IAM policies granting the necessary ${platform} permissions on the
         bucket(s).`}
-      </>
 
       <ul>
         <ListItem>

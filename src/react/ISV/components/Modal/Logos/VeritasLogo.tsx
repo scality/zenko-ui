@@ -10,6 +10,7 @@ const VeritasLogo = () => {
         scale: '0.9',
         transformOrigin: 'top left',
       }}
+      aria-hidden="true"
     >
       <g clip-path="url(#clip0_22803_20692)">
         <path
@@ -37,20 +38,10 @@ const VeritasLogo = () => {
       </g>
       <defs>
         <clipPath id="clip0_22803_20692">
-          <rect
-            width="182.769"
-            height="22"
-            fill="white"
-            transform="translate(0 0.90625)"
-          />
+          <rect width="182.769" height="22" fill="white" transform="translate(0 0.90625)" />
         </clipPath>
         <clipPath id="clip1_22803_20692">
-          <rect
-            width="88"
-            height="18.6154"
-            fill="white"
-            transform="translate(94.769 4.28906)"
-          />
+          <rect width="88" height="18.6154" fill="white" transform="translate(94.769 4.28906)" />
         </clipPath>
       </defs>
     </svg>

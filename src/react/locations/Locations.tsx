@@ -1,6 +1,6 @@
 import { AppContainer, Icon, Stack, Text } from '@scality/core-ui';
-import { LocationsList } from './LocationsList';
 import { ReplicationControlProvider } from './contexts/ReplicationControlContext';
+import { LocationsList } from './LocationsList';
 
 export const Locations = () => {
   return (

@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useMutation } from 'react-query';
-import { useZenkoClient } from '../../ZenkoProvider';
-import { useInstanceStatusQuery } from '../../queries/instanceStatusQuery';
-import { useReplicationControlContext } from '../contexts/ReplicationControlContext';
+import type { ApiError } from '../../../types/actions';
 import { useErrorHandler } from '../../ErrorProvider';
+import { useInstanceStatusQuery } from '../../queries/instanceStatusQuery';
 import { errorParser } from '../../utils';
-import { ApiError } from '../../../types/actions';
+import { useZenkoClient } from '../../ZenkoProvider';
+import { useReplicationControlContext } from '../contexts/ReplicationControlContext';
 
 const POLLING_INTERVAL_MS = 1_000;
 const POLLING_TIMEOUT_MS = 15_000;
@@ -26,15 +26,11 @@ export const useLocationReplicationControl = (locationName: string) => {
     refetchInterval: isWaitingForUpdate ? POLLING_INTERVAL_MS : false,
   });
 
-  const ingestionLocationsStatuses =
-    instanceStatus?.metrics?.['ingest-schedule']?.states;
-  const replicationLocationsStatuses =
-    instanceStatus?.metrics?.['crr-schedule']?.states;
+  const ingestionLocationsStatuses = instanceStatus?.metrics?.['ingest-schedule']?.states;
+  const replicationLocationsStatuses = instanceStatus?.metrics?.['crr-schedule']?.states;
 
-  const ingestionStatus: ReplicationStatus =
-    (ingestionLocationsStatuses && ingestionLocationsStatuses[locationName]) || null;
-  const replicationStatus: ReplicationStatus =
-    (replicationLocationsStatuses && replicationLocationsStatuses[locationName]) || null;
+  const ingestionStatus: ReplicationStatus = ingestionLocationsStatuses?.[locationName] || null;
+  const replicationStatus: ReplicationStatus = replicationLocationsStatuses?.[locationName] || null;
 
   const handleMutationStart = () => {
     startWaiting(locationName, {
@@ -98,13 +94,8 @@ export const useLocationReplicationControl = (locationName: string) => {
 
     const prev = previousStatus;
     const replicationChanged =
-      prev.replication !== null &&
-      replicationStatus !== null &&
-      prev.replication !== replicationStatus;
-    const ingestionChanged =
-      prev.ingestion !== null &&
-      ingestionStatus !== null &&
-      prev.ingestion !== ingestionStatus;
+      prev.replication !== null && replicationStatus !== null && prev.replication !== replicationStatus;
+    const ingestionChanged = prev.ingestion !== null && ingestionStatus !== null && prev.ingestion !== ingestionStatus;
 
     if (replicationChanged || ingestionChanged) {
       stopWaiting(locationName);
@@ -113,14 +104,7 @@ export const useLocationReplicationControl = (locationName: string) => {
         timeoutRef.current = null;
       }
     }
-  }, [
-    isWaitingForUpdate,
-    replicationStatus,
-    ingestionStatus,
-    previousStatus,
-    locationName,
-    stopWaiting,
-  ]);
+  }, [isWaitingForUpdate, replicationStatus, ingestionStatus, previousStatus, locationName, stopWaiting]);
 
   useEffect(() => {
     return () => {
@@ -159,4 +143,3 @@ export const useLocationReplicationControl = (locationName: string) => {
     resume,
   };
 };
-

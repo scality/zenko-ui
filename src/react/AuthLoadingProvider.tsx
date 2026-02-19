@@ -1,14 +1,7 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  JSX,
-} from 'react';
 import { useShellHooks } from '@scality/module-federation';
-import { useConfig } from './next-architecture/ui/ConfigProvider';
+import { createContext, type JSX, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuthError, useAuthFailure } from './ErrorProvider';
+import { useConfig } from './next-architecture/ui/ConfigProvider';
 
 type AuthLoadingContextValue = {
   isConfigLoaded: boolean;
@@ -23,9 +16,7 @@ export const useAuthLoading = () => {
   const context = useContext(AuthLoadingContext);
 
   if (!context) {
-    throw new Error(
-      'The useAuthLoading hook can only be used within AuthLoadingProvider.',
-    );
+    throw new Error('The useAuthLoading hook can only be used within AuthLoadingProvider.');
   }
 
   return context;
@@ -64,7 +55,14 @@ const AuthLoadingProvider = ({ children }: { children: JSX.Element }) => {
 
     setIsConfigLoaded(true);
     setIsClientsLoaded(true);
-  }, [config, userData?.original?.profile?.sub, isConfigLoaded, showAuthError, setAuthFailure]);
+  }, [
+    config,
+    userData?.original?.profile?.sub,
+    isConfigLoaded,
+    showAuthError,
+    setAuthFailure,
+    userData?.original?.profile?.instanceIds,
+  ]);
 
   const contextValue = useMemo(
     () => ({
@@ -76,11 +74,7 @@ const AuthLoadingProvider = ({ children }: { children: JSX.Element }) => {
     [isConfigLoaded, isClientsLoaded, configFailure, configFailureErrorMessage],
   );
 
-  return (
-    <AuthLoadingContext.Provider value={contextValue}>
-      {children}
-    </AuthLoadingContext.Provider>
-  );
+  return <AuthLoadingContext.Provider value={contextValue}>{children}</AuthLoadingContext.Provider>;
 };
 
 export default AuthLoadingProvider;

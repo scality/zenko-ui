@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-  JSX,
-} from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 type ErrorType = 'modal' | 'auth' | 'component';
 
@@ -169,15 +162,19 @@ const ErrorProvider = ({ children }: { children: React.ReactNode }) => {
       setAuthFailure,
       resetAuthFailure,
     }),
-    [error, showModalError, showAuthError, showComponentError, clearError, authFailure, setAuthFailure, resetAuthFailure],
+    [
+      error,
+      showModalError,
+      showAuthError,
+      showComponentError,
+      clearError,
+      authFailure,
+      setAuthFailure,
+      resetAuthFailure,
+    ],
   );
 
-  return (
-    <ErrorContext.Provider value={contextValue}>
-      {children}
-    </ErrorContext.Provider>
-  );
+  return <ErrorContext.Provider value={contextValue}>{children}</ErrorContext.Provider>;
 };
 
 export default ErrorProvider;
-

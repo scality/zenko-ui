@@ -13,10 +13,9 @@ jest.mock('@scality/core-ui', () => ({
   useToast: jest.fn(() => ({ showToast: jest.fn() })),
 }));
 
-const mockUseVeeamCredentialManagement =
-  useVeeamCredentialManagement as jest.MockedFunction<
-    typeof useVeeamCredentialManagement
-  >;
+const mockUseVeeamCredentialManagement = useVeeamCredentialManagement as jest.MockedFunction<
+  typeof useVeeamCredentialManagement
+>;
 
 interface FormWrapperProps {
   children: React.ReactNode;
@@ -78,9 +77,7 @@ describe('VeeamCredentialFields', () => {
     );
 
     expect(screen.getByText('Veeam Credentials required')).toBeInTheDocument();
-    expect(
-      screen.getByText(/To automatically create the repository/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/To automatically create the repository/)).toBeInTheDocument();
   });
 
   it('renders username and password input fields', () => {
@@ -148,9 +145,7 @@ describe('VeeamCredentialFields', () => {
     const inputs = screen.getAllByDisplayValue('');
     expect(inputs[0]).toBeDisabled();
     expect(inputs[1]).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: /Update Veeam credentials/ }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Update Veeam credentials/ })).toBeDisabled();
   });
 
   it('hides component when credentials are valid', () => {

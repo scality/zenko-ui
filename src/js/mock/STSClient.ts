@@ -1,4 +1,4 @@
-import { STSClient as STSClientInterface } from '../../types/sts';
+import type { STSClient as STSClientInterface } from '../../types/sts';
 export class MockSTSClient implements STSClientInterface {
   assumeRoleWithWebIdentity() {
     return Promise.resolve({

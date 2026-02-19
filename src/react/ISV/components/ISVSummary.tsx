@@ -315,40 +315,33 @@ export const DefaultISVSummary = ({
       <Level4FormSection>
         <Wrap>
           <Text isEmphazed>{`${isPlatformAdmin ? '2. ' : ''}Information for the ${platform.name} configuration`}</Text>
-          <CopyButton
-            textToCopy={textToCopy}
-            label="all"
-            variant="outline"
-            size="inline"
-            aria-label="copy all"
-          />
+          <CopyButton textToCopy={textToCopy} label="all" variant="outline" size="inline" aria-label="copy all" />
         </Wrap>
         <Separator />
-        <>
-          {(platform.summary.sections ?? DEFAULT_SECTIONS).map((section, index, arr) => {
-            const sectionProps: InternalSectionProps = {
-              formData,
-              accessKey,
-              secretKey,
-              accessKeys,
-              s3ServicePoint,
-              platform,
-              secretKeyLabel,
-              baseAccessKeyLabel,
-              serviceEndpointLabel,
-              immutableSectionInfos,
-              shouldHideImmutableSection,
-            };
-            const rendered = renderSection(section, sectionProps);
-            if (!rendered) return null;
-            return (
-              <React.Fragment key={section.id}>
-                {rendered}
-                {index < arr.length - 1 && <Separator />}
-              </React.Fragment>
-            );
-          })}
-        </>
+        {((platform.summary.sections ?? DEFAULT_SECTIONS).map((section, index, arr) => {
+          const sectionProps: InternalSectionProps = {
+            formData,
+            accessKey,
+            secretKey,
+            accessKeys,
+            s3ServicePoint,
+            platform,
+            secretKeyLabel,
+            baseAccessKeyLabel,
+            serviceEndpointLabel,
+            immutableSectionInfos,
+            shouldHideImmutableSection,
+          };
+          const rendered = renderSection(section, sectionProps);
+          if (!rendered) return null;
+          return (
+            <React.Fragment key={section.id}>
+              {rendered}
+              {index < arr.length - 1 && <Separator />}
+            </React.Fragment>
+          );
+        // biome-ignore lint/suspicious/noExplicitAny: core-ui types children as ReactElement<FormGroupProps> but accepts Element[]
+        }) as any)}
       </Level4FormSection>
     </Form>
   );

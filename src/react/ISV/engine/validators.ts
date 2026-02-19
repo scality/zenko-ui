@@ -7,8 +7,8 @@
 
 import Joi from 'joi';
 import { accountNameValidationSchema } from '../../account/AccountCreate';
-import { bucketNameValidationSchema } from '../utils/bucketNameValidation';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../constants';
+import { bucketNameValidationSchema } from '../utils/bucketNameValidation';
 
 // ============================================================================
 // Re-export base schemas for direct use
@@ -39,16 +39,19 @@ export const accountValidator = {
 export const iamValidator = {
   IAMUserName: Joi.when('accountNameType', {
     is: 'existing',
+    // biome-ignore lint/suspicious/noThenProperty: Joi.when configuration
     then: accountNameValidationSchema,
     otherwise: Joi.optional(),
   }),
   IAMUserNameType: Joi.when('accountNameType', {
     is: 'existing',
+    // biome-ignore lint/suspicious/noThenProperty: Joi.when configuration
     then: Joi.string().valid('create', 'existing').required(),
     otherwise: Joi.optional(),
   }),
   generateKey: Joi.when('accountNameType', {
     is: 'existing',
+    // biome-ignore lint/suspicious/noThenProperty: Joi.when configuration
     then: Joi.boolean(),
     otherwise: Joi.optional(),
   }),
@@ -61,10 +64,7 @@ export const iamValidator = {
 /**
  * Helper to validate capacity decimals (max 2 decimal places)
  */
-export const checkDecimals = (
-  value: number,
-  helpers: Joi.CustomHelpers
-): number | Joi.ErrorReport => {
+export const checkDecimals = (value: number, helpers: Joi.CustomHelpers): number | Joi.ErrorReport => {
   const stringValue = value.toString();
   if (stringValue.includes('.')) {
     const decimals = stringValue.split('.')[1];
@@ -160,8 +160,10 @@ export const VeeamVBRValidator = Joi.object({
   autoCreateRepository: Joi.boolean().optional(),
   immutablePeriodDays: Joi.when('autoCreateRepository', {
     is: true,
+    // biome-ignore lint/suspicious/noThenProperty: Joi.when configuration
     then: Joi.when('enableImmutableBackup', {
       is: true,
+      // biome-ignore lint/suspicious/noThenProperty: Joi.when configuration
       then: Joi.number().integer().min(1).max(3650).required(),
       otherwise: Joi.optional(),
     }),
@@ -176,11 +178,10 @@ export const VeeamVBOValidator = Joi.object({
   ...accountValidator,
   ...iamValidator,
   ...bucketsValidator,
-  application: Joi.string()
-    .valid(VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8)
-    .required(),
+  application: Joi.string().valid(VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8).required(),
   enableImmutableBackup: Joi.when('application', {
     is: VEEAM_OFFICE_365_V8,
+    // biome-ignore lint/suspicious/noThenProperty: Joi.when configuration
     then: Joi.boolean().required(),
     otherwise: Joi.optional(),
   }),
@@ -196,4 +197,3 @@ export const VeeamVBOValidator = Joi.object({
 export function getBucketsValidator(withCapacity: boolean): Record<string, Joi.Schema> {
   return withCapacity ? bucketsWithCapacityValidator : bucketsValidator;
 }
-

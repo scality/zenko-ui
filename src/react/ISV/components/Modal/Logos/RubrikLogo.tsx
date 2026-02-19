@@ -10,6 +10,7 @@ const RubrikLogo = () => {
         scale: '1.2',
         transformOrigin: 'top left',
       }}
+      aria-hidden="true"
     >
       <g clip-path="url(#clip0_22765_333618)">
         <path

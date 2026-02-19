@@ -1,20 +1,9 @@
-import {
-  FormattedDateTime,
-  IconHelp,
-  PrettyBytes,
-  Stack,
-  Text,
-  Wrap,
-} from '@scality/core-ui';
-import { LatestUsedCapacity } from '../../domain/entities/metrics';
-import { PromiseResult } from '../../domain/entities/promise';
+import { FormattedDateTime, IconHelp, PrettyBytes, Stack, Text, Wrap } from '@scality/core-ui';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import type { LatestUsedCapacity } from '../../domain/entities/metrics';
+import type { PromiseResult } from '../../domain/entities/promise';
 
-export function UsedCapacityInlinePromiseResult({
-  result,
-}: {
-  result: PromiseResult<LatestUsedCapacity>;
-}) {
+export function UsedCapacityInlinePromiseResult({ result }: { result: PromiseResult<LatestUsedCapacity> }) {
   if (result.status === 'loading') return <>Loading...</>;
   if (result.status === 'unknown') return <>Loading...</>;
   if (result.status === 'error') return <>Error</>;
@@ -26,8 +15,7 @@ export function UsedCapacity({ value }: { value: LatestUsedCapacity }) {
   if (value.type === 'error') return <>Error</>;
   if (value.type === 'noMetrics') return <EmptyCell mr={0} />;
 
-  const totalObjects =
-    value.usedCapacity.current + value.usedCapacity.nonCurrent;
+  const totalObjects = value.usedCapacity.current + value.usedCapacity.nonCurrent;
   return (
     <Wrap>
       <div></div>
@@ -36,15 +24,9 @@ export function UsedCapacity({ value }: { value: LatestUsedCapacity }) {
         <IconHelp
           placement="top"
           tooltipMessage={
-            <>
-              <Text isGentleEmphazed>
-                Retrieved on{' '}
-                <FormattedDateTime
-                  format="date-time-second"
-                  value={value.measuredOn}
-                />
-              </Text>
-            </>
+            <Text isGentleEmphazed>
+              Retrieved on <FormattedDateTime format="date-time-second" value={value.measuredOn} />
+            </Text>
           }
         />
       </Stack>

@@ -1,9 +1,10 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
-import React, { useState } from 'react';
-import { LocationDetailsFormProps } from '.';
+import type React from 'react';
+import { useState } from 'react';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
 
 type FieldNames = 'endpoint' | 'repoId' | 'username' | 'password';
 export interface TapeMiriaDetails {
@@ -48,7 +49,7 @@ export const tapeMiriaValidators = {
     try {
       new URL(endpoint);
       return '';
-    } catch (e) {
+    } catch (_e) {
       return 'Invalid endpoint URL format';
     }
   },
@@ -62,35 +63,22 @@ export const tapeMiriaValidators = {
   },
 
   validateRepoId: (repoId: string[]): string => {
-    return !repoId?.length || !repoId[0]
-      ? 'Atempo Miria Repository is required'
-      : '';
+    return !repoId?.length || !repoId[0] ? 'Atempo Miria Repository is required' : '';
   },
 
   validateTapeMiriaDetails: (details: Partial<TapeMiriaDetails>) => {
-    if (
-      !details.endpoint ||
-      !details.username ||
-      !details.password ||
-      !details.repoId?.length ||
-      !details.repoId[0]
-    ) {
+    if (!details.endpoint || !details.username || !details.password || !details.repoId?.length || !details.repoId[0]) {
       return {
         disable: true,
         errorMessage: '',
       };
     }
 
-    const endpointError = tapeMiriaValidators.validateEndpoint(
-      details.endpoint,
-    );
+    const endpointError = tapeMiriaValidators.validateEndpoint(details.endpoint);
     if (endpointError) {
       return {
         disable: true,
-        errorMessage:
-          endpointError === 'Endpoint is required'
-            ? ''
-            : 'Invalid endpoint URL format',
+        errorMessage: endpointError === 'Endpoint is required' ? '' : 'Invalid endpoint URL format',
       };
     }
 
@@ -98,11 +86,7 @@ export const tapeMiriaValidators = {
   },
 };
 
-export default function LocationDetailsTapeMiria({
-  details,
-  onChange,
-  editingExisting,
-}: LocationDetailsFormProps) {
+export default function LocationDetailsTapeMiria({ details, onChange, editingExisting }: LocationDetailsFormProps) {
   const [formState, setFormState] = useState<State>(() => {
     const initialState = { ...Object.assign({}, INIT_STATE, details) };
     if (editingExisting) {
@@ -170,10 +154,7 @@ export default function LocationDetailsTapeMiria({
     const value = target.value;
     const field = fieldConfigs.find((f) => f.name === name);
 
-    onInternalStateChange(
-      name,
-      field?.isArray ? [value as string] : (value as string),
-    );
+    onInternalStateChange(name, field?.isArray ? [value as string] : (value as string));
   };
 
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -185,40 +166,30 @@ export default function LocationDetailsTapeMiria({
 
   return (
     <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
-      <FormGroup
-        id="temperature"
-        label="Temperature"
-        helpErrorPosition="bottom"
-        content={<ColdStorageIconLabel />}
-      />
-      <>
-        {fieldConfigs.map((field) => (
-          <FormGroup
-            key={field.name}
-            id={field.name}
-            label={field.label}
-            required={field.required}
-            helpErrorPosition="bottom"
-            error={errors[field.name]}
-            content={
-              <Input
-                name={field.name}
-                id={field.name}
-                type={field.type}
-                placeholder={field.placeholder}
-                value={
-                  field.isArray
-                    ? formState[field.name][0]
-                    : formState[field.name]
-                }
-                onChange={onFormItemChange}
-                onBlur={onBlur}
-                autoComplete="off"
-              />
-            }
-          />
-        ))}
-      </>
+      <FormGroup id="temperature" label="Temperature" helpErrorPosition="bottom" content={<ColdStorageIconLabel />} />
+      {(fieldConfigs.map((field) => (
+        <FormGroup
+          key={field.name}
+          id={field.name}
+          label={field.label}
+          required={field.required}
+          helpErrorPosition="bottom"
+          error={errors[field.name]}
+          content={
+            <Input
+              name={field.name}
+              id={field.name}
+              type={field.type}
+              placeholder={field.placeholder}
+              value={field.isArray ? formState[field.name][0] : formState[field.name]}
+              onChange={onFormItemChange}
+              onBlur={onBlur}
+              autoComplete="off"
+            />
+          }
+        />
+      // biome-ignore lint/suspicious/noExplicitAny: core-ui types children as ReactElement<FormGroupProps> but accepts Element[]
+      )) as any)}
     </FormSection>
   );
 }

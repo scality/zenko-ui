@@ -92,7 +92,7 @@ const CREDENTIALS_SECTION_TITLE = 'Credentials';
 const BUCKET_SECTION_TITLE = 'Buckets';
 const CONFIGURATION_SUMMARY_TITLE = (platformName: string) =>
   new RegExp(`Information for the ${platformName} configuration`, 'i');
-const SUMMARY_TITLE = (platformName) => /preparation summary/;
+const SUMMARY_TITLE = (_platformName) => /preparation summary/;
 
 jest.setTimeout(10000);
 const platformName = 'Veeam';
@@ -369,7 +369,7 @@ describe('ISVSummary', () => {
           }),
         };
       });
-      mockComponent.mockImplementation(() => <button>Download</button>);
+      mockComponent.mockImplementation(() => <button type="button">Download</button>);
     });
     it('should render the ISVSummary with certificate download button with artesca', async () => {
       useDeployedApps.mockImplementation(() => {

@@ -1,20 +1,20 @@
-import { Fragment, useState } from 'react';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { Form, FormSection, Icon, Stack } from '@scality/core-ui';
-import { Box, Button } from '@scality/core-ui/dist/next';
-import { FormProvider, useForm, UseFormReturn } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
+import { Form, FormSection, Icon, Stack } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
+import { Box, Button } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { Fragment, useState } from 'react';
+import { FormProvider, type UseFormReturn, useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router';
+import { DEFAULT_IMMUTABLE_PERIOD_DAYS, VEEAM_OFFICE_365 } from '../constants';
+import type { FormData, ISVPlatform } from '../engine/types';
+import { getCapacityBytes } from '../hooks/useCapacityUnit';
+import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
+import { FormRenderer } from './FormRenderer';
+import { ISVFormProvider, useISVFormContext } from './ISVFormContext';
+import { ISVSkipModal } from './ISVSkipModal';
 import { useISVStepper } from './ISVStepperContext';
 import { ISVStepsIndexes } from './ISVSteps';
-import { ISVSkipModal } from './ISVSkipModal';
-import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
-import { DEFAULT_IMMUTABLE_PERIOD_DAYS, VEEAM_OFFICE_365 } from '../constants';
-import { getCapacityBytes } from '../hooks/useCapacityUnit';
-import { FormRenderer } from './FormRenderer';
-import { FormData, ISVPlatform } from '../engine/types';
-import { ISVFormProvider, useISVFormContext } from './ISVFormContext';
-import { useSearchParams } from 'react-router';
 
 type ISVConfigurationInnerProps = {
   formMethods: UseFormReturn<FormData>;
@@ -41,10 +41,7 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
       platform,
       buckets: data.buckets.map((bucket) => ({
         ...bucket,
-        capacityBytes: getCapacityBytes(
-          bucket.capacity?.toString() || '0',
-          bucket.capacityUnit || 'TiB',
-        ),
+        capacityBytes: getCapacityBytes(bucket.capacity?.toString() || '0', bucket.capacityUnit || 'TiB'),
       })),
       enableImmutableBackup: !!data.enableImmutableBackup,
       account: selectedAccount,
@@ -52,21 +49,16 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
     });
   };
 
-  const [
-    skipConfirmationModalIsDisplayed,
-    setSkipConfirmationModalIsDisplayed,
-  ] = useState<boolean>(false);
+  const [skipConfirmationModalIsDisplayed, setSkipConfirmationModalIsDisplayed] = useState<boolean>(false);
 
   return (
     <FormProvider {...formMethods}>
       <ISVSkipModal
         isOpen={skipConfirmationModalIsDisplayed}
         close={() => setSkipConfirmationModalIsDisplayed(false)}
-        exitAction={() =>
-          navigate(`${paramsAccountName ? '/buckets' : '/accounts'}`)
-        }
+        exitAction={() => navigate(`${paramsAccountName ? '/buckets' : '/accounts'}`)}
         title={`Exit ${platform.name} assistant?`}
-        modalContent={<>{platform.skipModalContent}</>}
+        modalContent={platform.skipModalContent}
       />
       <Form
         onSubmit={handleSubmit(onSubmit)}
@@ -96,15 +88,9 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
         }
       >
         <FormSection forceLabelWidth={280}>
-          {platform.description && (
-            <Box style={{ paddingBottom: '1rem' }}>{platform.description}</Box>
-          )}
+          {platform.description && <Box style={{ paddingBottom: '1rem' }}>{platform.description}</Box>}
 
-          <FormRenderer
-            fields={platform.fields}
-            formMethods={formMethods}
-            context={{ platform: platform.id }}
-          />
+          <FormRenderer fields={platform.fields} formMethods={formMethods} context={{ platform: platform.id }} />
         </FormSection>
       </Form>
     </FormProvider>
@@ -157,11 +143,7 @@ export const ISVConfiguration = () => {
 
   const formMethods = useForm<FormData>({
     mode: 'all',
-    defaultValues: getDefaultFormValues(
-      platform,
-      paramsAccountName,
-      isVeeamVBROnly,
-    ),
+    defaultValues: getDefaultFormValues(platform, paramsAccountName, isVeeamVBROnly),
     resolver: joiResolver(platform.validator),
     shouldUnregister: false,
   });

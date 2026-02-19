@@ -1,18 +1,10 @@
-import {
-  Banner,
-  FormGroup,
-  Icon,
-  Stack,
-  Text,
-  useToast,
-} from '@scality/core-ui';
+import { Banner, FormGroup, Icon, Stack, Text, useToast } from '@scality/core-ui';
 import { Box, Button, Input } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import { useVeeamCredentialManagement } from '../../contexts/VeeamCredentialContext';
 
 const VeeamCredentialFieldsForm = () => {
-  const { changeCredentialsMutation, newCredentialsStatus } =
-    useVeeamCredentialManagement();
+  const { changeCredentialsMutation, newCredentialsStatus } = useVeeamCredentialManagement();
   const { showToast } = useToast();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -45,16 +37,11 @@ const VeeamCredentialFieldsForm = () => {
 
   return (
     <Stack gap="r16" direction="vertical">
-      <Banner
-        variant="warning"
-        icon={<Icon name="Exclamation-circle" />}
-        title="Veeam Credentials required"
-      >
-        To automatically create the repository, ARTESCA needs credentials for a
-        Veeam Backup Administrator.
+      <Banner variant="warning" icon={<Icon name="Exclamation-circle" />} title="Veeam Credentials required">
+        To automatically create the repository, ARTESCA needs credentials for a Veeam Backup Administrator.
         <br />
-        You can skip this by disabling the repository automatic creation, but
-        you will need to configure the repository in Veeam yourself.
+        You can skip this by disabling the repository automatic creation, but you will need to configure the repository
+        in Veeam yourself.
       </Banner>
 
       <FormGroup
@@ -90,13 +77,7 @@ const VeeamCredentialFieldsForm = () => {
         }
       />
 
-      <Box
-        display="flex"
-        alignItems="baseline"
-        flexDirection="row"
-        gap="32"
-        justifyContent="flex-end"
-      >
+      <Box display="flex" alignItems="baseline" flexDirection="row" gap="32" justifyContent="flex-end">
         <Stack direction="horizontal">
           <Text variant="Smaller" color="textSecondary" isGentleEmphazed>
             Note: Verification may take up to a minute to complete.

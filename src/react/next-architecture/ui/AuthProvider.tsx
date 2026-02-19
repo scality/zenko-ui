@@ -1,6 +1,6 @@
-import { createContext } from 'react';
-import { AuthUser } from '../../../types/auth';
 import { useShellHooks } from '@scality/module-federation';
+import { createContext } from 'react';
+import type { AuthUser } from '../../../types/auth';
 
 //exported for testing purposes only
 // TO BE DELETED
@@ -22,10 +22,7 @@ export function useInstanceId() {
 
   const instanceIds = user?.userData?.original?.profile?.instanceIds;
 
-  if (
-    !instanceIds ||
-    (Array.isArray(instanceIds) && instanceIds.length === 0)
-  ) {
+  if (!instanceIds || (Array.isArray(instanceIds) && instanceIds.length === 0)) {
     return '';
   }
 

@@ -1,15 +1,12 @@
-import { AccountInfo, Role } from '../../domain/entities/account';
-import { PromiseResult } from '../../domain/entities/promise';
-import { IAccessibleAccounts } from './IAccessibleAccounts';
-import {
-  ACCOUNT,
-  NEWLY_CREATED_ACCOUNT,
-} from '../../../../js/mock/managementClientMSWHandlers';
+import { ACCOUNT, NEWLY_CREATED_ACCOUNT } from '../../../../js/mock/managementClientMSWHandlers';
 import { STORAGE_ACCOUNT_OWNER_ROLE } from '../../../utils/hooks';
+import type { AccountInfo, Role } from '../../domain/entities/account';
+import type { PromiseResult } from '../../domain/entities/promise';
+import type { IAccessibleAccounts } from './IAccessibleAccounts';
 
 export const DEFAULT_ASSUMABLE_ROLES = [
   {
-    Arn: 'arn:aws:iam::123456789012:role/' + STORAGE_ACCOUNT_OWNER_ROLE,
+    Arn: `arn:aws:iam::123456789012:role/${STORAGE_ACCOUNT_OWNER_ROLE}`,
     Name: STORAGE_ACCOUNT_OWNER_ROLE,
   },
 ];
@@ -20,7 +17,7 @@ export const ACCESSIBLE_ACCOUNTS_EXAMPLE = [
     ...ACCOUNT,
     assumableRoles: [
       {
-        Arn: 'arn:aws:iam::123456789012:role/' + STORAGE_ACCOUNT_OWNER_ROLE,
+        Arn: `arn:aws:iam::123456789012:role/${STORAGE_ACCOUNT_OWNER_ROLE}`,
         Name: STORAGE_ACCOUNT_OWNER_ROLE,
       },
     ],
@@ -29,7 +26,7 @@ export const ACCESSIBLE_ACCOUNTS_EXAMPLE = [
     ...NEWLY_CREATED_ACCOUNT,
     assumableRoles: [
       {
-        Arn: 'arn:aws:iam::123456789012:role/' + STORAGE_ACCOUNT_OWNER_ROLE,
+        Arn: `arn:aws:iam::123456789012:role/${STORAGE_ACCOUNT_OWNER_ROLE}`,
         Name: STORAGE_ACCOUNT_OWNER_ROLE,
       },
     ],

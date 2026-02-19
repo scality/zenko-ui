@@ -7,8 +7,8 @@
 
 import { useMemo } from 'react';
 import { useAssumedRole } from '../../DataServiceRoleProvider';
-import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { DEFAULT_REGION } from '../../ISV/components/ISVSummary';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { genClientEndpoint } from '../../utils';
 
 export const useDataBrowserS3Config = () => {
@@ -42,15 +42,7 @@ export const useDataBrowserS3Config = () => {
         sessionToken,
       },
     });
-  }, [
-    zenkoEndpoint,
-    region,
-    features,
-    s3InternalFQDN,
-    accessKeyId,
-    secretAccessKey,
-    sessionToken,
-  ]);
+  }, [zenkoEndpoint, region, features, s3InternalFQDN, accessKeyId, secretAccessKey, sessionToken]);
 
   return {
     getS3Config,

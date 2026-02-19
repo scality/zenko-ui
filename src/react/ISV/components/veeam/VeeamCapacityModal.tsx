@@ -1,30 +1,15 @@
-import Joi from 'joi';
 import { joiResolver } from '@hookform/resolvers/joi';
-import {
-  Icon,
-  Loader,
-  Modal,
-  Stack,
-  ToastProvider,
-  Wrap,
-  useToast,
-} from '@scality/core-ui';
+import { Icon, Loader, Modal, Stack, ToastProvider, useToast, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { usePutObject } from '@scality/data-browser-library';
+import Joi from 'joi';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { usePutObject } from '@scality/data-browser-library';
 
-import {
-  GET_CAPACITY_XML_CONTENT,
-  VEEAM_OBJECT_KEY,
-} from '../../constants';
-import {
-  getCapacityBytes,
-  useCapacityUnit,
-} from '../../hooks/useCapacityUnit';
-
-import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
+import { GET_CAPACITY_XML_CONTENT, VEEAM_OBJECT_KEY } from '../../constants';
 import { checkDecimals } from '../../engine/validators';
+import { getCapacityBytes, useCapacityUnit } from '../../hooks/useCapacityUnit';
+import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
 
 const schema = Joi.object({
   capacity: Joi.number()
@@ -48,11 +33,7 @@ type VeeamCapacityForm = {
   capacityUnit: string;
 };
 
-export const VeeamCapacityModalInternal = ({
-  bucketName,
-  maxCapacity,
-  status,
-}: VeeamCapacityModalProps) => {
+export const VeeamCapacityModalInternal = ({ bucketName, maxCapacity, status }: VeeamCapacityModalProps) => {
   const { capacityValue, capacityUnit } = useCapacityUnit(maxCapacity);
   const methods = useForm<VeeamCapacityForm>({
     mode: 'all',
@@ -76,9 +57,7 @@ export const VeeamCapacityModalInternal = ({
       {
         Bucket: bucketName,
         Key: VEEAM_OBJECT_KEY,
-        Body: GET_CAPACITY_XML_CONTENT(
-          getCapacityBytes(capacity, capacityUnit),
-        ),
+        Body: GET_CAPACITY_XML_CONTENT(getCapacityBytes(capacity, capacityUnit)),
         ContentType: 'text/xml',
       },
       {
@@ -94,9 +73,7 @@ export const VeeamCapacityModalInternal = ({
           showToast({
             open: true,
             status: 'error',
-            message: `Failed to update repository capacity: ${
-              err instanceof Error ? err.message : 'Unknown error'
-            }`,
+            message: `Failed to update repository capacity: ${err instanceof Error ? err.message : 'Unknown error'}`,
           });
         },
       },
@@ -105,65 +82,49 @@ export const VeeamCapacityModalInternal = ({
 
   return (
     <FormProvider {...methods}>
-      <>
-        <Button
-          type="button"
-          variant="outline"
-          label="Edit"
-          aria-label="Edit max capacity"
-          icon={
-            status === 'loading' ? (
-              <Loader size="larger" />
-            ) : (
-              <Icon name="Pencil" />
-            )
-          }
-          onClick={() => setIsCapacityModalOpen(true)}
-          disabled={status === 'loading'}
-        />
-        <Modal
-          close={() => setIsCapacityModalOpen(false)}
-          isOpen={isCapacityModalOpen}
-          title="Edit max repository capacity"
-          footer={
-            <Wrap>
-              <p></p>
-              <Stack>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsCapacityModalOpen(false)}
-                  label="Cancel"
-                />
-                <Button
-                  form="capacity-form"
-                  type="submit"
-                  variant="primary"
-                  aria-label="Update max capacity"
-                  onClick={handleSubmit(onSubmit)}
-                  label="Confirm"
-                  disabled={
-                    !isValid ||
-                    (capacityValue === watch('capacity') &&
-                      capacityUnit === watch('capacityUnit'))
-                  }
-                />
-              </Stack>
-            </Wrap>
-          }
+      <Button
+        type="button"
+        variant="outline"
+        label="Edit"
+        aria-label="Edit max capacity"
+        icon={status === 'loading' ? <Loader size="larger" /> : <Icon name="Pencil" />}
+        onClick={() => setIsCapacityModalOpen(true)}
+        disabled={status === 'loading'}
+      />
+      <Modal
+        close={() => setIsCapacityModalOpen(false)}
+        isOpen={isCapacityModalOpen}
+        title="Edit max repository capacity"
+        footer={
+          <Wrap>
+            <p></p>
+            <Stack>
+              <Button variant="outline" onClick={() => setIsCapacityModalOpen(false)} label="Cancel" />
+              <Button
+                form="capacity-form"
+                type="submit"
+                variant="primary"
+                aria-label="Update max capacity"
+                onClick={handleSubmit(onSubmit)}
+                label="Confirm"
+                disabled={!isValid || (capacityValue === watch('capacity') && capacityUnit === watch('capacityUnit'))}
+              />
+            </Stack>
+          </Wrap>
+        }
+      >
+        <form
+          id="capacity-form"
+          onSubmit={handleSubmit(onSubmit)}
+          style={{
+            paddingTop: '0.5rem',
+            paddingBottom: '0.5rem',
+            width: '40rem',
+          }}
         >
-          <form
-            id="capacity-form"
-            onSubmit={handleSubmit(onSubmit)}
-            style={{
-              paddingTop: '0.5rem',
-              paddingBottom: '0.5rem',
-              width: '40rem',
-            }}
-          >
-            <VeeamCapacityFormSection autoFocusEnabled={isCapacityModalOpen} />
-          </form>
-        </Modal>
-      </>
+          <VeeamCapacityFormSection autoFocusEnabled={isCapacityModalOpen} />
+        </form>
+      </Modal>
     </FormProvider>
   );
 };

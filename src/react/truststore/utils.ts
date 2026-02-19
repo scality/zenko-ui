@@ -1,5 +1,5 @@
+import type { ParsedCertificate } from '@scality/certchain';
 import { getDateDaysDiff } from '@scality/core-ui';
-import { ParsedCertificate } from '@scality/certchain';
 
 const formatNumberToInternationalString = (number: number): string => {
   return Intl.NumberFormat('fr-FR').format(number);
@@ -14,8 +14,7 @@ export function formatExpiryDate(expiresOn: Date): {
 } {
   const now = new Date();
   const diffInDays = getDateDaysDiff(now, expiresOn, 'days');
-  const diffInDaysInternationalString =
-    formatNumberToInternationalString(diffInDays);
+  const diffInDaysInternationalString = formatNumberToInternationalString(diffInDays);
   const shortFormat = Intl.DateTimeFormat('fr-CA', {
     year: 'numeric',
     month: '2-digit',
@@ -45,8 +44,7 @@ export function formatExpiryDate(expiresOn: Date): {
     prefix = `In ${diffInDaysInternationalString} day - `;
     status = 'warning';
   } else if (diffInDays === 0) {
-    prefix =
-      now < expiresOn ? `Expiration date is today - ` : 'Expired today - ';
+    prefix = now < expiresOn ? `Expiration date is today - ` : 'Expired today - ';
     status = 'critical';
   } else if (diffInDays === -1) {
     prefix = `Expired 1 day ago - `;
@@ -54,9 +52,7 @@ export function formatExpiryDate(expiresOn: Date): {
   } else {
     // diffInDays < -1
     const absoluteDiff = Math.abs(diffInDays);
-    prefix = `Expired ${formatNumberToInternationalString(
-      absoluteDiff,
-    )} days ago - `;
+    prefix = `Expired ${formatNumberToInternationalString(absoluteDiff)} days ago - `;
     status = 'critical';
   }
 
@@ -69,17 +65,13 @@ export function formatExpiryDate(expiresOn: Date): {
   };
 }
 
-export function downloadCertificate(
-  certificate: ParsedCertificate & { originalPEM?: string },
-): void {
+export function downloadCertificate(certificate: ParsedCertificate & { originalPEM?: string }): void {
   if (!certificate.originalPEM) {
     console.error('Original PEM not available for download');
     return;
   }
 
-  const filename = `${
-    certificate.commonName || certificate.name || 'certificate'
-  }.pem`;
+  const filename = `${certificate.commonName || certificate.name || 'certificate'}.pem`;
   const blob = new Blob([certificate.originalPEM], {
     type: 'application/x-pem-file',
   });

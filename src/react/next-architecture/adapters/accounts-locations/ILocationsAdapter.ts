@@ -1,7 +1,4 @@
-import {
-  LocationV1,
-  Locationv1Details,
-} from '../../../../js/managementClient/api';
+import type { LocationV1, Locationv1Details } from '../../../../js/managementClient/api';
 
 export type LocationInfo = {
   id: string;

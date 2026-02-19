@@ -1,13 +1,9 @@
-import { screen, waitFor, render } from '@testing-library/react';
-import { FormProvider, useForm } from 'react-hook-form';
-import {
-  CapacityFormSection,
-  CapacityFormWithXcore,
-} from '../ISVCapacityFormSection';
-import { Wrapper } from '../../../utils/testUtil';
+import { render, screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Wrapper } from '../../../utils/testUtil';
 import { useCapacityUnit } from '../../hooks/useCapacityUnit';
-import { unitChoices } from '../../constants';
+import { CapacityFormSection, CapacityFormWithXcore } from '../ISVCapacityFormSection';
 
 jest.mock('@scality/module-federation', () => ({
   useShellHooks: jest.fn(() => ({
@@ -38,6 +34,7 @@ jest.mock('@scality/core-ui', () => ({
   ...jest.requireActual('@scality/core-ui'),
   FormGroup: ({ id, label, content, error, children, labelHelpTooltip }) => (
     <div data-testid={`form-group-${id}`}>
+      {/* biome-ignore lint/a11y/noLabelWithoutControl: test mock */}
       <label>{label}</label>
       {labelHelpTooltip && <div data-testid="tooltip">{labelHelpTooltip}</div>}
       {content || children}
@@ -69,9 +66,7 @@ describe('CapacityFormSection', () => {
       </Wrapper>,
     );
 
-    expect(
-      screen.getByText('Max Veeam Repository Capacity'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Max Veeam Repository Capacity')).toBeInTheDocument();
 
     const capacityInput = screen.getByRole('spinbutton');
     expect(capacityInput).toBeInTheDocument();
@@ -129,11 +124,7 @@ describe('CapacityFormWithXcore', () => {
             form.setValue = setValueMock;
             return (
               <FormProvider {...form}>
-                <CapacityFormWithXcore
-                  useClusterCapacity={mockUseClusterCapacity}
-                  index={0}
-                  bucketNumber={1}
-                />
+                <CapacityFormWithXcore useClusterCapacity={mockUseClusterCapacity} index={0} bucketNumber={1} />
               </FormProvider>
             );
           })}
@@ -143,10 +134,7 @@ describe('CapacityFormWithXcore', () => {
 
     await waitFor(() => {
       expect(setValueMock).toHaveBeenCalledWith('buckets.0.capacity', '80');
-      expect(setValueMock).toHaveBeenCalledWith(
-        'buckets.0.capacityUnit',
-        'TiB',
-      );
+      expect(setValueMock).toHaveBeenCalledWith('buckets.0.capacityUnit', 'TiB');
     });
 
     expect(mockUseClusterCapacity).toHaveBeenCalledWith(
@@ -168,18 +156,12 @@ describe('CapacityFormWithXcore', () => {
     render(
       <Wrapper>
         <FormWrapper>
-          <CapacityFormWithXcore
-            useClusterCapacity={mockUseClusterCapacity}
-            index={0}
-            bucketNumber={1}
-          />
+          <CapacityFormWithXcore useClusterCapacity={mockUseClusterCapacity} index={0} bucketNumber={1} />
         </FormWrapper>
       </Wrapper>,
     );
 
-    expect(
-      screen.getByText('Max Veeam Repository Capacity'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Max Veeam Repository Capacity')).toBeInTheDocument();
   });
 
   it('handles error state correctly', () => {
@@ -191,18 +173,12 @@ describe('CapacityFormWithXcore', () => {
     render(
       <Wrapper>
         <FormWrapper>
-          <CapacityFormWithXcore
-            useClusterCapacity={mockUseClusterCapacity}
-            index={0}
-            bucketNumber={1}
-          />
+          <CapacityFormWithXcore useClusterCapacity={mockUseClusterCapacity} index={0} bucketNumber={1} />
         </FormWrapper>
       </Wrapper>,
     );
 
-    expect(
-      screen.getByText('Max Veeam Repository Capacity'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Max Veeam Repository Capacity')).toBeInTheDocument();
   });
 
   it('does not set form values when capacity status is not success', async () => {
@@ -221,11 +197,7 @@ describe('CapacityFormWithXcore', () => {
             form.setValue = setValueMock;
             return (
               <FormProvider {...form}>
-                <CapacityFormWithXcore
-                  useClusterCapacity={mockUseClusterCapacity}
-                  index={0}
-                  bucketNumber={1}
-                />
+                <CapacityFormWithXcore useClusterCapacity={mockUseClusterCapacity} index={0} bucketNumber={1} />
               </FormProvider>
             );
           })}
@@ -272,10 +244,7 @@ describe('CapacityFormWithXcore', () => {
 
     await waitFor(() => {
       expect(setValueMock).toHaveBeenCalledWith('buckets.0.capacity', '20');
-      expect(setValueMock).toHaveBeenCalledWith(
-        'buckets.0.capacityUnit',
-        'TiB',
-      );
+      expect(setValueMock).toHaveBeenCalledWith('buckets.0.capacityUnit', 'TiB');
     });
   });
 });

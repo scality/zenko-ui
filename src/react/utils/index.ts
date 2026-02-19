@@ -44,17 +44,9 @@ export const initializeAWSSigner = ({
       request.endpoint.href = `https://${iamInternalFQDN}`;
     }
 
-    const originalV4Signer = new OriginalV4Signer(
-      request,
-      serviceName,
-      options,
-    );
-    originalV4Signer.originalAddAuthorization =
-      originalV4Signer.addAuthorization;
-    originalV4Signer.addAuthorization = function addAuthorization(
-      credentials: AWS.Credentials,
-      date: Date,
-    ) {
+    const originalV4Signer = new OriginalV4Signer(request, serviceName, options);
+    originalV4Signer.originalAddAuthorization = originalV4Signer.addAuthorization;
+    originalV4Signer.addAuthorization = function addAuthorization(credentials: AWS.Credentials, date: Date) {
       const result = this.originalAddAuthorization(credentials, date);
 
       if (!this.isPresigned()) {
@@ -112,7 +104,7 @@ export const METADATA_SYSTEM_TYPE = 'system';
 export function errorParser(error) {
   let message = '';
 
-  if (error.response && error.response.body && error.response.body.message) {
+  if (error.response?.body?.message) {
     message = error.response.body.message;
   } else if (error.status === 401) {
     message = 'The request is missing valid authentication credentials.';
@@ -140,19 +132,10 @@ export function formatDate(d) {
 export function formatSimpleDate(d) {
   return d.toISOString().split('T')[0];
 }
-export const stripTrailingSlash = (name) =>
-  name.slice(-1) === '/' ? name.slice(0, -1) : name;
-export const addTrailingSlash = (name) =>
-  name ? (name.slice(-1) !== '/' ? `${name}/` : name) : '';
-export const maybePluralize = (
-  count,
-  noun,
-  suffix = 's',
-  displayCount = true,
-) =>
-  displayCount
-    ? `${count} ${noun}${count > 1 ? suffix : ''}`
-    : `${noun}${count > 1 ? suffix : ''}`;
+export const stripTrailingSlash = (name) => (name.slice(-1) === '/' ? name.slice(0, -1) : name);
+export const addTrailingSlash = (name) => (name ? (name.slice(-1) !== '/' ? `${name}/` : name) : '');
+export const maybePluralize = (count, noun, suffix = 's', displayCount = true) =>
+  displayCount ? `${count} ${noun}${count > 1 ? suffix : ''}` : `${noun}${count > 1 ? suffix : ''}`;
 export function stripQuotes(s) {
   if (s.startsWith('"') && s.endsWith('"')) {
     return s.slice(1, -1);
@@ -164,9 +147,7 @@ export const isEmptyItem = (item) => item.key === '' && item.value === '';
 export const isVersioning = (type) => type === 'Enabled';
 
 export const genClientEndpoint = (endpoint: string) => {
-  const fullURLEndpoint = endpoint.startsWith('http')
-    ? endpoint
-    : window.location.origin + endpoint;
+  const fullURLEndpoint = endpoint.startsWith('http') ? endpoint : window.location.origin + endpoint;
 
   return fullURLEndpoint;
 };

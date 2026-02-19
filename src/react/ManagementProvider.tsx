@@ -1,5 +1,5 @@
-import { createContext, useContext, useMemo, JSX } from 'react';
-import makeMgtClient, { UiFacingApiWrapper } from '../js/managementClient';
+import { createContext, type JSX, useContext, useMemo } from 'react';
+import makeMgtClient, { type UiFacingApiWrapper } from '../js/managementClient';
 import { useAccessToken } from './next-architecture/ui/AuthProvider';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 
@@ -12,9 +12,7 @@ export const useManagementClient = () => {
   const ManagementCtxt = useContext(_ManagementContext);
 
   if (!ManagementCtxt) {
-    throw new Error(
-      'The useManagementClient hook can only be used within ManagementProvider.',
-    );
+    throw new Error('The useManagementClient hook can only be used within ManagementProvider.');
   }
 
   return ManagementCtxt.managementClient;
@@ -31,7 +29,7 @@ const ManagementProvider = ({ children }: { children: JSX.Element }) => {
       return managementClient;
     }
     return null;
-  }, [token]);
+  }, [token, managementEndpoint]);
 
   return (
     <_ManagementContext.Provider

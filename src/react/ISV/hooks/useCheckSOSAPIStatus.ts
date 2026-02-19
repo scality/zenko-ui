@@ -1,5 +1,4 @@
-import { useDeployedMetalk8sInstances } from '../../next-architecture/ui/ConfigProvider';
-import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { useConfig, useDeployedMetalk8sInstances } from '../../next-architecture/ui/ConfigProvider';
 import { useAuthGroups } from '../../utils/hooks';
 
 type SOSAPIStatus = 'activated' | 'available' | 'unauthorized' | 'wrongAccess';

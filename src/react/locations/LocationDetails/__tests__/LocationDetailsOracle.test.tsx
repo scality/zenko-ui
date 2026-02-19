@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ORACLE_CLOUD_LOCATION_KEY } from '../../../../types/config';
 import { Wrapper } from '../../../utils/testUtil';
 import LocationDetailsOracle, { SECRET_KEY_PLACEHOLDER } from '../LocationDetailsOracle';
-import { ORACLE_CLOUD_LOCATION_KEY } from '../../../../types/config';
 
 const selectors = {
   namespaceSelector: () => screen.getByRole('textbox', { name: /Namespace/ }),
@@ -28,7 +28,8 @@ describe('LocationDetailsOracle', () => {
     };
     let location = {};
     render(
-      //@ts-ignore
+      //@ts-expect-error
+      // biome-ignore lint/suspicious/noAssignInExpressions: test re-render pattern
       <LocationDetailsOracle {...props} onChange={(l) => (location = l)} />,
       { wrapper: Wrapper },
     );
@@ -62,7 +63,9 @@ describe('LocationDetailsOracle', () => {
       locationType: ORACLE_CLOUD_LOCATION_KEY,
     };
     render(
-      //@ts-ignore
+      //@ts-expect-error
+      // biome-ignore lint/suspicious/noAssignInExpressions: test re-render pattern
+      // biome-ignore lint/suspicious/noGlobalAssign: test environment setup
       <LocationDetailsOracle {...editProps} onChange={(l) => (location = l)} />,
       { wrapper: Wrapper },
     );

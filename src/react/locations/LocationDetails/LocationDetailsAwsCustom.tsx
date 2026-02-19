@@ -1,20 +1,14 @@
-import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
-import React, { useEffect, useState } from 'react';
-import { LocationDetailsFormProps } from '.';
-import { XDM_FEATURE } from '../../../js/config';
-import { HelpLocationCreationAsyncNotification } from '../../ui-elements/Help';
-import { isIngestSource } from '../../utils/storageOptions';
-import { storageOptions } from './storageOptions';
-
-import {
-  FormGroup,
-  FormSection,
-} from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Form.component';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import { Box } from '@scality/core-ui/dist/next';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { XDM_FEATURE } from '../../../js/config';
 import {
   JAGUAR_S3_ENDPOINT,
   JAGUAR_S3_LOCATION_KEY,
-  LocationTypeKey,
+  type LocationTypeKey,
   ORANGE_S3_ENDPOINT,
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_ENDPOINT,
@@ -23,10 +17,13 @@ import {
   OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../../types/config';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
-import { checkIsRingS3Reseller } from '../utils';
-import { Box } from '@scality/core-ui/dist/next';
-import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
+import { HelpLocationCreationAsyncNotification } from '../../ui-elements/Help';
+import { isIngestSource } from '../../utils/storageOptions';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import { checkIsRingS3Reseller } from '../utils';
+import type { LocationDetailsFormProps } from '.';
+import { storageOptions } from './storageOptions';
 
 const computeInitialEndpoint = (locationType: LocationTypeKey) => {
   if (locationType === JAGUAR_S3_LOCATION_KEY) {
@@ -65,13 +62,7 @@ export default function LocationDetailsAwsCustom({
 }: LocationDetailsFormProps) {
   const [formState, setFormState] = useState<State>(() => {
     return {
-      ...Object.assign(
-        {},
-        INIT_STATE,
-        details,
-        computeInitialEndpoint(locationType),
-        { secretKey: '' },
-      ),
+      ...Object.assign({}, INIT_STATE, details, computeInitialEndpoint(locationType), { secretKey: '' }),
     };
   });
 
@@ -88,7 +79,7 @@ export default function LocationDetailsAwsCustom({
   //TODO check why the tests expect onChange to be called on mount
   useEffect(() => {
     onChange(formState);
-  }, []);
+  }, [formState, onChange]);
   const isIngest = isIngestSource(storageOptions, locationType, capabilities);
   const { features } = useConfig();
   const isRingS3Reseller = checkIsRingS3Reseller(locationType);
@@ -204,8 +195,7 @@ export default function LocationDetailsAwsCustom({
                 label={
                   isIngest ? (
                     <>
-                      Async Metadata updates Ready{' '}
-                      <HelpLocationCreationAsyncNotification />{' '}
+                      Async Metadata updates Ready <HelpLocationCreationAsyncNotification />{' '}
                     </>
                   ) : (
                     'Write objects without prefix'

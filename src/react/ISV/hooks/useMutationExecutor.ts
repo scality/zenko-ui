@@ -5,47 +5,30 @@
  * by useChainedMutations (MutationConfig[] + VariablesResolvers).
  */
 
+import { useCreateBucket, usePutObject, useSetBucketTagging } from '@scality/data-browser-library';
+import type {
+  DynamicMutationConfig,
+  MutationConfig,
+  StaticMutationConfig,
+  VariablesResolvers,
+} from '@scality/react-chained-query';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useMutation } from 'react-query';
 import {
-  VariablesResolvers,
-} from '@scality/react-chained-query';
-import type {
-  MutationConfig,
-  StaticMutationConfig,
-  DynamicMutationConfig,
-} from '@scality/react-chained-query';
-import {
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
   useCreateIAMUserMutation,
-  useCreateUserAccessKeyMutation,
   useCreateOrAddBucketToPolicyMutation,
+  useCreateUserAccessKeyMutation,
   useEnableSOSAPIMutation,
 } from '../../../js/mutations';
-import {
-  useCreateBucket,
-  useSetBucketTagging,
-  usePutObject,
-} from '@scality/data-browser-library';
+import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
-import type {
-  ISVPlatform,
-  FormData,
-  FullContext,
-  MutationDef,
-  SingleMutationDef,
-  ActionName,
-  SOSAPIStatus,
-} from '../engine/types';
-import {
-  isLoopMutation,
-  expandLoopMutation,
-} from '../engine/builders/buildMutations';
+import { expandLoopMutation, isLoopMutation } from '../engine/builders/buildMutations';
+import type { ActionName, FormData, FullContext, ISVPlatform, SingleMutationDef, SOSAPIStatus } from '../engine/types';
 import { useCreateVeeamRepository } from './useCreateVeeamRepository';
 
 /**
@@ -53,10 +36,9 @@ import { useCreateVeeamRepository } from './useCreateVeeamRepository';
  */
 const useRefetchConfig = () => {
   const adapter = useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter: adapter,
-    });
+  const { refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter: adapter,
+  });
   return refetchAccountsLocationsEndpointsMutation;
 };
 
@@ -101,7 +83,7 @@ export function useMutationExecutor({
   context,
 }: UseMutationExecutorOptions): UseMutationExecutorResult {
   // Get instanceId for createAccount mutation
-  const instanceId = useInstanceId();
+  const _instanceId = useInstanceId();
 
   // Initialize all mutation hooks
   const enableSOSAPIMutation = useEnableSOSAPIMutation();
@@ -115,9 +97,7 @@ export function useMutationExecutor({
   const createVeeamRepositoryMutation = useCreateVeeamRepository();
 
   // Action to mutation/hook mapping
-  type ActionMutationConfig =
-    | Omit<StaticMutationConfig, 'id' | 'label'>
-    | Omit<DynamicMutationConfig, 'id' | 'label'>;
+  type ActionMutationConfig = Omit<StaticMutationConfig, 'id' | 'label'> | Omit<DynamicMutationConfig, 'id' | 'label'>;
   const actionMutationMap: Record<ActionName, ActionMutationConfig> = useMemo(
     () => ({
       enableSOSAPI: { mutation: enableSOSAPIMutation },
@@ -142,6 +122,7 @@ export function useMutationExecutor({
       createUserAccessKeyMutation,
       createPolicyMutation,
       attachPolicyToUserMutation,
+      createVeeamRepositoryMutation,
     ],
   );
 
@@ -185,10 +166,7 @@ export function useMutationExecutor({
       }
 
       // Resolve dynamic label
-      const label =
-        typeof def.label === 'function'
-          ? def.label(formData, context)
-          : def.label;
+      const label = typeof def.label === 'function' ? def.label(formData, context) : def.label;
 
       // Build MutationConfig - spread the action config (mutation or hook)
       mutationConfigs.push({
@@ -199,15 +177,12 @@ export function useMutationExecutor({
       } as MutationConfig);
 
       // Build variable resolver
-      variableResolvers[def.id] = (prev) =>
-        def.variables(formData, prev, context);
+      variableResolvers[def.id] = (prev) => def.variables(formData, prev, context);
 
       // Resolve failure message for optional steps
       if (def.optional && def.failureMessage) {
         resolvedFailureMessages[def.id] =
-          typeof def.failureMessage === 'function'
-            ? def.failureMessage(formData, context)
-            : def.failureMessage;
+          typeof def.failureMessage === 'function' ? def.failureMessage(formData, context) : def.failureMessage;
       }
     }
 
@@ -233,20 +208,11 @@ export function buildRuntimeContext(params: {
   instanceId: string;
   s3ServicePoint?: string;
 }): FullContext {
-  const {
-    platform,
-    account,
-    IAMUserNameType,
-    generateKey,
-    sosApiStatus,
-    instanceId,
-    s3ServicePoint,
-  } = params;
+  const { platform, account, IAMUserNameType, generateKey, sosApiStatus, instanceId, s3ServicePoint } = params;
 
   const isNewAccount = !account;
   const needsIAMUser = isNewAccount || IAMUserNameType === 'create';
-  const needsAccessKey =
-    needsIAMUser || (IAMUserNameType === 'existing' && !!generateKey);
+  const needsAccessKey = needsIAMUser || (IAMUserNameType === 'existing' && !!generateKey);
 
   return {
     _sosApiStatus: sosApiStatus,

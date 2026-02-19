@@ -1,7 +1,4 @@
-import {
-  useBuckets,
-  useGetBucketLocation,
-} from '@scality/data-browser-library';
+import { useBuckets, useGetBucketLocation } from '@scality/data-browser-library';
 import { memo } from 'react';
 
 /**

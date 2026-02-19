@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useNextLogin } from './useNextLogin';
-import { NewWrapper } from '../../utils/testUtil';
 import { getSessionState } from '../../utils/localStorage';
+import { NewWrapper } from '../../utils/testUtil';
+import { useNextLogin } from './useNextLogin';
 
 jest.mock('../../utils/localStorage', () => ({
   getSessionState: jest.fn(),

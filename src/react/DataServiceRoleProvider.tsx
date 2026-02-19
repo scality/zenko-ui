@@ -130,7 +130,7 @@ export const useCurrentAccount = () => {
   const params = useParams();
   const accountName = params?.accountName;
   const { roleArn } = useDataServiceRole();
-  const accountId = roleArn ? regexArn.exec(roleArn)?.groups?.['account_id'] : '';
+  const accountId = roleArn ? regexArn.exec(roleArn)?.groups?.account_id : '';
   const { accounts } = useAccounts(noopBasedEventDispatcher);
 
   const account = useMemo(() => {
@@ -139,7 +139,7 @@ export const useCurrentAccount = () => {
       else if (accountId) return account.id === accountId;
       else return true;
     });
-  }, [accountId, JSON.stringify(accounts), accountName]);
+  }, [accountId, accountName, accounts.find]);
 
   return {
     account,
@@ -215,13 +215,13 @@ const DataServiceRoleProvider = ({
     } else if (!storedRole && !role.roleArn && accounts.length) {
       setRoleState({ roleArn: accounts[0].Roles[0].Arn });
     }
-  }, [accounts.length, accountName, role.roleArn]);
+  }, [accounts.length, accountName, role.roleArn, accounts.find, accounts[0].Roles[0].Arn]);
 
   useEffect(() => {
     if (role.roleArn) {
       assumeRoleMutation.mutate(role.roleArn);
     }
-  }, [role.roleArn, userData?.token]);
+  }, [role.roleArn, assumeRoleMutation.mutate]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 

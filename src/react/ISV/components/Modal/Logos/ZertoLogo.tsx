@@ -10,6 +10,7 @@ const ZertoLogo = () => {
         transformOrigin: 'top left',
       }}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <g clip-path="url(#clip0_22803_19770)">
         <path
@@ -35,12 +36,7 @@ const ZertoLogo = () => {
       </g>
       <defs>
         <clipPath id="clip0_22803_19770">
-          <rect
-            width="76"
-            height="22"
-            fill="white"
-            transform="translate(0 0.90625)"
-          />
+          <rect width="76" height="22" fill="white" transform="translate(0 0.90625)" />
         </clipPath>
       </defs>
     </svg>

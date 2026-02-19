@@ -1,9 +1,4 @@
-import {
-  defaultActions,
-  GET_COMMVAULT_POLICY,
-  GET_VEEAM_POLICY,
-  immutableActions,
-} from './ISVPolicy';
+import { defaultActions, GET_COMMVAULT_POLICY, GET_VEEAM_POLICY, immutableActions } from './ISVPolicy';
 
 describe('ISVPolicy', () => {
   const testBuckets = ['test-bucket-1', 'test-bucket-2'];
@@ -21,18 +16,10 @@ describe('ISVPolicy', () => {
       expect(parsedPolicy.Statement[1].Sid).toBe('VisualEditor1');
 
       // Check resources
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[0]}`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[0]}/*`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[1]}`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[1]}/*`,
-      );
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[0]}`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[0]}/*`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[1]}`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[1]}/*`);
     });
 
     it('should generate the correct non-immutable policy', () => {
@@ -47,32 +34,16 @@ describe('ISVPolicy', () => {
       expect(parsedPolicy.Statement[1].Sid).toBe('SecureBucketPolicy1');
 
       // Check resources
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[0]}`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[0]}/*`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[1]}`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[1]}/*`,
-      );
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[0]}`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[0]}/*`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[1]}`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[1]}/*`);
 
       // Check that immutable-specific actions are not included
-      expect(parsedPolicy.Statement[0].Action).not.toContain(
-        's3:PutObjectRetention',
-      );
-      expect(parsedPolicy.Statement[0].Action).not.toContain(
-        's3:PutObjectLegalHold',
-      );
-      expect(parsedPolicy.Statement[0].Action).not.toContain(
-        's3:GetObjectRetention',
-      );
-      expect(parsedPolicy.Statement[0].Action).not.toContain(
-        's3:GetObjectLegalHold',
-      );
+      expect(parsedPolicy.Statement[0].Action).not.toContain('s3:PutObjectRetention');
+      expect(parsedPolicy.Statement[0].Action).not.toContain('s3:PutObjectLegalHold');
+      expect(parsedPolicy.Statement[0].Action).not.toContain('s3:GetObjectRetention');
+      expect(parsedPolicy.Statement[0].Action).not.toContain('s3:GetObjectLegalHold');
     });
   });
 
@@ -89,18 +60,10 @@ describe('ISVPolicy', () => {
       expect(parsedPolicy.Statement[1].Sid).toBeUndefined();
 
       // Check resources
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[0]}`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[0]}/*`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[1]}`,
-      );
-      expect(parsedPolicy.Statement[0].Resource).toContain(
-        `arn:aws:s3:::${testBuckets[1]}/*`,
-      );
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[0]}`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[0]}/*`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[1]}`);
+      expect(parsedPolicy.Statement[0].Resource).toContain(`arn:aws:s3:::${testBuckets[1]}/*`);
     });
   });
 
@@ -125,9 +88,7 @@ describe('ISVPolicy', () => {
 
     it('should include common actions regardless of immutability', () => {
       const immutablePolicy = JSON.parse(GET_VEEAM_POLICY(testBuckets, true));
-      const nonImmutablePolicy = JSON.parse(
-        GET_VEEAM_POLICY(testBuckets, false),
-      );
+      const nonImmutablePolicy = JSON.parse(GET_VEEAM_POLICY(testBuckets, false));
 
       const commonActions = defaultActions;
 

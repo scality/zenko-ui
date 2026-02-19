@@ -1,21 +1,16 @@
 import { Stack, Text } from '@scality/core-ui';
-import { definePlatform, CommvaultValidator } from '../engine';
-import { GET_COMMVAULT_POLICY } from '../utils/ISVPolicy';
-import { CommvaultLogo } from '../components/logos/CommvaultLogo';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
-import {
-  AccountTooltip,
-  BucketNameTooltip,
-  CommvaultWORMTooltip,
-} from '../components/shared/PlatformTooltips';
+import { CommvaultLogo } from '../components/logos/CommvaultLogo';
+import { AccountTooltip, BucketNameTooltip, CommvaultWORMTooltip } from '../components/shared/PlatformTooltips';
+import { CommvaultValidator, definePlatform } from '../engine';
+import { GET_COMMVAULT_POLICY } from '../utils/ISVPolicy';
 
 export const CommvaultPlatform = definePlatform({
   id: 'commvault',
   name: 'Commvault',
   logo: <CommvaultLogo />,
   policy: GET_COMMVAULT_POLICY,
-  documentationLink:
-    '/artesca/docs/partner_applications/backup_and_archives/commvault.html',
+  documentationLink: '/artesca/docs/partner_applications/backup_and_archives/commvault.html',
 
   fieldOverrides: {
     accountName: {
@@ -52,9 +47,8 @@ export const CommvaultPlatform = definePlatform({
 
   skipModalContent: (
     <Text>
-      To start Commvault assistant configuration again, you can go to the{' '}
-      <b>Accounts</b> page or <b>Data Browser</b> page. If the platform doesn't
-      have any accounts, it will also prompt you on your next login.
+      To start Commvault assistant configuration again, you can go to the <b>Accounts</b> page or <b>Data Browser</b>{' '}
+      page. If the platform doesn't have any accounts, it will also prompt you on your next login.
     </Text>
   ),
 

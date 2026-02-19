@@ -1,22 +1,13 @@
-import {
-  Banner,
-  Icon,
-  Link,
-  Modal,
-  spacing,
-  Stack,
-  Text,
-  Wrap,
-} from '@scality/core-ui';
+import { Banner, Icon, Link, Modal, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { useState } from 'react';
-import styled, { useTheme } from 'styled-components';
-import { CardISV } from './CardISV';
-import { ISVList } from '../../ISVList';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { ArtescaLogo } from '../ArtescaLogo';
-import { ISVCardConfig } from '../../types';
+import { useState } from 'react';
 import { useLocation } from 'react-router';
+import styled, { useTheme } from 'styled-components';
+import { ISVList } from '../../ISVList';
+import type { ISVCardConfig } from '../../types';
+import { ArtescaLogo } from '../ArtescaLogo';
+import { CardISV } from './CardISV';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -67,11 +58,7 @@ const ISVCardWrapper = ({
       logo={isv.logo}
       application={isv.application}
       link={isv.documentationLink}
-      disabledMessage={
-        DisabledMessage ? (
-          <DisabledMessage onDisabledChange={setIsDisabled} />
-        ) : null
-      }
+      disabledMessage={DisabledMessage ? <DisabledMessage onDisabledChange={setIsDisabled} /> : null}
       disabled={isDisabled}
       selected={selectedISV?.id === isv.id}
       onChange={() => setSelectedISV(isv)}
@@ -109,12 +96,7 @@ export const ISVModalContent = ({
           </Text>
           <StyledGrid>
             {ISVList.filter((isv) => isv.assistant === true).map((isv) => (
-              <ISVCardWrapper
-                key={isv.id}
-                isv={isv}
-                selectedISV={selectedISV}
-                setSelectedISV={setSelectedISV}
-              />
+              <ISVCardWrapper key={isv.id} isv={isv} selectedISV={selectedISV} setSelectedISV={setSelectedISV} />
             ))}
           </StyledGrid>
           <Text isEmphazed color="textPrimary">
@@ -144,12 +126,8 @@ export const ISVModalContent = ({
             {selectedISV.assistant ? (
               <Text>
                 <Text>
-                  The{' '}
-                  <Text isEmphazed>
-                    {selectedISV.application || selectedISV.name}
-                  </Text>{' '}
-                  assistant will start to guide you through the configuration
-                  process.
+                  The <Text isEmphazed>{selectedISV.application || selectedISV.name}</Text> assistant will start to
+                  guide you through the configuration process.
                 </Text>{' '}
                 For more details, you can follow the{' '}
                 <Link href={selectedISV.documentationLink} target="_blank">
@@ -158,12 +136,8 @@ export const ISVModalContent = ({
               </Text>
             ) : (
               <Text>
-                You will be redirected to the account page. To be guided through
-                the configuration for{' '}
-                <Text isEmphazed>
-                  {selectedISV.application || selectedISV.name}
-                </Text>
-                , you can follow the{' '}
+                You will be redirected to the account page. To be guided through the configuration for{' '}
+                <Text isEmphazed>{selectedISV.application || selectedISV.name}</Text>, you can follow the{' '}
                 <Link href={selectedISV.documentationLink} target="_blank">
                   documentation <Icon name="External-link"></Icon>
                 </Link>
@@ -185,11 +159,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
 
   const handleContinueClick = () => {
     if (selectedISV?.assistant) {
-      navigate(
-        `/isv/configuration?platform=${selectedISV.id}${
-          accountName ? `&account=${accountName}` : ''
-        }`,
-      );
+      navigate(`/isv/configuration?platform=${selectedISV.id}${accountName ? `&account=${accountName}` : ''}`);
     } else if (accountName) {
       navigate(`/accounts/${accountName}/create-bucket`);
     } else {
@@ -204,10 +174,10 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
   const continueLabel = !selectedISV
     ? 'Continue'
     : selectedISV?.assistant
-    ? 'Continue to assistant'
-    : accountName
-    ? 'Continue to create bucket'
-    : 'Continue to create account';
+      ? 'Continue to assistant'
+      : accountName
+        ? 'Continue to create bucket'
+        : 'Continue to create account';
 
   return (
     <CustomModal
@@ -221,12 +191,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
         <Wrap>
           <p></p>
           <Stack>
-            <Button
-              variant="outline"
-              label="Skip"
-              onClick={() => setIsOpen(false)}
-              style={{ width: '80px' }}
-            ></Button>
+            <Button variant="outline" label="Skip" onClick={() => setIsOpen(false)} style={{ width: '80px' }}></Button>
             <Button
               disabled={!selectedISV}
               variant="primary"
@@ -238,10 +203,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
         </Wrap>
       }
     >
-      <ISVModalContent
-        selectedISV={selectedISV}
-        setSelectedISV={setSelectedISV}
-      ></ISVModalContent>
+      <ISVModalContent selectedISV={selectedISV} setSelectedISV={setSelectedISV}></ISVModalContent>
     </CustomModal>
   );
 };

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@scality/core-ui';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+
 const StyledMiddleEllipsis = styled.div`
   word-break: keep-all;
   overflow-wrap: normal;
@@ -29,18 +30,14 @@ export const ellipseNode = (
       const avgLetterSize = childWidth / txtContent.length;
       const txtWidthEllipsisInPX = ellipsisText.length * avgLetterSize;
       const trailingCharsInPX = trailingCharCount * avgLetterSize;
-      const leftWidthInPX =
-        containerWidth - (txtWidthEllipsisInPX + trailingCharsInPX);
+      const leftWidthInPX = containerWidth - (txtWidthEllipsisInPX + trailingCharsInPX);
       // As we do not know the value of "avgLetterSize" (because the letters are not all the same size)
       // then we remove 2 letters so that we can't have an overflow.
       const leftWidthInCh = leftWidthInPX / avgLetterSize - 2;
       const endLeft = Math.floor(ellipsisText.length + leftWidthInCh);
       const startRight = Math.ceil(-trailingCharCount);
       childNode.setAttribute('data-original', originalText);
-      childNode.textContent =
-        txtContent.substr(0, endLeft) +
-        ellipsisText +
-        txtContent.substr(startRight);
+      childNode.textContent = txtContent.substr(0, endLeft) + ellipsisText + txtContent.substr(startRight);
       return true;
     }
   }
@@ -68,7 +65,7 @@ const MiddleEllipsis = ({
   const [isEllipsized, setIsEllipsized] = useState(true);
   const [calculationDone, setCalculationDone] = useState(false);
   const prepEllipse = useCallback(() => {
-    if (node && node.childNodes && node.childNodes[0]) {
+    if (node?.childNodes?.[0]) {
       const parent = node.parentNode;
       const child = node.childNodes[0];
 
@@ -98,7 +95,7 @@ const MiddleEllipsis = ({
   }, [prepEllipse]);
   useEffect(() => {
     prepEllipse();
-  }, [prepEllipse, width]);
+  }, [prepEllipse]);
   const ref = useCallback((node) => {
     if (node) setNode(node);
   }, []);
@@ -113,21 +110,14 @@ const MiddleEllipsis = ({
       }}
     >
       <StyledMiddleEllipsis ref={ref}>
-        <MiddleEllipsisText
-          calculationDone={calculationDone}
-          className="middle-ellipsis-text"
-        >
+        <MiddleEllipsisText calculationDone={calculationDone} className="middle-ellipsis-text">
           {text}
         </MiddleEllipsisText>
       </StyledMiddleEllipsis>
     </Tooltip>
   );
 
-  return (
-    <MiddleEllipsisContainer>
-      {isEllipsized ? content() : content().props.children}
-    </MiddleEllipsisContainer>
-  );
+  return <MiddleEllipsisContainer>{isEllipsized ? content() : content().props.children}</MiddleEllipsisContainer>;
 };
 
 export default MiddleEllipsis;

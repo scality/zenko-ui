@@ -1,21 +1,17 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import {
-  STORAGE_ACCOUNT_OWNER_ROLE,
-  STORAGE_MANAGER_ROLE,
-  useAuthGroups,
-} from '../../../utils/hooks';
-import { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
-import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
-import {
-  AccountLatestUsedCapacityPromiseResult,
-  AccountsPromiseResult,
+import { STORAGE_ACCOUNT_OWNER_ROLE, STORAGE_MANAGER_ROLE, useAuthGroups } from '../../../utils/hooks';
+import type { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
+import type { IAccountsLocationsEndpointsAdapter } from '../../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import type { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
+import type {
   Account,
   AccountInfo,
+  AccountLatestUsedCapacityPromiseResult,
+  AccountsPromiseResult,
 } from '../entities/account';
-import { LatestUsedCapacity } from '../entities/metrics';
-import { PromiseResult } from '../entities/promise';
-import { IAccountsLocationsEndpointsAdapter } from '../../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import type { LatestUsedCapacity } from '../entities/metrics';
+import type { PromiseResult } from '../entities/promise';
 
 // Pensieve API return an error with 400 if the number of requested accounts exceed 1000.
 const MAX_NUM_ACCOUNT_REQUEST = 1000;
@@ -27,30 +23,19 @@ const noRefetchOptions = {
 };
 
 export const queries = {
-  listAccountsLocationAndEndpoints: (
-    accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter,
-  ) => ({
+  listAccountsLocationAndEndpoints: (accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter) => ({
     queryKey: ['configOverlay'],
-    queryFn: () =>
-      accountsLocationsEndpointsAdapter.listAccountsLocationsAndEndpoints(),
+    queryFn: () => accountsLocationsEndpointsAdapter.listAccountsLocationsAndEndpoints(),
     ...noRefetchOptions,
   }),
-  listAccountsMetrics: (
-    metricsAdapter: IMetricsAdapter,
-    accountsCanonicalIds: string[],
-  ) => ({
+  listAccountsMetrics: (metricsAdapter: IMetricsAdapter, accountsCanonicalIds: string[]) => ({
     queryKey: ['accountsMetrics'],
-    queryFn: () =>
-      metricsAdapter.listAccountsLatestUsedCapacity(accountsCanonicalIds),
+    queryFn: () => metricsAdapter.listAccountsLatestUsedCapacity(accountsCanonicalIds),
     ...noRefetchOptions,
   }),
-  getMetricsForAnAccount: (
-    metricsAdapter: IMetricsAdapter,
-    accountCanonicalId: string,
-  ) => ({
+  getMetricsForAnAccount: (metricsAdapter: IMetricsAdapter, accountCanonicalId: string) => ({
     queryKey: ['accountMetrics', accountCanonicalId],
-    queryFn: () =>
-      metricsAdapter.listAccountsLatestUsedCapacity([accountCanonicalId]),
+    queryFn: () => metricsAdapter.listAccountsLatestUsedCapacity([accountCanonicalId]),
     ...noRefetchOptions,
   }),
 };
@@ -64,20 +49,16 @@ export const useAccountsLocationsAndEndpoints = ({
     data: accountsLocationsAndEndpoints,
     refetch: refetchAccountsLocationsEndpoints,
     ...result
-  } = useQuery(
-    queries.listAccountsLocationAndEndpoints(accountsLocationsEndpointsAdapter),
-  );
+  } = useQuery(queries.listAccountsLocationAndEndpoints(accountsLocationsEndpointsAdapter));
 
   const refetchAccountsLocationsEndpointsMutation = useMutation({
     mutationFn: async () => {
-      return refetchAccountsLocationsEndpoints().then(
-        ({ data, status, error }) => {
-          if (status === 'error') {
-            throw error;
-          }
-          return data;
-        },
-      );
+      return refetchAccountsLocationsEndpoints().then(({ data, status, error }) => {
+        if (status === 'error') {
+          throw error;
+        }
+        return data;
+      });
     },
   });
 
@@ -96,10 +77,9 @@ export const useAccountCannonicalId = ({
   accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
   accountId: string;
 }): PromiseResult<string> => {
-  const { accountsLocationsAndEndpoints, status } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter,
-    });
+  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
 
   if (status === 'loading' || status === 'idle') {
     return {
@@ -115,9 +95,7 @@ export const useAccountCannonicalId = ({
     };
   }
 
-  const account = accountsLocationsAndEndpoints?.accounts?.find(
-    (a) => a.id === accountId,
-  );
+  const account = accountsLocationsAndEndpoints?.accounts?.find((a) => a.id === accountId);
   if (!account) {
     return {
       status: 'error',
@@ -144,8 +122,7 @@ export const useListAccounts = ({
   accessibleAccountsAdapter: IAccessibleAccounts;
   metricsAdapter: IMetricsAdapter;
 }): AccountsPromiseResult => {
-  const { accountInfos } =
-    accessibleAccountsAdapter.useListAccessibleAccounts();
+  const { accountInfos } = accessibleAccountsAdapter.useListAccessibleAccounts();
 
   const { isStorageManager } = useAuthGroups();
 
@@ -153,15 +130,10 @@ export const useListAccounts = ({
     ...queries.listAccountsMetrics(
       metricsAdapter,
       accountInfos.status === 'success'
-        ? accountInfos.value
-            ?.map((ai: AccountInfo) => ai.canonicalId)
-            .slice(0, MAX_NUM_ACCOUNT_REQUEST)
+        ? accountInfos.value?.map((ai: AccountInfo) => ai.canonicalId).slice(0, MAX_NUM_ACCOUNT_REQUEST)
         : [],
     ),
-    enabled:
-      !!(accountInfos.status === 'success') &&
-      accountInfos.value.length > 0 &&
-      isStorageManager,
+    enabled: !!(accountInfos.status === 'success') && accountInfos.value.length > 0 && isStorageManager,
   });
 
   const accountInfosWithPerferredAssumableRole = useMemo(() => {
@@ -171,9 +143,7 @@ export const useListAccounts = ({
           (role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
         );
 
-        const roleStorageManager = accountInfo.assumableRoles.find(
-          (role) => role.Name === STORAGE_MANAGER_ROLE,
-        );
+        const roleStorageManager = accountInfo.assumableRoles.find((role) => role.Name === STORAGE_MANAGER_ROLE);
         let preferredAssumableRoleArn = accountInfo.assumableRoles[0].Arn;
         if (roleStorageAccountOwner) {
           preferredAssumableRoleArn = roleStorageAccountOwner.Arn;
@@ -190,55 +160,46 @@ export const useListAccounts = ({
       return accounts;
     }
     return [];
-  }, [accountInfos.status]);
+  }, [accountInfos]);
 
-  if (
-    accountInfos.status === 'success' &&
-    (metricsStatus === 'idle' || metricsStatus === 'loading')
-  ) {
-    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map(
-      (accountInfo) => {
-        return {
-          ...accountInfo,
-          usedCapacity: { status: 'loading' },
-        };
-      },
-    );
+  if (accountInfos.status === 'success' && (metricsStatus === 'idle' || metricsStatus === 'loading')) {
+    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map((accountInfo) => {
+      return {
+        ...accountInfo,
+        usedCapacity: { status: 'loading' },
+      };
+    });
     return { accounts: { status: 'success', value: accounts } };
   } else if (accountInfos.status === 'success' && metricsStatus === 'success') {
-    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map(
-      (accountInfo) => {
-        const accountCanonicalId = accountInfo.canonicalId;
-        return {
-          ...accountInfo,
-          usedCapacity: metrics[accountCanonicalId]
-            ? {
-                status: 'success',
-                value: metrics[accountCanonicalId],
-              }
-            : {
-                status: 'unknown',
-              },
-        };
-      },
-    );
+    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map((accountInfo) => {
+      const accountCanonicalId = accountInfo.canonicalId;
+      return {
+        ...accountInfo,
+        usedCapacity: metrics[accountCanonicalId]
+          ? {
+              status: 'success',
+              value: metrics[accountCanonicalId],
+            }
+          : {
+              status: 'unknown',
+            },
+      };
+    });
     return { accounts: { status: 'success', value: accounts } };
   } else if (accountInfos.status === 'success' && metricsStatus === 'error') {
-    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map(
-      (accountInfo, i) => {
-        return {
-          ...accountInfo,
-          usedCapacity:
-            i < MAX_NUM_ACCOUNT_REQUEST
-              ? {
-                  status: 'error',
-                  title: 'Account metrics error',
-                  reason: 'An error occurred when fetching metrics',
-                }
-              : { status: 'unknown' },
-        };
-      },
-    );
+    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map((accountInfo, i) => {
+      return {
+        ...accountInfo,
+        usedCapacity:
+          i < MAX_NUM_ACCOUNT_REQUEST
+            ? {
+                status: 'error',
+                title: 'Account metrics error',
+                reason: 'An error occurred when fetching metrics',
+              }
+            : { status: 'unknown' },
+      };
+    });
     return { accounts: { status: 'success', value: accounts } };
   } else if (accountInfos.status === 'error') {
     return {
@@ -266,14 +227,9 @@ export const useAccountLatestUsedCapacity = ({
   accountCanonicalId: string;
 }): AccountLatestUsedCapacityPromiseResult => {
   const queryClient = useQueryClient();
-  const queryCache = queryClient.getQueryState<
-    Record<string, LatestUsedCapacity>
-  >(['accountsMetrics']);
-  const isAccountCanonicalIdMetricsCacheExist =
-    queryCache?.data && queryCache?.data[accountCanonicalId];
-  const accountMetricsQueryState = queryClient.getQueryState([
-    'accountsMetrics',
-  ]);
+  const queryCache = queryClient.getQueryState<Record<string, LatestUsedCapacity>>(['accountsMetrics']);
+  const isAccountCanonicalIdMetricsCacheExist = queryCache?.data?.[accountCanonicalId];
+  const accountMetricsQueryState = queryClient.getQueryState(['accountsMetrics']);
   const { isStorageManager } = useAuthGroups();
   const { data, status } = useQuery({
     ...queries.getMetricsForAnAccount(metricsAdapter, accountCanonicalId),
@@ -305,10 +261,7 @@ export const useAccountLatestUsedCapacity = ({
         reason: 'An error occurred when fetching the metrics',
       },
     };
-  } else if (
-    status === 'loading' ||
-    accountMetricsQueryState?.status === 'loading'
-  ) {
+  } else if (status === 'loading' || accountMetricsQueryState?.status === 'loading') {
     return { usedCapacity: { status: 'loading' } };
   }
   return { usedCapacity: { status: 'loading' } };

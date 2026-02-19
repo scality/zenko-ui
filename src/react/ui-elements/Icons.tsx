@@ -1,6 +1,5 @@
-import React from 'react';
-import styled from 'styled-components';
 import { Icon } from '@scality/core-ui';
+import styled from 'styled-components';
 
 export type IconProps = Parameters<typeof Icon>[0];
 

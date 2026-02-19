@@ -16,6 +16,7 @@ const CteraLogo = () => {
         scale: '1.15',
         transformOrigin: 'top left',
       }}
+      aria-hidden="true"
     >
       <g clip-path="url(#clip0_22770_333767)">
         <path
@@ -29,12 +30,7 @@ const CteraLogo = () => {
       </g>
       <defs>
         <clipPath id="clip0_22770_333767">
-          <rect
-            width="51.6665"
-            height="24"
-            fill={fill}
-            transform="translate(0 0.90625)"
-          />
+          <rect width="51.6665" height="24" fill={fill} transform="translate(0 0.90625)" />
         </clipPath>
       </defs>
     </svg>

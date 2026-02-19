@@ -1,11 +1,8 @@
 /* eslint-disable */
 import userEvent from '@testing-library/user-event';
-import {
-  checkBox,
-  themeMount as mount,
-  updateInputText,
-} from '../../../utils/testUtil';
+import { checkBox, themeMount as mount, updateInputText } from '../../../utils/testUtil';
 import LocationDetailsAws from '../LocationDetailsAws';
+
 const props = {
   details: {},
   onChange: () => {},
@@ -24,7 +21,7 @@ describe('class <LocationDetailsAws />', () => {
     });
   });
   it('should call onChange on state update', async () => {
-    const refLocation = {
+    const _refLocation = {
       secretKey: 'sk',
       accessKey: 'ak',
       bucketName: 'bn',
@@ -41,15 +38,9 @@ describe('class <LocationDetailsAws />', () => {
     const accessKeyInput = component.getByRole('textbox', {
       name: /access key/i,
     });
-    const secretKeyInput = component.container.querySelector(
-      'input[name="secretKey"]',
-    );
-    const bucketNameInput = component.container.querySelector(
-      'input[name="bucketName"]',
-    );
-    const sseCheckbox = component.container.querySelector(
-      'input[name="serverSideEncryption"]',
-    );
+    const secretKeyInput = component.container.querySelector('input[name="secretKey"]');
+    const bucketNameInput = component.container.querySelector('input[name="bucketName"]');
+    const sseCheckbox = component.container.querySelector('input[name="serverSideEncryption"]');
 
     await userEvent.type(accessKeyInput, 'ak');
     await userEvent.type(secretKeyInput, 'sk');
@@ -65,15 +56,9 @@ describe('class <LocationDetailsAws />', () => {
     const accessKeyInput = component.getByRole('textbox', {
       name: /access key/i,
     });
-    const secretKeyInput = component.container.querySelector(
-      'input[name="secretKey"]',
-    );
-    const bucketNameInput = component.container.querySelector(
-      'input[name="bucketName"]',
-    );
-    const sseCheckbox = component.container.querySelector(
-      'input[name="serverSideEncryption"]',
-    );
+    const secretKeyInput = component.container.querySelector('input[name="secretKey"]');
+    const bucketNameInput = component.container.querySelector('input[name="bucketName"]');
+    const sseCheckbox = component.container.querySelector('input[name="serverSideEncryption"]');
 
     expect(accessKeyInput).toHaveValue('');
     expect(secretKeyInput).toHaveValue('');
@@ -93,18 +78,10 @@ describe('class <LocationDetailsAws />', () => {
       <LocationDetailsAws {...props} details={locationDetails} />,
     );
 
-    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
-      'ak',
-    );
-    expect(
-      component.container.querySelector('input[name="secretKey"]'),
-    ).toHaveValue(''); // encrypted
-    expect(
-      component.container.querySelector('input[name="bucketName"]'),
-    ).toHaveValue('bn');
-    expect(
-      component.container.querySelector('input[name="serverSideEncryption"]'),
-    ).toBeChecked();
+    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue('ak');
+    expect(component.container.querySelector('input[name="secretKey"]')).toHaveValue(''); // encrypted
+    expect(component.container.querySelector('input[name="bucketName"]')).toHaveValue('bn');
+    expect(component.container.querySelector('input[name="serverSideEncryption"]')).toBeChecked();
   });
   it('should call onChange on location details updates', () => {
     const refLocation = {
@@ -117,6 +94,7 @@ describe('class <LocationDetailsAws />', () => {
     let location = {};
     const { container } = mount(
       //@ts-expect-error fix this when you are working on it
+      // biome-ignore lint/suspicious/noAssignInExpressions: test re-render pattern
       <LocationDetailsAws {...props} onChange={(l) => (location = l)} />,
     );
     checkBox(container, 'serverSideEncryption', true);

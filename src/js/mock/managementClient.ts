@@ -1,17 +1,13 @@
-import { AccessKey, Account, SecretKey } from '../../types/account';
-import {
+import type { AccessKey, Account, SecretKey } from '../../types/account';
+import type { ConfigurationOverlay, Endpoint, Location } from '../../types/config';
+import type {
   ApiAccountKeyResponse,
   ApiAccountResponse,
   ApiConfigurationResponse,
   ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
-import {
-  ConfigurationOverlay,
-  Endpoint,
-  Location,
-} from '../../types/config';
-import { ApiErrorObject } from './error';
-import { InstanceStatus } from '../../types/stats';
+import type { InstanceStatus } from '../../types/stats';
+import type { ApiErrorObject } from './error';
 export const location: Location = {
   name: 'location1',
   locationType: 'location-file-v1',
@@ -25,8 +21,7 @@ export const location: Location = {
 export const account: Account = {
   //@ts-expect-error fix this when you are working on it
   arn: 'arn:aws:iam::538641674554:/bart/',
-  canonicalId:
-    '41901f00de359c995578b3f7af6a9ab57ccca15f1a03ed97e29ba7fdf9a09c33',
+  canonicalId: '41901f00de359c995578b3f7af6a9ab57ccca15f1a03ed97e29ba7fdf9a09c33',
   createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
   email: 'my@email.com',
   id: '538641674554',
@@ -104,7 +99,6 @@ export class MockManagementClient implements ManagementClientInterface {
     });
   }
 
-
   //@ts-expect-error fix this when you are working on it
   generateKeyConfigurationOverlayUser(): Promise<ApiAccountKeyResponse> {
     return Promise.resolve({
@@ -163,7 +157,6 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     return Promise.reject(this._error);
   }
 
-
   //@ts-expect-error fix this when you are working on it
   generateKeyConfigurationOverlayUser(): Promise<void> {
     return Promise.reject(this._error);
@@ -198,8 +191,7 @@ export class MockManagementClientWithConfigurationVersions extends MockManagemen
       ...body,
       state: {
         ...body.state,
-        runningConfigurationVersion:
-          this.runningVersions[this.getStatusCallCounter++],
+        runningConfigurationVersion: this.runningVersions[this.getStatusCallCounter++],
       },
     }));
   }

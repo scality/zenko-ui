@@ -1,15 +1,15 @@
 import { useCurrentApp, useShellHooks } from '@scality/module-federation';
 import { useEffect, useRef, useState } from 'react';
-import { MutationOptions, useMutation, useQueryClient } from 'react-query';
+import { type MutationOptions, useMutation, useQueryClient } from 'react-query';
 import { useIAMClient } from '../react/IAMProvider';
 import { defaultActions, immutableActions } from '../react/ISV/utils/ISVPolicy';
 import { useManagementClient } from '../react/ManagementProvider';
 import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
 import { useDeployedMetalk8sInstances } from '../react/next-architecture/ui/ConfigProvider';
 import { getPolicyInfoQuery } from '../react/queries';
-import { ApiError } from '../types/actions';
+import type { ApiError } from '../types/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
-import { EndpointV1 } from './managementClient/api';
+import type { EndpointV1 } from './managementClient/api';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
@@ -20,16 +20,11 @@ export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const runningConfigurationVersionMutation = useMutation({
     mutationFn: async (instanceId: string) => {
       client.setToken(await getToken());
-      return (
-        (await client.getLatestInstanceStatus(instanceId)).state
-          ?.runningConfigurationVersion || 0
-      );
+      return (await client.getLatestInstanceStatus(instanceId)).state?.runningConfigurationVersion || 0;
     },
   });
   const versionRef = useRef(0);
-  const [status, setStatus] = useState<
-    'idle' | 'refTaken' | 'waiting' | 'success' | 'error'
-  >('idle');
+  const [status, setStatus] = useState<'idle' | 'refTaken' | 'waiting' | 'success' | 'error'>('idle');
   const setReferenceVersion = ({ onRefTaken }: { onRefTaken?: () => void }) => {
     setStatus('waiting');
     runningConfigurationVersionMutation.mutate(instanceId, {
@@ -54,9 +49,7 @@ export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
         if (version > versionRef.current) {
           setStatus('success');
         } else {
-          setTimeoutId(
-            setTimeout(waitForRunningConfigurationVersionToBeUpdated, 500),
-          );
+          setTimeoutId(setTimeout(waitForRunningConfigurationVersionToBeUpdated, 500));
         }
       },
       onError: () => {
@@ -101,10 +94,7 @@ const useCreateEndpointMutation = () => {
           locationName,
         },
       };
-      return notFalsyTypeGuard(client).createConfigurationOverlayEndpoint(
-        params.endpoint,
-        params.uuid,
-      );
+      return notFalsyTypeGuard(client).createConfigurationOverlayEndpoint(params.endpoint, params.uuid);
     },
   });
 };
@@ -114,13 +104,7 @@ const useCreateAccountMutation = () => {
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   return useMutation({
-    mutationFn: async ({
-      user,
-      instanceId,
-    }: {
-      user: { userName: string; email: string };
-      instanceId: string;
-    }) => {
+    mutationFn: async ({ user, instanceId }: { user: { userName: string; email: string }; instanceId: string }) => {
       user.email = user.email.replace(/ /g, '-');
       const client = notFalsyTypeGuard(managementClient);
       client.setToken(await getToken());
@@ -155,21 +139,15 @@ const useCreateAccountMutation = () => {
 const useCreateIAMUserMutation = () => {
   const IAMClient = useIAMClient();
   return useMutation({
-    mutationFn: ({ userName }: { userName: string }) =>
-      IAMClient.createUser(userName),
+    mutationFn: ({ userName }: { userName: string }) => IAMClient.createUser(userName),
   });
 };
 
 const useCreatePolicyMutation = () => {
   const IAMClient = useIAMClient();
   return useMutation({
-    mutationFn: ({
-      policyName,
-      policyDocument,
-    }: {
-      policyName: string;
-      policyDocument: string;
-    }) => IAMClient.createPolicy(policyName, policyDocument),
+    mutationFn: ({ policyName, policyDocument }: { policyName: string; policyDocument: string }) =>
+      IAMClient.createPolicy(policyName, policyDocument),
   });
 };
 
@@ -207,63 +185,37 @@ const useCreateOrAddBucketToPolicyMutation = () => {
 
       const policyVersions = await IAMClient.listPolicyVersions(policyData.Arn);
       if (policyVersions.Versions.length === 5) {
-        const firstNonDefaultVersion = policyVersions.Versions.find(
-          (version) => !version.IsDefaultVersion,
-        );
-        await IAMClient.deletePolicyVersion(
-          policyData.Arn,
-          firstNonDefaultVersion.VersionId,
-        );
+        const firstNonDefaultVersion = policyVersions.Versions.find((version) => !version.IsDefaultVersion);
+        await IAMClient.deletePolicyVersion(policyData.Arn, firstNonDefaultVersion.VersionId);
       }
-      const defaultPolicy = await IAMClient.getPolicyVersion(
-        policyData.Arn,
-        policyData.DefaultVersionId,
-      );
+      const defaultPolicy = await IAMClient.getPolicyVersion(policyData.Arn, policyData.DefaultVersionId);
 
       const policyDocument = defaultPolicy.PolicyVersion.Document;
       const decodedPolicyDocument = decodeURIComponent(policyDocument);
       const policyJSON = JSON.parse(decodedPolicyDocument);
 
       const statementIndex = policyJSON.Statement.findIndex(
-        (statement: {
-          Effect: string;
-          Action: string[];
-          Resource: string | string[];
-        }) =>
+        (statement: { Effect: string; Action: string[]; Resource: string | string[] }) =>
           statement.Effect === 'Allow' &&
           defaultActions.every((action) => statement.Action.includes(action)) &&
-          (isImmutable
-            ? immutableActions.every((action) =>
-                statement.Action.includes(action),
-              )
-            : true),
+          (isImmutable ? immutableActions.every((action) => statement.Action.includes(action)) : true),
       );
       if (statementIndex !== -1) {
         // Get existing resources and ensure it's an array
-        const existingResources = Array.isArray(
-          policyJSON.Statement[statementIndex].Resource,
-        )
+        const existingResources = Array.isArray(policyJSON.Statement[statementIndex].Resource)
           ? policyJSON.Statement[statementIndex].Resource
           : [policyJSON.Statement[statementIndex].Resource];
 
         // Create new resources to add
-        const newResources = bucketsName.flatMap((bucket) => [
-          `arn:aws:s3:::${bucket}/*`,
-          `arn:aws:s3:::${bucket}`,
-        ]);
+        const newResources = bucketsName.flatMap((bucket) => [`arn:aws:s3:::${bucket}/*`, `arn:aws:s3:::${bucket}`]);
 
         // Filter out resources that already exist to avoid duplicates
         const existingResourcesSet = new Set(existingResources);
-        const resourcesToAdd = newResources.filter(
-          (resource) => !existingResourcesSet.has(resource),
-        );
+        const resourcesToAdd = newResources.filter((resource) => !existingResourcesSet.has(resource));
 
         // Only update if there are new resources to add
         if (resourcesToAdd.length > 0) {
-          policyJSON.Statement[statementIndex].Resource = [
-            ...existingResources,
-            ...resourcesToAdd,
-          ];
+          policyJSON.Statement[statementIndex].Resource = [...existingResources, ...resourcesToAdd];
         }
       } else {
         const newStatement = JSON.parse(newPolicyDocument).Statement[0];
@@ -272,11 +224,7 @@ const useCreateOrAddBucketToPolicyMutation = () => {
 
       //Enforce allow list bucket actions statement on all resources
       const allowListBucketsStatement = policyJSON.Statement.findIndex(
-        (statement: {
-          Effect: string;
-          Action: string[];
-          Resource: string | string[];
-        }) =>
+        (statement: { Effect: string; Action: string[]; Resource: string | string[] }) =>
           statement.Effect === 'Allow' &&
           statement.Action.includes('s3:ListAllMyBuckets') &&
           statement.Action.includes('s3:ListBucket') &&
@@ -287,10 +235,7 @@ const useCreateOrAddBucketToPolicyMutation = () => {
       }
 
       const updatedPolicyDocument = JSON.stringify(policyJSON, null, 2);
-      return IAMClient.createPolicyVersion(
-        policyData.Arn,
-        updatedPolicyDocument,
-      );
+      return IAMClient.createPolicyVersion(policyData.Arn, updatedPolicyDocument);
     },
   });
 };
@@ -298,13 +243,8 @@ const useCreateOrAddBucketToPolicyMutation = () => {
 const useAttachPolicyToUserMutation = () => {
   const IAMClient = useIAMClient();
   return useMutation({
-    mutationFn: ({
-      userName,
-      policyArn,
-    }: {
-      userName: string;
-      policyArn: string;
-    }) => IAMClient.attachUserPolicy(userName, policyArn),
+    mutationFn: ({ userName, policyArn }: { userName: string; policyArn: string }) =>
+      IAMClient.attachUserPolicy(userName, policyArn),
   });
 };
 
@@ -334,15 +274,13 @@ const usePatchZenkoConfigurationMutation = <T>(
         name: instances[0].name,
       });
       const url = runTimeConfig?.spec.selfConfiguration.url;
-      return (
-        url + '/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data'
-      );
+      return `${url}/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data`;
     }
   };
 
   return useMutation({
     mutationFn: async (args: T) => {
-      const patchTimestamp = new Date().getTime();
+      const patchTimestamp = Date.now();
       const result = await fetch(getURL(instances), {
         method: 'PATCH',
         headers: {
@@ -352,9 +290,7 @@ const usePatchZenkoConfigurationMutation = <T>(
         body: getJsonPatch(args),
       }).then(async (res: Response) => {
         if (!res.ok) {
-          throw new Error(
-            `Failed to patch Zenko configuration: ${res.status} ${res.statusText}`,
-          );
+          throw new Error(`Failed to patch Zenko configuration: ${res.status} ${res.statusText}`);
         }
         return await res.json();
       });
@@ -380,23 +316,15 @@ const usePatchZenkoConfigurationMutation = <T>(
           continue;
         }
         const response = await r.json();
-        if (
-          response.metadata.generation === response.status.observedGeneration
-        ) {
+        if (response.metadata.generation === response.status.observedGeneration) {
           resourceSynchronized = true;
         }
 
         // Check deployment state from conditions
         if (resourceSynchronized && response.status.conditions) {
-          const availableCondition = response.status.conditions.find(
-            (cond) => cond.type === 'Available',
-          );
-          const deploymentCondition = response.status.conditions.find(
-            (cond) => cond.type === 'DeploymentInProgress',
-          );
-          const failureCondition = response.status.conditions.find(
-            (cond) => cond.type === 'DeploymentFailure',
-          );
+          const availableCondition = response.status.conditions.find((cond) => cond.type === 'Available');
+          const deploymentCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentInProgress');
+          const failureCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentFailure');
 
           const isDeploymentComplete =
             availableCondition?.status === 'True' &&
@@ -406,11 +334,7 @@ const usePatchZenkoConfigurationMutation = <T>(
           // Phase 1: Wait for deployment to START (or already complete)
           if (!deploymentStarted) {
             // If a new deployment started after our patch
-            if (
-              deploymentCondition &&
-              new Date(deploymentCondition.lastTransitionTime).getTime() >=
-                patchTimestamp
-            ) {
+            if (deploymentCondition && new Date(deploymentCondition.lastTransitionTime).getTime() >= patchTimestamp) {
               deploymentStarted = true;
             }
             // Or if deployment is already complete (no new deployment needed)
@@ -437,10 +361,7 @@ const usePatchZenkoConfigurationMutation = <T>(
         }
 
         pollAttempts++;
-      } while (
-        !(resourceSynchronized && isReady && additionalConditionPassed) &&
-        pollAttempts < MAX_POLL_ATTEMPTS
-      );
+      } while (!(resourceSynchronized && isReady && additionalConditionPassed) && pollAttempts < MAX_POLL_ATTEMPTS);
 
       if (!(resourceSynchronized && isReady && additionalConditionPassed)) {
         throw new Error(
@@ -466,9 +387,7 @@ const useEnableSOSAPIMutation = () => {
       ]),
     undefined,
     async () => {
-      const res = await fetch(
-        `${url}/.well-known/runtime-app-configuration?_t=${Date.now()}`,
-      );
+      const res = await fetch(`${url}/.well-known/runtime-app-configuration?_t=${Date.now()}`);
       if (!res.ok) return false;
       const config = await res.json();
       return !!config?.spec?.selfConfiguration?.proxy?.veeam;
@@ -514,11 +433,7 @@ const useAddCertificateToZenkoConfigurationMutation = ({
 
 const useToggleTLSVerificationMutation = (
   hasEgress: boolean,
-  options?: MutationOptions<
-    { skipTLSVerify: boolean },
-    ApiError,
-    { skipTLSVerify: boolean }
-  >,
+  options?: MutationOptions<{ skipTLSVerify: boolean }, ApiError, { skipTLSVerify: boolean }>,
 ) => {
   const patch = (args: { skipTLSVerify: boolean }) => {
     const patchOp = hasEgress
@@ -544,11 +459,7 @@ const useToggleTLSVerificationMutation = (
 };
 
 const useDeleteCertificateFromZenkoConfigurationMutation = (
-  options?: MutationOptions<
-    { certificateIndex: number },
-    ApiError,
-    { certificateIndex: number }
-  >,
+  options?: MutationOptions<{ certificateIndex: number }, ApiError, { certificateIndex: number }>,
 ) => {
   const patch = (args: { certificateIndex: number }) => {
     return JSON.stringify([

@@ -1,13 +1,9 @@
 import { Icon, Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-  useSetAssumedRolePromise,
-} from '../DataServiceRoleProvider';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useCurrentAccount, useDataServiceRole, useSetAssumedRolePromise } from '../DataServiceRoleProvider';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { AccountSelectorButton } from '../ui-elements/Table';
 import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
@@ -100,9 +96,7 @@ export function AccountRoleSelectButtonAndModal({
   const accountName = account?.Name;
   const [assumedAccount, setAssumedAccount] = useState(accountName);
 
-  const accountRolesHash = accounts
-    ?.map((acc) => acc.Name + acc.Roles.map((role) => role.Arn).join(''))
-    ?.join('');
+  const _accountRolesHash = accounts?.map((acc) => acc.Name + acc.Roles.map((role) => role.Arn).join(''))?.join('');
 
   const accountsWithRoles: {
     accountName: string;
@@ -115,8 +109,8 @@ export function AccountRoleSelectButtonAndModal({
         const accountName = account.Name;
         return account.Roles.map((role) => {
           const parsedArn = regexArn.exec(role.Arn);
-          const rolePath = parsedArn?.groups['path'] || '';
-          const roleName = parsedArn?.groups['name'] || '';
+          const rolePath = parsedArn?.groups.path || '';
+          const roleName = parsedArn?.groups.name || '';
           return {
             accountName,
             roleName,
@@ -126,7 +120,7 @@ export function AccountRoleSelectButtonAndModal({
         });
       }) || []
     );
-  }, [accountRolesHash]);
+  }, [accounts?.flatMap]);
 
   const handleClose = () => {
     setIsModalOpen(false);
@@ -181,12 +175,7 @@ export function AccountRoleSelectButtonAndModal({
   );
 }
 
-const ModalFooter = ({
-  handleClose,
-  assumedRoleArn,
-  roleArn,
-  assumedAccount,
-}) => {
+const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount }) => {
   const setRole = useSetAssumedRolePromise();
   const navigateWithBasename = useBasenameRelativeNavigate();
   const navigate = useNavigate();

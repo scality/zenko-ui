@@ -1,8 +1,9 @@
 // @noflow
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import { ReactNode } from 'react';
+
 import { IconHelp } from '@scality/core-ui/dist/components/iconhelper/IconHelper';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import type { ReactNode } from 'react';
+import styled from 'styled-components';
 // TEMPLATE
 //
 // <Table>
@@ -80,8 +81,7 @@ export const Row = styled.div`
   min-height: ${spacing.sp24};
 `;
 const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
-  color: ${(props) =>
-    props.principal ? props.theme.textPrimary : props.theme?.textSecondary};
+  color: ${(props) => (props.principal ? props.theme.textPrimary : props.theme?.textSecondary)};
   font-weight: ${(props) => (props.principal ? 'bold' : 'normal')};
   ${(props) =>
     props.required
@@ -110,21 +110,10 @@ type KeyTooltipProps = {
   principal?: boolean;
   size?: number;
 };
-export const KeyTooltip = ({
-  children,
-  tooltipMessage,
-  tooltipWidth,
-  size,
-  ...props
-}: KeyTooltipProps) => (
+export const KeyTooltip = ({ children, tooltipMessage, tooltipWidth, size, ...props }: KeyTooltipProps) => (
   <KeyContainer size={size}>
     <RawKey {...props}> {children} </RawKey>
-    {tooltipMessage && (
-      <IconHelp
-        tooltipMessage={tooltipMessage}
-        overlayStyle={{ width: tooltipWidth }}
-      />
-    )}
+    {tooltipMessage && <IconHelp tooltipMessage={tooltipMessage} overlayStyle={{ width: tooltipWidth }} />}
   </KeyContainer>
 );
 export const Value = styled.div<{ size?: string; width?: string }>`

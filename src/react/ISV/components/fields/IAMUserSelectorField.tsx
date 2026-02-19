@@ -1,11 +1,11 @@
-import { useRef, useEffect } from 'react';
-import { Controller, UseFormReturn } from 'react-hook-form';
 import { FormSection, spacing } from '@scality/core-ui';
+import type { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { Accordion } from '@scality/core-ui/dist/next';
-import { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
-import { IAMUserSelectorFieldDef, FormData } from '../../engine/types';
-import { CreateOrSelectNameField, Option } from '../CreateOrSelectNameField';
+import { useEffect, useRef } from 'react';
+import { Controller, type UseFormReturn } from 'react-hook-form';
 import { Checkbox } from '../../../ui-elements/FormLayout';
+import type { FormData, IAMUserSelectorFieldDef } from '../../engine/types';
+import { CreateOrSelectNameField, type Option } from '../CreateOrSelectNameField';
 import { useISVFormContext } from '../ISVFormContext';
 
 type IAMUserSelectorFieldProps = {
@@ -13,18 +13,9 @@ type IAMUserSelectorFieldProps = {
   formMethods: UseFormReturn<FormData>;
 };
 
-export const IAMUserSelectorField = ({
-  field,
-  formMethods,
-}: IAMUserSelectorFieldProps) => {
-  const {
-    platform,
-    iamUsers,
-    iamUsersStatus,
-    isIAMUserExist,
-    accessKeysStatus,
-    isAccordionExpanded,
-  } = useISVFormContext();
+export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFieldProps) => {
+  const { platform, iamUsers, iamUsersStatus, isIAMUserExist, accessKeysStatus, isAccordionExpanded } =
+    useISVFormContext();
 
   const selectRef = useRef<SelectRef<Option, false, null>>(null);
   const { watch, control } = formMethods;
@@ -46,12 +37,7 @@ export const IAMUserSelectorField = ({
 
   return (
     <div style={{ position: 'relative', bottom: spacing.f8 }}>
-      <Accordion
-        title="Advanced settings"
-        id="advanced-settings"
-        open={isAccordionExpanded}
-        isEmphazed={false}
-      >
+      <Accordion title="Advanced settings" id="advanced-settings" open={isAccordionExpanded} isEmphazed={false}>
         <FormSection forceLabelWidth={264}>
           <CreateOrSelectNameField
             isExist={isIAMUserExist}
@@ -72,11 +58,7 @@ export const IAMUserSelectorField = ({
                   return (
                     <Checkbox
                       id="generateKey"
-                      label={
-                        accessKeysStatus === 'loading'
-                          ? 'Loading...'
-                          : 'Generate a new set of AK/SK'
-                      }
+                      label={accessKeysStatus === 'loading' ? 'Loading...' : 'Generate a new set of AK/SK'}
                       onChange={onChange}
                       disabled={accessKeysStatus === 'loading'}
                       checked={value}

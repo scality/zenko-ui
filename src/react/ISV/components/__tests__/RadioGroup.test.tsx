@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { RadioGroup } from '../RadioGroup';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
+import { RadioGroup } from '../RadioGroup';
 
 describe('RadioGroup', () => {
   const options = [
@@ -70,9 +70,7 @@ describe('RadioGroup', () => {
   it('should render in horizontal direction when specified', () => {
     const { container } = renderRadioGroup({ direction: 'horizontal' });
 
-    const radioGroupContainer = container.querySelector(
-      'div[direction="horizontal"]',
-    );
+    const radioGroupContainer = container.querySelector('div[direction="horizontal"]');
     expect(radioGroupContainer).toBeInTheDocument();
   });
 

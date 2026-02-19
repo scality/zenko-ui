@@ -1,9 +1,9 @@
+import type { ParsedCertificate } from '@scality/certchain';
 import { render, screen } from '@testing-library/react';
-import { ParsedCertificate } from '@scality/certchain';
-import CertificateDetails from '../CertificateDetails';
 import { NewWrapper } from '../../utils/testUtil';
+import CertificateDetails from '../CertificateDetails';
 
-const now = new Date();
+const _now = new Date();
 describe('CertificateDetails', () => {
   const mockCertificate: ParsedCertificate = {
     name: 'TEST CERTIFICATE COMMON NAME',
@@ -42,11 +42,7 @@ describe('CertificateDetails', () => {
 
   it('should render modal when open with certificate data', () => {
     render(
-      <CertificateDetails
-        selectedCertificate={[mockCertificate]}
-        isModalOpen={true}
-        handleClose={handleClose}
-      />,
+      <CertificateDetails selectedCertificate={[mockCertificate]} isModalOpen={true} handleClose={handleClose} />,
       { wrapper: NewWrapper() },
     );
 
@@ -63,11 +59,7 @@ describe('CertificateDetails', () => {
 
   it('should not render modal when closed', () => {
     render(
-      <CertificateDetails
-        selectedCertificate={[mockCertificate]}
-        isModalOpen={false}
-        handleClose={handleClose}
-      />,
+      <CertificateDetails selectedCertificate={[mockCertificate]} isModalOpen={false} handleClose={handleClose} />,
       { wrapper: NewWrapper() },
     );
 
@@ -76,11 +68,7 @@ describe('CertificateDetails', () => {
 
   it('should display all certificate fields correctly', () => {
     render(
-      <CertificateDetails
-        selectedCertificate={[mockCertificate]}
-        isModalOpen={true}
-        handleClose={handleClose}
-      />,
+      <CertificateDetails selectedCertificate={[mockCertificate]} isModalOpen={true} handleClose={handleClose} />,
       { wrapper: NewWrapper() },
     );
 
@@ -94,20 +82,14 @@ describe('CertificateDetails', () => {
     expect(screen.getByText('Public Key')).toBeInTheDocument();
 
     // Check values
-    expect(screen.getAllByText('TEST CERTIFICATE COMMON NAME').length).toEqual(
-      2,
-    ); // Name field value + Title field value
+    expect(screen.getAllByText('TEST CERTIFICATE COMMON NAME').length).toEqual(2); // Name field value + Title field value
     expect(screen.getByText('Test CA')).toBeInTheDocument();
     expect(screen.getByText('Test Org')).toBeInTheDocument();
   });
 
   it('should display copy buttons for certificate hash and public key', () => {
     render(
-      <CertificateDetails
-        selectedCertificate={[mockCertificate]}
-        isModalOpen={true}
-        handleClose={handleClose}
-      />,
+      <CertificateDetails selectedCertificate={[mockCertificate]} isModalOpen={true} handleClose={handleClose} />,
       { wrapper: NewWrapper() },
     );
 
@@ -165,11 +147,7 @@ describe('CertificateDetails', () => {
 
   it('should display date fields', () => {
     render(
-      <CertificateDetails
-        selectedCertificate={[mockCertificate]}
-        isModalOpen={true}
-        handleClose={handleClose}
-      />,
+      <CertificateDetails selectedCertificate={[mockCertificate]} isModalOpen={true} handleClose={handleClose} />,
       { wrapper: NewWrapper() },
     );
 

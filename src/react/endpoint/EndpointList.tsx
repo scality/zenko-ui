@@ -1,26 +1,14 @@
-import {
-  ConstrainedText,
-  Icon,
-  Loader,
-  Text,
-  Wrap,
-  spacing,
-} from '@scality/core-ui';
+import { ConstrainedText, Icon, Loader, spacing, Text, Wrap } from '@scality/core-ui';
 import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
-
-import { useMemo } from 'react';
-
-import { Endpoint, Hostname, LocationName } from '../../types/config';
-import { renderLocation } from '../locations/utils';
-import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
-import {
-  AuthorizedAdvancedMetricsButton,
-  cloudServerDashboard,
-} from './AdvancedMetricsButton';
-import { DeleteEndpoint } from './DeleteEndpoint';
-import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useMemo } from 'react';
+import type { Endpoint, Hostname, LocationName } from '../../types/config';
+import { renderLocation } from '../locations/utils';
+import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE } from '../next-architecture/ui/ArtescaLibraryProvider';
+import { TableHeaderWrapper } from '../ui-elements/Table';
+import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
+import { DeleteEndpoint } from './DeleteEndpoint';
 import { useArtescaPlusVeeamMode } from './hooks';
 import useEndpointsDeletionDisabled from './useEndpointsDeletionDisabled';
 
@@ -54,15 +42,9 @@ function EndpointList({ endpoints, locations }: Props) {
     [endpoints],
   );
 
-  const {
-    artescaPlusVeeamDefaultOrOpenMode,
-    artescaPlusVeeamDefaultOrOpenModeStatus,
-  } = useArtescaPlusVeeamMode();
+  const { artescaPlusVeeamDefaultOrOpenMode, artescaPlusVeeamDefaultOrOpenModeStatus } = useArtescaPlusVeeamMode();
 
-  const {
-    endpointsDeletionDisabledMap,
-    status: endpointsDeletionDisabledStatus,
-  } = useEndpointsDeletionDisabled();
+  const { endpointsDeletionDisabledMap, status: endpointsDeletionDisabledStatus } = useEndpointsDeletionDisabled();
 
   const columns = useMemo(
     () => [
@@ -75,12 +57,7 @@ function EndpointList({ endpoints, locations }: Props) {
         Cell({ value: hostName }: { value: Hostname }) {
           return (
             <Wrap paddingRight="2rem">
-              <ConstrainedText
-                text={
-                  <span style={{ paddingRight: spacing.r14 }}>{hostName}</span>
-                }
-                lineClamp={2}
-              />
+              <ConstrainedText text={<span style={{ paddingRight: spacing.r14 }}>{hostName}</span>} lineClamp={2} />
               <CopyButton textToCopy={hostName} />
             </Wrap>
           );
@@ -94,9 +71,7 @@ function EndpointList({ endpoints, locations }: Props) {
         },
 
         Cell({ value: locationName }: { value: LocationName }) {
-          const location = locations.find(
-            (location) => location.name === locationName,
-          );
+          const location = locations.find((location) => location.name === locationName);
           if (!location) {
             return <>unknown</>;
           }
@@ -115,15 +90,9 @@ function EndpointList({ endpoints, locations }: Props) {
         Cell({ row: { original } }: CellProps) {
           if (endpointsDeletionDisabledStatus === 'success') {
             return (
-              <DeleteEndpoint
-                hostname={original.hostname}
-                disabled={endpointsDeletionDisabledMap[original.hostname]}
-              />
+              <DeleteEndpoint hostname={original.hostname} disabled={endpointsDeletionDisabledMap[original.hostname]} />
             );
-          } else if (
-            endpointsDeletionDisabledStatus === 'idle' ||
-            endpointsDeletionDisabledStatus === 'loading'
-          ) {
+          } else if (endpointsDeletionDisabledStatus === 'idle' || endpointsDeletionDisabledStatus === 'loading') {
             return <Loader />;
           } else if (endpointsDeletionDisabledStatus === 'error') {
             return <Text>Error</Text>;
@@ -149,16 +118,12 @@ function EndpointList({ endpoints, locations }: Props) {
         }}
       >
         <TableHeaderWrapper
-          search={
-            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
-          }
+          search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />}
           actions={
             <div style={{ marginLeft: 'auto' }}>
               <Button
                 icon={<Icon name="Create-add" />}
-                isLoading={
-                  artescaPlusVeeamDefaultOrOpenModeStatus === 'loading'
-                }
+                isLoading={artescaPlusVeeamDefaultOrOpenModeStatus === 'loading'}
                 disabled={artescaPlusVeeamDefaultOrOpenMode === 'default'}
                 tooltip={{
                   overlay:
@@ -175,10 +140,7 @@ function EndpointList({ endpoints, locations }: Props) {
             </div>
           }
         />
-        <Table.SingleSelectableContent
-          rowHeight="h40"
-          separationLineVariant="backgroundLevel1"
-        />
+        <Table.SingleSelectableContent rowHeight="h40" separationLineVariant="backgroundLevel1" />
       </Table>
     </Box>
   );

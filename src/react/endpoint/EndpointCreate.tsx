@@ -1,28 +1,17 @@
-import Joi from 'joi';
 import { joiResolver } from '@hookform/resolvers/joi';
-import {
-  Banner,
-  Form,
-  FormGroup,
-  FormSection,
-  Icon,
-  Stack,
-  spacing,
-} from '@scality/core-ui';
+import { Banner, Form, FormGroup, FormSection, Icon, Stack, spacing } from '@scality/core-ui';
 import { Box, Button, Input, Select } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import Joi from 'joi';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import styled from 'styled-components';
-import {
-  useCreateEndpointMutation,
-  useWaitForRunningConfigurationVersionToBeUpdated,
-} from '../../js/mutations';
+import { useCreateEndpointMutation, useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { renderLocation } from '../locations/utils';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE } from '../next-architecture/ui/ArtescaLibraryProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useArtescaPlusVeeamMode } from './hooks';
 
 const BannerMessageList = styled.ul`
@@ -53,15 +42,11 @@ function EndpointCreate() {
     },
   });
   const navigate = useBasenameRelativeNavigate();
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const {
-    accountsLocationsAndEndpoints,
-    status,
-    refetchAccountsLocationsEndpointsMutation,
-  } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
-  });
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status, refetchAccountsLocationsEndpointsMutation } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
   const createEndpointMutation = useCreateEndpointMutation();
   const instanceId = useInstanceId();
   const loading = status === 'idle' || status === 'loading';
@@ -71,18 +56,9 @@ function EndpointCreate() {
     status: waiterStatus,
   } = useWaitForRunningConfigurationVersionToBeUpdated();
 
-  const {
-    artescaPlusVeeamDefaultOrOpenMode,
-    artescaPlusVeeamDefaultOrOpenModeStatus,
-  } = useArtescaPlusVeeamMode();
+  const { artescaPlusVeeamDefaultOrOpenMode, artescaPlusVeeamDefaultOrOpenModeStatus } = useArtescaPlusVeeamMode();
 
-  const onSubmit = ({
-    hostname,
-    locationName,
-  }: {
-    hostname: string;
-    locationName: string;
-  }) => {
+  const onSubmit = ({ hostname, locationName }: { hostname: string; locationName: string }) => {
     setReferenceVersion({
       onRefTaken: () => {
         createEndpointMutation.mutate(
@@ -109,7 +85,7 @@ function EndpointCreate() {
         },
       });
     }
-  }, [waiterStatus]);
+  }, [waiterStatus, navigate, refetchAccountsLocationsEndpointsMutation.mutate]);
 
   const handleCancel = () => {
     navigate('/dataservices');
@@ -122,9 +98,7 @@ function EndpointCreate() {
       rightActions={
         <Stack gap="r16">
           <Button
-            disabled={
-              createEndpointMutation.isLoading || waiterStatus === 'waiting'
-            }
+            disabled={createEndpointMutation.isLoading || waiterStatus === 'waiting'}
             id="cancel-btn"
             variant="outline"
             onClick={handleCancel}
@@ -132,9 +106,7 @@ function EndpointCreate() {
             type="button"
           />
           <Button
-            disabled={
-              !isValid || artescaPlusVeeamDefaultOrOpenMode === 'default'
-            }
+            disabled={!isValid || artescaPlusVeeamDefaultOrOpenMode === 'default'}
             isLoading={
               createEndpointMutation.isLoading ||
               waiterStatus === 'waiting' ||
@@ -143,18 +115,12 @@ function EndpointCreate() {
             }
             tooltip={{
               overlay:
-                artescaPlusVeeamDefaultOrOpenMode === 'default'
-                  ? TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE
-                  : undefined,
+                artescaPlusVeeamDefaultOrOpenMode === 'default' ? TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE : undefined,
             }}
             id="create-endpoint-btn"
             variant="primary"
             onClick={handleSubmit(onSubmit)}
-            label={
-              createEndpointMutation.isLoading || waiterStatus === 'waiting'
-                ? 'Creating...'
-                : 'Create'
-            }
+            label={createEndpointMutation.isLoading || waiterStatus === 'waiting' ? 'Creating...' : 'Create'}
           />
         </Stack>
       }
@@ -163,11 +129,7 @@ function EndpointCreate() {
           <Banner
             icon={
               <Box display="flex" alignItems="center" ml={spacing.r8}>
-                <Icon
-                  name="Exclamation-circle"
-                  color="statusWarning"
-                  size="lg"
-                />
+                <Icon name="Exclamation-circle" color="statusWarning" size="lg" />
               </Box>
             }
             variant="warning"
@@ -175,19 +137,14 @@ function EndpointCreate() {
             <BannerMessageList>
               <li>Expect some delay—creating a new Data Service takes time.</li>
               <li>
-                Creating a new Data Service will regenerate all Certificates
-                related to Data Services. If these Certificates were already
-                replaced by ones issued by your Authority, they will have to be
-                replaced again. Contact your Platform admin if needed.
+                Creating a new Data Service will regenerate all Certificates related to Data Services. If these
+                Certificates were already replaced by ones issued by your Authority, they will have to be replaced
+                again. Contact your Platform admin if needed.
               </li>
             </BannerMessageList>
           </Banner>
           {createEndpointMutation.isError ? (
-            <Banner
-              icon={<Icon name="Exclamation-circle" />}
-              title="Error"
-              variant="danger"
-            >
+            <Banner icon={<Icon name="Exclamation-circle" />} title="Error" variant="danger">
               {createEndpointMutation.error?.message}
             </Banner>
           ) : null}
@@ -228,9 +185,7 @@ function EndpointCreate() {
               <Controller
                 control={control}
                 name="locationName"
-                render={({
-                  field: { onChange, onBlur, value: locationName },
-                }) => {
+                render={({ field: { onChange, onBlur, value: locationName } }) => {
                   return (
                     <Select
                       id="locationName"
@@ -239,17 +194,12 @@ function EndpointCreate() {
                       placeholder="Location Name"
                       value={locationName}
                     >
-                      {accountsLocationsAndEndpoints?.locations.map(
-                        (location, i) => (
-                          <Select.Option
-                            key={i}
-                            value={location.name}
-                            disabled={location?.isCold}
-                          >
-                            {renderLocation(location)}
-                          </Select.Option>
-                        ),
-                      )}
+                      {accountsLocationsAndEndpoints?.locations.map((location, i) => (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: no stable key available
+                        <Select.Option key={i} value={location.name} disabled={location?.isCold}>
+                          {renderLocation(location)}
+                        </Select.Option>
+                      ))}
                     </Select>
                   );
                 }}

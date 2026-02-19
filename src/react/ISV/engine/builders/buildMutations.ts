@@ -82,7 +82,7 @@ export function buildSOSAPIMutation(config: PlatformConfig): SingleMutationDef |
 /**
  * Build account-related mutations
  */
-export function buildAccountMutations(config: PlatformConfig): SingleMutationDef[] {
+export function buildAccountMutations(_config: PlatformConfig): SingleMutationDef[] {
   return [
     {
       id: 'createAccount',
@@ -111,7 +111,7 @@ export function buildAccountMutations(config: PlatformConfig): SingleMutationDef
       variables: (_form: FormData, prev: PreviousResults, ctx: FullContext) => ({
         roleArn: ctx.isNewAccount
           ? `arn:aws:iam::${getAccountId(prev, ctx)}:role/scality-internal/storage-manager-role`
-          : ctx._existingAccount!.roleArn,
+          : ctx._existingAccount?.roleArn,
       }),
     },
   ];

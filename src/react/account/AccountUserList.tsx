@@ -1,34 +1,27 @@
-import { useMemo, useState } from 'react';
-import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
+import { FormattedDateTime, Icon, spacing } from '@scality/core-ui';
 import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
-import { useIAMClient } from '../IAMProvider';
-import {
-  AWS_PAGINATED_ENTITIES,
-  useAwsPaginatedEntities,
-} from '../utils/IAMhooks';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import type { User } from 'aws-sdk/clients/iam';
+import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import type { CellProps, Row } from 'react-table';
+import type IAMClient from '../../js/IAMClient';
+import type { ApiError } from '../../types/actions';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useCurrentAccount, useDataServiceRole } from '../DataServiceRoleProvider';
+import { useErrorHandler } from '../ErrorProvider';
+import { useIAMClient } from '../IAMProvider';
 import {
   getListAttachedUserPoliciesQuery,
   getListUsersQuery,
   getUserAccessKeysQuery,
   getUserListGroupsQuery,
 } from '../queries';
-import { CellProps } from 'react-table';
-import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
-import IAMClient from '../../js/IAMClient';
-import { useErrorHandler } from '../ErrorProvider';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { errorParser } from '../utils';
-import { ApiError } from '../../types/actions';
-import { User } from 'aws-sdk/clients/iam';
-import { FormattedDateTime, Icon, spacing } from '@scality/core-ui';
-import { Row } from 'react-table';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-} from '../DataServiceRoleProvider';
+import { type AWS_PAGINATED_ENTITIES, useAwsPaginatedEntities } from '../utils/IAMhooks';
+import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
 
 type InternalUser = {
   userName: string;
@@ -42,18 +35,17 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const navigate = useBasenameRelativeNavigate();
   const currentAccount = useCurrentAccount();
-  const { data: accessKeysResult, status: userAccessKeyStatus } =
-    useAwsPaginatedEntities(
-      getUserAccessKeysQuery(userName, IAMClient),
-      (data) => data.AccessKeyMetadata,
-    );
+  const { data: accessKeysResult, status: userAccessKeyStatus } = useAwsPaginatedEntities(
+    getUserAccessKeysQuery(userName, IAMClient),
+    (data) => data.AccessKeyMetadata,
+  );
   const accessKeys = useMemo(() => {
     if (userAccessKeyStatus === 'success') {
       return notFalsyTypeGuard(accessKeysResult).length;
     }
 
     return 0;
-  }, [userAccessKeyStatus]);
+  }, [userAccessKeyStatus, accessKeysResult]);
   return userAccessKeyStatus === 'error' ? null : (
     <div
       style={{
@@ -78,22 +70,14 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
             marginLeft: 'auto',
           }}
         >
-          {accessKeys > 2 ? (
-            <TextBadge variant={'statusWarning'} text={accessKeys}></TextBadge>
-          ) : (
-            accessKeys
-          )}
+          {accessKeys > 2 ? <TextBadge variant={'statusWarning'} text={accessKeys}></TextBadge> : accessKeys}
         </Box>
       ) : null}
       <Button
         size="inline"
         icon={<Icon name="Eye" color="textSecondary" />}
         variant="secondary"
-        onClick={() =>
-          navigate(
-            `/accounts/${currentAccount.account.Name}/users/${userName}/access-keys`,
-          )
-        }
+        onClick={() => navigate(`/accounts/${currentAccount.account.Name}/users/${userName}/access-keys`)}
         type="button"
         tooltip={{ overlay: 'Checking or creating access keys' }}
         disabled={userAccessKeyStatus === 'loading'}
@@ -102,9 +86,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   );
 };
 
-const renderAccessKeyComponent = ({ row }) => (
-  <AsyncRenderAccessKey userName={row.original.userName} />
-);
+const renderAccessKeyComponent = ({ row }) => <AsyncRenderAccessKey userName={row.original.userName} />;
 
 const EditButton = ({ userName }: { userName: string }) => {
   const navigate = useBasenameRelativeNavigate();
@@ -115,22 +97,12 @@ const EditButton = ({ userName }: { userName: string }) => {
       variant="secondary"
       label="Edit"
       icon={<Icon name="Pen" color="textSecondary" />}
-      onClick={() =>
-        navigate(
-          `/accounts/${currentAccount.account.Name}/users/${userName}/update-user`,
-        )
-      }
+      onClick={() => navigate(`/accounts/${currentAccount.account.Name}/users/${userName}/update-user`)}
     />
   );
 };
 
-const AttachButton = ({
-  userName,
-  accountName,
-}: {
-  userName: string;
-  accountName: string;
-}) => {
+const AttachButton = ({ userName, accountName }: { userName: string; accountName: string }) => {
   const navigate = useBasenameRelativeNavigate();
   return (
     <Button
@@ -139,73 +111,40 @@ const AttachButton = ({
       label="Attach"
       icon={<Icon name="Link" />}
       type="button"
-      onClick={() =>
-        navigate(`/accounts/${accountName}/users/${userName}/attachments`)
-      }
+      onClick={() => navigate(`/accounts/${accountName}/users/${userName}/attachments`)}
       aria-label={`Attach ${userName}`}
     />
   );
 };
 
-const ActionButtons = ({
-  rowValues,
-  accountName,
-}: {
-  rowValues: InternalUser;
-  accountName?: string;
-}) => {
+const ActionButtons = ({ rowValues, accountName }: { rowValues: InternalUser; accountName?: string }) => {
   const { arn, userName } = rowValues;
   return (
-    <Box
-      gap={spacing.r12}
-      alignSelf="flex-end"
-      display="flex"
-      alignItems="center"
-    >
+    <Box gap={spacing.r12} alignSelf="flex-end" display="flex" alignItems="center">
       <AttachButton userName={userName} accountName={accountName || ''} />
       <EditButton userName={userName} />
-      <CopyButton
-        textToCopy={arn}
-        label="ARN"
-        variant="outline"
-        size="inline"
-      />
+      <CopyButton textToCopy={arn} label="ARN" variant="outline" size="inline" />
       <DeleteUserAction userName={userName} accountName={accountName} />
     </Box>
   );
 };
 
-const DeleteUserAction = ({
-  userName,
-  accountName,
-}: {
-  userName: string;
-  accountName?: string;
-}) => {
+const DeleteUserAction = ({ userName, accountName }: { userName: string; accountName?: string }) => {
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const { handleClientError, showModalError } = useErrorHandler();
-  const { data: accessKeysResult, status: accessKeyStatus } =
-    useAwsPaginatedEntities(
-      getUserAccessKeysQuery(userName, IAMClient),
-      (data) => data.AccessKeyMetadata,
-    );
-  const { data: listGroupsResult, status: listGroupStatus } =
-    useAwsPaginatedEntities(
-      getUserListGroupsQuery(userName, IAMClient),
-      (result) => result.Groups,
-      true,
-    );
-  const {
-    data: listAttachedUserPoliciesResult,
-    status: listAttachedUserPoliciesStatus,
-  } = useAwsPaginatedEntities(
-    getListAttachedUserPoliciesQuery(
-      userName,
-      notFalsyTypeGuard(accountName),
-      IAMClient,
-    ),
+  const { data: accessKeysResult, status: accessKeyStatus } = useAwsPaginatedEntities(
+    getUserAccessKeysQuery(userName, IAMClient),
+    (data) => data.AccessKeyMetadata,
+  );
+  const { data: listGroupsResult, status: listGroupStatus } = useAwsPaginatedEntities(
+    getUserListGroupsQuery(userName, IAMClient),
+    (result) => result.Groups,
+    true,
+  );
+  const { data: listAttachedUserPoliciesResult, status: listAttachedUserPoliciesStatus } = useAwsPaginatedEntities(
+    getListAttachedUserPoliciesQuery(userName, notFalsyTypeGuard(accountName), IAMClient),
     (result) => result?.AttachedPolicies || [],
     true,
   );
@@ -216,9 +155,7 @@ const DeleteUserAction = ({
     },
     {
       onSuccess: () =>
-        queryClient.invalidateQueries(
-          getListUsersQuery(notFalsyTypeGuard(accountName), IAMClient).queryKey,
-        ),
+        queryClient.invalidateQueries(getListUsersQuery(notFalsyTypeGuard(accountName), IAMClient).queryKey),
       onError: (error) => {
         try {
           handleClientError(error as ApiError);
@@ -244,8 +181,7 @@ const DeleteUserAction = ({
         disabled={
           (accessKeysResult && accessKeysResult?.length >= 1) ||
           (listGroupsResult && listGroupsResult.length >= 1) ||
-          (listAttachedUserPoliciesResult &&
-            listAttachedUserPoliciesResult?.length >= 1) ||
+          (listAttachedUserPoliciesResult && listAttachedUserPoliciesResult?.length >= 1) ||
           accessKeyStatus === 'loading' ||
           listGroupStatus === 'loading' ||
           listAttachedUserPoliciesStatus === 'loading'
@@ -264,15 +200,14 @@ const DeleteUserAction = ({
                 overlayStyle: { width: '10rem' },
               }
             : (listGroupsResult && listGroupsResult.length >= 1) ||
-              (listAttachedUserPoliciesResult &&
-                listAttachedUserPoliciesResult?.length >= 1)
-            ? {
-                overlay: `You can't delete the user with attachments`,
-                overlayStyle: { width: '10rem' },
-              }
-            : {
-                overlay: 'Delete',
-              }
+                (listAttachedUserPoliciesResult && listAttachedUserPoliciesResult?.length >= 1)
+              ? {
+                  overlay: `You can't delete the user with attachments`,
+                  overlayStyle: { width: '10rem' },
+                }
+              : {
+                  overlay: 'Delete',
+                }
         }
       />
     </>
@@ -288,9 +223,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     getListUsersQuery(notFalsyTypeGuard(accountName), IAMClient, [roleArn]);
   const getEntitiesFromResult = (page) => page.Users;
 
-  const prepareData = (
-    queryResult: AWS_PAGINATED_ENTITIES<User>,
-  ): InternalUser[] => {
+  const prepareData = (queryResult: AWS_PAGINATED_ENTITIES<User>): InternalUser[] => {
     if (queryResult.firstPageStatus === 'success') {
       const iamUsers =
         queryResult.data?.map((user) => {
@@ -310,9 +243,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
 
   const filterData = (iamUsers: InternalUser[], search?: string | null) => {
     if (search) {
-      return iamUsers.filter((user: InternalUser) =>
-        user.userName.toLowerCase().startsWith(search.toLowerCase()),
-      );
+      return iamUsers.filter((user: InternalUser) => user.userName.toLowerCase().startsWith(search.toLowerCase()));
     }
     return iamUsers;
   };
@@ -347,9 +278,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         flex: 1,
         minWidth: '7rem',
       },
-      Cell: ({ value }: { value: Date }) => (
-        <FormattedDateTime format="date-time" value={value} />
-      ),
+      Cell: ({ value }: { value: Date }) => <FormattedDateTime format="date-time" value={value} />,
       sortType: (row1: Row<InternalUser>, row2: Row<InternalUser>) =>
         row1.original.createdOn.getTime() - row2.original.createdOn.getTime(),
     }, // Table cell for all the actions (Copy ARN, Edit and Delete)
@@ -363,10 +292,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       },
       disableSortBy: true,
       Cell: (value: CellProps<InternalUser>) => (
-        <ActionButtons
-          rowValues={value.row.original}
-          accountName={accountName}
-        />
+        <ActionButtons rowValues={value.row.original} accountName={accountName} />
       ),
     },
   ];

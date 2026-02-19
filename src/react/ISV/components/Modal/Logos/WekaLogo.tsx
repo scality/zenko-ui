@@ -1,12 +1,6 @@
 const WekaLogo = () => {
   return (
-    <svg
-      width="112"
-      height="25"
-      viewBox="0 0 112 25"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="112" height="25" viewBox="0 0 112 25" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g clip-path="url(#clip0_22770_333753)">
         <g clip-path="url(#clip1_22770_333753)">
           <path
@@ -41,20 +35,10 @@ const WekaLogo = () => {
       </g>
       <defs>
         <clipPath id="clip0_22770_333753">
-          <rect
-            width="111.771"
-            height="24"
-            fill="white"
-            transform="translate(0 0.90625)"
-          />
+          <rect width="111.771" height="24" fill="white" transform="translate(0 0.90625)" />
         </clipPath>
         <clipPath id="clip1_22770_333753">
-          <rect
-            width="111.771"
-            height="24"
-            fill="white"
-            transform="translate(0 0.90625)"
-          />
+          <rect width="111.771" height="24" fill="white" transform="translate(0 0.90625)" />
         </clipPath>
       </defs>
     </svg>

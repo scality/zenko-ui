@@ -14,15 +14,12 @@ type LocationDisplayResult =
  * @param bucketName - Name of the bucket
  * @returns Location display state with status and display text
  */
-export const useBucketLocationDisplay = (
-  bucketName: string,
-): LocationDisplayResult => {
+export const useBucketLocationDisplay = (bucketName: string): LocationDisplayResult => {
   const { data: bucketLocation, status } = useGetBucketLocation({
     Bucket: bucketName,
   });
 
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
   const locationConstraint = bucketLocation?.LocationConstraint || 'us-east-1';
   const locationInfos = useLocationAndStorageInfos({
     accountsLocationsEndpointsAdapter,
@@ -37,10 +34,7 @@ export const useBucketLocationDisplay = (
     return { status: 'error', fallback: 'Error loading location' };
   }
 
-  if (
-    locationInfos.status === 'loading' ||
-    locationInfos.status === 'unknown'
-  ) {
+  if (locationInfos.status === 'loading' || locationInfos.status === 'unknown') {
     return { status: 'loading' };
   }
 

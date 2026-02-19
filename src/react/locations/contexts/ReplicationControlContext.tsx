@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { createContext, useCallback, useContext, useRef, useState } from 'react';
 
 type ReplicationStatus = 'enabled' | 'disabled' | null;
 
@@ -38,10 +38,7 @@ export const ReplicationControlProvider = ({ children }: { children: React.React
   );
 
   const startWaiting = useCallback(
-    (
-      locationName: string,
-      previousStatus: { replication: ReplicationStatus; ingestion: ReplicationStatus },
-    ) => {
+    (locationName: string, previousStatus: { replication: ReplicationStatus; ingestion: ReplicationStatus }) => {
       const existingTimeout = timeoutRefs.current.get(locationName);
       if (existingTimeout) {
         clearTimeout(existingTimeout);
@@ -81,9 +78,7 @@ export const ReplicationControlProvider = ({ children }: { children: React.React
 export const useReplicationControlContext = () => {
   const context = useContext(ReplicationControlContext);
   if (!context) {
-    throw new Error(
-      'useReplicationControlContext must be used within ReplicationControlProvider',
-    );
+    throw new Error('useReplicationControlContext must be used within ReplicationControlProvider');
   }
   return context;
 };

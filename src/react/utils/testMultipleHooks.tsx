@@ -1,11 +1,6 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForOptions,
-} from '@testing-library/react';
-import { WaitFor } from '@testing-library/react-hooks';
-import { useState, useEffect, JSX } from 'react';
+import { render, screen, waitFor, type waitForOptions } from '@testing-library/react';
+import type { WaitFor } from '@testing-library/react-hooks';
+import { type JSX, useEffect, useState } from 'react';
 import { act } from 'react-dom/test-utils';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -17,26 +12,18 @@ export type RenderAdditionalHook = <THookResult>(
   waitFor: WaitFor;
 };
 
-export function prepareRenderMultipleHooks(options: {
-  wrapper: React.ReactNode;
-}): {
+export function prepareRenderMultipleHooks(options: { wrapper: React.ReactNode }): {
   renderAdditionalHook: RenderAdditionalHook;
   waitForWrapperToBeReady: () => Promise<void>;
 } {
   const RENDER_HOOK_EVENT = 'RENDER_HOOK_EVENT';
   const READY_STRING = 'READY_STRING';
 
-  function TestComponents({
-    addValues,
-  }: {
-    addValues: (vals: { key: string; value: unknown }[]) => void;
-  }) {
+  function TestComponents({ addValues }: { addValues: (vals: { key: string; value: unknown }[]) => void }) {
     const [components, setComponents] = useState<JSX.Element[]>([]);
 
     useEffect(() => {
-      const listener = (
-        e: CustomEvent<{ key: string; callback: () => unknown }>,
-      ) => {
+      const listener = (e: CustomEvent<{ key: string; callback: () => unknown }>) => {
         function TestComponent() {
           const hook = e.detail.callback();
 
@@ -46,23 +33,21 @@ export function prepareRenderMultipleHooks(options: {
           return <></>;
         }
         act(() => {
+          // biome-ignore lint/correctness/useJsxKeyInIterable: dynamic test component
           setComponents((prev) => [...prev, <TestComponent />]);
         });
       };
-      //eslint-disable-next-line
-      //@ts-ignore
       window.addEventListener(RENDER_HOOK_EVENT, listener);
       return () => {
-        //eslint-disable-next-line
-        //@ts-ignore
         window.removeEventListener(RENDER_HOOK_EVENT, listener);
       };
-    }, []);
+    }, [addValues]);
 
     return (
       <>
         {READY_STRING}
         {components.map((c, i) => {
+          // biome-ignore lint/suspicious/noArrayIndexKey: no stable key available
           return <div key={i}>{c}</div>;
         })}
       </>
@@ -89,15 +74,12 @@ export function prepareRenderMultipleHooks(options: {
       });
     },
     //eslint-disable-next-line
-    //@ts-ignore
+    //@ts-expect-error
     //eslint-disable-next-line
-    renderAdditionalHook: <THookResult extends unknown>(
-      key: string,
-      callback: () => THookResult,
-    ) => {
+    renderAdditionalHook: <THookResult,>(key: string, callback: () => THookResult) => {
       try {
         screen.getByText(READY_STRING);
-      } catch (e) {
+      } catch (_e) {
         throw new Error(
           'Wrapper is not ready yet, you might want to waitForWrapperToBeReady before rendering an additional hook',
         );
@@ -106,8 +88,6 @@ export function prepareRenderMultipleHooks(options: {
       const event = new CustomEvent(RENDER_HOOK_EVENT, {
         detail: { key, callback },
       });
-      //eslint-disable-next-line
-      //@ts-ignore
       window.dispatchEvent(event);
       return {
         result: new Proxy(values, {

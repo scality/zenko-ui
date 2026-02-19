@@ -5,9 +5,7 @@ export const useIsVeeamVBROnly = () => {
   const { useDeployedApps, useConfigRetriever } = shellHooks;
   const deployedApps = useDeployedApps();
 
-  const artescaUI = deployedApps.find(
-    (app: { kind: string }) => app.kind === 'artesca-base-ui',
-  );
+  const artescaUI = deployedApps.find((app: { kind: string }) => app.kind === 'artesca-base-ui');
   const { retrieveConfiguration } = useConfigRetriever();
 
   if (artescaUI) {
@@ -16,9 +14,7 @@ export const useIsVeeamVBROnly = () => {
       name: artescaUI.name,
     });
 
-    return (artescaUIConfig.spec?.selfConfiguration.flags || []).includes(
-      'artesca_plus_veeam',
-    );
+    return (artescaUIConfig.spec?.selfConfiguration.flags || []).includes('artesca_plus_veeam');
   }
 
   return false;

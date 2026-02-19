@@ -1,18 +1,19 @@
-import { AccountKey } from '../../types/account';
-import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
-import Table, * as T from '../ui-elements/TableKeyValue';
 import { Banner, Icon, Stack, Wrap } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
+import { spacing } from '@scality/core-ui/dist/style/theme';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
+import styled from 'styled-components';
+import type { AccountKey } from '../../types/account';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useIAMClient } from '../IAMProvider';
+import { getUserAccessKeysQuery } from '../queries';
 import { Clipboard } from '../ui-elements/Clipboard';
 import { HideCredential } from '../ui-elements/Hide';
-import { useState } from 'react';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import { useIAMClient } from '../IAMProvider';
-import { useMutation, useQueryClient } from 'react-query';
-import { getUserAccessKeysQuery } from '../queries';
-import styled from 'styled-components';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
+import Table, * as T from '../ui-elements/TableKeyValue';
+
 type Props = {
   IAMUserName: string;
 };
@@ -43,18 +44,13 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
       });
     },
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(
-          getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
-        ),
+      onSuccess: () => queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey),
     },
   );
 
   const currentAccount = useCurrentAccount();
   const handleClose = () => {
-    navigate(
-      `/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys`,
-    );
+    navigate(`/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys`);
   };
 
   const handleAccessKeyCreate = () => {
@@ -91,12 +87,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
   };
 
   return (
-    <Modal
-      close={handleClose}
-      footer={modalFooter(newKey)}
-      isOpen={true}
-      title="Create Access keys"
-    >
+    <Modal close={handleClose} footer={modalFooter(newKey)} isOpen={true} title="Create Access keys">
       {modalBody(newKey, accountName)}
     </Modal>
   );
@@ -116,8 +107,7 @@ const modalBody = (key: AccountKey | null, accountName: string) => {
     <ModalBody>
       <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
         An Access key ID and its Secret Access key have been created. <br />
-        The Secret Access key cannot be retrieved afterwards, so make sure to
-        keep and secure it now. <br />
+        The Secret Access key cannot be retrieved afterwards, so make sure to keep and secure it now. <br />
         You can create new Access keys at any times.
       </Banner>
       <Table

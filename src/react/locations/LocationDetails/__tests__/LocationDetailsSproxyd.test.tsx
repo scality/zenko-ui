@@ -1,4 +1,7 @@
 /* eslint-disable */
+
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
   addListEntry,
   delListEntry,
@@ -8,9 +11,6 @@ import {
   updateInputText,
 } from '../../../utils/testUtil';
 import LocationDetailsSproxyd from '../LocationDetailsSproxyd';
-import React from 'react';
-import userEvent from '@testing-library/user-event';
-import { render, screen } from '@testing-library/react';
 
 const props = {
   details: {
@@ -51,10 +51,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       }),
       '3',
     );
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /bootstrap list/i }),
-      'localhost:42',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /bootstrap list/i }), 'localhost:42');
 
     expect(onChangeFn).toHaveBeenCalledWith(refLocation);
   });
@@ -108,6 +105,7 @@ describe('class <LocationDetailsSproxyd />', () => {
         {...props}
         details={location}
         //@ts-expect-error fix this when you are working on it
+        // biome-ignore lint/suspicious/noAssignInExpressions: test re-render pattern
         onChange={(l) => (location = l)}
       />,
     );
@@ -132,6 +130,7 @@ describe('class <LocationDetailsSproxyd />', () => {
         {...props}
         details={location}
         //@ts-expect-error fix this when you are working on it
+        // biome-ignore lint/suspicious/noAssignInExpressions: test re-render pattern
         onChange={(l) => (location = l)}
       />,
     );
@@ -155,6 +154,7 @@ describe('class <LocationDetailsSproxyd />', () => {
         {...props}
         details={location}
         //@ts-expect-error fix this when you are working on it
+        // biome-ignore lint/suspicious/noAssignInExpressions: test re-render pattern
         onChange={(l) => (location = l)}
       />,
     );
@@ -178,6 +178,7 @@ describe('class <LocationDetailsSproxyd />', () => {
         {...props}
         details={location}
         //@ts-expect-error fix this when you are working on it
+        // biome-ignore lint/suspicious/noAssignInExpressions: test re-render pattern
         onChange={(l) => (location = l)}
       />,
     );

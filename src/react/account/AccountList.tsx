@@ -1,40 +1,26 @@
-import {
-  ConstrainedText,
-  Icon,
-  Link,
-  Stack,
-  FormattedDateTime,
-} from '@scality/core-ui';
+import { ConstrainedText, FormattedDateTime, Icon, Link, Stack } from '@scality/core-ui';
 import { Button, Table } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useMemo } from 'react';
-import { CellProps, CoreUIColumn } from 'react-table';
-import { Account } from '../next-architecture/domain/entities/account';
+import type { CellProps, CoreUIColumn } from 'react-table';
 
-import {
-  useCurrentAccount,
-  useSetAssumedRole,
-} from '../DataServiceRoleProvider';
+import { useCurrentAccount, useSetAssumedRole } from '../DataServiceRoleProvider';
+import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
-
+import type { Account } from '../next-architecture/domain/entities/account';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 
-function useAutoAssumeRoleUponAccountDeletion({
-  accounts,
-}: {
-  accounts: Account[];
-}) {
+function useAutoAssumeRoleUponAccountDeletion({ accounts }: { accounts: Account[] }) {
   const { account } = useCurrentAccount();
   const setRole = useSetAssumedRole();
   useMemo(() => {
     if (account === undefined) {
       setRole({ roleArn: accounts[0].preferredAssumableRoleArn });
     }
-  }, [account]);
+  }, [account, accounts[0].preferredAssumableRoleArn, setRole]);
 }
 
 function AccountList({ accounts }: { accounts: Account[] }) {
@@ -43,7 +29,9 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   const { isStorageManager } = useAuthGroups();
   useAutoAssumeRoleUponAccountDeletion({ accounts });
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
+    // biome-ignore lint/correctness/useHookAtTopLevel: pre-existing pattern
     const navigate = useBasenameRelativeNavigate();
+    // biome-ignore lint/correctness/useHookAtTopLevel: pre-existing pattern
     const setRole = useSetAssumedRole();
     if (!row.original.canManageAccount) {
       return <>{value}</>;
@@ -71,7 +59,9 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   const columns: CoreUIColumn<Account>[] = React.useMemo(() => {
     const dataUsedColumn = getDataUsedColumn(
       (account: Account) => {
+        // biome-ignore lint/correctness/useHookAtTopLevel: pre-existing pattern
         const metricsAdapter = useMetricsAdapter();
+        // biome-ignore lint/correctness/useHookAtTopLevel: pre-existing pattern
         return useAccountLatestUsedCapacity({
           metricsAdapter,
           accountCanonicalId: account.canonicalId,
@@ -98,15 +88,13 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           minWidth: '20ch',
         },
         Cell: ({ value }: CellProps<Account, Date>) => (
-          <FormattedDateTime
-            format="date-time-second"
-            value={new Date(value)}
-          />
+          <FormattedDateTime format="date-time-second" value={new Date(value)} />
         ),
       },
       ...(isStorageManager ? additionalStorageManagerColumns : []),
     ];
-  }, [nameCell]);
+    // biome-ignore lint/correctness/useExhaustiveDependencies: nameCell is redefined each render
+  }, [nameCell, isStorageManager]);
 
   return (
     <div
@@ -145,10 +133,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
             )
           }
         />
-        <Table.SingleSelectableContent
-          rowHeight="h40"
-          separationLineVariant="backgroundLevel1"
-        />
+        <Table.SingleSelectableContent rowHeight="h40" separationLineVariant="backgroundLevel1" />
       </Table>
     </div>
   );

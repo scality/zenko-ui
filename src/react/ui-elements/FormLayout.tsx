@@ -1,16 +1,8 @@
-import {
-  Checkbox as BasicCheckbox,
-  TextArea,
-  Tooltip,
-  spacing,
-} from '@scality/core-ui';
-import {
-  LargerText,
-  SmallerText,
-} from '@scality/core-ui/dist/components/text/Text.component';
+import { Checkbox as BasicCheckbox, spacing, TextArea, Tooltip } from '@scality/core-ui';
+import { LargerText, SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { Select as BasicSelect } from '@scality/core-ui/dist/next';
-import { HTMLAttributes, LabelHTMLAttributes, ReactNode, JSX } from 'react';
-import styled, { CSSProperties, css } from 'styled-components';
+import type { HTMLAttributes, JSX, LabelHTMLAttributes, ReactNode } from 'react';
+import styled, { type CSSProperties, css } from 'styled-components';
 import { IconQuestionCircle } from './Icons';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
@@ -89,8 +81,7 @@ export const LargeCustomInput = styled(TextArea)`
   padding: ${spacing.r1};
   border-radius: 4px;
   ${(props) => {
-    const { border, textSecondary, backgroundLevel1, selectedActive } =
-      props.theme;
+    const { border, textSecondary, backgroundLevel1, selectedActive } = props.theme;
     return css`
       border-color: ${border};
       color: ${textSecondary};
@@ -177,13 +168,7 @@ type LabelProps = {
   style?: CSSProperties;
   required?: boolean;
 } & LabelHTMLAttributes<HTMLLabelElement>;
-export const Label = ({
-  children,
-  tooltipMessages,
-  tooltipWidth,
-  required,
-  ...labelProps
-}: LabelProps) => (
+export const Label = ({ children, tooltipMessages, tooltipWidth, required, ...labelProps }: LabelProps) => (
   <LabelContainer {...labelProps}>
     {children}
     {required && <RequiredField>*</RequiredField>}
@@ -194,6 +179,7 @@ export const Label = ({
             tooltipMessages.length > 1 ? (
               <UlOverlay>
                 {tooltipMessages.map((message, i) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: no stable key available
                   <li key={i}> {message} </li>
                 ))}
               </UlOverlay>

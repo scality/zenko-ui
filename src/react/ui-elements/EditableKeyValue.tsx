@@ -1,11 +1,10 @@
-import styled from 'styled-components';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import { Box, Button } from '@scality/core-ui/dist/next';
 import { Icon } from '@scality/core-ui';
-
-import Input from './Input';
-import { CSSProperties, useCallback, useMemo } from 'react';
+import { Box, Button } from '@scality/core-ui/dist/next';
+import { spacing } from '@scality/core-ui/dist/style/theme';
+import { type CSSProperties, useCallback, useMemo } from 'react';
+import styled from 'styled-components';
 import { isEmptyItem } from '../utils';
+import Input from './Input';
 
 export const Container = styled.div`
   flex: 1;
@@ -112,13 +111,7 @@ type AddButtonProps<T = unknown> = {
   disabled?: boolean;
   iconStyle?: CSSProperties;
 };
-export const AddButton = ({
-  index,
-  items,
-  insertEntry,
-  disabled,
-  iconStyle,
-}: AddButtonProps) => {
+export const AddButton = ({ index, items, insertEntry, disabled, iconStyle }: AddButtonProps) => {
   const itemsLength = items.length;
   const itemsIndex = items[index];
   //@ts-expect-error fix this when you are working on it
@@ -171,13 +164,7 @@ type SubButtonProps<T = unknown> = {
   disabled?: boolean;
   iconStyle?: CSSProperties;
 };
-export const SubButton = ({
-  index,
-  items,
-  deleteEntry,
-  disabled,
-  iconStyle,
-}: SubButtonProps) => {
+export const SubButton = ({ index, items, deleteEntry, disabled, iconStyle }: SubButtonProps) => {
   let isDisabled = disabled || false;
 
   if (items.length === 1 && isEmptyItem(items[0])) {
@@ -189,8 +176,6 @@ export const SubButton = ({
       variant="danger"
       type="button"
       disabled={isDisabled}
-      //@ts-expect-error fix this when you are working on it
-      type="button"
       aria-label="Remove"
       name={`delbtn${index}`}
       id={`delbtn${index}`}
