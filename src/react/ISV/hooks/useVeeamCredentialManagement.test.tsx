@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { ReactNode } from 'react';
 import type { UseMutationResult } from 'react-query';
-import { useQueryClient } from 'react-query';
 import {
   ArtescaLibraryNotAvailable,
   useArtescaLibrary,
@@ -12,12 +11,8 @@ import {
   useVeeamCredentialManagement,
 } from '../contexts/VeeamCredentialContext';
 
-jest.mock('react-query');
 jest.mock('../../next-architecture/ui/ArtescaLibraryProvider');
 
-const mockUseQueryClient = useQueryClient as jest.MockedFunction<
-  typeof useQueryClient
->;
 const mockUseArtescaLibrary = useArtescaLibrary as jest.MockedFunction<
   typeof useArtescaLibrary
 >;
@@ -40,9 +35,6 @@ describe('useVeeamCredentialManagement', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseQueryClient.mockReturnValue({
-      invalidateQueries: jest.fn(),
-    } as any);
   });
 
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -145,7 +137,8 @@ describe('useVeeamCredentialManagement', () => {
         expect(result.current.newCredentialsStatus).toBe(status);
       });
     });
-  });
+
+});
 
   describe('when Artesca library is not available', () => {
     beforeEach(() => {
