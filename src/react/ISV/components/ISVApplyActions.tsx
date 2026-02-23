@@ -16,6 +16,7 @@ import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { useMutationExecutor, buildRuntimeContext } from '../hooks/useMutationExecutor';
 import { ISVPlatform, FormData, BucketItem, OptionalFailure } from '../engine/types';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
+import { useAutoScrollOnce } from '../hooks/useAutoScrollOnce';
 
 const StatusBox = styled(Box)`
   display: flex;
@@ -53,6 +54,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
   getResult: <T = unknown>(id: string) => T | undefined;
 }) {
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const scrollContainerRef = useAutoScrollOnce();
   const theme = useTheme();
   const navigate = useBasenameRelativeNavigate();
   const queryClient = useQueryClient();
@@ -117,7 +119,7 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
         style={{ width: '50rem' }}
       >
         <Stack gap="r16" direction="vertical">
-          <div style={{ height: '32rem', overflow: 'auto' }}>
+          <div ref={scrollContainerRef} style={{ height: '32rem', overflow: 'auto' }}>
             <Table>
               <T.Head>
                 <T.HeadRow style={{ display: 'flex' }}>
