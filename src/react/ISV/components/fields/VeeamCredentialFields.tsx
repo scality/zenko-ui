@@ -7,7 +7,7 @@ import {
   useToast,
 } from '@scality/core-ui';
 import { Box, Button, Input } from '@scality/core-ui/dist/next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useVeeamCredentialManagement } from '../../contexts/VeeamCredentialContext';
 
 const VeeamCredentialFieldsForm = () => {
@@ -17,27 +17,32 @@ const VeeamCredentialFieldsForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  useEffect(() => {
+    if (newCredentialsStatus === 'VALID') {
+      showToast({
+        open: true,
+        status: 'success',
+        message: 'Veeam credentials updated successfully',
+      });
+    } else if (newCredentialsStatus === 'INVALID') {
+      showToast({
+        open: true,
+        status: 'error',
+        message:
+          'Veeam credentials are invalid. Please check your username and password.',
+      });
+    } else if (newCredentialsStatus === 'ERROR') {
+      showToast({
+        open: true,
+        status: 'error',
+        message: 'Failed to update Veeam credentials. Please try again.',
+      });
+    }
+  }, [newCredentialsStatus]);
+
   const handleSubmit = () => {
     if (changeCredentialsMutation && username && password) {
-      changeCredentialsMutation.mutate(
-        { username, password },
-        {
-          onSuccess: () => {
-            showToast({
-              open: true,
-              status: 'success',
-              message: 'Veeam credentials updated successfully',
-            });
-          },
-          onError: () => {
-            showToast({
-              open: true,
-              status: 'error',
-              message: 'Failed to update Veeam credentials. Please try again.',
-            });
-          },
-        },
-      );
+      changeCredentialsMutation.mutate({ username, password });
     }
   };
 
