@@ -17,7 +17,17 @@ const VeeamCredentialFieldsForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  console.log('[VeeamCredentialFields] render', {
+    newCredentialsStatus,
+    mutationStatus: changeCredentialsMutation?.status,
+    mutationIsError: changeCredentialsMutation?.isError,
+    mutationError: changeCredentialsMutation?.error,
+  });
+
   useEffect(() => {
+    console.log('[VeeamCredentialFields] useEffect triggered', {
+      newCredentialsStatus,
+    });
     if (newCredentialsStatus === 'VALID') {
       showToast({
         open: true,
@@ -32,6 +42,11 @@ const VeeamCredentialFieldsForm = () => {
           'Veeam credentials are invalid. Please check your username and password.',
       });
     } else if (newCredentialsStatus === 'ERROR') {
+      console.log('[VeeamCredentialFields] ERROR state reached', {
+        mutationStatus: changeCredentialsMutation?.status,
+        mutationIsError: changeCredentialsMutation?.isError,
+        mutationError: changeCredentialsMutation?.error,
+      });
       showToast({
         open: true,
         status: 'error',
