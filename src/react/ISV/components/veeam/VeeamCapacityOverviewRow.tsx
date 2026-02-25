@@ -44,7 +44,7 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
     isError,
   } = useGetObject(
     { Bucket: bucketName, Key: VEEAM_OBJECT_KEY },
-    { enabled: taggingStatus === 'success' && isSOSAPIEnabled, retry: false, gcTime: 0 },
+    { enabled: taggingStatus === 'success' && isSOSAPIEnabled, retry: false },
   );
 
   const [capacity, setCapacity] = useState(() => capacityCache.get(bucketName) ?? 0);
