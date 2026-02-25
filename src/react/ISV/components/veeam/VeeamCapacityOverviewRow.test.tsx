@@ -1,14 +1,8 @@
-import { render, waitFor, screen } from '@testing-library/react';
-import {
-  NewWrapper,
-  mockOffsetSize,
-} from '../../../utils/testUtil';
-import { VeeamCapacityOverviewRow } from './VeeamCapacityOverviewRow';
-import {
-  useGetBucketTagging,
-  useGetObject,
-} from '@scality/data-browser-library';
+import { useGetBucketTagging, useGetObject } from '@scality/data-browser-library';
+import { render, screen, waitFor } from '@testing-library/react';
+import { mockOffsetSize, NewWrapper } from '../../../utils/testUtil';
 import { VeeamApplicationType } from '../../constants';
+import { VeeamCapacityOverviewRow } from './VeeamCapacityOverviewRow';
 
 const mockUseGetBucketTagging = useGetBucketTagging as jest.Mock;
 const mockUseGetObject = useGetObject as jest.Mock;
@@ -67,7 +61,9 @@ describe('VeeamCapacityOverviewRow', () => {
       expect(screen.getByText('Max repository Capacity')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('100.00 GiB')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('100.00 GiB')).toBeInTheDocument();
+    });
   });
 
   it('should not render the row if SOSAPI is not enabled', () => {
@@ -97,9 +93,7 @@ describe('VeeamCapacityOverviewRow', () => {
     render(<VeeamCapacityOverviewRow bucketName={bucketName} />, {
       wrapper: NewWrapper(),
     });
-    expect(
-      screen.queryByText('Max repository Capacity'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Max repository Capacity')).not.toBeInTheDocument();
   });
 
   it('should display loading state', async () => {

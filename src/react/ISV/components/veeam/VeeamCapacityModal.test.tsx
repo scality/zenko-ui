@@ -1,22 +1,20 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { usePutObject } from '@scality/data-browser-library';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NewWrapper } from '../../../utils/testUtil';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
-import userEvent from '@testing-library/user-event';
-import { usePutObject } from '@scality/data-browser-library';
 
 const mockUsePutObject = usePutObject as jest.Mock;
+const mockMutate = jest.fn();
 const bucketName = 'test-bucket';
 
 describe('VeeamCapacityModal', () => {
-  const mockMutate = jest.fn();
-
   const selectors = {
     modalTitle: () => screen.getByText('Edit max repository capacity'),
     editBtn: () => screen.getByLabelText('Edit max capacity'),
     cancelBtn: () => screen.getByText('Cancel'),
     editModalBtn: () => screen.getByLabelText('Update max capacity'),
-    capacityInput: () =>
-      screen.getByRole('spinbutton', { name: /Max Veeam Repository Capacity/ }),
+    capacityInput: () => screen.getByRole('spinbutton', { name: /Max Veeam Repository Capacity/ }),
   };
 
   beforeEach(() => {
@@ -38,16 +36,9 @@ describe('VeeamCapacityModal', () => {
       reset: jest.fn(),
     });
 
-    render(
-      <VeeamCapacityModal
-        bucketName={bucketName}
-        maxCapacity={114748364800}
-        status={'success'}
-      />,
-      {
-        wrapper: NewWrapper(),
-      },
-    );
+    render(<VeeamCapacityModal bucketName={bucketName} maxCapacity={114748364800} status={'success'} />, {
+      wrapper: NewWrapper(),
+    });
   });
 
   it('should render the modal', () => {
@@ -55,7 +46,7 @@ describe('VeeamCapacityModal', () => {
     expect(selectors.modalTitle()).toBeInTheDocument();
   });
 
-  it('should enabled edit button when value is valid', async () => {
+  it('should enable confirm button when value is valid', async () => {
     await userEvent.click(selectors.editBtn());
 
     await userEvent.clear(selectors.capacityInput());
@@ -65,7 +56,7 @@ describe('VeeamCapacityModal', () => {
     expect(selectors.editModalBtn()).toBeEnabled();
   });
 
-  it('should call mutate function when edit button is clicked', async () => {
+  it('should call mutate with correct XML when confirm button is clicked', async () => {
     fireEvent.click(selectors.editBtn());
     fireEvent.change(selectors.capacityInput(), { target: { value: '200' } });
 
@@ -99,9 +90,7 @@ describe('VeeamCapacityModal', () => {
     await waitFor(
       () => {
         expect(selectors.editModalBtn()).toBeDisabled();
-        expect(
-          screen.getByText(/"capacity" must be greater than or equal to 1/i),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/"capacity" must be greater than or equal to 1/i)).toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -112,9 +101,7 @@ describe('VeeamCapacityModal', () => {
 
     await waitFor(async () => {
       expect(selectors.editModalBtn()).toBeDisabled();
-      expect(
-        screen.getByText(/"capacity" must be less than or equal to 1024/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/"capacity" must be less than or equal to 1024/i)).toBeInTheDocument();
     });
   });
   it('should validate capacity value correctly : number with more than 2 decimals', async () => {
@@ -125,9 +112,7 @@ describe('VeeamCapacityModal', () => {
 
     await waitFor(async () => {
       expect(selectors.editModalBtn()).toBeDisabled();
-      expect(
-        screen.getByText(/"capacity" must have at most 2 decimals/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/"capacity" must have at most 2 decimals/i)).toBeInTheDocument();
     });
   });
   it('should validate capacity value correctly : number is required', async () => {
@@ -138,9 +123,34 @@ describe('VeeamCapacityModal', () => {
 
     await waitFor(async () => {
       expect(selectors.editModalBtn()).toBeDisabled();
-      expect(
-        screen.getByText(/"capacity" must be a number/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/"capacity" must be a number/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should call onCapacityUpdated after successful mutation', async () => {
+    cleanup();
+    const onCapacityUpdated = jest.fn();
+
+    render(
+      <VeeamCapacityModal
+        bucketName={bucketName}
+        maxCapacity={114748364800}
+        status={'success'}
+        onCapacityUpdated={onCapacityUpdated}
+      />,
+      { wrapper: NewWrapper() },
+    );
+
+    fireEvent.click(selectors.editBtn());
+    fireEvent.change(selectors.capacityInput(), { target: { value: '200' } });
+
+    await waitFor(() => {
+      expect(selectors.editModalBtn()).toBeEnabled();
+    });
+    fireEvent.click(selectors.editModalBtn());
+
+    await waitFor(() => {
+      expect(onCapacityUpdated).toHaveBeenCalledWith(214748364800);
     });
   });
 
@@ -161,9 +171,7 @@ describe('VeeamCapacityModal', () => {
 
     await waitFor(async () => {
       expect(
-        screen.getByText(
-          'Failed to update repository capacity: The specified bucket does not exist.',
-        ),
+        screen.getByText('Failed to update repository capacity: The specified bucket does not exist.'),
       ).toBeInTheDocument();
     });
   });

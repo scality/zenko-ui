@@ -1,30 +1,15 @@
-import Joi from 'joi';
 import { joiResolver } from '@hookform/resolvers/joi';
-import {
-  Icon,
-  Loader,
-  Modal,
-  Stack,
-  ToastProvider,
-  Wrap,
-  useToast,
-} from '@scality/core-ui';
+import { Icon, Loader, Modal, Stack, ToastProvider, useToast, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
 import { usePutObject } from '@scality/data-browser-library';
+import Joi from 'joi';
+import { useEffect, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 
-import {
-  GET_CAPACITY_XML_CONTENT,
-  VEEAM_OBJECT_KEY,
-} from '../../constants';
-import {
-  getCapacityBytes,
-  useCapacityUnit,
-} from '../../hooks/useCapacityUnit';
-
-import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
+import { GET_CAPACITY_XML_CONTENT, VEEAM_OBJECT_KEY } from '../../constants';
 import { checkDecimals } from '../../engine/validators';
+import { getCapacityBytes, useCapacityUnit } from '../../hooks/useCapacityUnit';
+import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
 
 const schema = Joi.object({
   capacity: Joi.number()
@@ -41,6 +26,7 @@ type VeeamCapacityModalProps = {
   bucketName: string;
   maxCapacity: number;
   status: string;
+  onCapacityUpdated?: (newCapacityBytes: number) => void;
 };
 
 type VeeamCapacityForm = {
@@ -48,11 +34,7 @@ type VeeamCapacityForm = {
   capacityUnit: string;
 };
 
-export const VeeamCapacityModalInternal = ({
-  bucketName,
-  maxCapacity,
-  status,
-}: VeeamCapacityModalProps) => {
+export const VeeamCapacityModalInternal = ({ bucketName, maxCapacity, status, onCapacityUpdated }: VeeamCapacityModalProps) => {
   const { capacityValue, capacityUnit } = useCapacityUnit(maxCapacity);
   const methods = useForm<VeeamCapacityForm>({
     mode: 'all',
@@ -66,19 +48,23 @@ export const VeeamCapacityModalInternal = ({
     handleSubmit,
     formState: { isValid },
     watch,
+    reset,
   } = methods;
   const [isCapacityModalOpen, setIsCapacityModalOpen] = useState(false);
+
+  useEffect(() => {
+    reset({ capacity: capacityValue, capacityUnit });
+  }, [capacityValue, capacityUnit, reset]);
   const { mutate } = usePutObject();
   const { showToast } = useToast();
 
   const onSubmit = ({ capacity, capacityUnit }: VeeamCapacityForm) => {
+    const capacityBytes = getCapacityBytes(capacity, capacityUnit);
     mutate(
       {
         Bucket: bucketName,
         Key: VEEAM_OBJECT_KEY,
-        Body: GET_CAPACITY_XML_CONTENT(
-          getCapacityBytes(capacity, capacityUnit),
-        ),
+        Body: GET_CAPACITY_XML_CONTENT(capacityBytes),
         ContentType: 'text/xml',
       },
       {
@@ -89,14 +75,13 @@ export const VeeamCapacityModalInternal = ({
             status: 'success',
             message: 'Repository capacity updated successfully',
           });
+          onCapacityUpdated?.(Number(capacityBytes));
         },
         onError: (err) => {
           showToast({
             open: true,
             status: 'error',
-            message: `Failed to update repository capacity: ${
-              err instanceof Error ? err.message : 'Unknown error'
-            }`,
+            message: `Failed to update repository capacity: ${err instanceof Error ? err.message : 'Unknown error'}`,
           });
         },
       },
@@ -111,13 +96,7 @@ export const VeeamCapacityModalInternal = ({
           variant="outline"
           label="Edit"
           aria-label="Edit max capacity"
-          icon={
-            status === 'loading' ? (
-              <Loader size="larger" />
-            ) : (
-              <Icon name="Pencil" />
-            )
-          }
+          icon={status === 'loading' ? <Loader size="larger" /> : <Icon name="Pencil" />}
           onClick={() => setIsCapacityModalOpen(true)}
           disabled={status === 'loading'}
         />
@@ -129,11 +108,7 @@ export const VeeamCapacityModalInternal = ({
             <Wrap>
               <p></p>
               <Stack>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsCapacityModalOpen(false)}
-                  label="Cancel"
-                />
+                <Button variant="outline" onClick={() => setIsCapacityModalOpen(false)} label="Cancel" />
                 <Button
                   form="capacity-form"
                   type="submit"
@@ -141,11 +116,7 @@ export const VeeamCapacityModalInternal = ({
                   aria-label="Update max capacity"
                   onClick={handleSubmit(onSubmit)}
                   label="Confirm"
-                  disabled={
-                    !isValid ||
-                    (capacityValue === watch('capacity') &&
-                      capacityUnit === watch('capacityUnit'))
-                  }
+                  disabled={!isValid || (capacityValue === watch('capacity') && capacityUnit === watch('capacityUnit'))}
                 />
               </Stack>
             </Wrap>
