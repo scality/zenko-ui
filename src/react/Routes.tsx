@@ -333,6 +333,9 @@ function InternalRoutes() {
     '/accounts/:accountName/buckets/:bucketName/replication/create',
     '/accounts/:accountName/buckets/:bucketName/replication/edit/:ruleId',
     '/accounts/:accountName/buckets/:bucketName/notifications/create',
+    '/accounts/:accountName/buckets/:bucketName/notifications/edit/:ruleId',
+    '/accounts/:accountName/buckets/:bucketName/cors',
+    '/accounts/:accountName/buckets/:bucketName/policy',
   ];
 
   const hideSideBar = doesRouteMatch(routeWithoutSideBars);
