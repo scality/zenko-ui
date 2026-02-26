@@ -266,6 +266,50 @@ describe('Routes component', () => {
     });
   });
 
+  describe('routeWithoutSideBars (form routes)', () => {
+    // Use empty basePath so pathname matches route as-is (test router has no basename)
+    const basePath = '';
+
+    beforeEach(() => {
+      mockUseConfig.mockReturnValue({
+        basePath,
+        features: [],
+        zenkoEndpoint: '/zenko/s3',
+        iamEndpoint: '/zenko/iam',
+        stsEndpoint: '/zenko/sts',
+        managementEndpoint: '/zenko/management',
+        s3InternalFQDN: 's3.test.local',
+        iamInternalFQDN: 'iam.test.local',
+      });
+    });
+
+    it('should hide sidebar and breadcrumb on simple form route (create-account)', async () => {
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/create-account',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Create New Account')).toBeInTheDocument();
+      });
+      expect(selectors.dataServicesLink()).not.toBeInTheDocument();
+      expect(selectors.locationsLink()).not.toBeInTheDocument();
+    });
+
+    it('should hide sidebar and breadcrumb on complex form route (update-user)', async () => {
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/accounts/my-account/users/john/update-user',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Edit a User')).toBeInTheDocument();
+      });
+      expect(selectors.dataServicesLink()).not.toBeInTheDocument();
+      expect(selectors.locationsLink()).not.toBeInTheDocument();
+    });
+  });
+
   describe('truststore routes', () => {
     it('should render Truststore route when Platform Admin and MetalK8s is enabled', async () => {
       // Mock the hook to return PlatformAdmin user
