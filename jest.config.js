@@ -2,7 +2,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   testMatch: ['**/?(*.)+(test).ts?(x)'],
   transformIgnorePatterns: [
-    '/node_modules/(?!(vega-lite|@scality|pretty-bytes|uuid|@fortawesome)/)',
+    '/node_modules/(?!(vega-lite|@scality|pretty-bytes|uuid|@fortawesome|@marijn|@codemirror|@lezer|codemirror-json-schema|@uiw)/)',
   ],
   moduleNameMapper: {
     '\\.(css|scss)$': 'identity-obj-proxy',
@@ -11,6 +11,8 @@ module.exports = {
     '\\.(css|less)$': '<rootDir>/assetsTransformer.js',
     '^@fortawesome/free-solid-svg-icons/(.*)\\.js$': '@fortawesome/free-solid-svg-icons/$1',
     '^@fortawesome/free-regular-svg-icons/(.*)\\.js$': '@fortawesome/free-regular-svg-icons/$1',
+    '^@shikijs/(.*)$': '<rootDir>/src/react/__mocks__/esmOnlyModules.js',
+    '^shiki/(.*)$': '<rootDir>/src/react/__mocks__/esmOnlyModules.js',
   },
   setupFiles: ['<rootDir>/.jest-setup.js'],
   setupFilesAfterEnv: ['<rootDir>/jestSetupAfterEnv.tsx'],

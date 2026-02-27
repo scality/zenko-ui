@@ -54,7 +54,7 @@ const config: Configuration = {
     rules: [
       {
         test: /\.js$/,
-        include: [/data-browser-library/],
+        include: [/data-browser-library/, /codemirror-json-schema/],
         resolve: {
           fullySpecified: false,
         },

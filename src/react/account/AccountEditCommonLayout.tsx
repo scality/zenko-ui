@@ -1,9 +1,8 @@
-import { FormEvent, MouseEvent, useState, JSX } from 'react';
 import { Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
-import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
-import { Controller, Control } from 'react-hook-form';
-import Editor from '../ui-elements/Editor';
-import { Monaco } from '@monaco-editor/react';
+import { Box, Button, CopyButton, Editor } from '@scality/core-ui/dist/next';
+import type { JSONSchema7 } from 'json-schema';
+import { type FormEvent, type JSX, type MouseEvent, useState } from 'react';
+import { type Control, Controller } from 'react-hook-form';
 import policySchema from '../../../policyJsonSchema.json';
 
 export const CommonPolicyLayout = ({
@@ -46,8 +45,7 @@ export const CommonPolicyLayout = ({
     setFormBodyHeight(element?.children[1].getBoundingClientRect().height);
   };
 
-  const editorHeight =
-    formBodyHeight - (editorYPosition - formBodyYPosition) - 46;
+  const editorHeight = formBodyHeight - (editorYPosition - formBodyYPosition) - 46;
 
   return (
     <Form
@@ -55,27 +53,15 @@ export const CommonPolicyLayout = ({
       onSubmit={onSubmit}
       layout={{
         kind: 'page',
-        title: `Policy ${
-          isCreateMode ? 'Creation' : !isReadOnly ? 'Edition' : ''
-        }`,
+        title: `Policy ${isCreateMode ? 'Creation' : !isReadOnly ? 'Edition' : ''}`,
       }}
       requireMode={isCreateMode ? 'partial' : 'all'}
       rightActions={
         isReadOnly ? (
-          <Button
-            variant="outline"
-            label="Close"
-            onClick={handleCancel}
-            type="button"
-          />
+          <Button variant="outline" label="Close" onClick={handleCancel} type="button" />
         ) : (
           <Stack gap="r16">
-            <Button
-              variant="outline"
-              label="Cancel"
-              onClick={handleCancel}
-              type="button"
-            />
+            <Button variant="outline" label="Cancel" onClick={handleCancel} type="button" />
             <Button
               disabled={!isDirty || !isValid}
               type="submit"
@@ -132,35 +118,17 @@ export const CommonPolicyLayout = ({
                   }}
                   render={({ field: { onChange, value } }) => (
                     <Editor
-                      language="application/json"
+                      language={{ name: 'json', schema: policySchema as unknown as JSONSchema7 }}
                       width="33rem"
                       height={`${editorHeight}px`}
                       onChange={onChange}
                       value={value}
                       readOnly={isReadOnly}
-                      beforeMount={(monaco: Monaco) => {
-                        monaco.languages.json.jsonDefaults.setDiagnosticsOptions(
-                          {
-                            validate: true,
-                            schemas: [
-                              {
-                                uri: 'http://myserver/foo-schema.json', // id of the first schema
-                                fileMatch: ['*'],
-                                schema: policySchema,
-                              },
-                            ],
-                          },
-                        );
-                      }}
                     />
                   )}
                 />
                 <Box alignSelf="baseline">
-                  <CopyButton
-                    textToCopy={policyDocument}
-                    label="Policy"
-                    variant="outline"
-                  />
+                  <CopyButton textToCopy={policyDocument} label="Policy" variant="outline" />
                 </Box>
               </Stack>
             </div>
