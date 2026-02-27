@@ -14,3 +14,11 @@ jobs:
 
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v3
+        with:
+          # TODO: Remove once @scality/cloudserverclient upgrades fast-xml-parser to v5.3.8+
+          # and aws-sdk v2 is migrated to v3
+          allow-ghsas: >-
+            GHSA-m7jm-9gc2-mpf2,
+            GHSA-jmr7-xgp7-cmfj,
+            GHSA-fj3w-jwp8-x2g3,
+            GHSA-j965-2qgj-vjmq
