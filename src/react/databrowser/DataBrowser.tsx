@@ -125,7 +125,6 @@ export default function DataBrowser({
         transformBucketCreateData={transformBucketCreateData}
         bucketCreateVersioning={BucketCreateVersioning}
         replicationRoleDefault="arn:aws:iam::root:role/s3-replication-role"
-        replicationRoleCollapsible={true}
         replicationDestinationFields={ReplicationCRRDestinationFields}
       />
     </>
