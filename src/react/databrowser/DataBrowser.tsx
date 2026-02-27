@@ -6,9 +6,9 @@ import { useAuthGroups, useQueryParams } from '../utils/hooks';
 import { Box } from '@scality/core-ui/dist/next';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import {
-  Bucket,
-  ColumnConfig,
   DataBrowserUI,
+  type Bucket,
+  type ColumnConfig,
 } from '@scality/data-browser-library';
 import { LocationSelector } from './buckets/LocationSelector';
 import { StorageClassSelector } from './buckets/StorageClassSelector';
@@ -21,6 +21,7 @@ import { LocationSection } from './buckets/LocationSection';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 import { BucketMetricsPrefetch } from './hooks/useBucketMetrics';
 import { BucketLocationsPrefetch } from './BucketLocationsPrefetch';
+import { ReplicationCRRDestinationFields } from './buckets/ReplicationCRRDestinationFields';
 
 const EXTRA_BUCKET_OVERVIEW_SECTIONS = [
   {
@@ -123,6 +124,9 @@ export default function DataBrowser({
         bucketCreateExtraFields={bucketCreateExtraFields}
         transformBucketCreateData={transformBucketCreateData}
         bucketCreateVersioning={BucketCreateVersioning}
+        replicationRoleDefault="arn:aws:iam::root:role/s3-replication-role"
+        replicationRoleCollapsible={true}
+        replicationDestinationFields={ReplicationCRRDestinationFields}
       />
     </>
   );

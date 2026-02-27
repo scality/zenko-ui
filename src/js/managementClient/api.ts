@@ -2860,6 +2860,12 @@ export interface Replicationstreaminternalv1Destination {
    * @memberof Replicationstreaminternalv1Destination
    */
   locations?: Array<Replicationstreaminternalv1DestinationLocations>;
+  /**
+   * Only supported for CRR Replication
+   * @type {string}
+   * @memberof Replicationstreaminternalv1Destination
+   */
+  role?: string;
 }
 
 /**
