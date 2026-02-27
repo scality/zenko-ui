@@ -41,7 +41,7 @@ describe('SecretKeyModal', () => {
   });
 
   it('should render SecretKeyModal component with key informations', async () => {
-    const writeTextFn = jest.fn();
+    const writeTextFn = jest.fn().mockResolvedValue(undefined);
     //@ts-expect-error fix this when you are working on it
     global.navigator.clipboard = {
       writeText: writeTextFn,

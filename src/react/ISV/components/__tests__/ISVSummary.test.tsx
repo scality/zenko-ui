@@ -101,7 +101,7 @@ describe('ISVSummary', () => {
   let writeTextSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    writeTextSpy = jest.spyOn(navigator.clipboard, 'writeText');
+    writeTextSpy = jest.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
   });
 
   afterEach(() => {
