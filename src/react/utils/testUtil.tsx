@@ -288,7 +288,7 @@ export const testMount = (component: React.ReactNode) => {
   };
 };
 
-// AutoSizer uses offsetWidth and offsetHeight.
+// AutoSizer uses offsetWidth/offsetHeight and getBoundingClientRect.
 // Jest runs in JSDom which doesn't support measurements APIs.
 export function mockOffsetSize(width: number, height: number) {
   const originalFunction = window.getComputedStyle;
@@ -303,18 +303,31 @@ export function mockOffsetSize(width: number, height: number) {
     return originalStyle;
   });
 
+  const w = width || 100;
+  const h = height || 100;
+
   Object.defineProperties(window.HTMLElement.prototype, {
     offsetHeight: {
-      get: () => {
-        return height || 100;
-      },
+      get: () => h,
     },
     offsetWidth: {
-      get: () => {
-        return width || 100;
-      },
+      get: () => w,
     },
   });
+
+  window.HTMLElement.prototype.getBoundingClientRect = function () {
+    return {
+      width: w,
+      height: h,
+      top: 0,
+      left: 0,
+      bottom: h,
+      right: w,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    };
+  };
 }
 
 export const WrapperAsStorageManager = ({
