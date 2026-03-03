@@ -26,7 +26,7 @@ import { ReplicationCRRDestinationFields } from './buckets/ReplicationCRRDestina
 const EXTRA_BUCKET_OVERVIEW_SECTIONS = [
   {
     id: 'useCase',
-    title: 'Use-case',
+    title: 'Use case',
     render: UseCaseSection,
   },
 ];
@@ -34,6 +34,7 @@ const EXTRA_BUCKET_OVERVIEW_SECTIONS = [
 const EXTRA_BUCKET_OVERVIEW_GENERAL = [
   {
     id: 'location',
+    label: 'Location',
     render: LocationSection,
   },
 ];
