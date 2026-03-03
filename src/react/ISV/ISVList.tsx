@@ -21,14 +21,14 @@ export const ISVList: ISVCardConfig[] = [
     id: 'zerto',
     name: 'Zerto',
     logo: <ZertoLogo />,
-    documentationLink: '/artesca/docs/partner_applications/backup_and_archives/zerto/zerto.html',
+    documentationLink: '/artesca/docs/partner_applications/backup_and_archives/zerto.html',
     category: 'backup-and-archive',
   },
   {
     id: 'splunk',
     name: 'Splunk',
     logo: <SplunkLogo />,
-    documentationLink: '/artesca/docs/partner_applications/backup_and_archives/splunk.html',
+    documentationLink: '/artesca/docs/partner_applications/big_data_storage/splunk.html',
     category: 'big-data-storage',
   },
   {

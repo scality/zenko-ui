@@ -73,7 +73,7 @@ export const VeeamVBRPlatform = definePlatform({
   name: 'Veeam',
   logo: <VeeamLogo />,
   policy: GET_VEEAM_POLICY,
-  documentationLink: '/artesca/docs/partner_applications/backup_and_archives/veeam/index.html',
+  documentationLink: '/artesca/docs/partner_applications/backup_and_archives/veeam_backup_and_replication/index.html',
   disabledMessage: VeeamVBRDisabledMessage,
   bucketTag: VEEAM_BACKUP_REPLICATION,
   application: VEEAM_BACKUP_REPLICATION,
