@@ -118,6 +118,7 @@ export function definePlatform(config: PlatformConfig): ISVPlatform {
     documentationLink: config.documentationLink,
     assistant: config.assistant ?? true,
     application: config.application,
+    category: config.category,
     disabledMessage: config.disabledMessage,
     contextProvider: config.contextProvider,
   };

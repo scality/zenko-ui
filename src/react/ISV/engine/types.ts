@@ -27,6 +27,8 @@ export type ISVId =
   | 'ctera'
   | 'veritas';
 
+export type ISVCategory = 'backup-and-archive' | 'big-data-storage' | 'cloud-and-edge-storage';
+
 // ============================================================================
 // Form Data Types
 // ============================================================================
@@ -333,6 +335,7 @@ export type ISVPlatform = {
   documentationLink: string;
   assistant: boolean;
   application?: string;
+  category: ISVCategory;
   disabledMessage?: DisabledMessageComponent;
   contextProvider?: FC<{ children: ReactNode }>;
 };
@@ -348,6 +351,7 @@ export type PlatformConfig = {
   logo: ReactElement;
   policy: (buckets: string[], isImmutable: boolean) => string;
   documentationLink: string;
+  category: ISVCategory;
 
   // Optional card info
   assistant?: boolean;

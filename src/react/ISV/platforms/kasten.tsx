@@ -11,6 +11,7 @@ export const KastenPlatform = definePlatform({
   logo: <VeeamKastenLogo />,
   policy: GET_KASTEN_POLICY,
   documentationLink: '/artesca/docs/partner_applications/backup_and_archives/kasten.html',
+  category: 'backup-and-archive',
 
   fieldOverrides: {
     accountName: {

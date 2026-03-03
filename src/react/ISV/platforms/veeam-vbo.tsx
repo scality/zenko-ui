@@ -1,29 +1,25 @@
 import { Stack, Text } from '@scality/core-ui';
-import { definePlatform, VeeamVBOValidator } from '../engine';
-import type { FormData } from '../engine';
-import { GET_VEEAM_POLICY } from '../utils/ISVPolicy';
-import { VeeamLogo } from '../components/logos/VeeamLogo';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
+import { VeeamLogo } from '../components/logos/VeeamLogo';
 import {
   AccountTooltip,
+  ApplicationTooltip,
   BucketNameTooltip,
   VeeamImmutableBackupTooltip,
-  ApplicationTooltip,
 } from '../components/shared/PlatformTooltips';
-import {
-  VEEAM_OFFICE_365,
-  VEEAM_OFFICE_365_V8,
-  VEEAM_VBO_APPLICATION,
-} from '../constants';
+import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8, VEEAM_VBO_APPLICATION } from '../constants';
+import type { FormData } from '../engine';
+import { definePlatform, VeeamVBOValidator } from '../engine';
+import { GET_VEEAM_POLICY } from '../utils/ISVPolicy';
 
 export const VeeamVBOPlatform = definePlatform({
   id: 'veeam-vbo',
   name: 'Veeam VB365',
   logo: <VeeamLogo />,
   policy: GET_VEEAM_POLICY,
-  documentationLink:
-    '/artesca/docs/partner_applications/backup_and_archives/veeam_backup_for_ms_365.html',
+  documentationLink: '/artesca/docs/partner_applications/backup_and_archives/veeam_backup_for_ms_365.html',
   application: VEEAM_VBO_APPLICATION,
+  category: 'backup-and-archive',
   bucketTag: VEEAM_VBO_APPLICATION,
 
   fieldOverrides: {
@@ -68,9 +64,7 @@ export const VeeamVBOPlatform = definePlatform({
     serviceEndpointLabel: 'Service Endpoint',
     immutabilityLabel: 'Immutable Backup',
     immutabilityHelpText: (enabled: boolean) =>
-      enabled
-        ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
-        : undefined,
+      enabled ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.' : undefined,
   },
 
   description: (
@@ -85,9 +79,8 @@ export const VeeamVBOPlatform = definePlatform({
 
   skipModalContent: (
     <Text>
-      To start Veeam assistant configuration again, you can go to the{' '}
-      <b>Accounts</b> page or <b>Data Browser</b> page. If the platform doesn't
-      have any accounts, it will also prompt you on your next login.
+      To start Veeam assistant configuration again, you can go to the <b>Accounts</b> page or <b>Data Browser</b> page.
+      If the platform doesn't have any accounts, it will also prompt you on your next login.
     </Text>
   ),
 

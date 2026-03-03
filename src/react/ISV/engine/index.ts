@@ -44,6 +44,7 @@ export type {
   FormData,
   // Context
   FullContext,
+  ISVCategory,
   // Platform identity
   ISVId,
   // Template (output)

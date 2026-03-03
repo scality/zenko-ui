@@ -16,10 +16,7 @@ type CardProps = {
   disabled?: boolean;
 };
 
-const CardContent = (props: {
-  logo: React.JSX.Element;
-  application: string;
-}) => {
+const CardContent = (props: { logo: React.JSX.Element; application: string }) => {
   const { logo, application } = props;
   return (
     <Stack direction="vertical" gap="r8">
@@ -43,11 +40,9 @@ const CustomLabel = styled.label<{ selected?: boolean; disabled?: boolean }>`
   padding: ${spacing.r20};
   align-items: flex-start;
   border-radius: ${spacing.f8};
-  background-color: ${(props) =>
-    props.selected ? props.theme.highlight : props.theme.backgroundLevel4};
+  background-color: ${(props) => (props.selected ? props.theme.highlight : props.theme.backgroundLevel4)};
   border: 1px solid
-    ${(props) =>
-      props.selected ? props.theme.highlight : props.theme.backgroundLevel4};
+    ${(props) => (props.selected ? props.theme.highlight : props.theme.backgroundLevel4)};
   &:hover {
     border-color: ${(props) => !props.disabled && props.theme.textPrimary};
   }
@@ -77,17 +72,11 @@ const StyledDiv = styled.div`
 export const CardISV = (props: CardProps) => {
   const metalK8sInstances = useDeployedMetalk8sInstances();
   const isMetalk8sInstanceDeployed = metalK8sInstances.length > 0;
-  const { logo, name, application, onChange, selected, link, disabledMessage, disabled } =
-    props;
+  const { logo, name, application, onChange, selected, link, disabledMessage, disabled } = props;
   const isDisabled = disabled ?? false;
 
   const labelContent = (
-    <CustomLabel
-      disabled={isDisabled}
-      htmlFor={`isv-${name}`}
-      selected={selected}
-      aria-disabled={isDisabled}
-    >
+    <CustomLabel disabled={isDisabled} htmlFor={`isv-${name}`} selected={selected} aria-disabled={isDisabled}>
       <CardContent logo={logo} application={application} />
 
       <Input

@@ -1,5 +1,6 @@
 import { Banner, Stack, Text } from '@scality/core-ui';
 import { useEffect } from 'react';
+import { VeeamCredentialFields } from '../components/fields/VeeamCredentialFields';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
 import { VeeamLogo } from '../components/logos/VeeamLogo';
 import {
@@ -8,8 +9,6 @@ import {
   CapacityTooltip,
   VeeamImmutableBackupTooltip,
 } from '../components/shared/PlatformTooltips';
-import { VeeamCredentialFields } from '../components/fields/VeeamCredentialFields';
-import { VeeamCredentialProvider } from '../contexts/VeeamCredentialContext';
 import { VeeamRepositoryFields } from '../components/VeeamRepositoryFields';
 import { VeeamRepositorySummary } from '../components/VeeamRepositorySummary';
 import { VeeamMultipleBucketCapture } from '../components/veeam/VeeamMultipleBucketCapture';
@@ -22,6 +21,7 @@ import {
   VEEAM_BACKUP_REPLICATION,
   VEEAM_XML_PREFIX,
 } from '../constants';
+import { VeeamCredentialProvider } from '../contexts/VeeamCredentialContext';
 import type { BucketItem, DisabledMessageProps, FormData, FullContext, PreviousResults } from '../engine';
 import { definePlatform, VeeamVBRValidator } from '../engine';
 import { useCheckSOSAPIStatus } from '../hooks/useCheckSOSAPIStatus';
@@ -77,6 +77,7 @@ export const VeeamVBRPlatform = definePlatform({
   disabledMessage: VeeamVBRDisabledMessage,
   bucketTag: VEEAM_BACKUP_REPLICATION,
   application: VEEAM_BACKUP_REPLICATION,
+  category: 'backup-and-archive',
 
   sosAPI: true,
   bucketCapacity: true,
