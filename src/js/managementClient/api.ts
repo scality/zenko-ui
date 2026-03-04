@@ -4212,9 +4212,9 @@ export namespace StorageConsumptionMetricItemV1 {
    * @enum {string}
    */
   export enum TypeEnum {
-    HasMetrics = 'hasMetrics',
-    NoMetrics = 'noMetrics',
-    Errored = 'errored',
+    HasMetrics = <any>'hasMetrics',
+    NoMetrics = <any>'noMetrics',
+    Errored = <any>'errored',
   }
 }
 

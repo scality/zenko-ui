@@ -1,10 +1,11 @@
-import { Bucket } from '@scality/data-browser-library';
-import { LatestUsedCapacity } from '../../domain/entities/metrics';
-import { IMetricsAdapter } from './IMetricsAdapter';
+import type { Bucket } from '@scality/data-browser-library';
 import makeMgtClient, {
-  UiFacingApiWrapper,
+  type UiFacingApiWrapper,
 } from '../../../../js/managementClient';
+import { StorageConsumptionMetricItemV1 } from '../../../../js/managementClient/api';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
+import type { LatestUsedCapacity } from '../../domain/entities/metrics';
+import type { IMetricsAdapter } from './IMetricsAdapter';
 
 export class PensieveMetricsAdapter implements IMetricsAdapter {
   managementClient: UiFacingApiWrapper;
@@ -27,7 +28,7 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
         ),
       );
     return Object.keys(bucketsMetrics).reduce((acc, bucketId) => {
-      if (bucketsMetrics[bucketId].type === 'hasMetrics') {
+      if (bucketsMetrics[bucketId].type === StorageConsumptionMetricItemV1.TypeEnum.HasMetrics) {
         acc[bucketId] = {
           type: 'hasMetrics',
           usedCapacity: notFalsyTypeGuard(
@@ -61,7 +62,7 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
       {};
 
     resultingLocationIds.forEach((id) => {
-      if (locationsMetrics[id].type === 'hasMetrics') {
+      if (locationsMetrics[id].type === StorageConsumptionMetricItemV1.TypeEnum.HasMetrics) {
         locationsLatestUsedCapacityList[id] = {
           type: 'hasMetrics',
           usedCapacity: notFalsyTypeGuard(locationsMetrics[id].usedCapacity),
@@ -133,7 +134,7 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
       {};
 
     resultingAccountIds.forEach((id) => {
-      if (accountsMetrics[id].type === 'hasMetrics') {
+      if (accountsMetrics[id].type === StorageConsumptionMetricItemV1.TypeEnum.HasMetrics) {
         accountsLatestUsedCapacityList[id] = {
           type: 'hasMetrics',
           usedCapacity: notFalsyTypeGuard(accountsMetrics[id].usedCapacity),

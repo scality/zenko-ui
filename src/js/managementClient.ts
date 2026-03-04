@@ -11,19 +11,25 @@ export class UiFacingApiWrapper extends UiFacingApi {
     super(configuration, baseUrl, fetchFn);
   }
 
-  setToken(token: string) {
+  setToken(token: string | null) {
+    const basePath = `${genClientEndpoint(this.baseUrl)}/api/v1`;
+    const auth =
+      typeof token === 'string' && token
+        ? token
+        : (this.configuration?.apiKey as string | undefined);
     this.configuration = new Configuration({
-      apiKey: token,
-      basePath: `${genClientEndpoint(this.baseUrl)}/api/v1`,
+      apiKey: auth,
+      basePath,
     });
   }
 }
 
 function makeMgtClient(endpoint: string, token: string) {
+  const basePath = `${genClientEndpoint(endpoint)}/api/v1`;
   return new UiFacingApiWrapper(
     new Configuration({
       apiKey: token,
-      basePath: `${genClientEndpoint(endpoint)}/api/v1`,
+      basePath,
     }),
     `${endpoint}/api/v1`,
     window.fetch,

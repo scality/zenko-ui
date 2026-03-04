@@ -1,29 +1,26 @@
+import { ToastProvider } from '@scality/core-ui';
+import { coreUIAvailableThemes } from '@scality/core-ui/src/lib/style/theme';
+import { ShellHooksProvider } from '@scality/module-federation';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { QueryClient } from 'react-query';
+import { ThemeProvider } from 'styled-components';
+import {
+  getConfigOverlay,INSTANCE_ID, 
+  USERS
+} from '../../../js/mock/managementClientMSWHandlers';
+import { QueryClientProvider } from '../../../QueryClientProvider';
 import {
   mockShellAlerts,
   mockShellHooks,
   TEST_API_BASE_URL,
 } from '../../../react/utils/testUtil';
 import {
-  SelectAccountIAMRoleInternal as SelectAccountIAMRole,
   extractAccountIdFromARN,
+  SelectAccountIAMRoleInternal as SelectAccountIAMRole,
 } from '../SelectAccountIAMRole';
-
-import userEvent from '@testing-library/user-event';
-import {
-  USERS,
-  getConfigOverlay,
-} from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
-import { ToastProvider } from '@scality/core-ui';
-import { coreUIAvailableThemes } from '@scality/core-ui/src/lib/style/theme';
-import { ThemeProvider } from 'styled-components';
-import { QueryClientProvider } from '../../../QueryClientProvider';
-import { ShellHooksProvider } from '@scality/module-federation';
-import { debug } from 'jest-preview';
 
 const testAccountId1 = '064609833007';
 const testAccountId2 = '377232323695';
@@ -411,7 +408,7 @@ describe('SelectAccountIAMRole', () => {
       canManageAccount: true,
       canonicalId:
         '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
-      creationDate: '2022-03-18T12:51:44.000Z',
+      creationDate: new Date('2022-03-18T12:51:44.000Z'),
       id: testAccountId1,
       name: 'no-bucket',
       preferredAssumableRoleArn: `arn:aws:iam::${testAccountId1}:role/scality-internal/storage-manager-role`,
@@ -533,7 +530,7 @@ describe('SelectAccountIAMRole', () => {
           canManageAccount: true,
           canonicalId:
             '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
-          creationDate: '2022-03-18T12:51:44.000Z',
+          creationDate: new Date('2022-03-18T12:51:44.000Z'),
           id: '064609833007',
           name: 'no-bucket',
           preferredAssumableRoleArn:
@@ -682,7 +679,7 @@ describe('SelectAccountIAMRole', () => {
           canManageAccount: true,
           canonicalId:
             '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
-          creationDate: '2022-04-29T09:35:35.000Z',
+          creationDate: new Date('2022-04-29T09:35:35.000Z'),
           id: '377232323695',
           name: 'yanjin',
           preferredAssumableRoleArn:
@@ -953,7 +950,7 @@ describe('SelectAccountIAMRole', () => {
         canManageAccount: true,
         canonicalId:
           '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
-        creationDate: '2022-03-18T12:51:44.000Z',
+        creationDate: new Date('2022-03-18T12:51:44.000Z'),
         id: '064609833007',
         name: 'no-bucket',
         preferredAssumableRoleArn:

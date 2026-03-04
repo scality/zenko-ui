@@ -1,6 +1,7 @@
+import type { JSX } from 'react';
 import {
   JAGUAR_S3_LOCATION_KEY,
-  LocationTypeKey,
+  type LocationTypeKey,
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
   OUTSCALE_SNC_S3_LOCATION_KEY,
@@ -9,8 +10,10 @@ import LocationDetailsAws from './LocationDetailsAws';
 import LocationDetailsAwsCustom from './LocationDetailsAwsCustom';
 import LocationDetailsAzure from './LocationDetailsAzure';
 import LocationDetailsAzureArchive from './LocationDetailsAzureArchive';
+import LocationDetailsCRR from './LocationDetailsCRR';
 import LocationDetailsDOSpaces from './LocationDetailsDOSpaces';
 import LocationDetailsGcp from './LocationDetailsGcp';
+import LocationDetailsGlacier from './LocationDetailsGlacier';
 import LocationDetailsHyperdriveV2 from './LocationDetailsHyperdriveV2';
 import LocationDetailsNFS from './LocationDetailsNFS';
 import LocationDetailsOracle from './LocationDetailsOracle';
@@ -18,8 +21,6 @@ import LocationDetailsSproxyd from './LocationDetailsSproxyd';
 import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
 import LocationDetailsTapeMiria from './LocationDetailsTapeMiria';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
-import LocationDetailsCRR from './LocationDetailsCRR';
-import { JSX } from 'react';
 
 export type StorageOptionValues = {
   name: string;
@@ -121,6 +122,27 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     hasIcon: false,
     category: 'public-cloud',
   },
+  // TODO: Add Glacier locations after Form is implemented
+  // 'location-aws-glacier-v1': {
+  //   name: 'Amazon S3 Glacier',
+  //   short: 'AWS Glacier',
+  //   formDetails: LocationDetailsGlacier,
+  //   supportsVersioning: false,
+  //   supportsReplicationTarget: true,
+  //   supportsReplicationSource: false,
+  //   hasIcon: false,
+  //   category: 'public-cloud',
+  // },
+  // 'location-scaleway-glacier-v1': {
+  //   name: 'Scaleway Glacier',
+  //   short: 'Scaleway Glacier',
+  //   formDetails: LocationDetailsGlacier,
+  //   supportsVersioning: false,
+  //   supportsReplicationTarget: true,
+  //   supportsReplicationSource: false,
+  //   hasIcon: false,
+  //   category: 'public-cloud',
+  // },
   [JAGUAR_S3_LOCATION_KEY]: {
     name: 'Atlas Object Storage (Free Pro)',
     short: 'Atlas S3',
