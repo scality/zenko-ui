@@ -2538,8 +2538,6 @@ export enum LocationType {
   ScalityCrrV1 = <any>'location-scality-crr-v1',
 }
 
-
-
 /**
  *
  * @export
@@ -9061,6 +9059,9 @@ export const UiFacingApiFp = function (configuration?: Configuration) {
       return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
         return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
           if (response.status >= 200 && response.status < 300) {
+            if (response.status === 204) {
+              return {};
+            }
             return response;
           } else {
             throw response;
