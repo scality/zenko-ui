@@ -9050,7 +9050,7 @@ export const UiFacingApiFp = function (configuration?: Configuration) {
       userId: string,
       invites: Array<Invites>,
       options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response | Record<string, never>> {
       const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).inviteOrbitUsersByEmail(
         userId,
         invites,
