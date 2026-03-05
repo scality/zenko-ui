@@ -33,6 +33,9 @@ const StyledForm = styled(Form)`
   height: calc(100vh - 48px);
 `;
 
+// Form constants
+export const ACCESS_KEY_PLACEHOLDER = 'AKI5HMPCLRB86WCKTN2C';
+export const SECRET_KEY_PLACEHOLDER = 'QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6';
 export const LOCATION_EDITOR_FORCED_LABEL_WIDTH = 280;
 
 const StyledSelect = styled(Select)`
@@ -210,9 +213,9 @@ function LocationEditor() {
     );
   };
 
-  //@ts-expect-error fix this when you are working on it
-  const { disable, errorMessageFront } = locationFormCheck(location);
-  let displayErrorMessage;
+
+  const { disable, errorMessage: errorMessageFront } = locationFormCheck(location);
+  let displayErrorMessage: string | undefined;
 
   const hasError = createLocationMutation.isError || updateLocationMutation.isError || waiterStatus === 'error';
 

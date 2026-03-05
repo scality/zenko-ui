@@ -20,7 +20,7 @@ import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
 import { HelpLocationCreationAsyncNotification } from '../../ui-elements/Help';
 import { isIngestSource } from '../../utils/storageOptions';
-import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
 import { checkIsRingS3Reseller } from '../utils';
 import type { LocationDetailsFormProps } from '.';
 import { storageOptions } from './storageOptions';
@@ -94,7 +94,7 @@ export default function LocationDetailsAwsCustom({
               name="accessKey"
               id="accessKey"
               type="text"
-              placeholder="AKI5HMPCLRB86WCKTN2C"
+              placeholder={ACCESS_KEY_PLACEHOLDER}
               value={formState.accessKey}
               onChange={onFormItemChange}
               autoComplete="off"
@@ -117,7 +117,7 @@ export default function LocationDetailsAwsCustom({
               name="secretKey"
               id="secretKey"
               type="password"
-              placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+              placeholder={SECRET_KEY_PLACEHOLDER}
               value={formState.secretKey}
               onChange={onFormItemChange}
               autoComplete="new-password"

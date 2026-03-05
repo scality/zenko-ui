@@ -3,8 +3,7 @@ import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Fo
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
 import type { LocationDetails } from '../../../types/config';
-import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
-import { SECRET_KEY_PLACEHOLDER } from './LocationDetailsOracle';
+import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
 
 type Props = {
   details: LocationDetails;
@@ -81,7 +80,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 name="accessKey"
                 id="accessKey"
                 type="text"
-                placeholder="AKI5HMPCLRB86WCKTN2C"
+                placeholder={ACCESS_KEY_PLACEHOLDER}
                 value={this.state.accessKey}
                 onChange={this.onChange}
                 autoComplete="off"

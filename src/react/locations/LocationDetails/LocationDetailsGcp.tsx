@@ -1,7 +1,7 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
-import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import { LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
 
 type State = {
@@ -87,7 +87,7 @@ export default class LocationDetailsGcp extends React.Component<LocationDetailsF
               name="secretKey"
               id="secretKey"
               type="password"
-              placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+              placeholder={SECRET_KEY_PLACEHOLDER}
               value={this.state.secretKey}
               onChange={this.onChange}
               autoComplete="new-password"

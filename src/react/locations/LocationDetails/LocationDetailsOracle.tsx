@@ -3,9 +3,8 @@ import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Fo
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
-export const SECRET_KEY_PLACEHOLDER = 'QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6';
 type State = {
   bucketMatch: boolean;
   accessKey: string;
@@ -121,7 +120,7 @@ export default function LocationDetailsOracle({ details, editingExisting, onChan
               name="accessKey"
               id="accessKey"
               type="text"
-              placeholder="AKI5HMPCLRB86WCKTN2C"
+              placeholder={ACCESS_KEY_PLACEHOLDER}
               value={formState.accessKey}
               onChange={onFormItemChange}
               autoComplete="off"
