@@ -108,7 +108,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
           {
             type: newType,
             queueName: '',
-            endpoint: '',
+            namespace: '',
           },
         ],
         [
@@ -297,7 +297,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
 
         {formState.queue.type === LocationAzureQueue.TypeEnum.AzureServicebusQueueV1 &&
         'queueName' in formState.queue &&
-        'endpoint' in formState.queue ? (
+        'namespace' in formState.queue ? (
           <>
             <FormGroup
               label="Queue Name"
@@ -318,17 +318,17 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
             />
             <FormGroup
               label="Service Bus Endpoint"
-              id="queue.endpoint"
+              id="queue.namespace"
               helpErrorPosition="bottom"
-              labelHelpTooltip="https://<<ServiceBusNamespace>>.servicebus.windows.net is usually used as the Storage queue endpoint."
+              labelHelpTooltip='Enter the namespace name (like "my-sb") or the FQDN (like "my-sb.servicebus.windows.net").'
               required
               content={
                 <Input
-                  name="queue.endpoint"
-                  id="queue.endpoint"
+                  name="queue.namespace"
+                  id="queue.namespace"
                   type="text"
                   placeholder="https://mybus.servicebus.windows.net"
-                  value={formState.queue.endpoint}
+                  value={formState.queue.namespace}
                   autoComplete="off"
                   onChange={onFormItemChange}
                 />
