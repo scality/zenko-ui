@@ -19,7 +19,6 @@ export type ArtescaLibraryHooks = {
     data: { isVeeamCredentialsValid: boolean } | undefined;
     isLoading: boolean;
     isError: boolean;
-    refetch: () => void;
   };
   useChangeVeeamCredentials: (params: {
     onNewCredentialsValid: () => void;
