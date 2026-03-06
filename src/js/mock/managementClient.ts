@@ -1,17 +1,17 @@
-import { AccessKey, Account, SecretKey } from '../../types/account';
-import {
+import type { AccessKey, Account, SecretKey } from '../../types/account';
+import type {
+  ConfigurationOverlay,
+  Endpoint,
+  Location,
+} from '../../types/config';
+import type {
   ApiAccountKeyResponse,
   ApiAccountResponse,
   ApiConfigurationResponse,
   ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
-import {
-  ConfigurationOverlay,
-  Endpoint,
-  Location,
-} from '../../types/config';
-import { ApiErrorObject } from './error';
-import { InstanceStatus } from '../../types/stats';
+import type { InstanceStatus } from '../../types/stats';
+import type { ApiErrorObject } from './error';
 export const location: Location = {
   name: 'location1',
   locationType: 'location-file-v1',
@@ -105,7 +105,6 @@ export class MockManagementClient implements ManagementClientInterface {
   }
 
 
-  //@ts-expect-error fix this when you are working on it
   generateKeyConfigurationOverlayUser(): Promise<ApiAccountKeyResponse> {
     return Promise.resolve({
       ...key,

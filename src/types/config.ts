@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Account } from './account';
+import type { Account } from './account';
 
 export type Tag = {
   key: string;
@@ -13,11 +13,9 @@ export const ORANGE_S3_ENDPOINT = 'https://cloud.orange-business.com';
 export const ORANGE_S3_LOCATION_KEY = 'location-orange-ring-s3-v1';
 
 export const OUTSCALE_PUBLIC_S3_ENDPOINT = 'https://oos.eu-west-2.outscale.com';
-export const OUTSCALE_PUBLIC_S3_LOCATION_KEY =
-  'location-3ds-outscale-oos-public';
+export const OUTSCALE_PUBLIC_S3_LOCATION_KEY = 'location-3ds-outscale-oos-public';
 
-export const OUTSCALE_SNC_S3_ENDPOINT =
-  'https://oos.cloudgouv-eu-west-1.outscale.com';
+export const OUTSCALE_SNC_S3_ENDPOINT = 'https://oos.cloudgouv-eu-west-1.outscale.com';
 export const OUTSCALE_SNC_S3_LOCATION_KEY = 'location-3ds-outscale-oos-snc';
 
 export const ORACLE_CLOUD_LOCATION_KEY = 'location-oracle-ring-s3-v1';
@@ -47,6 +45,9 @@ type LocationFSType =
   | 'location-dmf-v1'
   | 'location-miria-v1'
   | 'location-scality-crr-v1';
+  // TODO: Add Glacier locations after Form is implemented
+  // | 'location-aws-glacier-v1'
+  // | 'location-scaleway-glacier-v1'
 
 export type LocationTypeKey = LocationS3Type | LocationFSType;
 

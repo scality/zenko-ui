@@ -1,12 +1,9 @@
-import {
-  LocationV1,
-  Locationv1Details,
-} from '../../../../js/managementClient/api';
+import { LocationType, Locationv1Details } from '../../../../js/managementClient/api';
 
 export type LocationInfo = {
   id: string;
   name: string;
-  type: LocationV1.LocationTypeEnum;
+  type: LocationType;
   isTransient?: boolean;
   isCold?: boolean;
   isBuiltin?: boolean;

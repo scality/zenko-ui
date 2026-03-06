@@ -1,13 +1,8 @@
-import { Capabilities, InstanceStateSnapshot } from '../../types/stats';
-import {
-  LabelFunction,
-  StorageOptionSelect,
-} from '../../types/storageOptionsHelper';
-import { storageOptions } from '../locations/LocationDetails';
+import { LocationType } from '../../js/managementClient/api';
 import {
   JAGUAR_S3_ENDPOINT,
   JAGUAR_S3_LOCATION_KEY,
-  Location as LegacyLocation,
+  type Location as LegacyLocation,
   ORACLE_CLOUD_LOCATION_KEY,
   ORANGE_S3_ENDPOINT,
   ORANGE_S3_LOCATION_KEY,
@@ -16,10 +11,12 @@ import {
   OUTSCALE_SNC_S3_ENDPOINT,
   OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../types/config';
-import { LocationForm } from '../../types/location';
-import { Location } from '../next-architecture/domain/entities/location';
-import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
-import { LocationV1 } from '../../js/managementClient/api';
+import type { LocationForm } from '../../types/location';
+import type { Capabilities, InstanceStateSnapshot } from '../../types/stats';
+import type { LabelFunction, StorageOptionSelect } from '../../types/storageOptionsHelper';
+import { storageOptions } from '../locations/LocationDetails';
+import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
+import type { Location } from '../next-architecture/domain/entities/location';
 
 export function isAzureOrGcpLocation(location: LocationInfo): boolean {
   // LocationTypeEnum is typed as an enum but its values are plain strings at runtime.
@@ -28,12 +25,8 @@ export function isAzureOrGcpLocation(location: LocationInfo): boolean {
   return type === 'location-azure-v1' || type === 'location-gcp-v1';
 }
 
-export function checkSupportsReplicationTarget(
-  locations: LocationInfo[],
-): boolean {
-  return locations.some(
-    (l) => storageOptions[l.type]?.supportsReplicationTarget === true,
-  );
+export function checkSupportsReplicationTarget(locations: LocationInfo[]): boolean {
+  return locations.some((l) => storageOptions[l.type]?.supportsReplicationTarget === true);
 }
 
 export function isReplicationTarget(location: LocationInfo): boolean {
@@ -44,7 +37,7 @@ export function isHdclientV2(location: LocationInfo): boolean {
   return (location.type as unknown as string) === 'location-scality-hdclient-v2';
 }
 export function checkIfExternalLocation(locations: LocationInfo[]): boolean {
-  return locations.some((l) => l.type !== LocationV1.LocationTypeEnum.FileV1);
+  return locations.some((l) => l.type !== LocationType.FileV1);
 }
 
 /**
@@ -61,16 +54,11 @@ export function checkIfExternalLocation(locations: LocationInfo[]): boolean {
  * @returns a string which represent a locationType
  */
 export const getLocationTypeKey = (
-  location:
-    | LocationInfo
-    | LocationForm
-    | LegacyLocation
-    | Omit<Location, 'usedCapacity'>,
+  location: LocationInfo | LocationForm | LegacyLocation | Omit<Location, 'usedCapacity'>,
 ) => {
   if (location) {
     if (
-      ('locationType' in location &&
-        location.locationType === 'location-scality-ring-s3-v1') ||
+      ('locationType' in location && location.locationType === 'location-scality-ring-s3-v1') ||
       ('type' in location && location.type === 'location-scality-ring-s3-v1')
     ) {
       if (location.details.endpoint === JAGUAR_S3_ENDPOINT) {
@@ -84,9 +72,7 @@ export const getLocationTypeKey = (
       } else if (location.details.endpoint?.endsWith('oraclecloud.com')) {
         return ORACLE_CLOUD_LOCATION_KEY;
       } else {
-        return 'locationType' in location
-          ? location.locationType
-          : location.type;
+        return 'locationType' in location ? location.locationType : location.type;
       }
     } else {
       return 'locationType' in location ? location.locationType : location.type;
@@ -107,16 +93,12 @@ const selectStorageLocationFromLocationType = (
   }
 };
 
-export const getLocationType = (
-  location: LegacyLocation | Omit<Location, 'usedCapacity'> | LocationInfo,
-) => {
+export const getLocationType = (location: LegacyLocation | Omit<Location, 'usedCapacity'> | LocationInfo) => {
   const storageLocation = selectStorageLocationFromLocationType(location);
   return storageLocation?.name ?? '';
 };
 
-export const getLocationTypeShort = (
-  location: LegacyLocation | Location | LocationInfo,
-) => {
+export const getLocationTypeShort = (location: LegacyLocation | Location | LocationInfo) => {
   const storageLocation = selectStorageLocationFromLocationType(location);
   return storageLocation?.short ?? '';
 };
@@ -139,9 +121,7 @@ export function selectStorageOptions(
   labelFn?: LabelFunction,
   exceptHidden = true,
 ): Array<StorageOptionSelect> {
-  const hdLocation = locations?.find(
-    (l) => l.type === LocationV1.LocationTypeEnum.ScalityHdclientV2,
-  );
+  const hdLocation = locations?.find((l) => l.type === LocationType.ScalityHdclientV2);
   return Object.keys(storageOptions)
     .filter((o) => {
       if (hdLocation && o === 'location-scality-hdclient-v2') {
@@ -174,12 +154,7 @@ export function selectStorageOptionsGrouped(
   labelFn?: LabelFunction,
   exceptHidden = true,
 ): Array<GroupedStorageOption> {
-  const options = selectStorageOptions(
-    capabilities,
-    locations,
-    labelFn,
-    exceptHidden,
-  );
+  const options = selectStorageOptions(capabilities, locations, labelFn, exceptHidden);
 
   const groupedOptions: Array<GroupedStorageOption> = [];
   const categoryOrder: Array<'crr' | 'scality' | 'public-cloud' | 'on-prem'> = [
@@ -205,10 +180,7 @@ export function isIngestLocation(location, capabilities) {
   const locationType = location.locationType || location.type;
 
   if (isIngestSource(storageOptions, locationType, capabilities)) {
-    if (
-      locationType === 'location-nfs-mount-v1' ||
-      (location.details && location.details.bucketMatch)
-    ) {
+    if (locationType === 'location-nfs-mount-v1' || (location.details && location.details.bucketMatch)) {
       return true;
     }
   }
@@ -221,8 +193,7 @@ export function isIngestSource(
   capabilities: Pick<InstanceStateSnapshot, 'capabilities'>,
 ): boolean {
   return (
-    !!storageOptions[locationType].ingestCapability &&
-    !!capabilities[storageOptions[locationType].ingestCapability]
+    !!storageOptions[locationType].ingestCapability && !!capabilities[storageOptions[locationType].ingestCapability]
   );
 }
 export function getLocationIngestionState(ingestionStates, locationName) {

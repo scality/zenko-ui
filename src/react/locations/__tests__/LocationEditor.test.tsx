@@ -1,6 +1,3 @@
-import { MemoryRouter } from 'react-router';
-import LocationEditor from '../LocationEditor';
-
 import {
   fireEvent,
   render,
@@ -8,22 +5,22 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import {
-  TEST_API_BASE_URL,
-  Wrapper,
-  mockOffsetSize,
-  testRender,
-  selectClick,
-} from '../../utils/testUtil';
+import userEvent from '@testing-library/user-event';
+import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
   getConfigOverlay,
-  getInstanceStatus,
+  getInstanceStatus,INSTANCE_ID 
 } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
-import userEvent from '@testing-library/user-event';
-import { rest } from 'msw';
+import { notFalsyTypeGuard } from '../../../types/typeGuards';
+import {
+  mockOffsetSize,
+  selectClick,
+  TEST_API_BASE_URL,
+  testRender,
+  Wrapper,
+} from '../../utils/testUtil';
+import LocationEditor from '../LocationEditor';
 
 jest.setTimeout(60_000);
 const server = setupServer(
@@ -97,6 +94,9 @@ describe('LocationEditor', () => {
       'Google Cloud Storage',
       'Microsoft Azure Blob Storage',
       'Microsoft Azure Archive',
+      // TODO: Add Glacier locations after Form is implemented
+      // 'Amazon S3 Glacier',
+      // 'Scaleway Glacier',
       'Atlas Object Storage (Free Pro)',
       '3DS Outscale OOS Public',
       '3DS Outscale OOS SNC',
@@ -225,7 +225,7 @@ describe('LocationEditor', () => {
       },
       {
         name: 'Amazon S3',
-        optionToQuery: () => selectors.optionLocationType(/Amazon S3/i),
+        optionToQuery: () => selectors.optionLocationType(/^Amazon S3$/i),
         checkField: () => screen.getByText(/AWS Access Key \*/i),
       },
       {
@@ -274,6 +274,12 @@ describe('LocationEditor', () => {
         name: 'Tape DMF',
         optionToQuery: () => selectors.optionLocationType(/Tape DMF/i),
         checkField: () => screen.getByText(/Temperature/i),
+      },
+      {
+        name: 'Tape Atempo Miria',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Tape Atempo Miria/i),
+        checkField: () => screen.getByText(/Atempo Miria Repository/i),
       },
       {
         name: 'Ceph RADOS Gateway',

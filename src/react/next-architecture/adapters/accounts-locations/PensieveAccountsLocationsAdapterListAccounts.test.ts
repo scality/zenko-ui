@@ -35,7 +35,7 @@ describe('PensieveAccountsAdapter - listAccounts', () => {
         id: user.id,
         name: user.userName,
         canonicalId: user.canonicalId,
-        creationDate: user.createDate,
+        creationDate: new Date(user.createDate as string),
       };
     });
     expect(result).toStrictEqual(EXPECTED_USERS);
