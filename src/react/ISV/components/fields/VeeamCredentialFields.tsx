@@ -101,16 +101,14 @@ const VeeamCredentialFieldsForm = () => {
         gap="32"
         justifyContent="flex-end"
       >
-        <Stack direction="horizontal">
-          <Button
-            type="button"
-            variant="primary"
-            label="Update Veeam credentials"
-            disabled={!username || !password}
-            isLoading={isUpdating}
-            onClick={handleSubmit}
-          />
-        </Stack>
+        <Button
+          type="button"
+          variant="primary"
+          label="Update Veeam credentials"
+          disabled={!username || !password}
+          isLoading={isUpdating}
+          onClick={handleSubmit}
+        />
       </Box>
     </Stack>
   );
