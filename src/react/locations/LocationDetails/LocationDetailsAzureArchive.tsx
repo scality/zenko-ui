@@ -277,14 +277,14 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
               id="queue.namespace"
               label="Service Bus Endpoint"
               helpErrorPosition="bottom"
-              labelHelpTooltip="https://<<ServiceBusNamespace>>.servicebus.windows.net is usually used as the Storage queue endpoint."
+              labelHelpTooltip='Enter the namespace name (like "my-sb") or the FQDN (like "my-sb.servicebus.windows.net").'
               required
               content={
                 <Input
                   name="queue.namespace"
                   id="queue.namespace"
                   type="text"
-                  placeholder="account-name.storage.windows.net"
+                  placeholder="my-service-bus-namespace"
                   value={formState.queue.namespace}
                   autoComplete="off"
                   onChange={onFormItemChange}
@@ -370,7 +370,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
                   name="queue.endpoint"
                   id="queue.endpoint"
                   type="text"
-                  placeholder="account-name.storage.windows.net"
+                  placeholder="https://account-name.queue.core.windows.net"
                   value={formState.queue.endpoint}
                   autoComplete="off"
                   onChange={onFormItemChange}
