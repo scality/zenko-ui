@@ -331,7 +331,7 @@ describe('<LocationDetailsAzureArchive />', () => {
       queue: {
         type: 'location-azure-servicebus-queue-v1',
         queueName: 'mock-queue-name',
-        endpoint: 'mock-endpoint',
+        namespace: 'mock-endpoint',
       },
       auth: {
         type: 'location-azure-client-secret',
@@ -362,7 +362,7 @@ describe('<LocationDetailsAzureArchive />', () => {
       queue: {
         type: 'location-azure-servicebus-queue-v1',
         queueName: 'mock-queue-name',
-        endpoint: 'mock-endpoint',
+        namespace: 'mock-endpoint',
       },
       auth: {
         type: 'location-azure-shared-access-signature',
