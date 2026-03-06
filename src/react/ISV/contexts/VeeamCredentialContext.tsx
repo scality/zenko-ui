@@ -32,7 +32,9 @@ const VeeamCredentialProviderInternal = ({
   const validationResult = artescaLibrary.useIsVeeamCredentialsValid();
 
   const updateResult = artescaLibrary.useChangeVeeamCredentials({
-    onNewCredentialsValid: () => {},
+    onNewCredentialsValid: () => {
+      validationResult.refetch();
+    },
   });
 
   const value = useMemo(

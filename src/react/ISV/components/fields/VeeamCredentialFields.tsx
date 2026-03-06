@@ -3,7 +3,6 @@ import {
   FormGroup,
   Icon,
   Stack,
-  Text,
   useToast,
 } from '@scality/core-ui';
 import { Box, Button, Input } from '@scality/core-ui/dist/next';
@@ -17,17 +16,7 @@ const VeeamCredentialFieldsForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  console.log('[VeeamCredentialFields] render', {
-    newCredentialsStatus,
-    mutationStatus: changeCredentialsMutation?.status,
-    mutationIsError: changeCredentialsMutation?.isError,
-    mutationError: changeCredentialsMutation?.error,
-  });
-
   useEffect(() => {
-    console.log('[VeeamCredentialFields] useEffect triggered', {
-      newCredentialsStatus,
-    });
     if (newCredentialsStatus === 'VALID') {
       showToast({
         open: true,
@@ -42,11 +31,6 @@ const VeeamCredentialFieldsForm = () => {
           'Veeam credentials are invalid. Please check your username and password.',
       });
     } else if (newCredentialsStatus === 'ERROR') {
-      console.log('[VeeamCredentialFields] ERROR state reached', {
-        mutationStatus: changeCredentialsMutation?.status,
-        mutationIsError: changeCredentialsMutation?.isError,
-        mutationError: changeCredentialsMutation?.error,
-      });
       showToast({
         open: true,
         status: 'error',
@@ -118,9 +102,6 @@ const VeeamCredentialFieldsForm = () => {
         justifyContent="flex-end"
       >
         <Stack direction="horizontal">
-          <Text variant="Smaller" color="textSecondary" isGentleEmphazed>
-            Note: Verification may take up to a minute to complete.
-          </Text>
           <Button
             type="button"
             variant="primary"

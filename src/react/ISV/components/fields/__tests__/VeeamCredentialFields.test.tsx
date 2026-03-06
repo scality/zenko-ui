@@ -119,16 +119,10 @@ describe('VeeamCredentialFields', () => {
     fireEvent.change(passwordInput, { target: { value: 'testpass' } });
     fireEvent.click(submitButton);
 
-    expect(mockMutate).toHaveBeenCalledWith(
-      {
-        username: 'testuser',
-        password: 'testpass',
-      },
-      expect.objectContaining({
-        onSuccess: expect.any(Function),
-        onError: expect.any(Function),
-      }),
-    );
+    expect(mockMutate).toHaveBeenCalledWith({
+      username: 'testuser',
+      password: 'testpass',
+    });
   });
 
   it('disables form during validation', () => {

@@ -25,6 +25,7 @@ describe('useVeeamCredentialManagement', () => {
     unknown,
     { username: string; password: string }
   >;
+  const mockRefetch = jest.fn();
   const mockUseIsVeeamCredentialsValid = jest.fn();
   const mockUseChangeVeeamCredentials = jest.fn();
 
@@ -51,6 +52,7 @@ describe('useVeeamCredentialManagement', () => {
         data: { isVeeamCredentialsValid: true },
         isLoading: false,
         isError: false,
+        refetch: mockRefetch,
       });
 
       mockUseChangeVeeamCredentials.mockReturnValue({
@@ -75,6 +77,7 @@ describe('useVeeamCredentialManagement', () => {
         data: { isVeeamCredentialsValid: false },
         isLoading: false,
         isError: false,
+        refetch: mockRefetch,
       });
 
       mockUseChangeVeeamCredentials.mockReturnValue({
@@ -95,6 +98,7 @@ describe('useVeeamCredentialManagement', () => {
         data: undefined,
         isLoading: true,
         isError: false,
+        refetch: mockRefetch,
       });
 
       mockUseChangeVeeamCredentials.mockReturnValue({
@@ -109,11 +113,33 @@ describe('useVeeamCredentialManagement', () => {
       expect(result.current.isCheckingCredentials).toBe(true);
     });
 
+    it('should refetch credentials validation when onNewCredentialsValid is called', () => {
+      mockUseIsVeeamCredentialsValid.mockReturnValue({
+        data: { isVeeamCredentialsValid: false },
+        isLoading: false,
+        isError: false,
+        refetch: mockRefetch,
+      });
+
+      mockUseChangeVeeamCredentials.mockImplementation(({ onNewCredentialsValid }) => {
+        onNewCredentialsValid();
+        return {
+          changeCredentialsMutation: mockChangeCredentialsMutation,
+          newCredentialsStatus: 'VALID' as const,
+        };
+      });
+
+      renderHook(() => useVeeamCredentialManagement(), { wrapper });
+
+      expect(mockRefetch).toHaveBeenCalled();
+    });
+
     it('should provide credential update mutation with all status states', () => {
       mockUseIsVeeamCredentialsValid.mockReturnValue({
         data: { isVeeamCredentialsValid: false },
         isLoading: false,
         isError: false,
+        refetch: mockRefetch,
       });
 
       const statuses = [
