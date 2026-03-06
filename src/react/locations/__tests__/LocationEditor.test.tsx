@@ -70,9 +70,8 @@ describe('LocationEditor', () => {
       'Google Cloud Storage',
       'Microsoft Azure Blob Storage',
       'Microsoft Azure Archive',
-      // TODO: Add Glacier locations after Form is implemented
-      // 'Amazon S3 Glacier',
-      // 'Scaleway Glacier',
+      'Amazon S3 Glacier',
+      'Scaleway Glacier',
       'Atlas Object Storage (Free Pro)',
       '3DS Outscale OOS Public',
       '3DS Outscale OOS SNC',

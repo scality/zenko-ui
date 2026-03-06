@@ -44,10 +44,9 @@ type LocationFSType =
   | 'location-wasabi-v1'
   | 'location-dmf-v1'
   | 'location-miria-v1'
-  | 'location-scality-crr-v1';
-// TODO: Add Glacier locations after Form is implemented
-// | 'location-aws-glacier-v1'
-// | 'location-scaleway-glacier-v1'
+  | 'location-scality-crr-v1'
+  | 'location-aws-glacier-v1'
+  | 'location-scaleway-glacier-v1';
 
 export type LocationTypeKey = LocationS3Type | LocationFSType;
 
