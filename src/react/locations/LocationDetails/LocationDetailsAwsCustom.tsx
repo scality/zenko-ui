@@ -20,7 +20,7 @@ import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
 import { HelpLocationCreationAsyncNotification } from '../../ui-elements/Help';
 import { isIngestSource } from '../../utils/storageOptions';
-import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
+import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, S3_ENDPOINT_PATH_STYLE_TOOLTIP, SECRET_KEY_PLACEHOLDER, WRITE_OBJECTS_WITHOUT_PREFIX_HELP, WRITE_OBJECTS_WITHOUT_PREFIX_LABEL } from '../LocationEditor';
 import { checkIsRingS3Reseller } from '../utils';
 import type { LocationDetailsFormProps } from '.';
 import { storageOptions } from './storageOptions';
@@ -169,8 +169,7 @@ export default function LocationDetailsAwsCustom({
               label="Endpoint"
               id="endpoint"
               required
-              labelHelpTooltip="Endpoint to reach the S3 server, including scheme and optional port. The
-        buckets will have a path-style access."
+              labelHelpTooltip={S3_ENDPOINT_PATH_STYLE_TOOLTIP}
               helpErrorPosition="bottom"
             />
             {formState.endpoint.startsWith('https') && <EndpointInfoMessage />}
@@ -198,13 +197,13 @@ export default function LocationDetailsAwsCustom({
                       Async Metadata updates Ready <HelpLocationCreationAsyncNotification />{' '}
                     </>
                   ) : (
-                    'Write objects without prefix'
+                    WRITE_OBJECTS_WITHOUT_PREFIX_LABEL
                   )
                 }
               />
             }
             helpErrorPosition="bottom"
-            help="Your objects will be stored in the target bucket without a source-bucket prefix."
+            help={WRITE_OBJECTS_WITHOUT_PREFIX_HELP}
             error={
               formState.bucketMatch
                 ? 'Storing multiple buckets in a location with this option enabled can lead to data loss.'

@@ -3,7 +3,7 @@ import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Fo
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
+import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER, WRITE_OBJECTS_WITHOUT_PREFIX_HELP, WRITE_OBJECTS_WITHOUT_PREFIX_LABEL } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
 type State = {
   bucketMatch: boolean;
@@ -180,11 +180,11 @@ export default function LocationDetailsOracle({ details, editingExisting, onChan
               disabled={editingExisting}
               checked={formState.bucketMatch}
               onChange={onFormItemChange}
-              label={'Write objects without prefix'}
+              label={WRITE_OBJECTS_WITHOUT_PREFIX_LABEL}
             />
           }
           helpErrorPosition="bottom"
-          help="Your objects will be stored in the target bucket without a source-bucket prefix."
+          help={WRITE_OBJECTS_WITHOUT_PREFIX_HELP}
           error={
             formState.bucketMatch
               ? 'Storing multiple buckets in a location with this option enabled can lead to data loss.'

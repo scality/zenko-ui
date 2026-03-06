@@ -3,7 +3,7 @@ import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Fo
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
 import type { LocationDetails } from '../../../types/config';
-import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
+import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER, WRITE_OBJECTS_WITHOUT_PREFIX_HELP, WRITE_OBJECTS_WITHOUT_PREFIX_LABEL } from '../LocationEditor';
 
 type Props = {
   details: LocationDetails;
@@ -138,7 +138,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 ? 'Storing multiple buckets in a location with this option enabled can lead to data loss.'
                 : undefined
             }
-            help="Store objects in the target bucket without a source-bucket prefix."
+            help={WRITE_OBJECTS_WITHOUT_PREFIX_HELP}
             content={
               <Checkbox
                 name="bucketMatch"
@@ -146,6 +146,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 checked={this.state.bucketMatch}
                 disabled={this.props.editingExisting}
                 onChange={this.onChange}
+                label={WRITE_OBJECTS_WITHOUT_PREFIX_LABEL}
               />
             }
           />
