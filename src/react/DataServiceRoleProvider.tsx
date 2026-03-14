@@ -4,7 +4,7 @@ import type { AWSError, STS } from 'aws-sdk';
 import type { PromiseResult } from 'aws-sdk/lib/request';
 import { createContext, type JSX, useContext, useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { useMutation } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
 import { useTheme } from 'styled-components';
 import STSClient from '../js/STSClient';
@@ -195,7 +195,7 @@ const DataServiceRoleProvider = ({
   const accountName = params?.accountName;
   const theme = useTheme();
 
-  const { iamInternalFQDN, s3InternalFQDN, zenkoEndpoint, iamEndpoint } = useConfig();
+  const { iamInternalFQDN, s3InternalFQDN, zenkoEndpoint, iamEndpoint, stsEndpoint } = useConfig();
 
   useEffect(() => {
     initializeAWSSigner({
@@ -206,17 +206,29 @@ const DataServiceRoleProvider = ({
     });
   }, [iamInternalFQDN, s3InternalFQDN, zenkoEndpoint, iamEndpoint]);
 
-  const { getQuery } = useAssumeRoleQuery();
-  const [assumedRole, setAssumedRole] = useState<PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>>();
-  const assumeRoleMutation = useMutation({
-    mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
-    onSuccess: (data) => {
-      setAssumedRole(data);
-    },
-  });
-
   const { useAuth } = useShellHooks();
-  const { userData } = useAuth();
+  const { getToken, userData } = useAuth();
+  const roleSessionName = `ui-${userData?.id}`;
+  const stsClient = useMemo(() => new STSClient({ endpoint: stsEndpoint }), [stsEndpoint]);
+  const queryClient = useQueryClient();
+
+  const assumeRoleQuery = useQuery(
+    ['assumeRole', role.roleArn],
+    async () =>
+      stsClient.assumeRoleWithWebIdentity({
+        idToken: notFalsyTypeGuard(await getToken()),
+        roleArn: role.roleArn,
+        RoleSessionName: roleSessionName,
+      }),
+    {
+      enabled: !!role.roleArn,
+      refetchOnWindowFocus: true,
+      staleTime: 0,
+      refetchOnMount: false,
+    },
+  );
+
+  const assumedRole = assumeRoleQuery.data;
 
   useEffect(() => {
     const storedRole = getRoleArnStored();
@@ -241,12 +253,6 @@ const DataServiceRoleProvider = ({
     }
   }, [accounts.length, accountName, role.roleArn]);
 
-  useEffect(() => {
-    if (role.roleArn) {
-      assumeRoleMutation.mutate(role.roleArn);
-    }
-  }, [role.roleArn, userData?.token]);
-
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 
   const s3Config = useMemo(() => getS3Config(assumedRole, role.roleArn), [assumedRole, getS3Config, role.roleArn]);
@@ -265,29 +271,29 @@ const DataServiceRoleProvider = ({
   const setRole = (role: { roleArn: string }) => {
     setRoleArnStored(role.roleArn);
     setRoleState(role);
-    if (role.roleArn) {
-      assumeRoleMutation.mutate(role.roleArn, {});
-    }
   };
 
-  const setRolePromise = async (role: { roleArn: string }): Promise<S3Config> => {
-    if (!role.roleArn) {
+  const setRolePromise = async (newRole: { roleArn: string }): Promise<S3Config> => {
+    if (!newRole.roleArn) {
       return Promise.reject('Invalid role arn');
     }
-    return getQuery(role.roleArn)
-      .queryFn()
-      .then((data) => {
-        // Use flushSync to force synchronous state updates
-        flushSync(() => {
-          setAssumedRole(data);
-          setRoleArnStored(role.roleArn);
-          setRoleState(role);
-        });
-        return getS3Config(data, role.roleArn);
-      });
+    const data = await queryClient.fetchQuery(
+      ['assumeRole', newRole.roleArn],
+      async () =>
+        stsClient.assumeRoleWithWebIdentity({
+          idToken: notFalsyTypeGuard(await getToken()),
+          roleArn: newRole.roleArn,
+          RoleSessionName: roleSessionName,
+        }),
+    );
+    flushSync(() => {
+      setRoleArnStored(newRole.roleArn);
+      setRoleState(newRole);
+    });
+    return getS3Config(data, newRole.roleArn);
   };
 
-  if (role.roleArn && !assumedRole) {
+  if (role.roleArn && assumeRoleQuery.isLoading) {
     //@ts-expect-error fix this when you are working on it
     return inlineLoader ? <div>loading...</div> : <Loader>Loading...</Loader>;
   }
