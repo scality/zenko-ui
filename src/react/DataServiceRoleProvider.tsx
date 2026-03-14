@@ -170,16 +170,6 @@ export const useCurrentAccount = () => {
   };
 };
 
-export const useS3Config = (): S3Config | undefined => {
-  const assumedRole = useAssumedRole();
-  const { roleArn } = useDataServiceRole();
-  const { getS3Config } = useS3ConfigFromAssumeRoleResult();
-  return useMemo(() => {
-    if (!assumedRole) return undefined;
-    return getS3Config(assumedRole, roleArn);
-  }, [assumedRole, getS3Config, roleArn]);
-};
-
 const DataServiceRoleProvider = ({
   children,
   inlineLoader = false,
@@ -257,14 +247,7 @@ const DataServiceRoleProvider = ({
 
   const s3Config = useMemo(() => getS3Config(assumedRole, role.roleArn), [assumedRole, getS3Config, role.roleArn]);
 
-  const credentials: S3Credentials = useMemo(
-    () => ({
-      accessKeyId: s3Config.credentials.accessKeyId,
-      secretAccessKey: s3Config.credentials.secretAccessKey,
-      sessionToken: s3Config.credentials.sessionToken,
-    }),
-    [s3Config.credentials],
-  );
+  const credentials = s3Config.credentials;
 
   const s3ConfigRef = useRef(s3Config);
   s3ConfigRef.current = s3Config;
@@ -272,25 +255,49 @@ const DataServiceRoleProvider = ({
   const assumeRoleQueryRef = useRef(assumeRoleQuery);
   assumeRoleQueryRef.current = assumeRoleQuery;
 
-  const refreshPromiseRef = useRef<Promise<void> | null>(null);
+  const refreshPromiseRef = useRef<Promise<S3Credentials> | null>(null);
 
-  const getS3ConfigFn = useCallback(() => {
+  const credentialProvider = useCallback(async (): Promise<S3Credentials> => {
     const expiration = assumeRoleQueryRef.current.data?.Credentials?.Expiration;
-
     const REFRESH_BUFFER_MS = 2 * 60 * 1000;
+
     if (expiration && new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS) {
       if (!refreshPromiseRef.current) {
         refreshPromiseRef.current = assumeRoleQueryRef.current.refetch()
-          .then(() => { refreshPromiseRef.current = null; })
+          .then((result) => {
+            refreshPromiseRef.current = null;
+            const exp = result.data?.Credentials?.Expiration;
+            return {
+              accessKeyId: result.data?.Credentials?.AccessKeyId || '',
+              secretAccessKey: result.data?.Credentials?.SecretAccessKey || '',
+              sessionToken: result.data?.Credentials?.SessionToken || '',
+              expiration: exp ? new Date(exp) : undefined,
+            };
+          })
           .catch((err) => {
             console.warn('STS credential refresh failed:', err);
             refreshPromiseRef.current = null;
+            return {
+              ...(s3ConfigRef.current.credentials as S3Credentials),
+              expiration: new Date(),
+            };
           });
       }
+      return await refreshPromiseRef.current;
     }
 
-    return s3ConfigRef.current;
+    return {
+      ...(s3ConfigRef.current.credentials as S3Credentials),
+      expiration: expiration ? new Date(expiration) : undefined,
+    };
   }, []);
+
+  const getS3ConfigFn = useCallback(() => {
+    return {
+      ...s3ConfigRef.current,
+      credentials: credentialProvider,
+    };
+  }, [credentialProvider]);
 
   const setRole = (role: { roleArn: string }) => {
     setRoleArnStored(role.roleArn);
