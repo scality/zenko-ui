@@ -2,7 +2,7 @@ import { DataBrowserProvider, type S3BrowserConfig, type S3Credentials } from '@
 import { useShellHooks } from '@scality/module-federation';
 import type { AWSError, STS } from 'aws-sdk';
 import type { PromiseResult } from 'aws-sdk/lib/request';
-import { createContext, type JSX, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, type JSX, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useQuery, useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
@@ -266,7 +266,27 @@ const DataServiceRoleProvider = ({
     [s3Config.credentials],
   );
 
-  const getS3ConfigFn = useMemo(() => () => s3Config, [s3Config]);
+  const s3ConfigRef = useRef(s3Config);
+  s3ConfigRef.current = s3Config;
+
+  const assumeRoleQueryRef = useRef(assumeRoleQuery);
+  assumeRoleQueryRef.current = assumeRoleQuery;
+
+  const refreshPromiseRef = useRef<Promise<void> | null>(null);
+
+  const getS3ConfigFn = useCallback(() => {
+    const expiration = assumeRoleQueryRef.current.data?.Credentials?.Expiration;
+
+    if (expiration && new Date(expiration) <= new Date()) {
+      if (!refreshPromiseRef.current) {
+        refreshPromiseRef.current = assumeRoleQueryRef.current.refetch()
+          .then(() => { refreshPromiseRef.current = null; })
+          .catch(() => { refreshPromiseRef.current = null; });
+      }
+    }
+
+    return s3ConfigRef.current;
+  }, []);
 
   const setRole = (role: { roleArn: string }) => {
     setRoleArnStored(role.roleArn);
