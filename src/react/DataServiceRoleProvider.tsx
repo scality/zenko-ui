@@ -277,11 +277,15 @@ const DataServiceRoleProvider = ({
   const getS3ConfigFn = useCallback(() => {
     const expiration = assumeRoleQueryRef.current.data?.Credentials?.Expiration;
 
-    if (expiration && new Date(expiration) <= new Date()) {
+    const REFRESH_BUFFER_MS = 2 * 60 * 1000;
+    if (expiration && new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS) {
       if (!refreshPromiseRef.current) {
         refreshPromiseRef.current = assumeRoleQueryRef.current.refetch()
           .then(() => { refreshPromiseRef.current = null; })
-          .catch(() => { refreshPromiseRef.current = null; });
+          .catch((err) => {
+            console.warn('STS credential refresh failed:', err);
+            refreshPromiseRef.current = null;
+          });
       }
     }
 
