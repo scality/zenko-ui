@@ -1,5 +1,5 @@
 import { PropsWithChildren, ReactNode, JSX } from 'react';
-import { QueryClient, setLogger, useMutation } from 'react-query';
+import { QueryClient, setLogger } from 'react-query';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 import IAMClient from '../../js/IAMClient';
@@ -20,7 +20,6 @@ import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
 import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
 import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
-import { useAssumeRoleQuery } from '../DataServiceRoleProvider';
 import { DataBrowserProvider } from '@scality/data-browser-library';
 import { IAMProvider } from '../IAMProvider';
 import { ZenkoProvider } from '../ZenkoProvider';
@@ -596,19 +595,11 @@ export const renderWithCustomRoute = (
 };
 
 const DataServiceProvider = ({ children }) => {
-  const { getQuery } = useAssumeRoleQuery();
-  const assumeRoleMutation = useMutation({
-    mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
-  });
   const role = {
     roleArn: TEST_ROLE_ARN,
   };
-  const setRole = (role: { roleArn: string }) => {
-    assumeRoleMutation.mutate(role.roleArn, {});
-  };
-  const setRolePromise = async (role: { roleArn: string }) => {
-    return getQuery(role.roleArn).queryFn();
-  };
+  const setRole = jest.fn();
+  const setRolePromise = jest.fn().mockResolvedValue(testS3Config);
   return (
     //@ts-expect-error fix this when you are working on it
     <_DataServiceRoleContext.Provider value={{ role, setRole, setRolePromise }}>
