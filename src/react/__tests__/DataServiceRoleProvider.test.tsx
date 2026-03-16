@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
+import { QueryClientProvider } from '../../QueryClientProvider';
 import { MemoryRouter } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
