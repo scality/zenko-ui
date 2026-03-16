@@ -213,7 +213,6 @@ const DataServiceRoleProvider = ({
     {
       enabled: !!role.roleArn,
       refetchOnWindowFocus: true,
-      staleTime: 0,
       refetchOnMount: false,
     },
   );
@@ -256,12 +255,14 @@ const DataServiceRoleProvider = ({
   assumeRoleQueryRef.current = assumeRoleQuery;
 
   const refreshPromiseRef = useRef<Promise<S3Credentials> | null>(null);
+  const refreshCooldownUntilRef = useRef<number>(0);
+  const REFRESH_COOLDOWN_MS = 30 * 1000;
 
   const credentialProvider = useCallback(async (): Promise<S3Credentials> => {
     const expiration = assumeRoleQueryRef.current.data?.Credentials?.Expiration;
     const REFRESH_BUFFER_MS = 2 * 60 * 1000;
 
-    if (expiration && new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS) {
+    if (expiration && new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS && Date.now() >= refreshCooldownUntilRef.current) {
       if (!refreshPromiseRef.current) {
         refreshPromiseRef.current = assumeRoleQueryRef.current.refetch()
           .then((result) => {
@@ -277,9 +278,10 @@ const DataServiceRoleProvider = ({
           .catch((err) => {
             console.warn('STS credential refresh failed:', err);
             refreshPromiseRef.current = null;
+            refreshCooldownUntilRef.current = Date.now() + REFRESH_COOLDOWN_MS;
             return {
               ...(s3ConfigRef.current.credentials as S3Credentials),
-              expiration: new Date(),
+              expiration: expiration ? new Date(expiration) : undefined,
             };
           });
       }
@@ -351,4 +353,4 @@ const DataServiceRoleProvider = ({
 
 export default DataServiceRoleProvider;
 
-export { useAssumeRoleQuery, useS3ConfigFromAssumeRoleResult };
+export { useAssumeRoleQuery };
