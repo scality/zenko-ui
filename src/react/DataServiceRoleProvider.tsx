@@ -345,7 +345,6 @@ const DataServiceRoleProvider = ({
     >
       <IAMProvider credentials={credentials}>
         <ZenkoProvider credentials={credentials}>
-          {/* @ts-expect-error fix this when you are working on it */}
           <DataBrowserProvider getS3Config={getS3ConfigFn} theme={theme}>
             {children}
           </DataBrowserProvider>
