@@ -5,18 +5,15 @@ import { XDM_FEATURE } from '../../../js/config';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useWatchedLocation } from './useWatchedLocation';
 
-const helpNonAsyncLocation =
-  'Selected Storage Location does not support Async Metadata updates.';
-const helpAsyncNotification =
-  'Pause/resume Async Metadata updates is handled at the location level.';
+const helpNonAsyncLocation = 'Selected Storage Location does not support Async Metadata updates.';
+const helpAsyncNotification = 'Pause/resume Async Metadata updates is handled at the location level.';
 
 export function BucketCreateLocationEffects() {
   const { watch, setValue, control } = useFormContext();
   const isObjectLockEnabled = watch('isObjectLockEnabled');
   const isAsyncNotification = watch('isAsyncNotification');
 
-  const { locationConstraint, isAzureOrGcp, isIngest } =
-    useWatchedLocation();
+  const { locationConstraint, isAzureOrGcp, isIngest } = useWatchedLocation();
 
   const prevLocationRef = useRef(locationConstraint);
 

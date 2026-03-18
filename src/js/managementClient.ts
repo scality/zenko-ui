@@ -13,10 +13,7 @@ export class UiFacingApiWrapper extends UiFacingApi {
 
   setToken(token: string | null) {
     const basePath = `${genClientEndpoint(this.baseUrl)}/api/v1`;
-    const auth =
-      typeof token === 'string' && token
-        ? token
-        : (this.configuration?.apiKey as string | undefined);
+    const auth = typeof token === 'string' && token ? token : (this.configuration?.apiKey as string | undefined);
     this.configuration = new Configuration({
       apiKey: auth,
       basePath,

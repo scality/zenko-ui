@@ -115,7 +115,9 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
       <>Delete location</>
     );
   };
-  const deleteLocationButtonAriaLabel = isDeletionDisabled ? 'Delete Location is disabled for this location' : 'Delete Location';
+  const deleteLocationButtonAriaLabel = isDeletionDisabled
+    ? 'Delete Location is disabled for this location'
+    : 'Delete Location';
 
   const isEditButtonDisabled = rowValues.isBuiltin || rowValues.type === 'location-scality-hdclient-v2';
 

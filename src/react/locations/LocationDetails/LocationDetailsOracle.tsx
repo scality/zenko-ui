@@ -1,12 +1,10 @@
-import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
-import React, { useEffect, useState } from 'react';
-import { LocationDetailsFormProps } from '.';
-import {
-  FormGroup,
-  FormSection,
-} from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Form.component';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
 export const SECRET_KEY_PLACEHOLDER = 'QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6';
 type State = {
   bucketMatch: boolean;
@@ -32,20 +30,15 @@ export const oracleCloudEndpointBuilder = (namespace: string, region: string) =>
 
 export const getNamespaceAndRegion = (endpoint: string) => {
   if (!endpoint) return { namespace: '', region: '' };
-  const regex =
-    /https:\/\/(?<namespace>.+)\.compat\.objectstorage\.(?<region>.+)\.oraclecloud\.com/;
+  const regex = /https:\/\/(?<namespace>.+)\.compat\.objectstorage\.(?<region>.+)\.oraclecloud\.com/;
   const parts = endpoint.match(regex);
   return {
-    namespace: parts.groups['namespace'],
-    region: parts.groups['region'],
+    namespace: parts.groups.namespace,
+    region: parts.groups.region,
   };
 };
 
-export default function LocationDetailsOracle({
-  details,
-  editingExisting,
-  onChange,
-}: LocationDetailsFormProps) {
+export default function LocationDetailsOracle({ details, editingExisting, onChange }: LocationDetailsFormProps) {
   const [formState, setFormState] = useState<State>(() => {
     return {
       ...Object.assign({}, INIT_STATE, details, {

@@ -1,10 +1,9 @@
-/* eslint-disable */
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LocationDetails } from '../../../../types/config';
-import { NewWrapper, updateInputText } from '../../../utils/testUtil';
-import LocationDetailsWasabi from '../LocationDetailsWasabi';
+import type { LocationDetails } from '../../../../types/config';
+import { NewWrapper } from '../../../utils/testUtil';
 import { SECRET_KEY_PLACEHOLDER } from '../LocationDetailsOracle';
+import LocationDetailsWasabi from '../LocationDetailsWasabi';
 
 const props = {
   details: {
@@ -94,12 +93,9 @@ describe('class <LocationDetailsWasabi />', () => {
       bucketMatch: false,
     };
     let location = {};
-    render(
-      <LocationDetailsWasabi {...props} onChange={(l) => (location = l)} />,
-      {
-        wrapper: NewWrapper(),
-      },
-    );
+    render(<LocationDetailsWasabi {...props} onChange={(l) => (location = l)} />, {
+      wrapper: NewWrapper(),
+    });
     await userEvent.type(selectors.accessKeySelector(), 'ak');
     await userEvent.type(selectors.secretKeySelector(), 'sk');
     await userEvent.type(selectors.bucketNameSelector(), 'bn');

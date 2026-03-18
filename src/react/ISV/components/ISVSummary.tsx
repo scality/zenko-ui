@@ -315,13 +315,7 @@ export const DefaultISVSummary = ({
       <Level4FormSection>
         <Wrap>
           <Text isEmphazed>{`${isPlatformAdmin ? '2. ' : ''}Information for the ${platform.name} configuration`}</Text>
-          <CopyButton
-            textToCopy={textToCopy}
-            label="all"
-            variant="outline"
-            size="inline"
-            aria-label="copy all"
-          />
+          <CopyButton textToCopy={textToCopy} label="all" variant="outline" size="inline" aria-label="copy all" />
         </Wrap>
         <Separator />
         <>

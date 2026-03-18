@@ -12,7 +12,7 @@ export function RefreshButton() {
   const prefixWithSlash = usePrefixWithSlash();
   const config = useConfig();
   const isBrowsingObjects = !!matchPath(
-    config.basePath + '/accounts/:accountName/buckets/:bucketName/objects',
+    `${config.basePath}/accounts/:accountName/buckets/:bucketName/objects`,
     pathname,
   );
 
@@ -27,7 +27,13 @@ export function RefreshButton() {
     }
   };
 
-  return <Button icon={<Icon name="Sync" />} tooltip={{ overlay: 'Refresh data browser', placement: 'right' }} onClick={handleRefreshClick} />;
+  return (
+    <Button
+      icon={<Icon name="Sync" />}
+      tooltip={{ overlay: 'Refresh data browser', placement: 'right' }}
+      onClick={handleRefreshClick}
+    />
+  );
 }
 export default function Buttons() {
   return (

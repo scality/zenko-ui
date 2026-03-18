@@ -1,25 +1,10 @@
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import {
-  getConfigOverlay,
-  getInstanceStatus,INSTANCE_ID 
-} from '../../../js/mock/managementClientMSWHandlers';
+import { getConfigOverlay, getInstanceStatus, INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import {
-  mockOffsetSize,
-  selectClick,
-  TEST_API_BASE_URL,
-  testRender,
-  Wrapper,
-} from '../../utils/testUtil';
+import { mockOffsetSize, selectClick, TEST_API_BASE_URL, testRender, Wrapper } from '../../utils/testUtil';
 import LocationEditor from '../LocationEditor';
 
 jest.setTimeout(60_000);
@@ -50,39 +35,30 @@ const generateMockLocations = (count: number) => {
 
 const setupLocations = (count: number) => {
   server.use(
-    rest.get(
-      `${TEST_API_BASE_URL}/api/v1/config/overlay/view/${INSTANCE_ID}`,
-      (_, res, ctx) =>
-        res(
-          ctx.json({
-            locations: generateMockLocations(count),
-            users: [],
-            endpoints: [],
-          }),
-        ),
+    rest.get(`${TEST_API_BASE_URL}/api/v1/config/overlay/view/${INSTANCE_ID}`, (_, res, ctx) =>
+      res(
+        ctx.json({
+          locations: generateMockLocations(count),
+          users: [],
+          endpoints: [],
+        }),
+      ),
     ),
   );
 };
 
 describe('LocationEditor', () => {
-  
   it('should display storageOptions expect hidden options', async () => {
     const {
       component: { container },
     } = testRender(<LocationEditor />);
 
-    await waitForElementToBeRemoved(() =>
-      screen.getByText('Loading location...'),
-    );
+    await waitForElementToBeRemoved(() => screen.getByText('Loading location...'));
 
-    const selector = notFalsyTypeGuard(
-      container.querySelector('.sc-select__control'),
-    );
+    const selector = notFalsyTypeGuard(container.querySelector('.sc-select__control'));
     await selectClick(selector);
     await userEvent.keyboard('{arrowup}');
-    expect(
-      container.querySelector('.sc-select__option--is-focused')?.textContent,
-    ).toBe('CRR Location');
+    expect(container.querySelector('.sc-select__option--is-focused')?.textContent).toBe('CRR Location');
 
     [
       'Cross-Region Replication',
@@ -110,43 +86,35 @@ describe('LocationEditor', () => {
       'Scality RING with Sproxyd Connector',
     ].forEach((locationName) => {
       fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
-      expect(
-        container.querySelector('.sc-select__option--is-focused')?.textContent,
-      ).toBe(locationName);
+      expect(container.querySelector('.sc-select__option--is-focused')?.textContent).toBe(locationName);
     });
   });
   const selectors = {
     loadingLocation: () => screen.getByText('Loading location...'),
     selectLocationType: () => screen.getByRole('textbox', { name: /location type \*/i }),
-    inputLocationType: () =>
-      screen.getByRole('textbox', { name: /location type \*/i }),
-    optionLocationType: (locationName: string | RegExp) =>
-      screen.getByRole('option', { name: locationName }),
+    inputLocationType: () => screen.getByRole('textbox', { name: /location type \*/i }),
+    optionLocationType: (locationName: string | RegExp) => screen.getByRole('option', { name: locationName }),
   };
 
   it('should hide the artesca storage service if it is already created', async () => {
     //S
     server.use(
-      rest.get(
-        `${TEST_API_BASE_URL}/api/v1/config/overlay/view/${INSTANCE_ID}`,
-        (_, res, ctx) =>
-          res(
-            ctx.json({
-              locations: {
-                'us-east-2': {
-                  details: {
-                    bootstrapList: [
-                      'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
-                    ],
-                    repoId: null,
-                  },
-                  locationType: 'location-scality-hdclient-v2',
-                  name: 'us-east-2',
-                  objectId: '22f31240-4bd3-11ee-98b3-1e5b6f897bc7',
+      rest.get(`${TEST_API_BASE_URL}/api/v1/config/overlay/view/${INSTANCE_ID}`, (_, res, ctx) =>
+        res(
+          ctx.json({
+            locations: {
+              'us-east-2': {
+                details: {
+                  bootstrapList: ['artesca-storage-service-hdservice-proxy.xcore.svc:18888'],
+                  repoId: null,
                 },
+                locationType: 'location-scality-hdclient-v2',
+                name: 'us-east-2',
+                objectId: '22f31240-4bd3-11ee-98b3-1e5b6f897bc7',
               },
-            }),
-          ),
+            },
+          }),
+        ),
       ),
     );
     render(<LocationEditor />, { wrapper: Wrapper });
@@ -165,12 +133,8 @@ describe('LocationEditor', () => {
     testRender(<LocationEditor />);
     await waitForElementToBeRemoved(() => selectors.loadingLocation());
 
-    expect(
-      screen.queryByText(/locations have been created on this instance/i),
-    ).toBeNull();
-    expect(
-      screen.queryByText(/storage locations. It is strongly recommended/i),
-    ).toBeNull();
+    expect(screen.queryByText(/locations have been created on this instance/i)).toBeNull();
+    expect(screen.queryByText(/storage locations. It is strongly recommended/i)).toBeNull();
   });
 
   it('should display a warning banner when 6-9 locations exist', async () => {
@@ -180,9 +144,7 @@ describe('LocationEditor', () => {
     await waitForElementToBeRemoved(() => selectors.loadingLocation());
 
     await waitFor(() => {
-      const warningText = screen.getByText(
-        /8 of 10 locations have been created on this instance/i,
-      );
+      const warningText = screen.getByText(/8 of 10 locations have been created on this instance/i);
       expect(warningText).toBeInTheDocument();
     });
   });
@@ -194,33 +156,25 @@ describe('LocationEditor', () => {
     await waitForElementToBeRemoved(() => selectors.loadingLocation());
 
     await waitFor(() => {
-      const dangerText = screen.getByText(
-        /This instance has already 12 storage locations/i,
-      );
+      const dangerText = screen.getByText(/This instance has already 12 storage locations/i);
       expect(dangerText).toBeInTheDocument();
-
-   
     });
   });
 
   it(`test if each location display correctly`, async () => {
     testRender(<LocationEditor />);
 
-    await waitForElementToBeRemoved(() =>
-      screen.getByText('Loading location...'),
-    );
+    await waitForElementToBeRemoved(() => screen.getByText('Loading location...'));
 
     const locationsTests = [
       {
         name: 'Scality ARTESCA S3',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Scality ARTESCA S3/i),
+        optionToQuery: () => selectors.optionLocationType(/Scality ARTESCA S3/i),
         checkField: () => screen.getByText(/access key \*/i),
       },
       {
         name: 'Scality RING with S3 Connector',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Scality RING with S3 Connector/i),
+        optionToQuery: () => selectors.optionLocationType(/Scality RING with S3 Connector/i),
         checkField: () => screen.getByText(/access key \*/i),
       },
       {
@@ -230,44 +184,37 @@ describe('LocationEditor', () => {
       },
       {
         name: 'Google Cloud Storage',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Google Cloud Storage/i),
+        optionToQuery: () => selectors.optionLocationType(/Google Cloud Storage/i),
         checkField: () => screen.getByText(/GCP Access Key \*/i),
       },
       {
         name: 'Microsoft Azure Blob Storage',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Microsoft Azure Blob Storage/i),
+        optionToQuery: () => selectors.optionLocationType(/Microsoft Azure Blob Storage/i),
         checkField: () => screen.getByText(/Blob endpoint \*/i),
       },
       {
         name: 'Microsoft Azure Archive',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Microsoft Azure Archive/i),
+        optionToQuery: () => selectors.optionLocationType(/Microsoft Azure Archive/i),
         checkField: () => screen.getByText(/Blob endpoint \*/i),
       },
       {
         name: 'Atlas Object Storage (Free Pro)',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Atlas Object Storage \(Free Pro\)/i),
+        optionToQuery: () => selectors.optionLocationType(/Atlas Object Storage \(Free Pro\)/i),
         checkField: () => screen.getByText(/access key \*/i),
       },
       {
         name: '3DS Outscale OOS Public',
-        optionToQuery: () =>
-          selectors.optionLocationType(/3DS Outscale OOS Public/i),
+        optionToQuery: () => selectors.optionLocationType(/3DS Outscale OOS Public/i),
         checkField: () => screen.getByText(/access key \*/i),
       },
       {
         name: '3DS Outscale OOS SNC',
-        optionToQuery: () =>
-          selectors.optionLocationType(/3DS Outscale OOS SNC/i),
+        optionToQuery: () => selectors.optionLocationType(/3DS Outscale OOS SNC/i),
         checkField: () => screen.getByText(/access key \*/i),
       },
       {
         name: 'Flexible Datastore',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Flexible Datastore/i),
+        optionToQuery: () => selectors.optionLocationType(/Flexible Datastore/i),
         checkField: () => screen.getByText(/access key \*/i),
       },
       {
@@ -277,20 +224,17 @@ describe('LocationEditor', () => {
       },
       {
         name: 'Tape Atempo Miria',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Tape Atempo Miria/i),
+        optionToQuery: () => selectors.optionLocationType(/Tape Atempo Miria/i),
         checkField: () => screen.getByText(/Atempo Miria Repository/i),
       },
       {
         name: 'Ceph RADOS Gateway',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Ceph RADOS Gateway/i),
+        optionToQuery: () => selectors.optionLocationType(/Ceph RADOS Gateway/i),
         checkField: () => screen.getByText(/access key \*/i),
       },
       {
         name: 'Scality RING with Sproxyd Connector',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Scality RING with Sproxyd Connector/i),
+        optionToQuery: () => selectors.optionLocationType(/Scality RING with Sproxyd Connector/i),
         checkField: () => screen.getByText(/Bootstrap List \*/i),
       },
       {
@@ -300,8 +244,7 @@ describe('LocationEditor', () => {
       },
       {
         name: 'Oracle Cloud Object Storage',
-        optionToQuery: () =>
-          selectors.optionLocationType(/Oracle Cloud Object Storage/i),
+        optionToQuery: () => selectors.optionLocationType(/Oracle Cloud Object Storage/i),
         checkField: () => screen.getByText(/Namespace \*/i),
       },
     ];

@@ -10,10 +10,9 @@ const DEFAULT_LOCATION = 'us-east-1';
 
 export function LocationSelector({ value, onChange }: LocationSelectorProps) {
   const adapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter: adapter,
-    });
+  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter: adapter,
+  });
 
   const locations = accountsLocationsAndEndpoints?.locations ?? [];
 
@@ -28,12 +27,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
   }
 
   return (
-    <Select
-      id="locationConstraint"
-      value={value}
-      onChange={onChange}
-      placeholder="Select a location..."
-    >
+    <Select id="locationConstraint" value={value} onChange={onChange} placeholder="Select a location...">
       {locations.map((location) => {
         const typeName = getLocationTypeShort(location);
         const isCold = !!location.isCold;
@@ -42,9 +36,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
             key={location.name}
             value={location.name}
             disabled={isCold}
-            disabledReason={
-              isCold ? "Cold Location can't be used" : undefined
-            }
+            disabledReason={isCold ? "Cold Location can't be used" : undefined}
           >
             {`${location.name} (${typeName})`}
           </Select.Option>

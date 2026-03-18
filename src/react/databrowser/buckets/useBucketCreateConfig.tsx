@@ -21,11 +21,7 @@ export function useBucketCreateConfig() {
 
       if (isAsyncNotification && locationConstraint) {
         const location = locations.find((l) => l.name === locationConstraint);
-        if (
-          location &&
-          capabilities &&
-          isIngestLocation(location, capabilities)
-        ) {
+        if (location && capabilities && isIngestLocation(location, capabilities)) {
           return {
             ...data,
             locationConstraint: `${locationConstraint}:ingest`,

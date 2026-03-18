@@ -6,25 +6,16 @@ import {
   useArtescaLibrary,
   type ArtescaLibraryHooks,
 } from '../../next-architecture/ui/ArtescaLibraryProvider';
-import {
-  VeeamCredentialProvider,
-  useVeeamCredentialManagement,
-} from '../contexts/VeeamCredentialContext';
+import { VeeamCredentialProvider, useVeeamCredentialManagement } from '../contexts/VeeamCredentialContext';
 
 jest.mock('../../next-architecture/ui/ArtescaLibraryProvider');
 
-const mockUseArtescaLibrary = useArtescaLibrary as jest.MockedFunction<
-  typeof useArtescaLibrary
->;
+const mockUseArtescaLibrary = useArtescaLibrary as jest.MockedFunction<typeof useArtescaLibrary>;
 
 describe('useVeeamCredentialManagement', () => {
   const mockChangeCredentialsMutation = {
     mutate: jest.fn(),
-  } as unknown as UseMutationResult<
-    unknown,
-    unknown,
-    { username: string; password: string }
-  >;
+  } as unknown as UseMutationResult<unknown, unknown, { username: string; password: string }>;
   const mockUseIsVeeamCredentialsValid = jest.fn();
   const mockUseChangeVeeamCredentials = jest.fn();
 
@@ -65,9 +56,7 @@ describe('useVeeamCredentialManagement', () => {
       expect(result.current.isCredentialsValid).toBe(true);
       expect(result.current.isCheckingCredentials).toBe(false);
       expect(result.current.isCredentialCheckError).toBe(false);
-      expect(result.current.changeCredentialsMutation).toBe(
-        mockChangeCredentialsMutation,
-      );
+      expect(result.current.changeCredentialsMutation).toBe(mockChangeCredentialsMutation);
     });
 
     it('should return invalid credentials status when credentials are invalid', () => {
@@ -116,13 +105,7 @@ describe('useVeeamCredentialManagement', () => {
         isError: false,
       });
 
-      const statuses = [
-        'IDLE',
-        'WAITING',
-        'VALID',
-        'INVALID',
-        'ERROR',
-      ] as const;
+      const statuses = ['IDLE', 'WAITING', 'VALID', 'INVALID', 'ERROR'] as const;
 
       statuses.forEach((status) => {
         mockUseChangeVeeamCredentials.mockReturnValue({
@@ -137,8 +120,7 @@ describe('useVeeamCredentialManagement', () => {
         expect(result.current.newCredentialsStatus).toBe(status);
       });
     });
-
-});
+  });
 
   describe('when Artesca library is not available', () => {
     beforeEach(() => {

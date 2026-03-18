@@ -1,14 +1,10 @@
-/* eslint-disable */
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
-import {
-  testRender,
-  themeMount as mount,
-  selectClick,
-} from '../../../utils/testUtil';
+import { themeMount as mount, selectClick, testRender } from '../../../utils/testUtil';
 
 import LocationDetailsAzure from '../LocationDetailsAzure';
+
 const props = {
   details: {},
   onChange: () => {},
@@ -91,19 +87,13 @@ describe('class <LocationDetailsAzure />', () => {
 
     //V
     expect(selectors.blobEndpoint()).toBeInTheDocument();
-    expect(selectors.blobEndpoint()).toHaveValue(
-      locationDetails.endpoint,
-    );
+    expect(selectors.blobEndpoint()).toHaveValue(locationDetails.endpoint);
 
     expect(selectors.targetContainerName()).toBeInTheDocument();
-    expect(selectors.targetContainerName()).toHaveValue(
-      locationDetails.bucketName,
-    );
+    expect(selectors.targetContainerName()).toHaveValue(locationDetails.bucketName);
 
     expect(selectors.storageAccountName()).toBeInTheDocument();
-    expect(selectors.storageAccountName()).toHaveValue(
-      locationDetails.accessKey,
-    );
+    expect(selectors.storageAccountName()).toHaveValue(locationDetails.accessKey);
 
     expect(selectors.storageAccountKey()).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
@@ -126,19 +116,13 @@ describe('class <LocationDetailsAzure />', () => {
 
     //V
     expect(selectors.blobEndpoint()).toBeInTheDocument();
-    expect(selectors.blobEndpoint()).toHaveValue(
-      locationDetails.endpoint,
-    );
+    expect(selectors.blobEndpoint()).toHaveValue(locationDetails.endpoint);
 
     expect(selectors.targetContainerName()).toBeInTheDocument();
-    expect(selectors.targetContainerName()).toHaveValue(
-      locationDetails.bucketName,
-    );
+    expect(selectors.targetContainerName()).toHaveValue(locationDetails.bucketName);
 
     expect(selectors.storageAccountName()).toBeInTheDocument();
-    expect(selectors.storageAccountName()).toHaveValue(
-      locationDetails.auth.accountName,
-    );
+    expect(selectors.storageAccountName()).toHaveValue(locationDetails.auth.accountName);
 
     expect(selectors.storageAccountKey()).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
@@ -163,19 +147,13 @@ describe('class <LocationDetailsAzure />', () => {
 
     //V
     expect(selectors.blobEndpoint()).toBeInTheDocument();
-    expect(selectors.blobEndpoint()).toHaveValue(
-      locationDetails.endpoint,
-    );
+    expect(selectors.blobEndpoint()).toHaveValue(locationDetails.endpoint);
 
     expect(selectors.targetContainerName()).toBeInTheDocument();
-    expect(selectors.targetContainerName()).toHaveValue(
-      locationDetails.bucketName,
-    );
+    expect(selectors.targetContainerName()).toHaveValue(locationDetails.bucketName);
 
     expect(selectors.clientId()).toBeInTheDocument();
-    expect(selectors.clientId()).toHaveValue(
-      locationDetails.auth.clientId,
-    );
+    expect(selectors.clientId()).toHaveValue(locationDetails.auth.clientId);
 
     expect(selectors.clientSecret()).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
@@ -198,14 +176,10 @@ describe('class <LocationDetailsAzure />', () => {
 
     //V
     expect(selectors.blobEndpoint()).toBeInTheDocument();
-    expect(selectors.blobEndpoint()).toHaveValue(
-      locationDetails.endpoint,
-    );
+    expect(selectors.blobEndpoint()).toHaveValue(locationDetails.endpoint);
 
     expect(selectors.targetContainerName()).toBeInTheDocument();
-    expect(selectors.targetContainerName()).toHaveValue(
-      locationDetails.bucketName,
-    );
+    expect(selectors.targetContainerName()).toHaveValue(locationDetails.bucketName);
 
     expect(selectors.sasToken()).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
@@ -222,41 +196,28 @@ describe('class <LocationDetailsAzure />', () => {
     container: HTMLElement;
   }) => {
     await userEvent.type(selectors.blobEndpoint(), endpoint);
-    await userEvent.type(
-      selectors.targetContainerName(),
-      targetBucket,
-    );
+    await userEvent.type(selectors.targetContainerName(), targetBucket);
 
-    const selector = notFalsyTypeGuard(
-      container.querySelector('.sc-select__control'),
-    );
+    const selector = notFalsyTypeGuard(container.querySelector('.sc-select__control'));
     await selectClick(selector);
     await userEvent.keyboard('{arrowup}');
 
-    expect(
-      container.querySelector('.sc-select__option--is-focused')?.textContent,
-    ).toBe('Azure Shared Key');
+    expect(container.querySelector('.sc-select__option--is-focused')?.textContent).toBe('Azure Shared Key');
 
-    ['Azure Client Secret', 'Azure Shared Access Signature'].forEach(
-      (locationName) => {
-        fireEvent.keyDown(selector, {
-          key: 'ArrowDown',
-          which: 40,
-          keyCode: 40,
-        });
-        expect(
-          container.querySelector('.sc-select__option--is-focused')
-            ?.textContent,
-        ).toBe(locationName);
-      },
-    );
+    ['Azure Client Secret', 'Azure Shared Access Signature'].forEach((locationName) => {
+      fireEvent.keyDown(selector, {
+        key: 'ArrowDown',
+        which: 40,
+        keyCode: 40,
+      });
+      expect(container.querySelector('.sc-select__option--is-focused')?.textContent).toBe(locationName);
+    });
     return { selector };
   };
 
   it('should call onChange with expected location when seting auth type to location-azure-shared-key', async () => {
     //S
-    const { container, endpoint, onChange, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, endpoint, onChange, targetBucket } = setupAndRenderLocationDetails();
     const accountName = 'name';
     const accountKey = 'key';
     //E
@@ -265,14 +226,8 @@ describe('class <LocationDetailsAzure />', () => {
       endpoint,
       targetBucket,
     });
-    await userEvent.type(
-      selectors.storageAccountName(),
-      accountName,
-    );
-    await userEvent.type(
-      selectors.storageAccountKey(),
-      accountKey,
-    );
+    await userEvent.type(selectors.storageAccountName(), accountName);
+    await userEvent.type(selectors.storageAccountKey(), accountKey);
     //V
 
     expect(onChange).toHaveBeenCalledWith({
@@ -289,8 +244,7 @@ describe('class <LocationDetailsAzure />', () => {
 
   it('should call onChange with expected location when seting auth type to location-azure-client-secret', async () => {
     //S
-    const { container, endpoint, onChange, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, endpoint, onChange, targetBucket } = setupAndRenderLocationDetails();
     const clientId = 'id';
     const clientKey = 'key';
     const tenantId = 'tenanid';
@@ -320,8 +274,7 @@ describe('class <LocationDetailsAzure />', () => {
 
   it('should call onChange with expected location when seting auth type to location-azure-shared-access-signature', async () => {
     //S
-    const { container, endpoint, onChange, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, endpoint, onChange, targetBucket } = setupAndRenderLocationDetails();
     const sasToken = 'token';
     //E
     const { selector } = await setCommonValuesAndPerformCommonChecksOnAuthType({
