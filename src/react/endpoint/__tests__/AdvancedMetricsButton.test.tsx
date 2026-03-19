@@ -41,13 +41,9 @@ describe('AdvancedMetricsButton', () => {
     renderWithRouterMatch(<AuthorizedAdvancedMetricsButton />);
 
     //Wait for loading to complete
-    await waitFor(() =>
-      screen.getByRole('button', { name: /Advanced Metrics/i }),
-    );
+    await waitFor(() => screen.getByRole('button', { name: /Advanced Metrics/i }));
 
-    expect(
-      screen.getByRole('button', { name: /Advanced Metrics/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Advanced Metrics/i })).toBeInTheDocument();
   });
 
   it("should not display the button when groups doesn't contains StorageManager", async () => {
@@ -68,9 +64,7 @@ describe('AdvancedMetricsButton', () => {
     await expect(
       (async () => {
         //Wait for loading to complete
-        await waitFor(() =>
-          screen.getByRole('button', { name: /Advanced Metrics/i }),
-        );
+        await waitFor(() => screen.getByRole('button', { name: /Advanced Metrics/i }));
       })(),
     ).rejects.not.toBeNull();
   });

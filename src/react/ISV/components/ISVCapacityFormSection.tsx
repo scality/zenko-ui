@@ -1,10 +1,10 @@
 import { FormGroup, Stack } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
-import { Controller, useFormContext } from 'react-hook-form';
+import { useShellHooks } from '@scality/module-federation';
 
 import { useEffect } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 import { useXcoreRuntimeConfig } from '../../next-architecture/ui/ConfigProvider';
-import { useShellHooks } from '@scality/module-federation';
 import { unitChoices } from '../constants';
 import { useCapacityUnit } from '../hooks/useCapacityUnit';
 import { CapacityTooltip } from './shared/PlatformTooltips';
@@ -40,10 +40,7 @@ export const CapacityFormWithXcore = ({
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const xCoreConfig = useXcoreRuntimeConfig();
-  const { clusterCapacity, clusterCapacityStatus } = useClusterCapacity(
-    xCoreConfig,
-    getToken,
-  );
+  const { clusterCapacity, clusterCapacityStatus } = useClusterCapacity(xCoreConfig, getToken);
   const { setValue } = useFormContext();
 
   const safeCapacity =
@@ -61,25 +58,12 @@ export const CapacityFormWithXcore = ({
       setValue(`buckets.${index}.capacity`, capacityValue);
       setValue(`buckets.${index}.capacityUnit`, capacityUnit);
     }
-  }, [
-    clusterCapacityStatus,
-    bucketNumber,
-    index,
-    setValue,
-    capacityValue,
-    capacityUnit,
-  ]);
+  }, [clusterCapacityStatus, bucketNumber, index, setValue, capacityValue, capacityUnit]);
 
   return <CapacityFormSection index={index} />;
 };
 
-export const CapacityFormSection = ({
-  autoFocusEnabled,
-  index,
-}: {
-  autoFocusEnabled?: boolean;
-  index: number;
-}) => {
+export const CapacityFormSection = ({ autoFocusEnabled, index }: { autoFocusEnabled?: boolean; index: number }) => {
   const {
     register,
     control,

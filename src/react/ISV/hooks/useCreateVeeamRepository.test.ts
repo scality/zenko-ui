@@ -1,7 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import React, { type ReactNode } from 'react';
+import type React from 'react';
+import type { ReactNode } from 'react';
 import { NewWrapper } from '../../utils/testUtil';
 import { useCreateVeeamRepository } from './useCreateVeeamRepository';
 
@@ -97,8 +98,6 @@ describe('useCreateVeeamRepository', () => {
       expect(result.current.isError).toBe(true);
     });
 
-    expect((result.current.error as { message?: string })?.message).toBe(
-      'Invalid repository configuration',
-    );
+    expect((result.current.error as { message?: string })?.message).toBe('Invalid repository configuration');
   });
 });

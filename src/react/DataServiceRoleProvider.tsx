@@ -154,7 +154,7 @@ export const useCurrentAccount = () => {
   const params = useParams();
   const accountName = params?.accountName;
   const { roleArn } = useDataServiceRole();
-  const accountId = roleArn ? regexArn.exec(roleArn)?.groups?.['account_id'] : '';
+  const accountId = roleArn ? regexArn.exec(roleArn)?.groups?.account_id : '';
   const { accounts } = useAccounts(noopBasedEventDispatcher);
 
   const account = useMemo(() => {
@@ -262,9 +262,14 @@ const DataServiceRoleProvider = ({
     const expiration = assumeRoleQueryRef.current.data?.Credentials?.Expiration;
     const REFRESH_BUFFER_MS = 2 * 60 * 1000;
 
-    if (expiration && new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS && Date.now() >= refreshCooldownUntilRef.current) {
+    if (
+      expiration &&
+      new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS &&
+      Date.now() >= refreshCooldownUntilRef.current
+    ) {
       if (!refreshPromiseRef.current) {
-        refreshPromiseRef.current = assumeRoleQueryRef.current.refetch()
+        refreshPromiseRef.current = assumeRoleQueryRef.current
+          .refetch()
           .then((result) => {
             refreshPromiseRef.current = null;
             const exp = result.data?.Credentials?.Expiration;
@@ -310,14 +315,12 @@ const DataServiceRoleProvider = ({
     if (!newRole.roleArn) {
       return Promise.reject('Invalid role arn');
     }
-    const data = await queryClient.fetchQuery(
-      ['assumeRole', newRole.roleArn],
-      async () =>
-        stsClient.assumeRoleWithWebIdentity({
-          idToken: notFalsyTypeGuard(await getToken()),
-          roleArn: newRole.roleArn,
-          RoleSessionName: roleSessionName,
-        }),
+    const data = await queryClient.fetchQuery(['assumeRole', newRole.roleArn], async () =>
+      stsClient.assumeRoleWithWebIdentity({
+        idToken: notFalsyTypeGuard(await getToken()),
+        roleArn: newRole.roleArn,
+        RoleSessionName: roleSessionName,
+      }),
     );
     flushSync(() => {
       setRoleArnStored(newRole.roleArn);

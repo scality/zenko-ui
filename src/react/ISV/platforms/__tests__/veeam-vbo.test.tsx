@@ -1,6 +1,5 @@
+import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8, VEEAM_VBO_APPLICATION } from '../../constants';
 import { VeeamVBOPlatform } from '../veeam-vbo';
-import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../../constants';
-import { VEEAM_VBO_APPLICATION } from '../../constants';
 
 describe('VeeamVBOPlatform', () => {
   describe('basic properties', () => {
@@ -28,18 +27,14 @@ describe('VeeamVBOPlatform', () => {
 
   describe('generated fields', () => {
     it('should generate accountName field', () => {
-      const accountField = VeeamVBOPlatform.fields.find(
-        (f) => f.name === 'accountName'
-      );
+      const accountField = VeeamVBOPlatform.fields.find((f) => f.name === 'accountName');
       expect(accountField).toBeDefined();
       expect(accountField?.type).toBe('accountSelector');
       expect(accountField?.label).toBe('Account');
     });
 
     it('should generate application field after IAMUserName (Advanced Settings)', () => {
-      const appField = VeeamVBOPlatform.fields.find(
-        (f) => f.name === 'application'
-      );
+      const appField = VeeamVBOPlatform.fields.find((f) => f.name === 'application');
       expect(appField).toBeDefined();
       expect(appField?.type).toBe('select');
       expect(appField?.label).toBe('Veeam application');
@@ -57,24 +52,18 @@ describe('VeeamVBOPlatform', () => {
     });
 
     it('should generate buckets field without capacity', () => {
-      const bucketsField = VeeamVBOPlatform.fields.find(
-        (f) => f.name === 'buckets'
-      );
+      const bucketsField = VeeamVBOPlatform.fields.find((f) => f.name === 'buckets');
       expect(bucketsField).toBeDefined();
       expect(bucketsField?.type).toBe('bucketArray');
 
       if (bucketsField && 'itemFields' in bucketsField) {
-        const capacityField = bucketsField.itemFields.find(
-          (f) => f.name === 'capacity'
-        );
+        const capacityField = bucketsField.itemFields.find((f) => f.name === 'capacity');
         expect(capacityField).toBeUndefined();
       }
     });
 
     it('should generate enableImmutableBackup field with showWhen', () => {
-      const immutableField = VeeamVBOPlatform.fields.find(
-        (f) => f.name === 'enableImmutableBackup'
-      );
+      const immutableField = VeeamVBOPlatform.fields.find((f) => f.name === 'enableImmutableBackup');
       expect(immutableField).toBeDefined();
       expect(immutableField?.type).toBe('toggle');
 
@@ -100,9 +89,7 @@ describe('VeeamVBOPlatform', () => {
     });
 
     it('should generate IAMUserName field', () => {
-      const iamField = VeeamVBOPlatform.fields.find(
-        (f) => f.name === 'IAMUserName'
-      );
+      const iamField = VeeamVBOPlatform.fields.find((f) => f.name === 'IAMUserName');
       expect(iamField).toBeDefined();
       expect(iamField?.type).toBe('iamUserSelector');
     });
@@ -187,23 +174,19 @@ describe('VeeamVBOPlatform', () => {
     });
 
     it('should NOT include enableSOSAPI mutation (no sosAPI)', () => {
-      const sosMutation = VeeamVBOPlatform.mutations.find(
-        (m) => 'action' in m && m.action === 'enableSOSAPI'
-      );
+      const sosMutation = VeeamVBOPlatform.mutations.find((m) => 'action' in m && m.action === 'enableSOSAPI');
       expect(sosMutation).toBeUndefined();
     });
 
     it('should include createAccount mutation', () => {
       const createAccountMutation = VeeamVBOPlatform.mutations.find(
-        (m) => 'action' in m && m.action === 'createAccount'
+        (m) => 'action' in m && m.action === 'createAccount',
       );
       expect(createAccountMutation).toBeDefined();
     });
 
     it('should include bucket loop mutation with only standard steps', () => {
-      const loopMutation = VeeamVBOPlatform.mutations.find(
-        (m) => 'each' in m && m.each === 'buckets'
-      );
+      const loopMutation = VeeamVBOPlatform.mutations.find((m) => 'each' in m && m.each === 'buckets');
       expect(loopMutation).toBeDefined();
 
       if (loopMutation && 'steps' in loopMutation) {
@@ -220,14 +203,7 @@ describe('VeeamVBOPlatform', () => {
 
     it('should include IAM mutations', () => {
       const iamMutations = VeeamVBOPlatform.mutations.filter(
-        (m) =>
-          'action' in m &&
-          [
-            'createIAMUser',
-            'createAccessKey',
-            'createPolicy',
-            'attachPolicy',
-          ].includes(m.action)
+        (m) => 'action' in m && ['createIAMUser', 'createAccessKey', 'createPolicy', 'attachPolicy'].includes(m.action),
       );
       expect(iamMutations.length).toBeGreaterThan(0);
     });
@@ -235,9 +211,7 @@ describe('VeeamVBOPlatform', () => {
 
   describe('summary config', () => {
     it('should have serviceEndpointLabel', () => {
-      expect(VeeamVBOPlatform.summary.serviceEndpointLabel).toBe(
-        'Service Endpoint'
-      );
+      expect(VeeamVBOPlatform.summary.serviceEndpointLabel).toBe('Service Endpoint');
     });
 
     it('should NOT have bucketBanner (VBO does not need it)', () => {
@@ -246,9 +220,7 @@ describe('VeeamVBOPlatform', () => {
 
     it('should have immutabilityHelpText function', () => {
       expect(VeeamVBOPlatform.summary.immutabilityHelpText).toBeDefined();
-      expect(typeof VeeamVBOPlatform.summary.immutabilityHelpText).toBe(
-        'function'
-      );
+      expect(typeof VeeamVBOPlatform.summary.immutabilityHelpText).toBe('function');
     });
 
     it('should return help text when immutable is true', () => {
@@ -264,10 +236,7 @@ describe('VeeamVBOPlatform', () => {
 
   describe('policy generation', () => {
     it('should generate valid policy for buckets', () => {
-      const policy = VeeamVBOPlatform.getPolicy(
-        ['bucket1', 'bucket2'],
-        false
-      );
+      const policy = VeeamVBOPlatform.getPolicy(['bucket1', 'bucket2'], false);
       const parsed = JSON.parse(policy);
 
       expect(parsed.Version).toBe('2012-10-17');
@@ -285,4 +254,3 @@ describe('VeeamVBOPlatform', () => {
     });
   });
 });
-

@@ -1,17 +1,15 @@
+import { Form, FormGroup, FormSection } from '@scality/core-ui';
 import { render, screen } from '@testing-library/react';
+import type React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import React from 'react';
-import { VeeamRepositoryFields } from '../VeeamRepositoryFields';
 import { Wrapper } from '../../../utils/testUtil';
-import { Form, FormSection, FormGroup } from '@scality/core-ui';
+import { VeeamRepositoryFields } from '../VeeamRepositoryFields';
 
 jest.mock('../../hooks/useIsVeeamVBROnly');
 
 import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
 
-const mockUseIsVeeamVBROnly = useIsVeeamVBROnly as jest.MockedFunction<
-  typeof useIsVeeamVBROnly
->;
+const mockUseIsVeeamVBROnly = useIsVeeamVBROnly as jest.MockedFunction<typeof useIsVeeamVBROnly>;
 
 interface FormWrapperProps {
   children: React.ReactNode;
@@ -38,11 +36,7 @@ const FormWrapper = ({ children, defaultValues }: FormWrapperProps) => {
         }}
       >
         <FormSection>
-          <FormGroup
-            id="test-wrapper"
-            label=""
-            content={<div>{children}</div>}
-          />
+          <FormGroup id="test-wrapper" label="" content={<div>{children}</div>} />
         </FormSection>
       </Form>
     </FormProvider>
@@ -87,9 +81,7 @@ describe('VeeamRepositoryFields', () => {
       </Wrapper>,
     );
 
-    expect(
-      screen.getByText('Veeam Immutable retention period'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Veeam Immutable retention period')).toBeInTheDocument();
     expect(screen.getByRole('spinbutton')).toHaveValue(14);
   });
 });

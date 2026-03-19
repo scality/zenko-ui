@@ -5,7 +5,10 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
-  "files": { "ignoreUnknown": false },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx", "!src/js/managementClient/*"]
+  },
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,

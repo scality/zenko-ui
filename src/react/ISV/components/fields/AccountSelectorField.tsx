@@ -1,5 +1,5 @@
-import { UseFormReturn } from 'react-hook-form';
-import { AccountSelectorFieldDef, FormData } from '../../engine/types';
+import type { UseFormReturn } from 'react-hook-form';
+import type { AccountSelectorFieldDef, FormData } from '../../engine/types';
 import { CreateOrSelectNameField } from '../CreateOrSelectNameField';
 import { useISVFormContext } from '../ISVFormContext';
 
@@ -8,18 +8,8 @@ type AccountSelectorFieldProps = {
   formMethods: UseFormReturn<FormData>;
 };
 
-export const AccountSelectorField = ({
-  field,
-  formMethods,
-}: AccountSelectorFieldProps) => {
-  const {
-    platform,
-    accounts,
-    accountsStatus,
-    isAccountExist,
-    onAccountSelected,
-    resetIAMFields,
-  } = useISVFormContext();
+export const AccountSelectorField = ({ field, formMethods }: AccountSelectorFieldProps) => {
+  const { platform, accounts, accountsStatus, isAccountExist, onAccountSelected, resetIAMFields } = useISVFormContext();
 
   const { watch } = formMethods;
   const accountNameType = watch('accountNameType');

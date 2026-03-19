@@ -1,26 +1,22 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { GET_VEEAM_IMMUTABLE_POLICY, VEEAM_IMMUTABLE_POLICY_NAME, VEEAM_XML_PREFIX } from '../react/ISV/constants';
+import { NewWrapper, TEST_API_BASE_URL } from '../react/utils/testUtil';
 import { INSTANCE_ID } from './mock/managementClientMSWHandlers';
 import {
-  GET_VEEAM_IMMUTABLE_POLICY,
-  VEEAM_IMMUTABLE_POLICY_NAME,
-  VEEAM_XML_PREFIX,
-} from '../react/ISV/constants';
-import { NewWrapper, TEST_API_BASE_URL } from '../react/utils/testUtil';
-import {
+  useAddCertificateToZenkoConfigurationMutation,
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
   useCreateEndpointMutation,
   useCreateIAMUserMutation,
+  useCreateOrAddBucketToPolicyMutation,
   useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
-  useWaitForRunningConfigurationVersionToBeUpdated,
   useEnableSOSAPIMutation,
-  useCreateOrAddBucketToPolicyMutation,
-  useAddCertificateToZenkoConfigurationMutation,
   usePatchZenkoConfigurationMutation,
   useToggleTLSVerificationMutation,
+  useWaitForRunningConfigurationVersionToBeUpdated,
 } from './mutations';
 
 //Subject Under Testing
@@ -50,180 +46,166 @@ const policyNameWithErrorTriggered = `${VEEAM_IMMUTABLE_POLICY_NAME}-${bucketNam
 const veeamObjectKey = `${VEEAM_XML_PREFIX}/system.xml`;
 
 const getLatestInstanceStatusFailingMock = () =>
-  rest.get(
-    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
-    (req, res, ctx) => {
-      return res(ctx.status(500));
-    },
-  );
+  rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`, (req, res, ctx) => {
+    return res(ctx.status(500));
+  });
 
 const getLatestInstanceStatusMock = (runningConfigurationVersion: number = 1) =>
-  rest.get(
-    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json({
-          metrics: {
-            cpu: {
-              idle: 119998230,
-              nice: 1140,
-              sys: 8083540,
-              user: 35370130,
+  rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`, (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        metrics: {
+          cpu: {
+            idle: 119998230,
+            nice: 1140,
+            sys: 8083540,
+            user: 35370130,
+          },
+          'crr-schedule': {
+            states: {
+              'eu-cloud-1': 'enabled',
+              'val-9464-location': 'enabled',
             },
-            'crr-schedule': {
-              states: {
-                'eu-cloud-1': 'enabled',
-                'val-9464-location': 'enabled',
+          },
+          'crr-stats': {
+            backlog: {},
+            completions: {},
+            failures: {},
+            pending: {},
+            stalled: {},
+            throughput: {},
+            byLocation: {
+              'eu-cloud-1': {
+                backlog: {},
+                completions: {},
+                failures: {},
+                pending: {},
+                throughput: {},
+              },
+              'val-9464-location': {
+                backlog: {},
+                completions: {},
+                failures: {},
+                pending: {},
+                throughput: {},
               },
             },
-            'crr-stats': {
-              backlog: {},
-              completions: {},
-              failures: {},
-              pending: {},
-              stalled: {},
-              throughput: {},
+          },
+          'data-disk-usage': {
+            available: 89988096,
+            free: 92085248,
+            total: 95762432,
+          },
+          'ingest-schedule': {},
+          'ingest-stats': {
+            completions: {},
+            pending: {},
+            throughput: {},
+          },
+          'item-counts': {
+            bucketList: [
+              {
+                isVersioned: true,
+                location: 'us-east-1',
+                name: 'test',
+                ownerCanonicalId: 'eae2600b0c0cfbdcae63eb13b501814668d747e136e16f68092709a23fc77422',
+              },
+            ],
+            buckets: 1,
+            dataManaged: {
               byLocation: {
-                'eu-cloud-1': {
-                  backlog: {},
-                  completions: {},
-                  failures: {},
-                  pending: {},
-                  throughput: {},
-                },
-                'val-9464-location': {
-                  backlog: {},
-                  completions: {},
-                  failures: {},
-                  pending: {},
-                  throughput: {},
-                },
-              },
-            },
-            'data-disk-usage': {
-              available: 89988096,
-              free: 92085248,
-              total: 95762432,
-            },
-            'ingest-schedule': {},
-            'ingest-stats': {
-              completions: {},
-              pending: {},
-              throughput: {},
-            },
-            'item-counts': {
-              bucketList: [
-                {
-                  isVersioned: true,
-                  location: 'us-east-1',
-                  name: 'test',
-                  ownerCanonicalId:
-                    'eae2600b0c0cfbdcae63eb13b501814668d747e136e16f68092709a23fc77422',
-                },
-              ],
-              buckets: 1,
-              dataManaged: {
-                byLocation: {
-                  '22f31240-4bd3-11ee-98b3-1e5b6f897bc7': {
-                    curr: 39472026504,
-                    prev: 10256254,
-                  },
-                  'df6098b2-56cd-11ee-815e-f65a3b964922': {
-                    curr: 1859580,
-                  },
-                },
-                total: {
-                  curr: 39473886084,
+                '22f31240-4bd3-11ee-98b3-1e5b6f897bc7': {
+                  curr: 39472026504,
                   prev: 10256254,
                 },
+                'df6098b2-56cd-11ee-815e-f65a3b964922': {
+                  curr: 1859580,
+                },
               },
-              objects: 47835,
-              versions: 12,
+              total: {
+                curr: 39473886084,
+                prev: 10256254,
+              },
             },
-            'md-disk-usage': {
-              available: 73761554432,
-              free: 73761554432,
-              total: 213578133504,
-            },
-            memory: {
-              free: 11772411904,
-              total: 33065947136,
-            },
+            objects: 47835,
+            versions: 12,
           },
-          state: {
-            capabilities: {
-              locationTypeCephRadosGW: true,
-              locationTypeDigitalOcean: true,
-              locationTypeHyperdriveV2: true,
-              locationTypeLocal: true,
-              locationTypeNFS: true,
-              locationTypeS3Custom: true,
-              locationTypeSproxyd: true,
-              managedLifecycle: true,
-              managedLifecycleTransition: true,
-              preferredReadLocation: true,
-              s3cIngestLocation: true,
-              secureChannel: true,
-              secureChannelOptimizedPath: true,
-            },
-            ipAddress: '10.233.9.177',
-            lastSeen: '2023-12-01T12:59:02.407Z',
-            latestConfigurationOverlay: {
-              version: runningConfigurationVersion,
-            },
-            runningConfigurationVersion,
-            serverVersion: 'ref: refs/heads/development/8.8\n',
+          'md-disk-usage': {
+            available: 73761554432,
+            free: 73761554432,
+            total: 213578133504,
           },
-        }),
-      );
-    },
-  );
+          memory: {
+            free: 11772411904,
+            total: 33065947136,
+          },
+        },
+        state: {
+          capabilities: {
+            locationTypeCephRadosGW: true,
+            locationTypeDigitalOcean: true,
+            locationTypeHyperdriveV2: true,
+            locationTypeLocal: true,
+            locationTypeNFS: true,
+            locationTypeS3Custom: true,
+            locationTypeSproxyd: true,
+            managedLifecycle: true,
+            managedLifecycleTransition: true,
+            preferredReadLocation: true,
+            s3cIngestLocation: true,
+            secureChannel: true,
+            secureChannelOptimizedPath: true,
+          },
+          ipAddress: '10.233.9.177',
+          lastSeen: '2023-12-01T12:59:02.407Z',
+          latestConfigurationOverlay: {
+            version: runningConfigurationVersion,
+          },
+          runningConfigurationVersion,
+          serverVersion: 'ref: refs/heads/development/8.8\n',
+        },
+      }),
+    );
+  });
 
 export const getVeeamMutationHandler = () => [
   // create endpoint
-  rest.post(
-    `${TEST_API_BASE_URL}/api/v1/config/${instanceId}/endpoint`,
-    (req, res, ctx) => {
-      SUT(req.body);
-      //@ts-ignore
-      if (req.body.hostname === hostnameWithErrorTriggered) {
-        return res(ctx.status(400));
-      }
-      return res(
-        ctx.status(201),
-        ctx.json({
-          hostname,
-          locationName,
-        }),
-      );
-    },
-  ),
+  rest.post(`${TEST_API_BASE_URL}/api/v1/config/${instanceId}/endpoint`, (req, res, ctx) => {
+    SUT(req.body);
+    //@ts-expect-error
+    if (req.body.hostname === hostnameWithErrorTriggered) {
+      return res(ctx.status(400));
+    }
+    return res(
+      ctx.status(201),
+      ctx.json({
+        hostname,
+        locationName,
+      }),
+    );
+  }),
   // createConfigurationOverlayUser
-  rest.post(
-    `${TEST_API_BASE_URL}/api/v1/config/${instanceId}/user`,
-    (req, res, ctx) => {
-      SUT(req.body);
-      //@ts-ignore
-      if (req.body.userName === accountNameAlreadyExist) {
-        return res(ctx.status(409));
-      }
-      return res(
-        ctx.status(201),
-        ctx.json({
-          arn: `arn:aws:iam::${accountId}:/${accountName}/`,
-          canonicalId:
-            '9151880e827fdab2e7b3d7e686e4ea0546d207d012b877f31631affdffea47f2',
-          createDate: '2023-11-16T09:58:27.000Z',
-          email: accountEmail,
-          id: accountId,
-          userName: accountName,
-        }),
-      );
-    },
-  ),
+  rest.post(`${TEST_API_BASE_URL}/api/v1/config/${instanceId}/user`, (req, res, ctx) => {
+    SUT(req.body);
+    //@ts-expect-error
+    if (req.body.userName === accountNameAlreadyExist) {
+      return res(ctx.status(409));
+    }
+    return res(
+      ctx.status(201),
+      ctx.json({
+        arn: `arn:aws:iam::${accountId}:/${accountName}/`,
+        canonicalId: '9151880e827fdab2e7b3d7e686e4ea0546d207d012b877f31631affdffea47f2',
+        createDate: '2023-11-16T09:58:27.000Z',
+        email: accountEmail,
+        id: accountId,
+        userName: accountName,
+      }),
+    );
+  }),
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
-    //@ts-ignore
+    //@ts-expect-error
     const params = new URLSearchParams(req.body);
     SUT(params);
     // Assume Role
@@ -351,45 +333,8 @@ export const getVeeamMutationHandler = () => [
     //create bucket
     return res(ctx.status(200));
   }),
-  rest.put(
-    `${TEST_API_BASE_URL}/${bucketNameWithErrorTriggered}`,
-    (req, res, ctx) => {
-      if (req.url.searchParams.get('tagging') === '') {
-        SUT(req.body);
-        return res(
-          ctx.status(404),
-          ctx.xml(
-            `<?xml version="1.0" encoding="UTF-8"?><Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist.</Message><Resource></Resource><RequestId>a60426d7934a9fa05118</RequestId></Error>`,
-          ),
-        );
-      }
-    },
-  ),
-  // putObject
-  rest.put(
-    `${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}`,
-    (req, res, ctx) => {
-      SUT(req.body);
-      return res(ctx.status(200));
-    },
-  ),
-  rest.put(
-    `${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}/capacity.xml`,
-    (req, res, ctx) => {
-      SUT(req.body);
-      return res(ctx.status(200));
-    },
-  ),
-  rest.put(
-    `${TEST_API_BASE_URL}/${bucketName}/${veeamObjectKey}`,
-    (req, res, ctx) => {
-      SUT(req.body);
-      return res(ctx.status(200));
-    },
-  ),
-  rest.put(
-    `${TEST_API_BASE_URL}/${bucketNameWithErrorTriggered}/${veeamObjectKey}`,
-    (req, res, ctx) => {
+  rest.put(`${TEST_API_BASE_URL}/${bucketNameWithErrorTriggered}`, (req, res, ctx) => {
+    if (req.url.searchParams.get('tagging') === '') {
       SUT(req.body);
       return res(
         ctx.status(404),
@@ -397,13 +342,32 @@ export const getVeeamMutationHandler = () => [
           `<?xml version="1.0" encoding="UTF-8"?><Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist.</Message><Resource></Resource><RequestId>a60426d7934a9fa05118</RequestId></Error>`,
         ),
       );
-    },
-  ),
+    }
+  }),
+  // putObject
+  rest.put(`${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}`, (req, res, ctx) => {
+    SUT(req.body);
+    return res(ctx.status(200));
+  }),
+  rest.put(`${TEST_API_BASE_URL}/${bucketName}/${VEEAM_XML_PREFIX}/capacity.xml`, (req, res, ctx) => {
+    SUT(req.body);
+    return res(ctx.status(200));
+  }),
+  rest.put(`${TEST_API_BASE_URL}/${bucketName}/${veeamObjectKey}`, (req, res, ctx) => {
+    SUT(req.body);
+    return res(ctx.status(200));
+  }),
+  rest.put(`${TEST_API_BASE_URL}/${bucketNameWithErrorTriggered}/${veeamObjectKey}`, (req, res, ctx) => {
+    SUT(req.body);
+    return res(
+      ctx.status(404),
+      ctx.xml(
+        `<?xml version="1.0" encoding="UTF-8"?><Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist.</Message><Resource></Resource><RequestId>a60426d7934a9fa05118</RequestId></Error>`,
+      ),
+    );
+  }),
 ];
-const server = setupServer(
-  getLatestInstanceStatusMock(),
-  ...getVeeamMutationHandler(),
-);
+const server = setupServer(getLatestInstanceStatusMock(), ...getVeeamMutationHandler());
 
 beforeAll(() => server.listen());
 afterEach(() => {
@@ -416,12 +380,9 @@ describe('mutations', () => {
   it('should return an error when failed to retrieve current running version while taking the reference', async () => {
     //Setup
     server.use(getLatestInstanceStatusFailingMock());
-    const { result, waitFor } = renderHook(
-      () => useWaitForRunningConfigurationVersionToBeUpdated(),
-      {
-        wrapper: NewWrapper(),
-      },
-    );
+    const { result, waitFor } = renderHook(() => useWaitForRunningConfigurationVersionToBeUpdated(), {
+      wrapper: NewWrapper(),
+    });
     //Exercise
     act(() => {
       result.current.setReferenceVersion({});
@@ -434,12 +395,9 @@ describe('mutations', () => {
 
   it('should return an error when failed to retrieve current running version while waiting for the new version', async () => {
     //Setup
-    const { result, waitFor } = renderHook(
-      () => useWaitForRunningConfigurationVersionToBeUpdated(),
-      {
-        wrapper: NewWrapper(),
-      },
-    );
+    const { result, waitFor } = renderHook(() => useWaitForRunningConfigurationVersionToBeUpdated(), {
+      wrapper: NewWrapper(),
+    });
     //Exercise
     act(() => {
       result.current.setReferenceVersion({
@@ -457,12 +415,9 @@ describe('mutations', () => {
 
   it('should wait for running configuration to be updated', async () => {
     //Setup
-    const { result, waitFor } = renderHook(
-      () => useWaitForRunningConfigurationVersionToBeUpdated(),
-      {
-        wrapper: NewWrapper(),
-      },
-    );
+    const { result, waitFor } = renderHook(() => useWaitForRunningConfigurationVersionToBeUpdated(), {
+      wrapper: NewWrapper(),
+    });
     //Exercise
     act(() => {
       result.current.setReferenceVersion({
@@ -628,10 +583,7 @@ describe('mutations', () => {
                 's3:PutObjectLegalHold',
                 's3:DeleteObjectVersion',
               ],
-              Resource: [
-                `arn:aws:s3:::${bucketName}/*`,
-                `arn:aws:s3:::${bucketName}`,
-              ],
+              Resource: [`arn:aws:s3:::${bucketName}/*`, `arn:aws:s3:::${bucketName}`],
             },
             {
               Sid: 'VisualEditor1',
@@ -704,10 +656,7 @@ describe('mutations', () => {
   });
   it('should handle the useAttachPolicyToUserMutation', async () => {
     //Setup
-    const { result, waitFor } = renderHook(
-      () => useAttachPolicyToUserMutation(),
-      { wrapper: NewWrapper() },
-    );
+    const { result, waitFor } = renderHook(() => useAttachPolicyToUserMutation(), { wrapper: NewWrapper() });
     //Exercise
     result.current.mutate({ userName, policyArn: veeamPolicyArn });
     //Verify
@@ -725,10 +674,7 @@ describe('mutations', () => {
   });
   it('should handle the error case of useAttachPolicyToUserMutation', async () => {
     //Setup
-    const { result, waitFor } = renderHook(
-      () => useAttachPolicyToUserMutation(),
-      { wrapper: NewWrapper() },
-    );
+    const { result, waitFor } = renderHook(() => useAttachPolicyToUserMutation(), { wrapper: NewWrapper() });
     //Exercise
     result.current.mutate({
       userName: userNameWithErrorTriggered,
@@ -749,10 +695,7 @@ describe('mutations', () => {
   });
   it('should handle the useCreateUserAccessKeyMutation', async () => {
     //Setup
-    const { result, waitFor } = renderHook(
-      () => useCreateUserAccessKeyMutation(),
-      { wrapper: NewWrapper() },
-    );
+    const { result, waitFor } = renderHook(() => useCreateUserAccessKeyMutation(), { wrapper: NewWrapper() });
     //Exercise
     result.current.mutate({ userName });
     //Verify
@@ -769,10 +712,7 @@ describe('mutations', () => {
   });
   it('should handle the error case of useCreateUserAccessKeyMutation', async () => {
     //Setup
-    const { result, waitFor } = renderHook(
-      () => useCreateUserAccessKeyMutation(),
-      { wrapper: NewWrapper() },
-    );
+    const { result, waitFor } = renderHook(() => useCreateUserAccessKeyMutation(), { wrapper: NewWrapper() });
     //Exercise
     result.current.mutate({ userName: userNameWithErrorTriggered });
     //Verify
@@ -858,28 +798,23 @@ describe('mutations', () => {
   };
 
   const setupZenkoMutationMocks = () => {
-    jest
-      .spyOn(require('@scality/module-federation'), 'useShellHooks')
-      .mockImplementation(() => ({
-        useAuth: () => ({
-          getToken: jest.fn().mockResolvedValue('test-token'),
-        }),
-        useConfigRetriever: () => ({
-          retrieveConfiguration: jest.fn().mockReturnValue({
-            spec: {
-              selfConfiguration: {
-                url: 'https://test-url',
-              },
+    jest.spyOn(require('@scality/module-federation'), 'useShellHooks').mockImplementation(() => ({
+      useAuth: () => ({
+        getToken: jest.fn().mockResolvedValue('test-token'),
+      }),
+      useConfigRetriever: () => ({
+        retrieveConfiguration: jest.fn().mockReturnValue({
+          spec: {
+            selfConfiguration: {
+              url: 'https://test-url',
             },
-          }),
+          },
         }),
-      }));
+      }),
+    }));
 
     jest
-      .spyOn(
-        require('../react/next-architecture/ui/ConfigProvider'),
-        'useDeployedMetalk8sInstances',
-      )
+      .spyOn(require('../react/next-architecture/ui/ConfigProvider'), 'useDeployedMetalk8sInstances')
       .mockImplementation(() => [{ name: 'test-instance' }]);
   };
 
@@ -970,9 +905,7 @@ describe('mutations', () => {
 
       const { result } = renderHook(
         () =>
-          usePatchZenkoConfigurationMutation(() =>
-            JSON.stringify([{ op: 'add', path: '/spec/test', value: 'test' }]),
-          ),
+          usePatchZenkoConfigurationMutation(() => JSON.stringify([{ op: 'add', path: '/spec/test', value: 'test' }])),
         {
           wrapper: NewWrapper(),
         },
@@ -1090,9 +1023,7 @@ describe('mutations', () => {
       expect(result.current.isSuccess).toBe(true);
       expect(result.current.isError).toBe(false);
 
-      const patchCall = mockFetch.mock.calls.find(
-        ([, options]) => options?.method === 'PATCH',
-      );
+      const patchCall = mockFetch.mock.calls.find(([, options]) => options?.method === 'PATCH');
       expect(patchCall).toBeDefined();
       expect(JSON.parse(patchCall[1].body)).toEqual([
         {
@@ -1102,9 +1033,7 @@ describe('mutations', () => {
         },
       ]);
 
-      const runtimeConfigCall = mockFetch.mock.calls.find(([url]) =>
-        url.includes('runtime-app-configuration'),
-      );
+      const runtimeConfigCall = mockFetch.mock.calls.find(([url]) => url.includes('runtime-app-configuration'));
       expect(runtimeConfigCall).toBeDefined();
     });
 
@@ -1191,15 +1120,11 @@ describe('mutations', () => {
         }
 
         if (url.includes('artesca-data') && options?.method === 'GET') {
-          const artescaGetCount = fetchCalls.filter(
-            (c) => c.url.includes('artesca-data'),
-          ).length;
+          const artescaGetCount = fetchCalls.filter((c) => c.url.includes('artesca-data')).length;
           const isReady = artescaGetCount >= 2;
           if (isReady) deploymentReadyCount++;
           fetchCalls.push({ url, isDeploymentReady: isReady });
-          return Promise.resolve(
-            isReady ? mocks.deploymentComplete : mocks.deploymentInProgress,
-          );
+          return Promise.resolve(isReady ? mocks.deploymentComplete : mocks.deploymentInProgress);
         }
 
         if (url.includes('runtime-app-configuration')) {
@@ -1230,9 +1155,7 @@ describe('mutations', () => {
 
       jest.useRealTimers();
 
-      const runtimeConfigCalls = fetchCalls.filter((c) =>
-        c.url.includes('runtime-app-configuration'),
-      );
+      const runtimeConfigCalls = fetchCalls.filter((c) => c.url.includes('runtime-app-configuration'));
 
       expect(runtimeConfigCalls.length).toBeGreaterThan(0);
       runtimeConfigCalls.forEach((call) => {
@@ -1274,19 +1197,14 @@ describe('mutations', () => {
       expect(result.current.isError).toBe(false);
 
       // Verify the flow: PATCH -> GET (deployment complete) -> GET (runtime config)
-      const getCalls = mockFetch.mock.calls.filter(
-        ([, options]) => !options?.method || options.method === 'GET',
-      );
+      const getCalls = mockFetch.mock.calls.filter(([, options]) => !options?.method || options.method === 'GET');
       // Should have minimal GET calls since deployment was already complete
       expect(getCalls.length).toBeLessThanOrEqual(2);
     });
 
     it('should return false when instances array is empty', async () => {
       jest
-        .spyOn(
-          require('../react/next-architecture/ui/ConfigProvider'),
-          'useDeployedMetalk8sInstances',
-        )
+        .spyOn(require('../react/next-architecture/ui/ConfigProvider'), 'useDeployedMetalk8sInstances')
         .mockImplementation(() => []);
 
       const { result } = renderHook(() => useEnableSOSAPIMutation(), {
@@ -1321,28 +1239,23 @@ describe('mutations', () => {
       });
       global.fetch = mockFetch;
 
-      jest
-        .spyOn(require('@scality/module-federation'), 'useShellHooks')
-        .mockImplementation(() => ({
-          useAuth: () => ({
-            getToken: jest.fn().mockResolvedValue('test-token'),
-          }),
-          useConfigRetriever: () => ({
-            retrieveConfiguration: jest.fn().mockReturnValue({
-              spec: {
-                selfConfiguration: {
-                  url: 'https://test-url',
-                },
+      jest.spyOn(require('@scality/module-federation'), 'useShellHooks').mockImplementation(() => ({
+        useAuth: () => ({
+          getToken: jest.fn().mockResolvedValue('test-token'),
+        }),
+        useConfigRetriever: () => ({
+          retrieveConfiguration: jest.fn().mockReturnValue({
+            spec: {
+              selfConfiguration: {
+                url: 'https://test-url',
               },
-            }),
+            },
           }),
-        }));
+        }),
+      }));
 
       jest
-        .spyOn(
-          require('../react/next-architecture/ui/ConfigProvider'),
-          'useDeployedMetalk8sInstances',
-        )
+        .spyOn(require('../react/next-architecture/ui/ConfigProvider'), 'useDeployedMetalk8sInstances')
         .mockImplementation(() => [{ name: 'test-instance' }]);
     });
 
@@ -1467,10 +1380,7 @@ describe('mutations', () => {
 
     describe('useToggleTLSVerificationMutation', () => {
       it('should generate replace patch when hasEgress=true', async () => {
-        const { result } = renderHook(
-          () => useToggleTLSVerificationMutation(true),
-          { wrapper: NewWrapper() },
-        );
+        const { result } = renderHook(() => useToggleTLSVerificationMutation(true), { wrapper: NewWrapper() });
 
         await act(async () => {
           try {
@@ -1490,10 +1400,7 @@ describe('mutations', () => {
       });
 
       it('should generate add egress patch when hasEgress=false', async () => {
-        const { result } = renderHook(
-          () => useToggleTLSVerificationMutation(false),
-          { wrapper: NewWrapper() },
-        );
+        const { result } = renderHook(() => useToggleTLSVerificationMutation(false), { wrapper: NewWrapper() });
 
         await act(async () => {
           try {
@@ -1551,29 +1458,21 @@ describe('mutations', () => {
 
     beforeEach(() => {
       mockIAMClient = {
-        createPolicy: jest
-          .fn()
-          .mockResolvedValue({ Policy: { Arn: mockPolicyArn } }),
+        createPolicy: jest.fn().mockResolvedValue({ Policy: { Arn: mockPolicyArn } }),
         listPolicyVersions: jest.fn().mockResolvedValue({
           Versions: [{ VersionId: 'v1', IsDefaultVersion: true }],
         }),
         getPolicyVersion: jest.fn(),
         deletePolicyVersion: jest.fn().mockResolvedValue({}),
-        createPolicyVersion: jest
-          .fn()
-          .mockResolvedValue({ PolicyVersion: { VersionId: 'v2' } }),
+        createPolicyVersion: jest.fn().mockResolvedValue({ PolicyVersion: { VersionId: 'v2' } }),
       };
 
       mockQueryClient = {
         fetchQuery: jest.fn(),
       };
 
-      jest
-        .spyOn(require('../react/IAMProvider'), 'useIAMClient')
-        .mockReturnValue(mockIAMClient);
-      jest
-        .spyOn(require('react-query'), 'useQueryClient')
-        .mockReturnValue(mockQueryClient);
+      jest.spyOn(require('../react/IAMProvider'), 'useIAMClient').mockReturnValue(mockIAMClient);
+      jest.spyOn(require('react-query'), 'useQueryClient').mockReturnValue(mockQueryClient);
     });
 
     afterEach(() => {
@@ -1583,16 +1482,10 @@ describe('mutations', () => {
     it('should create a new policy when policy does not exist', async () => {
       mockQueryClient.fetchQuery.mockRejectedValue(new Error('NoSuchEntity'));
 
-      const { result, waitFor } = renderHook(
-        () => useCreateOrAddBucketToPolicyMutation(),
-        { wrapper: NewWrapper() },
-      );
+      const { result, waitFor } = renderHook(() => useCreateOrAddBucketToPolicyMutation(), { wrapper: NewWrapper() });
 
       const policyDocument = JSON.stringify(
-        createMockPolicyDocument([
-          'arn:aws:s3:::test-bucket/*',
-          'arn:aws:s3:::test-bucket',
-        ]),
+        createMockPolicyDocument(['arn:aws:s3:::test-bucket/*', 'arn:aws:s3:::test-bucket']),
       );
 
       result.current.mutate({
@@ -1604,31 +1497,20 @@ describe('mutations', () => {
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
-      expect(mockIAMClient.createPolicy).toHaveBeenCalledWith(
-        'test-policy',
-        policyDocument,
-      );
+      expect(mockIAMClient.createPolicy).toHaveBeenCalledWith('test-policy', policyDocument);
     });
 
     it('should prevent duplicate resources and handle substring relationships', async () => {
-      const existingResources = [
-        'arn:aws:s3:::existing-bucket/*',
-        'arn:aws:s3:::existing-bucket',
-      ];
+      const existingResources = ['arn:aws:s3:::existing-bucket/*', 'arn:aws:s3:::existing-bucket'];
 
       mockQueryClient.fetchQuery.mockResolvedValue(mockExistingPolicy);
       mockIAMClient.getPolicyVersion.mockResolvedValue({
         PolicyVersion: {
-          Document: encodeURIComponent(
-            JSON.stringify(createMockPolicyDocument(existingResources)),
-          ),
+          Document: encodeURIComponent(JSON.stringify(createMockPolicyDocument(existingResources))),
         },
       });
 
-      const { result, waitFor } = renderHook(
-        () => useCreateOrAddBucketToPolicyMutation(),
-        { wrapper: NewWrapper() },
-      );
+      const { result, waitFor } = renderHook(() => useCreateOrAddBucketToPolicyMutation(), { wrapper: NewWrapper() });
 
       // Try to add the same bucket that already exists
       result.current.mutate({
@@ -1638,31 +1520,21 @@ describe('mutations', () => {
         policyArn: mockPolicyArn,
         getPolicy: (buckets) =>
           JSON.stringify(
-            createMockPolicyDocument(
-              buckets.flatMap((b) => [
-                `arn:aws:s3:::${b}/*`,
-                `arn:aws:s3:::${b}`,
-              ]),
-            ),
+            createMockPolicyDocument(buckets.flatMap((b) => [`arn:aws:s3:::${b}/*`, `arn:aws:s3:::${b}`])),
           ),
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Verify no duplicates were added
-      const firstCallDocument = JSON.parse(
-        mockIAMClient.createPolicyVersion.mock.calls[0][1],
-      );
-      expect(firstCallDocument.Statement[0].Resource).toEqual(
-        existingResources,
-      );
+      const firstCallDocument = JSON.parse(mockIAMClient.createPolicyVersion.mock.calls[0][1]);
+      expect(firstCallDocument.Statement[0].Resource).toEqual(existingResources);
       expect(firstCallDocument.Statement[0].Resource.length).toBe(2);
 
       // Use different bucket names to test substring logic
-      const { result: result2, waitFor: waitFor2 } = renderHook(
-        () => useCreateOrAddBucketToPolicyMutation(),
-        { wrapper: NewWrapper() },
-      );
+      const { result: result2, waitFor: waitFor2 } = renderHook(() => useCreateOrAddBucketToPolicyMutation(), {
+        wrapper: NewWrapper(),
+      });
 
       result2.current.mutate({
         policyName: 'test-policy',
@@ -1671,21 +1543,14 @@ describe('mutations', () => {
         policyArn: mockPolicyArn,
         getPolicy: (buckets) =>
           JSON.stringify(
-            createMockPolicyDocument(
-              buckets.flatMap((b) => [
-                `arn:aws:s3:::${b}/*`,
-                `arn:aws:s3:::${b}`,
-              ]),
-            ),
+            createMockPolicyDocument(buckets.flatMap((b) => [`arn:aws:s3:::${b}/*`, `arn:aws:s3:::${b}`])),
           ),
       });
 
       await waitFor2(() => expect(result2.current.isSuccess).toBe(true));
 
       // Verify substring relationships are handled correctly (no false duplicates)
-      const secondCallDocument = JSON.parse(
-        mockIAMClient.createPolicyVersion.mock.calls[1][1],
-      );
+      const secondCallDocument = JSON.parse(mockIAMClient.createPolicyVersion.mock.calls[1][1]);
       const resources = secondCallDocument.Statement[0].Resource;
 
       expect(resources).toContain('arn:aws:s3:::existing-bucket/*');
@@ -1715,10 +1580,7 @@ describe('mutations', () => {
         },
       });
 
-      const { result, waitFor } = renderHook(
-        () => useCreateOrAddBucketToPolicyMutation(),
-        { wrapper: NewWrapper() },
-      );
+      const { result, waitFor } = renderHook(() => useCreateOrAddBucketToPolicyMutation(), { wrapper: NewWrapper() });
 
       result.current.mutate({
         policyName: 'test-policy',
@@ -1727,30 +1589,17 @@ describe('mutations', () => {
         policyArn: mockPolicyArn,
         getPolicy: (buckets) =>
           JSON.stringify(
-            createMockPolicyDocument(
-              buckets.flatMap((b) => [
-                `arn:aws:s3:::${b}/*`,
-                `arn:aws:s3:::${b}`,
-              ]),
-            ),
+            createMockPolicyDocument(buckets.flatMap((b) => [`arn:aws:s3:::${b}/*`, `arn:aws:s3:::${b}`])),
           ),
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Verify string was converted to array and new bucket was added
-      const calledPolicyDocument = JSON.parse(
-        mockIAMClient.createPolicyVersion.mock.calls[0][1],
-      );
-      expect(calledPolicyDocument.Statement[0].Resource).toContain(
-        'arn:aws:s3:::single-bucket/*',
-      );
-      expect(calledPolicyDocument.Statement[0].Resource).toContain(
-        'arn:aws:s3:::new-bucket/*',
-      );
-      expect(calledPolicyDocument.Statement[0].Resource).toContain(
-        'arn:aws:s3:::new-bucket',
-      );
+      const calledPolicyDocument = JSON.parse(mockIAMClient.createPolicyVersion.mock.calls[0][1]);
+      expect(calledPolicyDocument.Statement[0].Resource).toContain('arn:aws:s3:::single-bucket/*');
+      expect(calledPolicyDocument.Statement[0].Resource).toContain('arn:aws:s3:::new-bucket/*');
+      expect(calledPolicyDocument.Statement[0].Resource).toContain('arn:aws:s3:::new-bucket');
     });
 
     it('should handle policy version limit', async () => {
@@ -1772,16 +1621,11 @@ describe('mutations', () => {
 
       mockIAMClient.getPolicyVersion.mockResolvedValue({
         PolicyVersion: {
-          Document: encodeURIComponent(
-            JSON.stringify(createMockPolicyDocument([])),
-          ),
+          Document: encodeURIComponent(JSON.stringify(createMockPolicyDocument([]))),
         },
       });
 
-      const { result, waitFor } = renderHook(
-        () => useCreateOrAddBucketToPolicyMutation(),
-        { wrapper: NewWrapper() },
-      );
+      const { result, waitFor } = renderHook(() => useCreateOrAddBucketToPolicyMutation(), { wrapper: NewWrapper() });
 
       result.current.mutate({
         policyName: 'test-policy',
@@ -1790,22 +1634,14 @@ describe('mutations', () => {
         policyArn: mockPolicyArn,
         getPolicy: (buckets) =>
           JSON.stringify(
-            createMockPolicyDocument(
-              buckets.flatMap((b) => [
-                `arn:aws:s3:::${b}/*`,
-                `arn:aws:s3:::${b}`,
-              ]),
-            ),
+            createMockPolicyDocument(buckets.flatMap((b) => [`arn:aws:s3:::${b}/*`, `arn:aws:s3:::${b}`])),
           ),
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Verify oldest non-default version was deleted
-      expect(mockIAMClient.deletePolicyVersion).toHaveBeenCalledWith(
-        mockPolicyArn,
-        'v1',
-      );
+      expect(mockIAMClient.deletePolicyVersion).toHaveBeenCalledWith(mockPolicyArn, 'v1');
     });
   });
 });

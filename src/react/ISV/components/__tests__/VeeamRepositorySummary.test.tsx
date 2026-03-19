@@ -33,9 +33,7 @@ describe('VeeamRepositorySummary', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/2 Veeam repositories were successfully created/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/2 Veeam repositories were successfully created/i)).toBeInTheDocument();
       expect(screen.getByText('Active')).toBeInTheDocument();
       expect(screen.getByText('30 day(s)')).toBeInTheDocument();
     });

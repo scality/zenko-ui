@@ -1,17 +1,11 @@
-import {
-  ACCOUNT,
-  NEWLY_CREATED_ACCOUNT,
-} from '../../../../js/mock/managementClientMSWHandlers';
-import { AccountInfo } from '../../domain/entities/account';
+import { ACCOUNT, NEWLY_CREATED_ACCOUNT } from '../../../../js/mock/managementClientMSWHandlers';
+import type { AccountInfo } from '../../domain/entities/account';
 import { DEFAULT_METRICS_MESURED_ON } from '../metrics/MockedMetricsAdapter';
-import { IAccountsAdapter } from './IAccountsAdapter';
-import { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
-import { ILocationsAdapter } from './ILocationsAdapter';
+import type { IAccountsAdapter } from './IAccountsAdapter';
+import type { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
+import type { ILocationsAdapter } from './ILocationsAdapter';
 export class MockedAccountsLocationsAdapter
-  implements
-    IAccountsAdapter,
-    ILocationsAdapter,
-    IAccountsLocationsEndpointsAdapter
+  implements IAccountsAdapter, ILocationsAdapter, IAccountsLocationsEndpointsAdapter
 {
   listAccountsLocationsAndEndpoints = jest.fn().mockImplementation(async () => {
     return {
@@ -63,38 +57,34 @@ export class MockedAccountsLocationsAdapter
         name: 'us-east-1',
         id: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
         details: {
-          bootstrapList: [
-            'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
-          ],
+          bootstrapList: ['artesca-storage-service-hdservice-proxy.xcore.svc:18888'],
         },
       },
     ];
   });
 
-  listAccounts = jest
-    .fn()
-    .mockImplementation(async (): Promise<AccountInfo[]> => {
-      return [
-        ACCOUNT,
-        NEWLY_CREATED_ACCOUNT,
-        {
-          id: 'account-id-renard',
-          name: 'Renard',
-          canonicalId: 'canonical-id-renard',
-          creationDate: DEFAULT_METRICS_MESURED_ON,
-        },
-        {
-          id: 'account-without-location',
-          name: 'Chat',
-          canonicalId: 'canonical-id-renard-with-out-location',
-          creationDate: DEFAULT_METRICS_MESURED_ON,
-        },
-        {
-          id: 'account-with-own-metrics',
-          name: 'Souris',
-          canonicalId: 'canonical-id-souris-diff-metrics',
-          creationDate: DEFAULT_METRICS_MESURED_ON,
-        },
-      ];
-    });
+  listAccounts = jest.fn().mockImplementation(async (): Promise<AccountInfo[]> => {
+    return [
+      ACCOUNT,
+      NEWLY_CREATED_ACCOUNT,
+      {
+        id: 'account-id-renard',
+        name: 'Renard',
+        canonicalId: 'canonical-id-renard',
+        creationDate: DEFAULT_METRICS_MESURED_ON,
+      },
+      {
+        id: 'account-without-location',
+        name: 'Chat',
+        canonicalId: 'canonical-id-renard-with-out-location',
+        creationDate: DEFAULT_METRICS_MESURED_ON,
+      },
+      {
+        id: 'account-with-own-metrics',
+        name: 'Souris',
+        canonicalId: 'canonical-id-souris-diff-metrics',
+        creationDate: DEFAULT_METRICS_MESURED_ON,
+      },
+    ];
+  });
 }

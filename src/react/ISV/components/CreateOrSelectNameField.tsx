@@ -36,11 +36,7 @@ const FORM_FIELDS = {
   GENERATE_KEY: 'generateKey',
 };
 
-const getRadioOptions = (
-  isAccount: boolean,
-  disableCreate: boolean,
-  disableExisting: boolean,
-) => {
+const getRadioOptions = (isAccount: boolean, disableCreate: boolean, disableExisting: boolean) => {
   return [
     {
       value: 'create',
@@ -75,26 +71,15 @@ export const CreateOrSelectNameField = ({
     formState: { errors },
   } = useFormContext();
   const isAccount = onFieldNameChange ? true : false;
-  const typeFieldName = isAccount
-    ? FORM_FIELDS.ACCOUNT_NAME_TYPE
-    : FORM_FIELDS.IAM_USER_NAME_TYPE;
+  const typeFieldName = isAccount ? FORM_FIELDS.ACCOUNT_NAME_TYPE : FORM_FIELDS.IAM_USER_NAME_TYPE;
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
-  const isParamsAccountNameInOptions = options.some(
-    (option) => option.name === paramsAccountName,
-  );
-  const isExistingDisabled =
-    (isAccount && isParamsAccountNameInOptions && isExist) ||
-    options.length === 0;
+  const isParamsAccountNameInOptions = options.some((option) => option.name === paramsAccountName);
+  const isExistingDisabled = (isAccount && isParamsAccountNameInOptions && isExist) || options.length === 0;
   const isCreateDisabled = isAccount && isExist && isParamsAccountNameInOptions;
-  const isSelectAccountDisabled =
-    isAccount && isParamsAccountNameInOptions && isExist;
+  const isSelectAccountDisabled = isAccount && isParamsAccountNameInOptions && isExist;
 
-  const radioOptions = getRadioOptions(
-    isAccount,
-    isCreateDisabled,
-    isExistingDisabled,
-  );
+  const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled);
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -133,7 +118,7 @@ export const CreateOrSelectNameField = ({
         error={
           isExist && type === 'create'
             ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
-            : (errors[fieldName]?.message as string) ?? ''
+            : ((errors[fieldName]?.message as string) ?? '')
         }
         content={
           <Stack gap="r8" direction="vertical">
@@ -142,11 +127,7 @@ export const CreateOrSelectNameField = ({
                 id={fieldName}
                 type="text"
                 autoComplete="off"
-                placeholder={
-                  status === 'success' && options.length !== 0
-                    ? `${platform}`
-                    : undefined
-                }
+                placeholder={status === 'success' && options.length !== 0 ? `${platform}` : undefined}
                 {...register(fieldName)}
               />
             ) : (
@@ -168,9 +149,7 @@ export const CreateOrSelectNameField = ({
                       }}
                       value={value}
                       disabled={isSelectAccountDisabled && isAccount}
-                      placeholder={`Select existing ${
-                        isAccount ? 'account' : 'user'
-                      }`}
+                      placeholder={`Select existing ${isAccount ? 'account' : 'user'}`}
                     >
                       {status === 'loading' && (
                         <Select.Option

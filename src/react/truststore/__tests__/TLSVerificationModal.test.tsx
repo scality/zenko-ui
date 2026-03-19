@@ -2,12 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { mockOffsetSize, mockShellHooks, NewWrapper } from '../../utils/testUtil';
 import TLSVerificationModal from '../TLSVerificationModal';
-import {
-  NewWrapper,
-  mockOffsetSize,
-  mockShellHooks,
-} from '../../utils/testUtil';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -45,25 +41,20 @@ jest.mock('../../../js/mutations', () => ({
 }));
 
 import { useToggleTLSVerificationMutation } from '../../../js/mutations';
-const mockUseToggleTLSVerificationMutation =
-  useToggleTLSVerificationMutation as jest.MockedFunction<
-    typeof useToggleTLSVerificationMutation
-  >;
+
+const mockUseToggleTLSVerificationMutation = useToggleTLSVerificationMutation as jest.MockedFunction<
+  typeof useToggleTLSVerificationMutation
+>;
 
 describe('TLSVerificationModal', () => {
   const selectors = {
-    modalTitle: (action: 'Skip' | 'Activate') =>
-      screen.getByText(`${action} TLS Verification?`),
+    modalTitle: (action: 'Skip' | 'Activate') => screen.getByText(`${action} TLS Verification?`),
     cancelButton: () => screen.getByRole('button', { name: /Cancel/i }),
     confirmButton: () => screen.getByRole('button', { name: /Confirm/i }),
-    confirmingButton: () =>
-      screen.queryByRole('button', { name: /Updating\.\.\./i }),
-    delayBanner: () =>
-      screen.queryByText(/Expect some delay \(about 1 minute\)/i),
-    skipWarningBanner: () =>
-      screen.queryByText(/Skipping TLS Verification will allow ARTESCA/i),
-    activateWarningBanner: () =>
-      screen.getByText(/Make sure to import the certificates/i),
+    confirmingButton: () => screen.queryByRole('button', { name: /Updating\.\.\./i }),
+    delayBanner: () => screen.queryByText(/Expect some delay \(about 1 minute\)/i),
+    skipWarningBanner: () => screen.queryByText(/Skipping TLS Verification will allow ARTESCA/i),
+    activateWarningBanner: () => screen.getByText(/Make sure to import the certificates/i),
     checkbox: () =>
       screen.queryByRole('checkbox', {
         name: /I understand the consequences of activating TLS Verification/i,
@@ -103,9 +94,7 @@ describe('TLSVerificationModal', () => {
     mockMutate.mockReset();
     mockSetIsOpen.mockReset();
 
-    (mockUseToggleTLSVerificationMutation as jest.Mock).mockReturnValue(
-      mockMutationResult,
-    );
+    (mockUseToggleTLSVerificationMutation as jest.Mock).mockReturnValue(mockMutationResult);
   });
 
   afterAll(() => {
@@ -174,16 +163,14 @@ describe('TLSVerificationModal', () => {
     it('should call mutation with skipTLSVerify=true when confirming from active state', async () => {
       let capturedMutateArgs: any;
       let capturedHasEgress: boolean;
-      (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation(
-        (hasEgress: boolean, options: any) => ({
-          ...mockMutationResult,
-          mutate: (args: any) => {
-            capturedMutateArgs = args;
-            capturedHasEgress = hasEgress;
-            setTimeout(() => options?.onSuccess?.(), 0);
-          },
-        }),
-      );
+      (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation((hasEgress: boolean, options: any) => ({
+        ...mockMutationResult,
+        mutate: (args: any) => {
+          capturedMutateArgs = args;
+          capturedHasEgress = hasEgress;
+          setTimeout(() => options?.onSuccess?.(), 0);
+        },
+      }));
 
       render(
         <TLSVerificationModal
@@ -206,15 +193,13 @@ describe('TLSVerificationModal', () => {
     it('should call mutation with skipTLSVerify=false when confirming from skipped state', async () => {
       let capturedMutateArgs: any;
 
-      (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation(
-        (hasEgress: boolean, options: any) => ({
-          ...mockMutationResult,
-          mutate: (args: any) => {
-            capturedMutateArgs = args;
-            setTimeout(() => options?.onSuccess?.(), 0);
-          },
-        }),
-      );
+      (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation((hasEgress: boolean, options: any) => ({
+        ...mockMutationResult,
+        mutate: (args: any) => {
+          capturedMutateArgs = args;
+          setTimeout(() => options?.onSuccess?.(), 0);
+        },
+      }));
 
       render(
         <TLSVerificationModal
@@ -238,14 +223,12 @@ describe('TLSVerificationModal', () => {
 
   describe('State rendering', () => {
     it('should close modal and display success toast when mutation succeeds', async () => {
-      (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation(
-        (hasEgress: boolean, options: any) => ({
-          ...mockMutationResult,
-          mutate: () => {
-            setTimeout(() => options?.onSuccess?.(), 0);
-          },
-        }),
-      );
+      (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation((hasEgress: boolean, options: any) => ({
+        ...mockMutationResult,
+        mutate: () => {
+          setTimeout(() => options?.onSuccess?.(), 0);
+        },
+      }));
 
       render(
         <TLSVerificationModal
@@ -266,21 +249,17 @@ describe('TLSVerificationModal', () => {
 
       // Success toast should appear
       await waitFor(() => {
-        expect(
-          screen.getByText(/TLS verification updated successfully/i),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/TLS verification updated successfully/i)).toBeInTheDocument();
       });
     });
 
     it('should close modal and display error toast when mutation fails', async () => {
-      (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation(
-        (hasEgress: boolean, options: any) => ({
-          ...mockMutationResult,
-          mutate: () => {
-            setTimeout(() => options?.onError?.(), 0);
-          },
-        }),
-      );
+      (mockUseToggleTLSVerificationMutation as jest.Mock).mockImplementation((hasEgress: boolean, options: any) => ({
+        ...mockMutationResult,
+        mutate: () => {
+          setTimeout(() => options?.onError?.(), 0);
+        },
+      }));
 
       render(
         <TLSVerificationModal
@@ -301,11 +280,7 @@ describe('TLSVerificationModal', () => {
 
       // Error toast should appear
       await waitFor(() => {
-        expect(
-          screen.getByText(
-            /An error occurred while updating TLS verification/i,
-          ),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/An error occurred while updating TLS verification/i)).toBeInTheDocument();
       });
     });
 

@@ -34,7 +34,12 @@ type VeeamCapacityForm = {
   capacityUnit: string;
 };
 
-export const VeeamCapacityModalInternal = ({ bucketName, maxCapacity, status, onCapacityUpdated }: VeeamCapacityModalProps) => {
+export const VeeamCapacityModalInternal = ({
+  bucketName,
+  maxCapacity,
+  status,
+  onCapacityUpdated,
+}: VeeamCapacityModalProps) => {
   const { capacityValue, capacityUnit } = useCapacityUnit(maxCapacity);
   const methods = useForm<VeeamCapacityForm>({
     mode: 'all',

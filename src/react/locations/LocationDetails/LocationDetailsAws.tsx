@@ -1,12 +1,9 @@
-import React from 'react';
-import { LocationDetailsFormProps } from '.';
-import {
-  FormGroup,
-  FormSection,
-} from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Form.component';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import React from 'react';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
 
 type State = {
   serverSideEncryption: boolean;
@@ -22,10 +19,7 @@ const INIT_STATE: State = {
   secretKey: '',
   bucketName: '',
 };
-export default class LocationDetailsAws extends React.Component<
-  LocationDetailsFormProps,
-  State
-> {
+export default class LocationDetailsAws extends React.Component<LocationDetailsFormProps, State> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);

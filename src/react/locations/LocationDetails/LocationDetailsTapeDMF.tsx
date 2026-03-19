@@ -1,10 +1,11 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
-import React, { useState } from 'react';
-import { LocationDetailsFormProps } from '.';
+import type React from 'react';
+import { useState } from 'react';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
 import InputList from '../../ui-elements/InputList';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
 
 type State = {
   endpoint: string;
@@ -21,10 +22,7 @@ const INIT_STATE: State = {
   password: '',
 };
 
-export default function LocationDetailsTapeDMF({
-  details,
-  onChange,
-}: LocationDetailsFormProps) {
+export default function LocationDetailsTapeDMF({ details, onChange }: LocationDetailsFormProps) {
   const [formState, setFormState] = useState<State>(() => ({
     ...Object.assign({}, INIT_STATE, details),
   }));
@@ -46,12 +44,7 @@ export default function LocationDetailsTapeDMF({
   return (
     <>
       <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
-        <FormGroup
-          id="temperature"
-          label="Temperature"
-          helpErrorPosition="bottom"
-          content={<ColdStorageIconLabel />}
-        />
+        <FormGroup id="temperature" label="Temperature" helpErrorPosition="bottom" content={<ColdStorageIconLabel />} />
 
         <FormGroup
           id="endpoint"

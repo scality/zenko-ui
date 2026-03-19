@@ -4,31 +4,28 @@ import {
   FormattedDateTime,
   Icon,
   Stack,
+  spacing,
   TextBadge,
   Toggle,
   Tooltip,
   Wrap,
-  spacing,
 } from '@scality/core-ui';
 import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { Route, Routes, useLocation, useParams } from 'react-router';
-import { Column } from 'react-table';
+import type { Column } from 'react-table';
 import { useTheme } from 'styled-components';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { formatSimpleDate } from '../utils';
-import {
-  useAccessKeyOutdatedStatus,
-  useAwsPaginatedEntities,
-} from '../utils/IAMhooks';
+import { useAccessKeyOutdatedStatus, useAwsPaginatedEntities } from '../utils/IAMhooks';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 const CreatedOnCell = (rowValue) => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -44,12 +41,7 @@ const CreatedOnCell = (rowValue) => {
           <Icon name="Exclamation-circle" color="statusWarning" />
         </Tooltip>
       ) : null}
-      {
-        <FormattedDateTime
-          format="date-time"
-          value={new Date(rowValue.createdOn)}
-        />
-      }
+      {<FormattedDateTime format="date-time" value={new Date(rowValue.createdOn)} />}
     </Box>
   );
 };
@@ -71,10 +63,7 @@ const ToggleAccessKeyStatus = (rowValue) => {
       );
     },
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(
-          getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
-        ),
+      onSuccess: () => queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey),
     },
   );
   return (
@@ -112,10 +101,7 @@ const DeleteAccessKeyAction = (rowValue) => {
     //@ts-expect-error fix this when you are working on it
     (accessKey) => IAMClient.deleteAccessKey(accessKey, IAMUserName),
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(
-          getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
-        ),
+      onSuccess: () => queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey),
     },
   );
   return (
@@ -139,10 +125,7 @@ const DeleteAccessKeyAction = (rowValue) => {
         }}
         variant="danger"
         tooltip={{
-          overlay:
-            accessKeyStatus === 'Active'
-              ? 'A key cannot be deleted while active.'
-              : 'Remove accessKey',
+          overlay: accessKeyStatus === 'Active' ? 'A key cannot be deleted while active.' : 'Remove accessKey',
           placement: 'right',
         }}
       />
@@ -158,11 +141,10 @@ const AccountUserAccessKeys = () => {
   }>();
   const navigate = useBasenameRelativeNavigate();
   const IAMClient = useIAMClient();
-  const { data: accessKeysResult, status: accessKeysStatus } =
-    useAwsPaginatedEntities(
-      getUserAccessKeysQuery(IAMUserName, IAMClient),
-      (data) => data.AccessKeyMetadata,
-    );
+  const { data: accessKeysResult, status: accessKeysStatus } = useAwsPaginatedEntities(
+    getUserAccessKeysQuery(IAMUserName, IAMClient),
+    (data) => data.AccessKeyMetadata,
+  );
 
   const data = useMemo(() => {
     if (accessKeysStatus === 'success') {
@@ -225,10 +207,7 @@ const AccountUserAccessKeys = () => {
         <Stack gap="r32">
           <Stack gap="r8">
             <>Access Keys</>
-            <TextBadge
-              variant={'statusWarning'}
-              text={`${accessKeysResultLength}`}
-            />
+            <TextBadge variant={'statusWarning'} text={`${accessKeysResultLength}`} />
           </Stack>
           <Banner
             icon={
@@ -239,18 +218,13 @@ const AccountUserAccessKeys = () => {
                   marginLeft: spacing.r8,
                 }}
               >
-                <Icon
-                  name="Exclamation-circle"
-                  size="lg"
-                  color="statusWarning"
-                />
+                <Icon name="Exclamation-circle" size="lg" color="statusWarning" />
               </div>
             }
             variant="warning"
             title="Warning"
           >
-            Security Status: as a best practice, an user should not have more
-            than 2 Access keys
+            Security Status: as a best practice, an user should not have more than 2 Access keys
           </Banner>
         </Stack>
       );
@@ -309,9 +283,7 @@ const AccountUserAccessKeys = () => {
                 label="Create Access Keys"
                 variant="primary"
                 onClick={() =>
-                  navigate(
-                    `/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`,
-                  )
+                  navigate(`/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`)
                 }
                 type="submit"
               />
@@ -324,10 +296,7 @@ const AccountUserAccessKeys = () => {
         </Table>
       </AppContainer.MainContent>
       <Routes>
-        <Route
-          path={`create`}
-          element={<AccountUserSecretKeyModal IAMUserName={IAMUserName} />}
-        />
+        <Route path={`create`} element={<AccountUserSecretKeyModal IAMUserName={IAMUserName} />} />
       </Routes>
     </div>
   );

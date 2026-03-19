@@ -237,7 +237,8 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
             </Select>
           }
         />
-        {formState.queue.type === LocationAzureQueue.TypeEnum.AzureServicebusTopicV1 && 'topicName' in formState.queue ? (
+        {formState.queue.type === LocationAzureQueue.TypeEnum.AzureServicebusTopicV1 &&
+        'topicName' in formState.queue ? (
           <>
             <FormGroup
               id="queue.topicName"
@@ -292,9 +293,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
               }
             />
           </>
-        ) : (
-          null
-        )}
+        ) : null}
 
         {formState.queue.type === LocationAzureQueue.TypeEnum.AzureServicebusQueueV1 &&
         'queueName' in formState.queue &&
@@ -336,9 +335,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
               }
             />
           </>
-        ) : (
-          null
-        )}
+        ) : null}
 
         {formState.queue.type === LocationAzureQueue.TypeEnum.AzureStorageQueueV1 && 'endpoint' in formState.queue ? (
           <>
@@ -378,9 +375,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
               }
             />
           </>
-        ) : (
-          null
-        )}
+        ) : null}
       </FormSection>
       <FormSection title={{ name: 'Authentication' }} forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
         <FormGroup
@@ -444,9 +439,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
               }
             />
           </>
-        ) : (
-          null
-        )}
+        ) : null}
 
         {'clientId' in formState.auth && formState.auth.type === LocationAzureAuth.TypeEnum.ClientSecret ? (
           <>
@@ -503,9 +496,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
               }
             />
           </>
-        ) : (
-          null
-        )}
+        ) : null}
 
         {'storageSasToken' in formState.auth &&
         formState.auth.type === LocationAzureAuth.TypeEnum.SharedAccessSignature ? (
@@ -551,9 +542,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
               />
             ) : null}
           </>
-        ) : (
-          null
-        )}
+        ) : null}
       </FormSection>
     </>
   );

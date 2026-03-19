@@ -1,9 +1,6 @@
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import {
-  getConfigOverlay,
-  USERS,
-} from '../../../../js/mock/managementClientMSWHandlers';
+import { getConfigOverlay, USERS } from '../../../../js/mock/managementClientMSWHandlers';
 import { PensieveAccountsLocationsAdapter } from './PensieveAccountsLocationsAdapter';
 
 const baseUrl = 'http://localhost:8080';
@@ -22,11 +19,7 @@ describe('PensieveAccountsAdapter - listAccounts', () => {
   });
   it('should return all the accounts from pensieve api', async () => {
     //S
-    const SUT = new PensieveAccountsLocationsAdapter(
-      baseUrl,
-      instanceId,
-      mockGettoken,
-    );
+    const SUT = new PensieveAccountsLocationsAdapter(baseUrl, instanceId, mockGettoken);
     //E
     const result = await SUT.listAccounts();
     //V
@@ -42,16 +35,9 @@ describe('PensieveAccountsAdapter - listAccounts', () => {
   });
   it('should reject when pensieve api return an error', async () => {
     //S
-    const SUT = new PensieveAccountsLocationsAdapter(
-      baseUrl,
-      instanceId,
-      mockGettoken,
-    );
+    const SUT = new PensieveAccountsLocationsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
-      rest.get(
-        `${baseUrl}/api/v1/config/overlay/view/${instanceId}`,
-        (req, res, ctx) => res(ctx.status(500)),
-      ),
+      rest.get(`${baseUrl}/api/v1/config/overlay/view/${instanceId}`, (req, res, ctx) => res(ctx.status(500))),
     );
     //E+V
     await expect(SUT.listAccounts()).rejects.toBeDefined();

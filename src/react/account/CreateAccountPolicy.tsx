@@ -1,17 +1,17 @@
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import type { MouseEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from 'react-query';
-import { getListPoliciesQuery } from '../queries';
-import { useIAMClient } from '../IAMProvider';
-
-import { useErrorHandler } from '../ErrorProvider';
-import { errorParser } from '../utils';
-import { ApiError } from '../../types/actions';
-import { CommonPolicyLayout } from './AccountEditCommonLayout';
-import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
-import { MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import type { ApiError } from '../../types/actions';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useErrorHandler } from '../ErrorProvider';
+import { useIAMClient } from '../IAMProvider';
+import { getListPoliciesQuery } from '../queries';
+import { errorParser } from '../utils';
+import { CommonPolicyLayout } from './AccountEditCommonLayout';
+
 type PolicyFormValues = {
   policyName: string;
   policyDocument: string;
@@ -58,10 +58,7 @@ const CreateAccountPolicy = () => {
       onSuccess: () => {
         basenameNavigate(`/accounts/${currentAccount.account?.Name}/policies`);
         queryClient.invalidateQueries({
-          queryKey: getListPoliciesQuery(
-            currentAccount.account?.Name,
-            IAMClient,
-          ).queryKey,
+          queryKey: getListPoliciesQuery(currentAccount.account?.Name, IAMClient).queryKey,
           refetchInactive: true,
         });
       },

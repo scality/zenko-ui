@@ -1,9 +1,10 @@
-import { LocationDetails } from '../../../types/config';
-import React from 'react';
-import { LocationDetailsFormProps } from '.';
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
+import React from 'react';
+import type { LocationDetails } from '../../../types/config';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import type { LocationDetailsFormProps } from '.';
+
 type State = {
   protocol: 'tcp' | 'udp';
   version: 'v3' | 'v4';
@@ -53,13 +54,7 @@ function _convertToState(details: LocationDetails): State {
   };
 }
 
-function _convertToDetails({
-  protocol,
-  version,
-  server,
-  path,
-  options,
-}: State): LocationDetails {
+function _convertToDetails({ protocol, version, server, path, options }: State): LocationDetails {
   //@ts-expect-error fix this when you are working on it
   return {
     endpoint: options
@@ -84,10 +79,7 @@ const NFS_VERSIONS: Array<Options> = ['v3', 'v4'].map((ver) => {
     label: ver.toUpperCase(),
   };
 });
-export default class LocationDetailsNFS extends React.Component<
-  LocationDetailsFormProps,
-  State
-> {
+export default class LocationDetailsNFS extends React.Component<LocationDetailsFormProps, State> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign(

@@ -32,9 +32,7 @@ export function ReplicationCRRDestinationFields() {
 
   const locations = accountsLocationsAndEndpoints?.locations ?? [];
   const selectedLocation = locations.find((l) => l.name === storageClass);
-  const isCRR =
-    !!selectedLocation &&
-    isCRRLocationType(selectedLocation.type as unknown as string);
+  const isCRR = !!selectedLocation && isCRRLocationType(selectedLocation.type as unknown as string);
 
   if (!isCRR) {
     return null;
@@ -49,13 +47,7 @@ export function ReplicationCRRDestinationFields() {
       helpErrorPosition="bottom"
       required
       labelHelpTooltip="Name of the bucket on the remote CRR destination where objects will be replicated. The bucket must already exist."
-      content={
-        <Input
-          id="targetBucket"
-          placeholder="my-destination-bucket"
-          {...register('targetBucket')}
-        />
-      }
+      content={<Input id="targetBucket" placeholder="my-destination-bucket" {...register('targetBucket')} />}
     />
   );
 }

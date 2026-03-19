@@ -1,6 +1,6 @@
 import { fireEvent, getByPlaceholderText, getByRole, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Locationv1Details } from '../../../../js/managementClient/api';
+import type { Locationv1Details } from '../../../../js/managementClient/api';
 import { renderWithCustomRoute } from '../../../utils/testUtil';
 import LocationDetailsAzureArchive from '../LocationDetailsAzureArchive';
 
@@ -57,10 +57,7 @@ const selectQueueTypeHelper = (queue: queueType, container: HTMLElement) => {
   });
 };
 
-type authType =
-  | 'location-azure-client-secret'
-  | 'location-azure-shared-access-signature'
-  | 'location-azure-shared-key';
+type authType = 'location-azure-client-secret' | 'location-azure-shared-access-signature' | 'location-azure-shared-key';
 const selectAuthenticationHelper = async (auth: authType, container: HTMLElement) => {
   const selector = getByRole(container, 'textbox', { name: /Authentication type \*/i });
   fireEvent.keyDown(selector, {
@@ -105,11 +102,7 @@ const selectAuthenticationHelper = async (auth: authType, container: HTMLElement
   }
 };
 
-const azureArchiveCommonHelper = async (
-  container: HTMLElement,
-  endpoint: string,
-  targetBucket: string,
-) => {
+const azureArchiveCommonHelper = async (container: HTMLElement, endpoint: string, targetBucket: string) => {
   await userEvent.click(getByRole(container, 'textbox', { name: /Blob Endpoint * /i }));
   await userEvent.paste(endpoint);
   await userEvent.click(getByRole(container, 'textbox', { name: /Target Azure Container Name \*/i }));
@@ -117,10 +110,7 @@ const azureArchiveCommonHelper = async (
 };
 
 type prefilledValues = [RegExp, string][];
-const prefilledHelper = async (
-  container: HTMLElement,
-  values: prefilledValues,
-) => {
+const prefilledHelper = async (container: HTMLElement, values: prefilledValues) => {
   for (const value of values) {
     await userEvent.click(getByRole(container, 'textbox', { name: value[0] }));
     await userEvent.paste(value[1]);
@@ -133,10 +123,7 @@ const prefilledHelper = async (
 
 // Helper for password inputs (can't use textbox role)
 type passwordValues = [RegExp, string][]; // [placeholder, value]
-const prefilledPasswordHelper = async (
-  container: HTMLElement,
-  values: passwordValues,
-) => {
+const prefilledPasswordHelper = async (container: HTMLElement, values: passwordValues) => {
   for (const [placeholder, value] of values) {
     await userEvent.click(getByPlaceholderText(container, placeholder));
     await userEvent.paste(value);
@@ -177,37 +164,23 @@ const authClientSecretHelper = async (container: HTMLElement) => {
     [/Tenant ID \*/, 'mock-tenant-id'],
     [/Azure Client ID \*/, 'mock-azure-client-id'],
   ];
-  const passwordValues: [RegExp, string][] = [
-    [/clientKey/i, 'mock-azure-client-key'],
-  ];
+  const passwordValues: [RegExp, string][] = [[/clientKey/i, 'mock-azure-client-key']];
   await prefilledHelper(container, textboxValues);
   await prefilledPasswordHelper(container, passwordValues);
 };
 
-const authSharedAccessSignature = async (
-  container: HTMLElement,
-  isServiceBus = false,
-) => {
-  const values: [RegExp, string][] = [
-    [/SAS token for Storage \*/, 'mock-sas-token-for-storage'],
-  ];
+const authSharedAccessSignature = async (container: HTMLElement, isServiceBus = false) => {
+  const values: [RegExp, string][] = [[/SAS token for Storage \*/, 'mock-sas-token-for-storage']];
 
   if (isServiceBus) {
-    values.push([
-      /SAS token for ServiceBus * \*/,
-      'mock-sas-token-for-service-bus',
-    ]);
+    values.push([/SAS token for ServiceBus * \*/, 'mock-sas-token-for-service-bus']);
   }
   await prefilledHelper(container, values);
 };
 
 const authSharedKey = async (container: HTMLElement) => {
-  const textboxValues: [RegExp, string][] = [
-    [/Azure Account Name \*/, 'mock-azure-account-name'],
-  ];
-  const passwordValues: [RegExp, string][] = [
-    [/accountKey/i, 'mock-azure-account-key'],
-  ];
+  const textboxValues: [RegExp, string][] = [[/Azure Account Name \*/, 'mock-azure-account-name']];
+  const passwordValues: [RegExp, string][] = [[/accountKey/i, 'mock-azure-account-key']];
   await prefilledHelper(container, textboxValues);
   await prefilledPasswordHelper(container, passwordValues);
 };
@@ -228,7 +201,6 @@ describe('<LocationDetailsAzureArchive />', () => {
       /Authentication type \*/i,
       /Tenant ID \*/i,
       /Azure Client ID \*/i,
-
     ];
     expect(screen.getByPlaceholderText(/clientKey/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/clientKey/i)).toHaveValue('');
@@ -283,8 +255,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
   test('Azure Service Bus Topic + Client Secret', async () => {
     // S
-    const { container, onChange, endpoint, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, onChange, endpoint, targetBucket } = setupAndRenderLocationDetails();
 
     // E + V
     await azureArchiveCommonHelper(container, endpoint, targetBucket);
@@ -313,18 +284,14 @@ describe('<LocationDetailsAzureArchive />', () => {
 
   test('Azure Service Bus Topic + Shared Access Signature', async () => {
     // S
-    const { container, onChange, endpoint, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, onChange, endpoint, targetBucket } = setupAndRenderLocationDetails();
     // E + V
 
     await azureArchiveCommonHelper(container, endpoint, targetBucket);
 
     await serviceBusTopicHelper(container);
 
-    await selectAuthenticationHelper(
-      'location-azure-shared-access-signature',
-      container,
-    );
+    await selectAuthenticationHelper('location-azure-shared-access-signature', container);
 
     await authSharedAccessSignature(container, true);
 
@@ -347,8 +314,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
   test('Azure Service Bus Queue + Client Secret', async () => {
     // S
-    const { container, onChange, endpoint, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, onChange, endpoint, targetBucket } = setupAndRenderLocationDetails();
 
     // E + V
     await azureArchiveCommonHelper(container, endpoint, targetBucket);
@@ -378,8 +344,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
   test('Azure Service Bus Queue + Shared Access Signature', async () => {
     // S
-    const { container, onChange, endpoint, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, onChange, endpoint, targetBucket } = setupAndRenderLocationDetails();
 
     // E + V
     await azureArchiveCommonHelper(container, endpoint, targetBucket);
@@ -387,10 +352,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
     await serviceBusQueueHelper(container);
 
-    await selectAuthenticationHelper(
-      'location-azure-shared-access-signature',
-      container,
-    );
+    await selectAuthenticationHelper('location-azure-shared-access-signature', container);
 
     await authSharedAccessSignature(container, true);
 
@@ -412,8 +374,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
   test('Azure Storage Queue + Client Secret', async () => {
     // S
-    const { container, onChange, endpoint, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, onChange, endpoint, targetBucket } = setupAndRenderLocationDetails();
 
     // E + V
     await azureArchiveCommonHelper(container, endpoint, targetBucket);
@@ -443,8 +404,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
   test('Azure Storage Queue + Shared Access Signature', async () => {
     // S
-    const { container, onChange, endpoint, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, onChange, endpoint, targetBucket } = setupAndRenderLocationDetails();
 
     // E + V
     await azureArchiveCommonHelper(container, endpoint, targetBucket);
@@ -453,10 +413,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
     await storageQueueHelper(container);
 
-    await selectAuthenticationHelper(
-      'location-azure-shared-access-signature',
-      container,
-    );
+    await selectAuthenticationHelper('location-azure-shared-access-signature', container);
 
     await authSharedAccessSignature(container);
 
@@ -477,8 +434,7 @@ describe('<LocationDetailsAzureArchive />', () => {
 
   test('Azure Storage Queue + Shared Key', async () => {
     // S
-    const { container, onChange, endpoint, targetBucket } =
-      setupAndRenderLocationDetails();
+    const { container, onChange, endpoint, targetBucket } = setupAndRenderLocationDetails();
 
     // E + V
     await azureArchiveCommonHelper(container, endpoint, targetBucket);

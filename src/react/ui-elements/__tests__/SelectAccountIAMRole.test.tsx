@@ -7,20 +7,10 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { QueryClient } from 'react-query';
 import { ThemeProvider } from 'styled-components';
-import {
-  getConfigOverlay,INSTANCE_ID, 
-  USERS
-} from '../../../js/mock/managementClientMSWHandlers';
+import { getConfigOverlay, INSTANCE_ID, USERS } from '../../../js/mock/managementClientMSWHandlers';
 import { QueryClientProvider } from '../../../QueryClientProvider';
-import {
-  mockShellAlerts,
-  mockShellHooks,
-  TEST_API_BASE_URL,
-} from '../../../react/utils/testUtil';
-import {
-  extractAccountIdFromARN,
-  SelectAccountIAMRoleInternal as SelectAccountIAMRole,
-} from '../SelectAccountIAMRole';
+import { mockShellAlerts, mockShellHooks, TEST_API_BASE_URL } from '../../../react/utils/testUtil';
+import { extractAccountIdFromARN, SelectAccountIAMRoleInternal as SelectAccountIAMRole } from '../SelectAccountIAMRole';
 
 const testAccountId1 = '064609833007';
 const testAccountId2 = '377232323695';
@@ -330,10 +320,7 @@ const LocalWrapper = ({ children }) => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={coreUIAvailableThemes.artescaLight}>
         <ToastProvider>
-          <ShellHooksProvider
-            shellHooks={mockShellHooks}
-            shellAlerts={mockShellAlerts}
-          >
+          <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
             {children}
           </ShellHooksProvider>
         </ToastProvider>
@@ -406,8 +393,7 @@ describe('SelectAccountIAMRole', () => {
         },
       ],
       canManageAccount: true,
-      canonicalId:
-        '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
+      canonicalId: '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
       creationDate: new Date('2022-03-18T12:51:44.000Z'),
       id: testAccountId1,
       name: 'no-bucket',
@@ -428,15 +414,9 @@ describe('SelectAccountIAMRole', () => {
       Tags: [],
     };
 
-    await waitFor(
-      () =>
-        expect(onChange).toHaveBeenCalledWith(
-          account,
-          role,
-          '11112::DataConsumer',
-        ),
-      { timeout: 10_000 },
-    );
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith(account, role, '11112::DataConsumer'), {
+      timeout: 10_000,
+    });
   });
 
   it('should display an error when failing to retrieve the role', async () => {
@@ -479,11 +459,7 @@ describe('SelectAccountIAMRole', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     await waitFor(() => {
-      expect(
-        screen.getByText(
-          /An error occured on our side while fetching the role's policy/i,
-        ),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/An error occured on our side while fetching the role's policy/i)).toBeInTheDocument();
     });
   });
 
@@ -528,13 +504,11 @@ describe('SelectAccountIAMRole', () => {
             },
           ],
           canManageAccount: true,
-          canonicalId:
-            '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
+          canonicalId: '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
           creationDate: new Date('2022-03-18T12:51:44.000Z'),
           id: '064609833007',
           name: 'no-bucket',
-          preferredAssumableRoleArn:
-            'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
+          preferredAssumableRoleArn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
           usedCapacity: {
             status: 'unknown',
           },
@@ -677,13 +651,11 @@ describe('SelectAccountIAMRole', () => {
             },
           ],
           canManageAccount: true,
-          canonicalId:
-            '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
+          canonicalId: '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
           creationDate: new Date('2022-04-29T09:35:35.000Z'),
           id: '377232323695',
           name: 'yanjin',
-          preferredAssumableRoleArn:
-            'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
+          preferredAssumableRoleArn: 'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
           usedCapacity: {
             status: 'unknown',
           },
@@ -760,9 +732,7 @@ describe('SelectAccountIAMRole', () => {
         <SelectAccountIAMRole
           onChange={onChange}
           filterOutInternalRoles
-          hideAccountRoles={[
-            { accountName: 'no-bucket', roleName: 'data-consumer-role' },
-          ]}
+          hideAccountRoles={[{ accountName: 'no-bucket', roleName: 'data-consumer-role' }]}
         />
       </LocalWrapper>,
     );
@@ -806,7 +776,6 @@ describe('SelectAccountIAMRole', () => {
     // Role select should be disabled and show "Please select an account"
     expect(seletors.roleSelect()).toHaveAttribute('disabled');
     expect(screen.getByText(/Please select an account/i)).toBeInTheDocument();
-
   });
 
   it('should display Loading option while roles are being fetched', async () => {
@@ -896,9 +865,7 @@ describe('SelectAccountIAMRole', () => {
 
     await userEvent.click(seletors.roleSelect());
 
-    expect(
-      screen.queryAllByRole('option', { name: /backbeat-gc-1/i }),
-    ).toHaveLength(0);
+    expect(screen.queryAllByRole('option', { name: /backbeat-gc-1/i })).toHaveLength(0);
   });
 
   it('should call onChange with empty keycloakRoleName if no keycloak role is found', async () => {
@@ -948,13 +915,11 @@ describe('SelectAccountIAMRole', () => {
           },
         ],
         canManageAccount: true,
-        canonicalId:
-          '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
+        canonicalId: '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
         creationDate: new Date('2022-03-18T12:51:44.000Z'),
         id: '064609833007',
         name: 'no-bucket',
-        preferredAssumableRoleArn:
-          'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
+        preferredAssumableRoleArn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
         usedCapacity: {
           status: 'unknown',
         },

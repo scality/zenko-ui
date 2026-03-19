@@ -1,21 +1,12 @@
-import {
-  Banner,
-  FormattedDateTime,
-  Icon,
-  Wrap,
-  spacing,
-} from '@scality/core-ui';
+import { Banner, FormattedDateTime, Icon, spacing, Wrap } from '@scality/core-ui';
 import { Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useMemo, useState } from 'react';
-import { Row } from 'react-table';
+import type { Row } from 'react-table';
 import styled from 'styled-components';
-import { Account } from '../../../../types/account';
-import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import {
-  useAccessKeysQuery,
-  useDeleteAccessKeyMutation,
-} from './useAccessKeysQuery';
+import type { Account } from '../../../../types/account';
 import { useModalError } from '../../../ErrorProvider';
+import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
+import { useAccessKeysQuery, useDeleteAccessKeyMutation } from './useAccessKeysQuery';
 
 const AccessKeysDetails = styled.div`
   display: block;
@@ -47,8 +38,7 @@ type DeleteKeyProps = {
 
 function DeleteKey({ accessKey }: DeleteKeyProps) {
   const { showModalError } = useModalError();
-  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
-    useState(false);
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
   const deleteAccessKeyMutation = useDeleteAccessKeyMutation();
 
   const handleDelete = () => {
@@ -110,10 +100,7 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
           textAlign: 'right',
           marginRight: '1rem',
         },
-        sortType: (
-          accessKeyRow1: Row<AccessKey>,
-          accessKeyRow2: Row<AccessKey>,
-        ) => {
+        sortType: (accessKeyRow1: Row<AccessKey>, accessKeyRow2: Row<AccessKey>) => {
           const createdAt1 = new Date(accessKeyRow1.original.created_at);
           const createdAt2 = new Date(accessKeyRow2.original.created_at);
 
@@ -168,9 +155,7 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
   if (isLoading) {
     return (
       <AccessKeysDetails>
-        <h3 style={{ marginLeft: spacing.r16 }}>
-          Root user Access keys details
-        </h3>
+        <h3 style={{ marginLeft: spacing.r16 }}>Root user Access keys details</h3>
         <div style={{ padding: spacing.r16 }}>Loading...</div>
       </AccessKeysDetails>
     );
@@ -184,9 +169,8 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
           <div data-testid="root-access-keys-banner">
             <Banner variant="danger" icon={<Icon name="Exclamation-circle" />}>
               <>
-                Security Status: Root user Access keys give unrestricted access
-                to account resources. It is a best practice to delete root
-                Access keys and use IAM user access keys instead.
+                Security Status: Root user Access keys give unrestricted access to account resources. It is a best
+                practice to delete root Access keys and use IAM user access keys instead.
               </>
             </Banner>
           </div>
@@ -213,10 +197,7 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
           data={accessKeys}
           defaultSortingKey="created_at"
         >
-          <Table.SingleSelectableContent
-            rowHeight="h40"
-            separationLineVariant="backgroundLevel1"
-          />
+          <Table.SingleSelectableContent rowHeight="h40" separationLineVariant="backgroundLevel1" />
         </Table>
       </TableContainer>
     </AccessKeysDetails>

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Account, AccountKey } from '../../../types/account';
+import { AutoSizer } from 'react-virtualized';
+import styled, { type CSSProperties } from 'styled-components';
+import type { Account, AccountKey } from '../../../types/account';
 import { useAuthGroups } from '../../utils/hooks';
 import AccountInfo from './properties/AccountInfo';
 import AccountKeys from './properties/AccountKeys';
 import SecretKeyModal from './properties/SecretKeyModal';
-import { AutoSizer } from 'react-virtualized';
-import styled, { CSSProperties } from 'styled-components';
+
 type Props = {
   account: Account;
 };
@@ -35,9 +36,7 @@ function Properties({ account }: Props) {
       {({ height, width }) => (
         <Container height={height} width={width}>
           <AccountInfo account={account} />
-          {isStorageManager && (
-            <AccountKeys account={account} onOpenKeyModal={handleOpenModal} />
-          )}
+          {isStorageManager && <AccountKeys account={account} onOpenKeyModal={handleOpenModal} />}
           <SecretKeyModal
             account={account}
             isOpen={isSecretKeyModalOpen}

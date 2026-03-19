@@ -1,24 +1,14 @@
-import { ParsedCertificate } from '@scality/certchain';
-import {
-  AppContainer,
-  Banner,
-  ConstrainedText,
-  Icon,
-  spacing,
-  Stack,
-  Text,
-  useToast,
-  Wrap,
-} from '@scality/core-ui';
+import type { ParsedCertificate } from '@scality/certchain';
+import { AppContainer, Banner, ConstrainedText, Icon, Stack, spacing, Text, useToast, Wrap } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/components/box/Box';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
-import { MutationOptions, useQuery, useQueryClient } from 'react-query';
-import { CoreUIColumn, Row } from 'react-table';
+import { type MutationOptions, useQuery, useQueryClient } from 'react-query';
+import type { CoreUIColumn, Row } from 'react-table';
 import { useDeleteCertificateFromZenkoConfigurationMutation } from '../../js/mutations';
-import { ApiError } from '../../types/actions';
+import type { ApiError } from '../../types/actions';
 import { getZenkoCRQuery } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { TableHeaderWrapper } from '../ui-elements/Table';
@@ -26,8 +16,8 @@ import CertificateDetails from './CertificateDetails';
 import {
   useParseBundleCertificates,
   useParseSecretCertificates,
-  ZenkoCRCertificateBundleWithIndex,
-  ZenkoCRCertificateBundle,
+  type ZenkoCRCertificateBundle,
+  type ZenkoCRCertificateBundleWithIndex,
 } from './hooks';
 import TLSVerificationUpdater from './TLSVerificationUpdater';
 import { formatExpiryDate } from './utils';
@@ -52,9 +42,7 @@ export type ParsedCertificatesBundleWithIndex = {
   index: number;
 };
 
-const formatCertificateDataForTable = (
-  parsedCertificates: ParsedCertificatesBundleWithIndex[],
-) => {
+const formatCertificateDataForTable = (parsedCertificates: ParsedCertificatesBundleWithIndex[]) => {
   const formattedCertificateData: CertificateData[] = parsedCertificates.map(
     (certificateBundle: ParsedCertificatesBundleWithIndex) => {
       const data: CertificateData = {
@@ -63,12 +51,10 @@ const formatCertificateDataForTable = (
         expiresOn: [],
         certificates: certificateBundle.parsedCertificates,
       };
-      certificateBundle.parsedCertificates.forEach(
-        (certificate: ParsedCertificate) => {
-          data.metadata.push(certificate.commonName);
-          data.expiresOn.push(certificate.expiresOn);
-        },
-      );
+      certificateBundle.parsedCertificates.forEach((certificate: ParsedCertificate) => {
+        data.metadata.push(certificate.commonName);
+        data.expiresOn.push(certificate.expiresOn);
+      });
       return data;
     },
   );
@@ -86,13 +72,9 @@ type CertificateData = {
 const Truststore = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
-  const [isCertificateDetailsModalOpen, setIsCertificateDetailsModalOpen] =
-    useState(false);
-  const [selectedCertificate, setSelectedCertificate] = useState<
-    CertificateWithPEM[] | null
-  >(null);
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
-    useState(false);
+  const [isCertificateDetailsModalOpen, setIsCertificateDetailsModalOpen] = useState(false);
+  const [selectedCertificate, setSelectedCertificate] = useState<CertificateWithPEM[] | null>(null);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
   const [certificateToDelete, setCertificateToDelete] = useState<{
     index: number;
     metadata: string[];
@@ -129,12 +111,8 @@ const Truststore = () => {
     },
   };
 
-  const {
-    mutate: deleteCertificateMutation,
-    isLoading: isLoadingDeleteCertificate,
-  } = useDeleteCertificateFromZenkoConfigurationMutation(
-    deleteCertificateMutationOptions,
-  );
+  const { mutate: deleteCertificateMutation, isLoading: isLoadingDeleteCertificate } =
+    useDeleteCertificateFromZenkoConfigurationMutation(deleteCertificateMutationOptions);
 
   const isTLSVerificationActive = useMemo(() => {
     return !zenkoCR?.spec?.egress?.skipTLSVerify;
@@ -151,13 +129,10 @@ const Truststore = () => {
     return extraCACertsWithIndex ?? [];
   }, [zenkoCR]);
 
-  const {
-    parsedCertificates: parsedExtraCACerts,
-    isLoading: isParsingCertificates,
-  } = useParseBundleCertificates(extraCACerts);
+  const { parsedCertificates: parsedExtraCACerts, isLoading: isParsingCertificates } =
+    useParseBundleCertificates(extraCACerts);
 
-  const { parsedSecretCertificates, isLoading: isParsingSecretCertificates } =
-    useParseSecretCertificates(extraCACerts);
+  const { parsedSecretCertificates, isLoading: isParsingSecretCertificates } = useParseSecretCertificates(extraCACerts);
 
   const formattedCertificateDataForTable = useMemo(() => {
     const list = [...parsedExtraCACerts, ...parsedSecretCertificates];
@@ -186,11 +161,7 @@ const Truststore = () => {
   };
 
   const status = useMemo(() => {
-    if (
-      isLoadingZenkoCR ||
-      isParsingCertificates ||
-      isParsingSecretCertificates
-    ) {
+    if (isLoadingZenkoCR || isParsingCertificates || isParsingSecretCertificates) {
       return 'loading';
     }
     if (isErrorZenkoCR) {
@@ -246,16 +217,12 @@ const Truststore = () => {
         const closestExpireDate =
           value.length > 1
             ? value.sort((a, b) => {
-              return a.getTime() - b.getTime();
-            })[0]
+                return a.getTime() - b.getTime();
+              })[0]
             : value[0];
-        const { shortFormatWithPrefix, status } =
-          formatExpiryDate(closestExpireDate);
+        const { shortFormatWithPrefix, status } = formatExpiryDate(closestExpireDate);
         return (
-          <Stack
-            direction="horizontal"
-            style={{ alignItems: 'center', justifyContent: 'flex-end' }}
-          >
+          <Stack direction="horizontal" style={{ alignItems: 'center', justifyContent: 'flex-end' }}>
             {status === 'warning' ? (
               <Icon color="statusWarning" name="Exclamation-circle" />
             ) : status === 'critical' ? (
@@ -273,9 +240,7 @@ const Truststore = () => {
       cellStyle: { flex: 0.5 },
       Cell: ({ row }: { row: Row<CertificateData> }) => {
         return (
-          <Stack
-            style={{ justifyContent: 'flex-end', marginRight: spacing.r16 }}
-          >
+          <Stack style={{ justifyContent: 'flex-end', marginRight: spacing.r16 }}>
             <Button
               label="View Details"
               variant="outline"
@@ -306,10 +271,7 @@ const Truststore = () => {
             <Icon name="ID-card" size="2x" withWrapper />
             <Text variant="Larger">Truststore</Text>
           </Stack>
-          <TLSVerificationUpdater
-            zenkoCR={zenkoCR}
-            isLoadingZenkoCR={isLoadingZenkoCR}
-          />
+          <TLSVerificationUpdater zenkoCR={zenkoCR} isLoadingZenkoCR={isLoadingZenkoCR} />
         </Wrap>
       </AppContainer.OverallSummary>
       <AppContainer.MainContent hasPadding>
@@ -320,21 +282,15 @@ const Truststore = () => {
           isLoading={isLoadingDeleteCertificate}
           titleText={
             <Stack direction="vertical">
-              <Text>
-                Are you sure you want to delete this certificate from the
-                truststore?
-              </Text>
+              <Text>Are you sure you want to delete this certificate from the truststore?</Text>
 
-              {certificateToDelete?.metadata &&
-                certificateToDelete.metadata.length > 0
+              {certificateToDelete?.metadata && certificateToDelete.metadata.length > 0
                 ? certificateToDelete.metadata.map((name, index) => (
-                  <Stack gap="r4" key={name + index}>
-                    <Text isEmphazed>{name}</Text>
-                    {index < certificateToDelete.metadata.length - 1 && (
-                      <Icon name="Chevron-right" size="sm" />
-                    )}
-                  </Stack>
-                ))
+                    <Stack gap="r4" key={name + index}>
+                      <Text isEmphazed>{name}</Text>
+                      {index < certificateToDelete.metadata.length - 1 && <Icon name="Chevron-right" size="sm" />}
+                    </Stack>
+                  ))
                 : ''}
             </Stack>
           }
@@ -360,15 +316,10 @@ const Truststore = () => {
             <TableHeaderWrapper
               search={
                 !isTLSVerificationActive && (
-                  <Banner
-                    variant="warning"
-                    icon={
-                      <Icon color="statusWarning" name="Exclamation-circle" />
-                    }
-                  >
+                  <Banner variant="warning" icon={<Icon color="statusWarning" name="Exclamation-circle" />}>
                     <Text>
-                      Imported certificates listed below are ignored when{' '}
-                      <Text isEmphazed>TLS Verification</Text> is skipped.
+                      Imported certificates listed below are ignored when <Text isEmphazed>TLS Verification</Text> is
+                      skipped.
                     </Text>
                   </Banner>
                 )
@@ -384,10 +335,7 @@ const Truststore = () => {
                 />
               }
             />
-            <Table.SingleSelectableContent
-              rowHeight="h40"
-              separationLineVariant="backgroundLevel2"
-            />
+            <Table.SingleSelectableContent rowHeight="h40" separationLineVariant="backgroundLevel2" />
           </Table>
         </Box>
       </AppContainer.MainContent>

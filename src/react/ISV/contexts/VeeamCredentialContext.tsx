@@ -11,16 +11,11 @@ type VeeamCredentialContextValue = {
   isCredentialsValid: boolean;
   isCheckingCredentials: boolean;
   isCredentialCheckError: boolean;
-  changeCredentialsMutation: UseMutationResult<
-    unknown,
-    unknown,
-    { username: string; password: string }
-  > | null;
+  changeCredentialsMutation: UseMutationResult<unknown, unknown, { username: string; password: string }> | null;
   newCredentialsStatus: NewCredentialsStatus;
 };
 
-const VeeamCredentialContext =
-  createContext<VeeamCredentialContextValue | null>(null);
+const VeeamCredentialContext = createContext<VeeamCredentialContextValue | null>(null);
 
 const VeeamCredentialProviderInternal = ({
   children,
@@ -37,8 +32,7 @@ const VeeamCredentialProviderInternal = ({
 
   const value = useMemo(
     () => ({
-      isCredentialsValid:
-        validationResult.data?.isVeeamCredentialsValid ?? true,
+      isCredentialsValid: validationResult.data?.isVeeamCredentialsValid ?? true,
       isCheckingCredentials: validationResult.isLoading,
       isCredentialCheckError: validationResult.isError,
       changeCredentialsMutation: updateResult.changeCredentialsMutation,
@@ -47,11 +41,7 @@ const VeeamCredentialProviderInternal = ({
     [validationResult, updateResult],
   );
 
-  return (
-    <VeeamCredentialContext.Provider value={value}>
-      {children}
-    </VeeamCredentialContext.Provider>
-  );
+  return <VeeamCredentialContext.Provider value={value}>{children}</VeeamCredentialContext.Provider>;
 };
 
 const defaultContextValue: VeeamCredentialContextValue = {
@@ -63,34 +53,20 @@ const defaultContextValue: VeeamCredentialContextValue = {
   newCredentialsStatus: 'IDLE',
 };
 
-export const VeeamCredentialProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const VeeamCredentialProvider = ({ children }: { children: React.ReactNode }) => {
   const artescaLibrary = useArtescaLibrary();
 
   if (artescaLibrary instanceof ArtescaLibraryNotAvailable) {
-    return (
-      <VeeamCredentialContext.Provider value={defaultContextValue}>
-        {children}
-      </VeeamCredentialContext.Provider>
-    );
+    return <VeeamCredentialContext.Provider value={defaultContextValue}>{children}</VeeamCredentialContext.Provider>;
   }
 
-  return (
-    <VeeamCredentialProviderInternal artescaLibrary={artescaLibrary}>
-      {children}
-    </VeeamCredentialProviderInternal>
-  );
+  return <VeeamCredentialProviderInternal artescaLibrary={artescaLibrary}>{children}</VeeamCredentialProviderInternal>;
 };
 
 export const useVeeamCredentialManagement = () => {
   const context = useContext(VeeamCredentialContext);
   if (!context) {
-    throw new Error(
-      'useVeeamCredentialManagement must be used within VeeamCredentialProvider',
-    );
+    throw new Error('useVeeamCredentialManagement must be used within VeeamCredentialProvider');
   }
   return context;
 };

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { COPY_STATE_SUCCESS, useClipboard } from '../utils/hooks';
 import { IconCopy, IconSuccess } from './Icons';
+
 const Container = styled.span`
   cursor: pointer;
 `;

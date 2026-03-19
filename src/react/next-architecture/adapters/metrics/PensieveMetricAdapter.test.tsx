@@ -6,8 +6,9 @@ import {
   BUCKET_CREATION_DATE,
   BUCKET_METRICS_RESPONSE,
   BUCKET_NAME,
-  LOCATIONS_METRICS_RESPONSE,
+  getStorageConsumptionMetricsHandlers,
   LOCATION_ID,
+  LOCATIONS_METRICS_RESPONSE,
   MEASURED_ON,
   NEWLY_CREATED_ACCOUNT_CANONICAL_ID,
   NEWLY_CREATED_ACCOUNT_METRICS,
@@ -16,7 +17,6 @@ import {
   NEWLY_CREATED_LOCATION_ID,
   USED_CAPACITY_CURRENT,
   USED_CAPACITY_NON_CURRENT,
-  getStorageConsumptionMetricsHandlers,
 } from '../../../../js/mock/managementClientMSWHandlers';
 import { PensieveMetricsAdapter } from './PensieveMetricsAdapter';
 
@@ -24,9 +24,7 @@ LOCATION_ID;
 NEWLY_CREATED_LOCATION_ID;
 const baseUrl = 'http://localhost:8080';
 const instanceId = 'test-instance-id';
-const server = setupServer(
-  ...getStorageConsumptionMetricsHandlers(baseUrl, instanceId),
-);
+const server = setupServer(...getStorageConsumptionMetricsHandlers(baseUrl, instanceId));
 
 const mockGettoken = () => Promise.resolve('test-token');
 
@@ -43,10 +41,7 @@ describe('PensieveMetricsAdapter - listLocationsLatestUsedCapacity', () => {
     //S
     const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
-      rest.post(
-        `${baseUrl}/api/v1/instance/${instanceId}/location/metrics`,
-        (req, res, ctx) => res(ctx.status(500)),
-      ),
+      rest.post(`${baseUrl}/api/v1/instance/${instanceId}/location/metrics`, (req, res, ctx) => res(ctx.status(500))),
     );
 
     //E+V
@@ -58,10 +53,7 @@ describe('PensieveMetricsAdapter - listLocationsLatestUsedCapacity', () => {
     const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
 
     //E
-    const result = await SUT.listLocationsLatestUsedCapacity([
-      LOCATION_ID,
-      NEWLY_CREATED_LOCATION_ID,
-    ]);
+    const result = await SUT.listLocationsLatestUsedCapacity([LOCATION_ID, NEWLY_CREATED_LOCATION_ID]);
 
     // V
     const EXPECTED_LOCATIONS = LOCATIONS_METRICS_RESPONSE;
@@ -82,10 +74,7 @@ describe('PensieveMetricsAdapter - listBucketsLatestUsedCapacity', () => {
     //S
     const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
-      rest.post(
-        `${baseUrl}/api/v1/instance/${instanceId}/bucket/metrics`,
-        (req, res, ctx) => res(ctx.status(500)),
-      ),
+      rest.post(`${baseUrl}/api/v1/instance/${instanceId}/bucket/metrics`, (req, res, ctx) => res(ctx.status(500))),
     );
 
     //E+V
@@ -124,10 +113,7 @@ describe('PensieveMetricsAdapter - listAccountsLatestUsedCapacity', () => {
     //S
     const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
-      rest.post(
-        `${baseUrl}/api/v1/instance/${instanceId}/account/metrics`,
-        (req, res, ctx) => res(ctx.status(500)),
-      ),
+      rest.post(`${baseUrl}/api/v1/instance/${instanceId}/account/metrics`, (req, res, ctx) => res(ctx.status(500))),
     );
 
     //E+V
@@ -139,10 +125,7 @@ describe('PensieveMetricsAdapter - listAccountsLatestUsedCapacity', () => {
     const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
 
     //E
-    const result = await SUT.listAccountsLatestUsedCapacity([
-      ACCOUNT_CANONICAL_ID,
-      NEWLY_CREATED_ACCOUNT_CANONICAL_ID,
-    ]);
+    const result = await SUT.listAccountsLatestUsedCapacity([ACCOUNT_CANONICAL_ID, NEWLY_CREATED_ACCOUNT_CANONICAL_ID]);
 
     // V
     const EXPECTED_ACCOUNTS_METRICS = {
@@ -166,16 +149,13 @@ describe('PensieveMetricsAdapter - listAccountLocationsLatestUsedCapacity', () =
     //S
     const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
-      rest.get(
-        `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_CANONICAL_ID}/metrics`,
-        (req, res, ctx) => res(ctx.status(500)),
+      rest.get(`${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_CANONICAL_ID}/metrics`, (req, res, ctx) =>
+        res(ctx.status(500)),
       ),
     );
 
     //E+V
-    await expect(
-      SUT.listAccountLocationsLatestUsedCapacity(ACCOUNT_CANONICAL_ID),
-    ).rejects.toBeDefined();
+    await expect(SUT.listAccountLocationsLatestUsedCapacity(ACCOUNT_CANONICAL_ID)).rejects.toBeDefined();
   });
 
   it('should return expected buckets metrics', async () => {
@@ -183,9 +163,7 @@ describe('PensieveMetricsAdapter - listAccountLocationsLatestUsedCapacity', () =
     const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
 
     //E
-    const result = await SUT.listAccountLocationsLatestUsedCapacity(
-      ACCOUNT_CANONICAL_ID,
-    );
+    const result = await SUT.listAccountLocationsLatestUsedCapacity(ACCOUNT_CANONICAL_ID);
 
     // V
     const EXPECTED_LOCATIONS_METRICS = {

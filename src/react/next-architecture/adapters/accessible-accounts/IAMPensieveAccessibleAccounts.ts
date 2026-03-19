@@ -1,9 +1,9 @@
 import { noopBasedEventDispatcher, useAccounts } from '../../../utils/hooks';
 import { useAccountsLocationsAndEndpoints } from '../../domain/business/accounts';
-import { AccountInfo, Role } from '../../domain/entities/account';
-import { PromiseResult } from '../../domain/entities/promise';
-import { IAccessibleAccounts } from './IAccessibleAccounts';
-import { IAccountsLocationsEndpointsAdapter } from '../accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import type { AccountInfo, Role } from '../../domain/entities/account';
+import type { PromiseResult } from '../../domain/entities/promise';
+import type { IAccountsLocationsEndpointsAdapter } from '../accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import type { IAccessibleAccounts } from './IAccessibleAccounts';
 
 export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
   constructor(
@@ -13,16 +13,11 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
   useListAccessibleAccounts(): {
     accountInfos: PromiseResult<(AccountInfo & { assumableRoles: Role[] })[]>;
   } {
-    const { accountsLocationsAndEndpoints, status: accountStatus } =
-      useAccountsLocationsAndEndpoints({
-        accountsLocationsEndpointsAdapter:
-          this.accountsLocationsAndEndpointsAdapter,
-      });
-    const eventDispatcher = this.withEventDispatcher
-      ? undefined
-      : noopBasedEventDispatcher;
-    const { accounts: accessibleAccounts, status } =
-      useAccounts(eventDispatcher);
+    const { accountsLocationsAndEndpoints, status: accountStatus } = useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter: this.accountsLocationsAndEndpointsAdapter,
+    });
+    const eventDispatcher = this.withEventDispatcher ? undefined : noopBasedEventDispatcher;
+    const { accounts: accessibleAccounts, status } = useAccounts(eventDispatcher);
 
     if (accountStatus === 'error' || status === 'error') {
       return {
@@ -34,12 +29,7 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
       };
     }
 
-    if (
-      accountStatus === 'loading' ||
-      status === 'loading' ||
-      accountStatus === 'idle' ||
-      status === 'idle'
-    ) {
+    if (accountStatus === 'loading' || status === 'loading' || accountStatus === 'idle' || status === 'idle') {
       return {
         accountInfos: {
           status: 'loading',
@@ -47,22 +37,18 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
       };
     }
 
-    const value = (accountsLocationsAndEndpoints?.accounts || []).flatMap(
-      (account) => {
-        const accessibleAccount = accessibleAccounts.find(
-          (ac) => ac.id === account.id,
-        );
-        if (accessibleAccount) {
-          return [
-            {
-              ...account,
-              assumableRoles: accessibleAccount.Roles,
-            },
-          ];
-        }
-        return [];
-      },
-    );
+    const value = (accountsLocationsAndEndpoints?.accounts || []).flatMap((account) => {
+      const accessibleAccount = accessibleAccounts.find((ac) => ac.id === account.id);
+      if (accessibleAccount) {
+        return [
+          {
+            ...account,
+            assumableRoles: accessibleAccount.Roles,
+          },
+        ];
+      }
+      return [];
+    });
     return {
       accountInfos: {
         status: 'success',

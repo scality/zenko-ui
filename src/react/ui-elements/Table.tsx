@@ -1,11 +1,10 @@
-import { fontSize } from '@scality/core-ui/dist/style/theme';
-
-import { spacing, SecondaryText, Wrap, Icon } from '@scality/core-ui';
+import { Icon, SecondaryText, spacing, Wrap } from '@scality/core-ui';
 import { Box, Button, Input } from '@scality/core-ui/dist/next';
+import { fontSize } from '@scality/core-ui/dist/style/theme';
+import type React from 'react';
 import { Link } from 'react-router';
-
 import styled from 'styled-components';
-import React from 'react';
+
 // TEMPLATE
 //
 // <Table>
@@ -31,10 +30,7 @@ type TableHeaderWrapperProps = {
   actions?: React.ReactNode;
 };
 
-export const TableHeaderWrapper = ({
-  search,
-  actions,
-}: TableHeaderWrapperProps) => {
+export const TableHeaderWrapper = ({ search, actions }: TableHeaderWrapperProps) => {
   return (
     <Wrap padding={spacing.r16} style={{ alignItems: 'center' }}>
       <Box>{search}</Box>
@@ -104,8 +100,7 @@ export const Row = styled(HeadRow)`
 `;
 export const Cell = styled.td<{ shade?: boolean }>`
   vertical-align: middle;
-  color: ${(props) =>
-    props.shade ? props.theme.infoPrimary : props.theme.textPrimary};
+  color: ${(props) => (props.shade ? props.theme.infoPrimary : props.theme.textPrimary)};
   padding: ${spacing.r4} ${spacing.r16} ${spacing.r4} ${spacing.r16};
   text-overflow: ellipsis;
   overflow: hidden;

@@ -1,9 +1,5 @@
 import { render, waitFor } from '@testing-library/react';
-import {
-  mockShellHooks,
-  NewWrapper,
-  renderWithRouterMatch,
-} from '../../utils/testUtil';
+import { mockShellHooks, NewWrapper, renderWithRouterMatch } from '../../utils/testUtil';
 import AccountDetails from '../AccountDetails';
 
 const account1 = {
@@ -47,13 +43,10 @@ describe('AccountDetails', () => {
   });
 
   it('should render empty AccountDetails component if no account props', () => {
-    const component = renderWithRouterMatch(
-      <AccountDetails account={undefined} />,
-      {
-        route: '/accounts/bart',
-        path: '/accounts/:accountName',
-      },
-    );
+    const component = renderWithRouterMatch(<AccountDetails account={undefined} />, {
+      route: '/accounts/bart',
+      path: '/accounts/:accountName',
+    });
     expect(component.queryByRole('tablist')).toBeFalsy();
     waitFor(() => {
       expect(component.getByText('Account not found.')).toBeInTheDocument();

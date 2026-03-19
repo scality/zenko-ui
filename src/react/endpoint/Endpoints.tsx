@@ -1,24 +1,15 @@
-import {
-  AppContainer,
-  Icon,
-  Stack,
-  Text,
-  Loader,
-  EmptyState,
-} from '@scality/core-ui';
+import { AppContainer, EmptyState, Icon, Loader, Stack, Text } from '@scality/core-ui';
 
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import EndpointList from './EndpointList';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
+import EndpointList from './EndpointList';
 
 const Endpoints = () => {
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter,
-    });
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
 
   const { basePath } = useConfig();
 

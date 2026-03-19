@@ -1,9 +1,9 @@
-import { Locationv1Details } from '../../../js/managementClient/api';
-import { LocationTypeKey } from '../../../types/config';
-import { InstanceStateSnapshot } from '../../../types/stats';
+import type { Locationv1Details } from '../../../js/managementClient/api';
+import type { LocationTypeKey } from '../../../types/config';
+import type { InstanceStateSnapshot } from '../../../types/stats';
 
-export * from './storageOptions';
 export { default as LocationDetails } from './LocationDetails';
+export * from './storageOptions';
 
 export type LocationDetailsFormProps = {
   editingExisting?: boolean;

@@ -5,12 +5,12 @@
 export { buildFields } from './buildFields';
 
 export {
-  buildMutations,
-  buildSOSAPIMutation,
   buildAccountMutations,
   buildBucketLoopMutation,
   buildIAMMutations,
-  STANDARD_BUCKET_STEPS,
-  isLoopMutation,
+  buildMutations,
+  buildSOSAPIMutation,
   expandLoopMutation,
+  isLoopMutation,
+  STANDARD_BUCKET_STEPS,
 } from './buildMutations';

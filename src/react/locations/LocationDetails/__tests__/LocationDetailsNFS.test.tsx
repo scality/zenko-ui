@@ -1,13 +1,9 @@
 /* eslint-disable */
 import { act, render, screen, waitFor } from '@testing-library/react';
-import {
-  themeMount as mount,
-  NewWrapper,
-  updateInputText,
-} from '../../../utils/testUtil';
-import LocationDetailsNFS from '../LocationDetailsNFS';
 import userEvent from '@testing-library/user-event';
 import { debug } from 'jest-preview';
+import { themeMount as mount, NewWrapper, updateInputText } from '../../../utils/testUtil';
+import LocationDetailsNFS from '../LocationDetailsNFS';
 
 const props = {
   details: {},
@@ -37,14 +33,9 @@ describe('class <LocationDetailsNFS />', () => {
   });
   it('should correctly translate state values to location details', async () => {
     const onChangeFn = jest.fn();
-    render(
-      <LocationDetailsNFS
-        locationType={'location-file-v1'}
-        {...props}
-        onChange={onChangeFn}
-      />,
-      { wrapper: NewWrapper() },
-    );
+    render(<LocationDetailsNFS locationType={'location-file-v1'} {...props} onChange={onChangeFn} />, {
+      wrapper: NewWrapper(),
+    });
 
     // Simuler les interactions ou les changements nécessaires pour atteindre l'état
     userEvent.type(screen.getByLabelText(/server/i), 'ep');
@@ -68,11 +59,7 @@ describe('class <LocationDetailsNFS />', () => {
     };
     const onChangeFn = jest.fn();
     const component = render(
-      <LocationDetailsNFS
-        locationType={'location-file-v1'}
-        {...props}
-        onChange={onChangeFn}
-      />,
+      <LocationDetailsNFS locationType={'location-file-v1'} {...props} onChange={onChangeFn} />,
       { wrapper: NewWrapper() },
     );
 
@@ -83,10 +70,7 @@ describe('class <LocationDetailsNFS />', () => {
     expect(onChangeFn).toHaveBeenCalled();
   });
   it('should show NFS details for empty details', () => {
-    render(
-      <LocationDetailsNFS locationType={'location-file-v1'} {...props} />,
-      { wrapper: NewWrapper() },
-    );
+    render(<LocationDetailsNFS locationType={'location-file-v1'} {...props} />, { wrapper: NewWrapper() });
 
     expect(screen.getByLabelText(/protocol/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/version/i)).toBeInTheDocument();
@@ -102,12 +86,7 @@ describe('class <LocationDetailsNFS />', () => {
       endpoint: 'tcp+v3://ep/export/path?hard&async',
     };
     render(
-      <LocationDetailsNFS
-        locationType={'location-file-v1'}
-        {...props}
-        editingExisting
-        details={locationDetails}
-      />,
+      <LocationDetailsNFS locationType={'location-file-v1'} {...props} editingExisting details={locationDetails} />,
       { wrapper: NewWrapper() },
     );
 

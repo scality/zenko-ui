@@ -7,8 +7,7 @@ import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
 import * as hooks from '../utils/hooks';
 import STSClient from '../../js/STSClient';
 
-const TEST_ROLE_ARN =
-  'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
+const TEST_ROLE_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
 
 const MOCK_STS_CREDENTIALS = {
   Credentials: {
@@ -19,13 +18,12 @@ const MOCK_STS_CREDENTIALS = {
   },
 };
 
-const mockAssumeRoleWithWebIdentity = jest
-  .fn()
-  .mockResolvedValue(MOCK_STS_CREDENTIALS);
+const mockAssumeRoleWithWebIdentity = jest.fn().mockResolvedValue(MOCK_STS_CREDENTIALS);
 
 // Mock STSClient prototype method since the module is already cached
 // from the global setup and jest.mock won't rebind existing imports.
-jest.spyOn(STSClient.prototype, 'assumeRoleWithWebIdentity')
+jest
+  .spyOn(STSClient.prototype, 'assumeRoleWithWebIdentity')
   .mockImplementation((...args) => mockAssumeRoleWithWebIdentity(...args));
 
 jest.mock('../utils/localStorage', () => ({
@@ -61,10 +59,7 @@ jest.spyOn(hooks, 'useAccounts').mockReturnValue({
   ],
 } as any);
 
-import DataServiceRoleProvider, {
-  useDataServiceRole,
-  useAssumedRole,
-} from '../DataServiceRoleProvider';
+import DataServiceRoleProvider, { useDataServiceRole, useAssumedRole } from '../DataServiceRoleProvider';
 
 const theme = coreUIAvailableThemes.darkRebrand;
 
@@ -156,11 +151,7 @@ describe('DataServiceRoleProvider', () => {
     function AssumedRoleConsumer() {
       const assumedRole = useAssumedRole();
       if (!assumedRole) return <div data-testid="loading">Loading</div>;
-      return (
-        <div data-testid="access-key">
-          {assumedRole.Credentials?.AccessKeyId}
-        </div>
-      );
+      return <div data-testid="access-key">{assumedRole.Credentials?.AccessKeyId}</div>;
     }
 
     render(
@@ -172,9 +163,7 @@ describe('DataServiceRoleProvider', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('access-key')).toHaveTextContent(
-        'ASIA_TEST_ACCESS_KEY',
-      );
+      expect(screen.getByTestId('access-key')).toHaveTextContent('ASIA_TEST_ACCESS_KEY');
     });
   });
 });

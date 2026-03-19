@@ -1,5 +1,5 @@
-import { LatestUsedCapacity } from './metrics';
-import { PromiseResult } from './promise';
+import type { LatestUsedCapacity } from './metrics';
+import type { PromiseResult } from './promise';
 
 export type AccountLatestUsedCapacityPromiseResult = {
   usedCapacity: PromiseResult<LatestUsedCapacity>;
@@ -22,9 +22,7 @@ export type AccountInfo = {
   creationDate: Date;
 };
 
-export type Account = AccountInfo &
-  AccountAssumableRole &
-  AccountLatestUsedCapacityPromiseResult;
+export type Account = AccountInfo & AccountAssumableRole & AccountLatestUsedCapacityPromiseResult;
 
 export type AccountsPromiseResult = {
   accounts: PromiseResult<Account[]>;

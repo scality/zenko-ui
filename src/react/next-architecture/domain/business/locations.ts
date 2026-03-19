@@ -1,20 +1,13 @@
 import { useQuery } from 'react-query';
-import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
-import {
-  Location,
-  LocationStorageInfos,
-  LocationsPromiseResult,
-} from '../entities/location';
-import { PromiseResult } from '../entities/promise';
-import { LatestUsedCapacity } from '../entities/metrics';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
-import {
-  useAccountCannonicalId,
-  useAccountsLocationsAndEndpoints,
-} from './accounts';
 import { useAuthGroups } from '../../../utils/hooks';
-import { IAccountsLocationsEndpointsAdapter } from '../../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import type { IAccountsLocationsEndpointsAdapter } from '../../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import type { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
+import type { Location, LocationStorageInfos, LocationsPromiseResult } from '../entities/location';
+import type { LatestUsedCapacity } from '../entities/metrics';
+import type { PromiseResult } from '../entities/promise';
+import { useAccountCannonicalId, useAccountsLocationsAndEndpoints } from './accounts';
 
 export const useLocationAndStorageInfos = ({
   locationName,
@@ -23,8 +16,9 @@ export const useLocationAndStorageInfos = ({
   locationName: string;
   accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
 }): PromiseResult<LocationStorageInfos> => {
-  const { accountsLocationsAndEndpoints, status } =
-    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
 
   if (status === 'loading' || status === 'idle') {
     return {
@@ -40,9 +34,7 @@ export const useLocationAndStorageInfos = ({
     };
   }
 
-  const location = accountsLocationsAndEndpoints?.locations?.find(
-    (l) => l.name === locationName,
-  );
+  const location = accountsLocationsAndEndpoints?.locations?.find((l) => l.name === locationName);
   const locationStorageOption = location
     ? storageOptions[location.type as unknown as keyof typeof storageOptions]
     : undefined;
@@ -77,8 +69,9 @@ export const useListLocations = ({
   accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
   metricsAdapter: IMetricsAdapter;
 }): LocationsPromiseResult => {
-  const { accountsLocationsAndEndpoints, status: locationStatus } =
-    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const { accountsLocationsAndEndpoints, status: locationStatus } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
 
   const { isStorageManager } = useAuthGroups();
 
@@ -88,10 +81,7 @@ export const useListLocations = ({
     queryFn: () => {
       return metricsAdapter.listLocationsLatestUsedCapacity(ids);
     },
-    enabled:
-      !!accountsLocationsAndEndpoints?.locations &&
-      ids.length > 0 &&
-      isStorageManager,
+    enabled: !!accountsLocationsAndEndpoints?.locations && ids.length > 0 && isStorageManager,
   });
 
   if (locationStatus === 'loading' || locationStatus === 'idle') {
@@ -166,20 +156,13 @@ export const useListLocationsForCurrentAccount = ({
   });
 
   const accountCannonicalId =
-    account === undefined || accountCannonicalIdResult.status !== 'success'
-      ? ''
-      : accountCannonicalIdResult.value;
+    account === undefined || accountCannonicalIdResult.status !== 'success' ? '' : accountCannonicalIdResult.value;
 
-  const { data: accountLocationData, status: accountLocationStatus } = useQuery(
-    {
-      queryKey: ['accountLocations', accountCannonicalId],
-      queryFn: () =>
-        metricsAdapter.listAccountLocationsLatestUsedCapacity(
-          accountCannonicalId,
-        ),
-      enabled: !!accountCannonicalId,
-    },
-  );
+  const { data: accountLocationData, status: accountLocationStatus } = useQuery({
+    queryKey: ['accountLocations', accountCannonicalId],
+    queryFn: () => metricsAdapter.listAccountLocationsLatestUsedCapacity(accountCannonicalId),
+    enabled: !!accountCannonicalId,
+  });
 
   if (account === undefined) {
     return {
@@ -233,9 +216,7 @@ export const useListLocationsForCurrentAccount = ({
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
   accountLocationsKey.forEach((locationId) => {
-    const locationDefinition = allLocationsValue.find(
-      (l) => l.id === locationId,
-    );
+    const locationDefinition = allLocationsValue.find((l) => l.id === locationId);
 
     if (locationDefinition) {
       locations[locationId] = {

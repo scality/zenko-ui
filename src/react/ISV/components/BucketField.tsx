@@ -1,22 +1,12 @@
 import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useEffect,
-  useState,
-} from 'react';
 import { Input } from '@scality/core-ui/dist/next';
-import { FieldErrors, useFieldArray, useFormContext } from 'react-hook-form';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type FieldErrors, useFieldArray, useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
-
-import { XCORE_NOT_AVAILABLE } from '../../next-architecture/ui/XCoreLibraryProvider';
-import { useXCoreLibrary } from '../../next-architecture/ui/XCoreLibraryProvider';
-import {
-  CapacityFormWithXcore,
-  CapacityFormSection,
-} from './ISVCapacityFormSection';
+import { useXCoreLibrary, XCORE_NOT_AVAILABLE } from '../../next-architecture/ui/XCoreLibraryProvider';
 import { unitChoices } from '../constants';
+import { CapacityFormSection, CapacityFormWithXcore } from './ISVCapacityFormSection';
 
 const MIN_BUCKETS = 1;
 const MAX_BUCKETS = 20;
@@ -57,10 +47,7 @@ const useBucketCountManager = ({
   const handleInputBlur = useCallback(() => {
     const parsedValue = parseInt(inputValue, 10);
     const valueWithFallback = isNaN(parsedValue) ? MIN_BUCKETS : parsedValue;
-    const clampedValue = Math.max(
-      MIN_BUCKETS,
-      Math.min(valueWithFallback, MAX_BUCKETS),
-    );
+    const clampedValue = Math.max(MIN_BUCKETS, Math.min(valueWithFallback, MAX_BUCKETS));
 
     setInputValue(clampedValue.toString());
     if (clampedValue !== initialValue) {
@@ -93,9 +80,7 @@ interface FormValues {
   bucketNumber?: number;
 }
 
-const defaultBucketNameTooltip = (
-  <Text>Choose an unique name for your bucket</Text>
-);
+const defaultBucketNameTooltip = <Text>Choose an unique name for your bucket</Text>;
 
 const BucketContainer = styled.div`
   background-color: ${({ theme }) => theme.backgroundLevel2};
@@ -113,13 +98,7 @@ const BucketNameFormGroup: React.FC<{
   bucketNamePlaceholder: string;
   bucketNumber: number;
   bucketNameTooltip: React.ReactElement;
-}> = ({
-  index,
-  errors,
-  bucketNamePlaceholder,
-  bucketNumber,
-  bucketNameTooltip,
-}) => {
+}> = ({ index, errors, bucketNamePlaceholder, bucketNumber, bucketNameTooltip }) => {
   const { register } = useFormContext<FormValues>();
 
   return (
@@ -175,10 +154,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
 
       if (targetNumber < fields.length) {
         const bucketsToRemove = fields.length - targetNumber;
-        const indicesToRemove = Array.from(
-          { length: bucketsToRemove },
-          (_, i) => fields.length - 1 - i,
-        );
+        const indicesToRemove = Array.from({ length: bucketsToRemove }, (_, i) => fields.length - 1 - i);
         remove(indicesToRemove);
       } else {
         const newFields = Array(targetNumber - fields.length).fill({
@@ -192,11 +168,10 @@ const BucketField: React.FC<BucketFieldProps> = ({
     [fields.length, append, remove, platform],
   );
 
-  const { inputValue, handleBucketNumberChange, handleInputBlur } =
-    useBucketCountManager({
-      initialValue: fields.length,
-      onCountChange: adjustBucketNumber,
-    });
+  const { inputValue, handleBucketNumberChange, handleInputBlur } = useBucketCountManager({
+    initialValue: fields.length,
+    onCountChange: adjustBucketNumber,
+  });
 
   useEffect(() => {
     if (shouldFocusRef.current) {
@@ -205,16 +180,11 @@ const BucketField: React.FC<BucketFieldProps> = ({
     }
   }, [fields.length]);
 
-  const bucketNamePlaceholder = useMemo(
-    () => `${platform}-bucket-name`,
-    [platform],
-  );
+  const bucketNamePlaceholder = useMemo(() => `${platform}-bucket-name`, [platform]);
 
   const xCoreLibrary = useXCoreLibrary();
   const { useClusterCapacity } =
-    xCoreLibrary === XCORE_NOT_AVAILABLE
-      ? { useClusterCapacity: undefined }
-      : xCoreLibrary;
+    xCoreLibrary === XCORE_NOT_AVAILABLE ? { useClusterCapacity: undefined } : xCoreLibrary;
 
   const shouldShowCapacity = showCapacity ?? platform === 'veeam-vbr';
 
@@ -225,11 +195,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
       }
 
       return useClusterCapacity ? (
-        <CapacityFormWithXcore
-          useClusterCapacity={useClusterCapacity}
-          index={index}
-          bucketNumber={fields.length}
-        />
+        <CapacityFormWithXcore useClusterCapacity={useClusterCapacity} index={index} bucketNumber={fields.length} />
       ) : (
         <CapacityFormSection index={index} />
       );
@@ -274,13 +240,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
       ));
     }
     return null;
-  }, [
-    fields,
-    errors,
-    bucketNamePlaceholder,
-    bucketNameTooltip,
-    renderCapacitySection,
-  ]);
+  }, [fields, errors, bucketNamePlaceholder, bucketNameTooltip, renderCapacitySection]);
 
   return (
     <>

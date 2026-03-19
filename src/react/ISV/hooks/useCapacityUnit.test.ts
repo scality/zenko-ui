@@ -1,5 +1,5 @@
-import { useCapacityUnit, getCapacityBytes } from './useCapacityUnit';
 import { renderHook } from '@testing-library/react-hooks';
+import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
 
 const BYTES_IN_GIB = '1073741824';
 const BYTES_IN_TIB = '1099511627776';

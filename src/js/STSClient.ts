@@ -9,11 +9,7 @@ export default class STSClient {
     });
   }
 
-  assumeRoleWithWebIdentity(params: {
-    idToken: string;
-    roleArn: string;
-    RoleSessionName: string;
-  }) {
+  assumeRoleWithWebIdentity(params: { idToken: string; roleArn: string; RoleSessionName: string }) {
     const { idToken, roleArn, RoleSessionName } = params;
     const p = {
       DurationSeconds: 900, // 15 minutes

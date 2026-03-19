@@ -14,18 +14,11 @@ describe('LocationDetailsTapeMiria', () => {
     };
     const onChange = jest.fn();
     testRender(
-      <LocationDetailsTapeMiria
-        locationType="location-miria-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
+      <LocationDetailsTapeMiria locationType="location-miria-v1" details={sampleDetails} onChange={onChange} />,
     );
 
     // E
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /endpoint/i }),
-      'ws://path.to.my.miria',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /endpoint/i }), 'ws://path.to.my.miria');
 
     // V
     expect(onChange).toHaveBeenCalledWith({
@@ -46,18 +39,11 @@ describe('LocationDetailsTapeMiria', () => {
     };
     const onChange = jest.fn();
     testRender(
-      <LocationDetailsTapeMiria
-        locationType="location-miria-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
+      <LocationDetailsTapeMiria locationType="location-miria-v1" details={sampleDetails} onChange={onChange} />,
     );
 
     // E
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /username/i }),
-      'testuser',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /username/i }), 'testuser');
 
     // V
     expect(onChange).toHaveBeenCalledWith({
@@ -78,11 +64,7 @@ describe('LocationDetailsTapeMiria', () => {
     };
     const onChange = jest.fn();
     testRender(
-      <LocationDetailsTapeMiria
-        locationType="location-miria-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
+      <LocationDetailsTapeMiria locationType="location-miria-v1" details={sampleDetails} onChange={onChange} />,
     );
 
     // E
@@ -107,18 +89,11 @@ describe('LocationDetailsTapeMiria', () => {
     };
     const onChange = jest.fn();
     testRender(
-      <LocationDetailsTapeMiria
-        locationType="location-miria-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
+      <LocationDetailsTapeMiria locationType="location-miria-v1" details={sampleDetails} onChange={onChange} />,
     );
 
     // E
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /Atempo Miria Repository/i }),
-      'testRepo',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /Atempo Miria Repository/i }), 'testRepo');
 
     // V
     expect(onChange).toHaveBeenCalledWith({
@@ -138,11 +113,7 @@ describe('LocationDetailsTapeMiria', () => {
       password: '',
     };
     testRender(
-      <LocationDetailsTapeMiria
-        locationType="location-miria-v1"
-        details={sampleDetails}
-        onChange={jest.fn()}
-      />,
+      <LocationDetailsTapeMiria locationType="location-miria-v1" details={sampleDetails} onChange={jest.fn()} />,
     );
 
     // E
@@ -163,11 +134,7 @@ describe('LocationDetailsTapeMiria', () => {
       password: '',
     };
     testRender(
-      <LocationDetailsTapeMiria
-        locationType="location-miria-v1"
-        details={sampleDetails}
-        onChange={jest.fn()}
-      />,
+      <LocationDetailsTapeMiria locationType="location-miria-v1" details={sampleDetails} onChange={jest.fn()} />,
     );
 
     // E - trigger validation by blurring fields
@@ -187,9 +154,7 @@ describe('LocationDetailsTapeMiria', () => {
     expect(screen.getByText('Endpoint is required')).toBeInTheDocument();
     expect(screen.getByText('Username is required')).toBeInTheDocument();
     expect(screen.getByText('Password is required')).toBeInTheDocument();
-    expect(
-      screen.getByText('Atempo Miria Repository is required'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Atempo Miria Repository is required')).toBeInTheDocument();
   });
 
   it('should properly handle editing of existing location', () => {
@@ -211,15 +176,9 @@ describe('LocationDetailsTapeMiria', () => {
     );
 
     // V
-    expect(screen.getByRole('textbox', { name: /endpoint/i })).toHaveValue(
-      'https://example.com',
-    );
-    expect(screen.getByRole('textbox', { name: /username/i })).toHaveValue(
-      'user',
-    );
-    expect(
-      screen.getByRole('textbox', { name: /Atempo Miria Repository/i }),
-    ).toHaveValue('repo1');
+    expect(screen.getByRole('textbox', { name: /endpoint/i })).toHaveValue('https://example.com');
+    expect(screen.getByRole('textbox', { name: /username/i })).toHaveValue('user');
+    expect(screen.getByRole('textbox', { name: /Atempo Miria Repository/i })).toHaveValue('repo1');
     // Password should be empty even if a hashed password was provided
     expect(screen.getByLabelText(/password/i)).toHaveValue('');
   });
@@ -235,11 +194,7 @@ describe('LocationDetailsTapeMiria', () => {
     };
     const onChange = jest.fn();
     testRender(
-      <LocationDetailsTapeMiria
-        locationType="location-miria-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
+      <LocationDetailsTapeMiria locationType="location-miria-v1" details={sampleDetails} onChange={onChange} />,
     );
 
     // E
@@ -260,11 +215,7 @@ describe('LocationDetailsTapeMiria', () => {
     };
 
     testRender(
-      <LocationDetailsTapeMiria
-        locationType="location-miria-v1"
-        details={sampleDetails}
-        onChange={jest.fn()}
-      />,
+      <LocationDetailsTapeMiria locationType="location-miria-v1" details={sampleDetails} onChange={jest.fn()} />,
     );
 
     // V

@@ -1,12 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { mockOffsetSize, mockShellHooks, NewWrapper } from '../../utils/testUtil';
 import TLSVerificationUpdater from '../TLSVerificationUpdater';
-import { ZenkoCR } from '../Truststore';
-import {
-  NewWrapper,
-  mockOffsetSize,
-  mockShellHooks,
-} from '../../utils/testUtil';
+import type { ZenkoCR } from '../Truststore';
 
 // Mock useDeployedMetalk8sInstances
 jest.mock('../../next-architecture/ui/ConfigProvider', () => ({
@@ -30,8 +26,7 @@ describe('TLSVerificationUpdater', () => {
     skippedStatus: () => screen.getByText(/^Skipped$/i),
     loadingStatus: () => screen.getByText(/^Loading\.\.\.$/i),
     editButton: () => screen.getByRole('button', { name: /Open Modal/i }),
-    modalTitle: (action: 'Skip' | 'Activate') =>
-      screen.getByText(`${action} TLS Verification?`),
+    modalTitle: (action: 'Skip' | 'Activate') => screen.getByText(`${action} TLS Verification?`),
   };
 
   // Mock Zenko CR data with TLS verification active (has egress)
@@ -91,13 +86,9 @@ describe('TLSVerificationUpdater', () => {
 
   describe('Basic render', () => {
     it('should render when active: Active label + button enabled', () => {
-      render(
-        <TLSVerificationUpdater
-          zenkoCR={mockZenkoCRWithTLSActive}
-          isLoadingZenkoCR={false}
-        />,
-        { wrapper: NewWrapper() },
-      );
+      render(<TLSVerificationUpdater zenkoCR={mockZenkoCRWithTLSActive} isLoadingZenkoCR={false} />, {
+        wrapper: NewWrapper(),
+      });
 
       expect(selectors.tlsVerificationLabel()).toBeInTheDocument();
       expect(selectors.activeStatus()).toBeInTheDocument();
@@ -105,13 +96,9 @@ describe('TLSVerificationUpdater', () => {
     });
 
     it('should render when skipped: Skipped label + button enabled', () => {
-      render(
-        <TLSVerificationUpdater
-          zenkoCR={mockZenkoCRWithTLSSkipped}
-          isLoadingZenkoCR={false}
-        />,
-        { wrapper: NewWrapper() },
-      );
+      render(<TLSVerificationUpdater zenkoCR={mockZenkoCRWithTLSSkipped} isLoadingZenkoCR={false} />, {
+        wrapper: NewWrapper(),
+      });
 
       expect(selectors.tlsVerificationLabel()).toBeInTheDocument();
       expect(selectors.skippedStatus()).toBeInTheDocument();
@@ -119,13 +106,9 @@ describe('TLSVerificationUpdater', () => {
     });
 
     it('should render when loading ZenkoCR: Loading label + button disabled', () => {
-      render(
-        <TLSVerificationUpdater
-          zenkoCR={mockZenkoCRWithTLSActive}
-          isLoadingZenkoCR={true}
-        />,
-        { wrapper: NewWrapper() },
-      );
+      render(<TLSVerificationUpdater zenkoCR={mockZenkoCRWithTLSActive} isLoadingZenkoCR={true} />, {
+        wrapper: NewWrapper(),
+      });
 
       expect(selectors.tlsVerificationLabel()).toBeInTheDocument();
       expect(selectors.loadingStatus()).toBeInTheDocument();
@@ -135,13 +118,9 @@ describe('TLSVerificationUpdater', () => {
 
   describe('Modal opening', () => {
     it('should open Skip modal when clicking edit button and TLS is active', async () => {
-      render(
-        <TLSVerificationUpdater
-          zenkoCR={mockZenkoCRWithTLSActive}
-          isLoadingZenkoCR={false}
-        />,
-        { wrapper: NewWrapper() },
-      );
+      render(<TLSVerificationUpdater zenkoCR={mockZenkoCRWithTLSActive} isLoadingZenkoCR={false} />, {
+        wrapper: NewWrapper(),
+      });
 
       await userEvent.click(selectors.editButton());
 
@@ -151,13 +130,9 @@ describe('TLSVerificationUpdater', () => {
     });
 
     it('should open Activate modal when clicking edit button and TLS is skipped', async () => {
-      render(
-        <TLSVerificationUpdater
-          zenkoCR={mockZenkoCRWithTLSSkipped}
-          isLoadingZenkoCR={false}
-        />,
-        { wrapper: NewWrapper() },
-      );
+      render(<TLSVerificationUpdater zenkoCR={mockZenkoCRWithTLSSkipped} isLoadingZenkoCR={false} />, {
+        wrapper: NewWrapper(),
+      });
 
       await userEvent.click(selectors.editButton());
 

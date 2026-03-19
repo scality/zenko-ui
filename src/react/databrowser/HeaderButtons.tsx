@@ -1,10 +1,10 @@
-import { matchPath, useLocation, useParams } from 'react-router';
+import { Icon } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { useListObjects } from '@scality/data-browser-library';
+import { matchPath, useLocation, useParams } from 'react-router';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { ButtonsContainer } from '../ui-elements/Container';
 import { usePrefixWithSlash } from '../utils/hooks';
-import { Icon } from '@scality/core-ui';
-import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import { useListObjects } from '@scality/data-browser-library';
 
 export function RefreshButton() {
   const params = useParams<{ bucketName?: string }>();
@@ -12,7 +12,7 @@ export function RefreshButton() {
   const prefixWithSlash = usePrefixWithSlash();
   const config = useConfig();
   const isBrowsingObjects = !!matchPath(
-    config.basePath + '/accounts/:accountName/buckets/:bucketName/objects',
+    `${config.basePath}/accounts/:accountName/buckets/:bucketName/objects`,
     pathname,
   );
 
@@ -27,7 +27,13 @@ export function RefreshButton() {
     }
   };
 
-  return <Button icon={<Icon name="Sync" />} tooltip={{ overlay: 'Refresh data browser', placement: 'right' }} onClick={handleRefreshClick} />;
+  return (
+    <Button
+      icon={<Icon name="Sync" />}
+      tooltip={{ overlay: 'Refresh data browser', placement: 'right' }}
+      onClick={handleRefreshClick}
+    />
+  );
 }
 export default function Buttons() {
   return (

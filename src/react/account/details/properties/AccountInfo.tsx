@@ -1,31 +1,22 @@
-import {
-  FormattedDateTime,
-  Icon,
-  Modal,
-  Wrap,
-  spacing,
-} from '@scality/core-ui';
+import { FormattedDateTime, Icon, Modal, spacing, Wrap } from '@scality/core-ui';
 
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { CopyButton } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate, useShellHooks } from '@scality/module-federation';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import styled from 'styled-components';
-
-import { useState } from 'react';
-import { Account } from '../../../../types/account';
+import type { Account } from '../../../../types/account';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { useManagementClient } from '../../../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
-
-import { CopyButton } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { removeRoleArnStored } from '../../../utils/localStorage';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useShellHooks } from '@scality/module-federation';
 
 const TableContainer = styled.div`
   display: flex;
@@ -42,10 +33,10 @@ function DeleteAccountButtonAndModal({ account }: Props) {
   const queryClient = useQueryClient();
   const rolePathName = useRolePathName();
 
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } =
-    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const { refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
   const { useAuth } = useShellHooks();
@@ -56,18 +47,12 @@ function DeleteAccountButtonAndModal({ account }: Props) {
       const client = notFalsyTypeGuard(managementClient);
       client.setToken(await getToken());
       return client
-        .deleteConfigurationOverlayUser(
-          instanceId,
-          undefined,
-          account.Name,
-          rolePathName,
-        )
+        .deleteConfigurationOverlayUser(instanceId, undefined, account.Name, rolePathName)
         .catch(async (error: Response) => {
           if (error.status >= 400 && error.status < 500) {
             if (error.status === 409) {
               throw {
-                message:
-                  'Unable to delete the account due to the presence of associated resources.',
+                message: 'Unable to delete the account due to the presence of associated resources.',
               };
             }
             throw await error.json();
@@ -113,8 +98,7 @@ function DeleteAccountButtonAndModal({ account }: Props) {
         >
           {
             //@ts-expect-error fix this when you are working on it
-            deleteMutation.error?.message ||
-              'Deletion of the account failed, please retry.'
+            deleteMutation.error?.message || 'Deletion of the account failed, please retry.'
           }
         </Modal>
       )}
@@ -122,10 +106,7 @@ function DeleteAccountButtonAndModal({ account }: Props) {
         show={isModalOpened}
         cancel={() => setIsModalOpened(false)}
         approve={() => deleteMutation.mutate()}
-        isLoading={
-          deleteMutation.isLoading ||
-          refetchAccountsLocationsEndpointsMutation.isLoading
-        }
+        isLoading={deleteMutation.isLoading || refetchAccountsLocationsEndpointsMutation.isLoading}
         titleText={`Are you sure you want to delete account: ${account.Name} ?`}
       />
       <Button
@@ -174,10 +155,7 @@ function AccountInfo({ account }: Props) {
           <T.Row>
             <T.Key> Creation Date </T.Key>
             <T.Value>
-              <FormattedDateTime
-                format="date-time"
-                value={new Date(account.CreationDate)}
-              />
+              <FormattedDateTime format="date-time" value={new Date(account.CreationDate)} />
             </T.Value>
           </T.Row>
           {/* We have to hide this two fields until the information is ready from GetRolesForWebIdentity() */}

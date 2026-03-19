@@ -1,9 +1,11 @@
 import { Icon, Loader } from '@scality/core-ui';
+import { Tabs } from '@scality/core-ui/dist/next';
 import { useReducer } from 'react';
+import { useQuery } from 'react-query';
 import { useParams } from 'react-router';
 import { useTheme } from 'styled-components';
-import { useQuery } from 'react-query';
 import { useIAMClient } from '../../IAMProvider';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import {
   getAccountSeedsQuery,
   getListAttachedUserPoliciesQuery,
@@ -14,20 +16,10 @@ import {
   getListUsersQuery,
   getUserListGroupsQuery,
 } from '../../queries';
-import { Tabs } from '@scality/core-ui/dist/next';
 import { useQueryParams } from '../../utils/hooks';
-import {
-  AWS_PAGINATED_QUERY,
-  useAwsPaginatedEntities,
-} from '../../utils/IAMhooks';
-import { AttachmentTable, AttachmentTableProps } from './AttachmentTable';
-import {
-  AttachableEntity,
-  AttachmentOperation,
-  EntityType,
-  ResourceType,
-} from './AttachmentTypes';
-import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { type AWS_PAGINATED_QUERY, useAwsPaginatedEntities } from '../../utils/IAMhooks';
+import { AttachmentTable, type AttachmentTableProps } from './AttachmentTable';
+import type { AttachableEntity, AttachmentOperation, EntityType, ResourceType } from './AttachmentTypes';
 
 type TableProxyProps<
   ENTITIES_API_RESPONSE extends {
@@ -36,17 +28,9 @@ type TableProxyProps<
   ATTACHED_ENTITIES_API_RESPONSE extends {
     Marker?: string;
   },
-> = Omit<
-  AttachmentTableProps<ENTITIES_API_RESPONSE>,
-  'initiallyAttachedEntities'
-> & {
-  getAttachedEntitesFromResult: (
-    response: ATTACHED_ENTITIES_API_RESPONSE,
-  ) => AttachableEntity[];
-  getInitiallyAttachedEntitesQuery: () => AWS_PAGINATED_QUERY<
-    ATTACHED_ENTITIES_API_RESPONSE,
-    AttachableEntity
-  >;
+> = Omit<AttachmentTableProps<ENTITIES_API_RESPONSE>, 'initiallyAttachedEntities'> & {
+  getAttachedEntitesFromResult: (response: ATTACHED_ENTITIES_API_RESPONSE) => AttachableEntity[];
+  getInitiallyAttachedEntitesQuery: () => AWS_PAGINATED_QUERY<ATTACHED_ENTITIES_API_RESPONSE, AttachableEntity>;
 };
 
 const AttachmentTableProxy = <
@@ -65,10 +49,7 @@ const AttachmentTableProxy = <
   initialAttachmentOperations,
   entity,
 }: TableProxyProps<ENTITIES_API_RESPONSE, ATTACHED_ENTITIES_API_RESPONSE>) => {
-  const { data, status } = useAwsPaginatedEntities(
-    getInitiallyAttachedEntitesQuery(),
-    getAttachedEntitesFromResult,
-  );
+  const { data, status } = useAwsPaginatedEntities(getInitiallyAttachedEntitesQuery(), getAttachedEntitesFromResult);
 
   if (status === 'idle' || status === 'loading') {
     return (
@@ -79,10 +60,7 @@ const AttachmentTableProxy = <
   }
   if (status === 'error')
     return (
-      <>
-        An error occured while loading entities, please retry later and if the
-        error persists, contact your support.
-      </>
+      <>An error occured while loading entities, please retry later and if the error persists, contact your support.</>
     );
   ///TODO handle loading and errors
   return (
@@ -106,9 +84,7 @@ const AttachmentTabs = ({
   resourceType: ResourceType;
   resourceId: string;
   resourceName: string;
-  onAttachmentsOperationsChanged: (
-    attachmentOperations: AttachmentOperation[],
-  ) => void;
+  onAttachmentsOperationsChanged: (attachmentOperations: AttachmentOperation[]) => void;
 }) => {
   const query = useQueryParams();
   const theme = useTheme();
@@ -122,12 +98,7 @@ const AttachmentTabs = ({
       action: { type: EntityType; attachmentOperations: AttachmentOperation[] },
     ) => {
       const newState = { ...state, [action.type]: action.attachmentOperations };
-      onAttachmentsOperationsChanged(
-        Object.values(newState).reduce(
-          (agg, current) => [...agg, ...current],
-          [],
-        ),
-      );
+      onAttachmentsOperationsChanged(Object.values(newState).reduce((agg, current) => [...agg, ...current], []));
       return newState;
     },
     { user: [], role: [], policy: [], group: [] },
@@ -141,10 +112,7 @@ const AttachmentTabs = ({
   };
 
   const { data: accountSeeds } = useQuery(getAccountSeedsQuery(basePath));
-  const policyRolePair =
-    accountSeeds?.filter(
-      (seed) => seed.permissionPolicy.policyName === resourceName,
-    ) || [];
+  const policyRolePair = accountSeeds?.filter((seed) => seed.permissionPolicy.policyName === resourceName) || [];
 
   if (resourceType === 'user') {
     return (
@@ -174,11 +142,7 @@ const AttachmentTabs = ({
               );
             }}
             getInitiallyAttachedEntitesQuery={() =>
-              getListAttachedUserPoliciesQuery(
-                resourceId,
-                accountName,
-                IAMClient,
-              )
+              getListAttachedUserPoliciesQuery(resourceId, accountName, IAMClient)
             }
             getAttachedEntitesFromResult={(response) => {
               return (
@@ -261,7 +225,6 @@ const AttachmentTabs = ({
               //@ts-expect-error fix this when you are working on it
               getListUsersQuery(accountName, IAMClient)
             }
-
             getEntitiesFromResult={(response) => {
               return response.Users.map((user) => {
                 return {
@@ -271,9 +234,7 @@ const AttachmentTabs = ({
                 };
               });
             }}
-            getInitiallyAttachedEntitesQuery={() =>
-              getListEntitiesForPolicyQuery(resourceId, IAMClient)
-            }
+            getInitiallyAttachedEntitesQuery={() => getListEntitiesForPolicyQuery(resourceId, IAMClient)}
             getAttachedEntitesFromResult={(response) => {
               return (
                 response.PolicyUsers?.map((user) => {
@@ -316,9 +277,7 @@ const AttachmentTabs = ({
                 }) || []
               );
             }}
-            getInitiallyAttachedEntitesQuery={() =>
-              getListEntitiesForPolicyQuery(resourceId, IAMClient)
-            }
+            getInitiallyAttachedEntitesQuery={() => getListEntitiesForPolicyQuery(resourceId, IAMClient)}
             getAttachedEntitesFromResult={(response) => {
               return (
                 response.PolicyGroups?.map((group) => {
@@ -362,15 +321,11 @@ const AttachmentTabs = ({
                 }) || []
               );
             }}
-            getInitiallyAttachedEntitesQuery={() =>
-              getListEntitiesForPolicyQuery(resourceId, IAMClient)
-            }
+            getInitiallyAttachedEntitesQuery={() => getListEntitiesForPolicyQuery(resourceId, IAMClient)}
             getAttachedEntitesFromResult={(response) => {
               return (
                 response.PolicyRoles?.map((role) => {
-                  const disableDetach = !!policyRolePair.find(
-                    (pair) => pair.role.roleName === role.RoleName,
-                  );
+                  const disableDetach = !!policyRolePair.find((pair) => pair.role.roleName === role.RoleName);
                   return {
                     name: role.RoleName || '',
                     id: role.RoleName || '',
@@ -391,7 +346,6 @@ const AttachmentTabs = ({
     );
   }
   return null;
-
 };
 
 export default AttachmentTabs;

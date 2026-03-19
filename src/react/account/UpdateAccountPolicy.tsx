@@ -1,19 +1,15 @@
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import type { MouseEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
-import { useIAMClient } from '../IAMProvider';
-import {
-  getListPoliciesQuery,
-  getListPolicyVersionsQuery,
-  getPolicyQuery,
-} from '../queries';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import Loader from '../ui-elements/Loader';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useIAMClient } from '../IAMProvider';
+import { getListPoliciesQuery, getListPolicyVersionsQuery, getPolicyQuery } from '../queries';
+import Loader from '../ui-elements/Loader';
 import { regexArn } from '../utils/hooks';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
-import { MouseEvent } from 'react';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type FormValues = {
   policyName: string;
@@ -47,11 +43,9 @@ const UpdateAccountPolicy = () => {
   const { data: policyVersions, status: listPolicyVersionsStatus } = useQuery(
     getListPolicyVersionsQuery(policyArn, IAMClient),
   );
-  const isLatestVersionTheDefaultOne =
-    policyVersions?.Versions?.[0].IsDefaultVersion || false;
+  const isLatestVersionTheDefaultOne = policyVersions?.Versions?.[0].IsDefaultVersion || false;
 
-  const isReadOnly =
-    policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
+  const isReadOnly = policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
 
   const queryClient = useQueryClient();
   const { data: policyResult, status } = useQuery({
@@ -78,12 +72,8 @@ const UpdateAccountPolicy = () => {
     },
     {
       onSuccess: () => {
-        queryClient.refetchQueries(
-          getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient),
-        );
-        queryClient.refetchQueries(
-          getListPolicyVersionsQuery(policyArn, IAMClient),
-        );
+        queryClient.refetchQueries(getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient));
+        queryClient.refetchQueries(getListPolicyVersionsQuery(policyArn, IAMClient));
         navigate(`/accounts/${account?.Name}/policies`);
       },
       onError: (error) =>
@@ -108,9 +98,7 @@ const UpdateAccountPolicy = () => {
 
   if (
     (!policyResult && (status === 'idle' || status === 'loading')) ||
-    (!policyVersions &&
-      (listPolicyVersionsStatus === 'idle' ||
-        listPolicyVersionsStatus === 'loading'))
+    (!policyVersions && (listPolicyVersionsStatus === 'idle' || listPolicyVersionsStatus === 'loading'))
   ) {
     return (
       <Loader>

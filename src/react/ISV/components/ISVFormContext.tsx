@@ -1,21 +1,12 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-  useEffect,
-  ReactNode,
-} from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type { UseFormReturn } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
-import { UseFormReturn } from 'react-hook-form';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
+import type { Account } from '../../next-architecture/domain/entities/account';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
-import { useIAMUser, IAMUser } from '../hooks/useIAMUser';
-import { Account } from '../../next-architecture/domain/entities/account';
-import { ISVPlatform, FormData } from '../engine/types';
+import type { FormData, ISVPlatform } from '../engine/types';
+import { type IAMUser, useIAMUser } from '../hooks/useIAMUser';
 
 type AccountsStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -64,11 +55,7 @@ type ISVFormProviderProps = {
   children: ReactNode;
 };
 
-export const ISVFormProvider = ({
-  platform,
-  formMethods,
-  children,
-}: ISVFormProviderProps) => {
+export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProviderProps) => {
   const { setValue, watch } = formMethods;
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
@@ -90,9 +77,7 @@ export const ISVFormProvider = ({
 
   const accounts = useMemo(() => {
     if (accountsResult.status === 'success') {
-      return accountsResult.value.filter(
-        (account) => account.name !== 'scality-internal-services',
-      );
+      return accountsResult.value.filter((account) => account.name !== 'scality-internal-services');
     }
     return [];
   }, [accountsResult]);
@@ -104,24 +89,14 @@ export const ISVFormProvider = ({
   }, [accounts, accountName]);
 
   // IAM User hook
-  const {
-    isIAMUserExist,
-    IAMUsers,
-    getIAMUsersMutation,
-    accessKeys,
-    accessKeysStatus,
-  } = useIAMUser({
+  const { isIAMUserExist, IAMUsers, getIAMUsersMutation, accessKeys, accessKeysStatus } = useIAMUser({
     IAMUserName,
     onShouldGenerateKey: (shouldGenerateKey) => {
       setValue('generateKey', shouldGenerateKey);
     },
   });
 
-  const iamUsersStatus = getIAMUsersMutation.status as
-    | 'idle'
-    | 'loading'
-    | 'success'
-    | 'error';
+  const iamUsersStatus = getIAMUsersMutation.status as 'idle' | 'loading' | 'success' | 'error';
 
   // Reset IAM fields
   const resetIAMFields = useCallback(() => {
@@ -135,9 +110,7 @@ export const ISVFormProvider = ({
     (value: string) => {
       setIsAccordionExpanded(false);
 
-      const roleArn = accounts.find(
-        (option) => option.name === value,
-      )?.preferredAssumableRoleArn;
+      const roleArn = accounts.find((option) => option.name === value)?.preferredAssumableRoleArn;
 
       getIAMUsersMutation.mutate(roleArn, {
         onSuccess: (data) => {
@@ -177,13 +150,7 @@ export const ISVFormProvider = ({
 
     onAccountSelected(paramsAccountName);
     iamRequestSentRef.current = true;
-  }, [
-    paramsAccountName,
-    accounts,
-    accountNameType,
-    getIAMUsersMutation.status,
-    onAccountSelected,
-  ]);
+  }, [paramsAccountName, accounts, accountNameType, getIAMUsersMutation.status, onAccountSelected]);
 
   const fetchIAMUsers = useCallback(
     (roleArn: string | undefined) => {
@@ -212,7 +179,5 @@ export const ISVFormProvider = ({
     resetIAMFields,
   };
 
-  return (
-    <ISVFormContext.Provider value={value}>{children}</ISVFormContext.Provider>
-  );
+  return <ISVFormContext.Provider value={value}>{children}</ISVFormContext.Provider>;
 };

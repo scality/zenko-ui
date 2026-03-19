@@ -1,18 +1,21 @@
-import { PropsWithChildren, ReactNode, JSX } from 'react';
+import { ToastProvider } from '@scality/core-ui';
+import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
+import { DataBrowserProvider } from '@scality/data-browser-library';
+import { ShellHooksProvider } from '@scality/module-federation';
+import { fireEvent, render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { JSX, PropsWithChildren, ReactNode } from 'react';
 import { QueryClient, setLogger } from 'react-query';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { ThemeProvider } from 'styled-components';
-import IAMClient from '../../js/IAMClient';
-
-import { ToastProvider } from '@scality/core-ui';
-import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
-import { fireEvent, render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { QueryClientProvider } from '../../QueryClientProvider';
 import { VEEAM_FEATURE, XDM_FEATURE } from '../../js/config';
+import IAMClient from '../../js/IAMClient';
 import { UiFacingApiWrapper } from '../../js/managementClient';
 import { Configuration } from '../../js/managementClient/configuration';
+import { QueryClientProvider } from '../../QueryClientProvider';
 import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
+import ErrorProvider from '../ErrorProvider';
+import { IAMProvider } from '../IAMProvider';
 import { _ManagementContext } from '../ManagementProvider';
 import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
@@ -20,14 +23,10 @@ import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
 import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
 import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
-import { DataBrowserProvider } from '@scality/data-browser-library';
-import { IAMProvider } from '../IAMProvider';
-import { ZenkoProvider } from '../ZenkoProvider';
 import Activity from '../ui-elements/Activity';
 import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
-import ErrorProvider from '../ErrorProvider';
 import ReauthDialog from '../ui-elements/ReauthDialog';
-import { ShellHooksProvider } from '@scality/module-federation';
+import { ZenkoProvider } from '../ZenkoProvider';
 
 export const testS3Config = {
   endpoint: 'http://testendpoint',
@@ -124,7 +123,7 @@ setLogger({
   log: console.log,
   warn: console.warn,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  error: () => { },
+  error: () => {},
 });
 
 export const zenkoUITestConfig = {
@@ -201,13 +200,9 @@ export const mockShellHooks = {
 export const mockComponent = jest.fn(() => <div>Mocked Component</div>);
 
 export const mockShellAlerts = {
-  AlertsProvider: ({
-    alertManagerUrl,
-    children,
-  }: {
-    alertManagerUrl: string;
-    children: JSX.Element;
-  }) => <>{children}</>,
+  AlertsProvider: ({ alertManagerUrl, children }: { alertManagerUrl: string; children: JSX.Element }) => (
+    <>{children}</>
+  ),
   alertHooks: {
     useAlerts: jest.fn(),
     useHighestSeverityAlerts: jest.fn(),
@@ -237,15 +232,10 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorProvider>
-        <ShellHooksProvider
-          shellHooks={mockShellHooks}
-          shellAlerts={mockShellAlerts}
-        >
+        <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
           <ThemeProvider theme={theme}>
             <MemoryRouter>
-              <_ConfigContext.Provider
-                value={zenkoUITestConfig}
-              >
+              <_ConfigContext.Provider value={zenkoUITestConfig}>
                 <_DataServiceRoleContext.Provider
                   //@ts-expect-error fix this when you are working on it
                   value={{ role, setRole: jest.fn() }}
@@ -259,9 +249,7 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
                       <MetricsAdapterProvider>
                         <AccountsLocationsEndpointsAdapterProvider>
                           <AccessibleAccountsAdapterProvider>
-                            <TestProvidersWrapper>
-                              {children}
-                            </TestProvidersWrapper>
+                            <TestProvidersWrapper>{children}</TestProvidersWrapper>
                           </AccessibleAccountsAdapterProvider>
                         </AccountsLocationsEndpointsAdapterProvider>
                       </MetricsAdapterProvider>
@@ -361,15 +349,10 @@ export const testRender = (component: JSX.Element) => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <ErrorProvider>
-            <ShellHooksProvider
-              shellHooks={mockShellHooks}
-              shellAlerts={mockShellAlerts}
-            >
+            <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
               <ToastProvider>
                 <MemoryRouter>
-                  <_ConfigContext.Provider
-                    value={zenkoUITestConfig}
-                  >
+                  <_ConfigContext.Provider value={zenkoUITestConfig}>
                     <_DataServiceRoleContext.Provider
                       //@ts-expect-error fix this when you are working on it
                       value={{ role, setRole: jest.fn() }}
@@ -443,9 +426,7 @@ export function checkBox(component, name, checked) {
   fireEvent.change(checkbox, { name, checked });
 }
 export function editListEntry(component, value, index) {
-  const input = component.querySelector(
-    `input[name="bootstrapList[${index}]"]`,
-  );
+  const input = component.querySelector(`input[name="bootstrapList[${index}]"]`);
   if (!input) {
     throw new Error(`Input with name "${name}" not found`);
   }
@@ -459,18 +440,12 @@ export function delListEntry(component, index) {
   const button = component.querySelector(`button[name="delbtn${index}"]`);
   fireEvent.click(button);
 }
-export function testTableRow(
-  T,
-  rowWrapper,
-  { key, value, extraCellComponent },
-) {
+export function testTableRow(T, rowWrapper, { key, value, extraCellComponent }) {
   expect(rowWrapper.find(T.Key).text()).toContain(key);
   expect(rowWrapper.find(T.Value).text()).toContain(value);
 
   if (extraCellComponent) {
-    expect(rowWrapper.find(T.ExtraCell).find(extraCellComponent)).toHaveLength(
-      1,
-    );
+    expect(rowWrapper.find(T.ExtraCell).find(extraCellComponent)).toHaveLength(1);
   } else {
     expect(rowWrapper.find(T.ExtraCell)).toHaveLength(0);
   }
@@ -484,10 +459,7 @@ export const simpleRender = (component: React.ReactNode) => {
   );
 };
 
-export function renderWithRouterMatch(
-  component: React.ReactNode,
-  { path = '/', route = '/' } = {},
-) {
+export function renderWithRouterMatch(component: React.ReactNode, { path = '/', route = '/' } = {}) {
   const role = {
     roleArn: TEST_ROLE_ARN,
   };
@@ -496,10 +468,7 @@ export function renderWithRouterMatch(
     ...render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
-          <ShellHooksProvider
-            shellHooks={mockShellHooks}
-            shellAlerts={mockShellAlerts}
-          >
+          <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
             <ToastProvider>
               <MemoryRouter initialEntries={[route]}>
                 <_DataServiceRoleContext.Provider
@@ -538,10 +507,7 @@ export function renderWithRouterMatch(
   };
 }
 
-export const renderWithCustomRoute = (
-  component: React.ReactNode,
-  route: string,
-) => {
+export const renderWithCustomRoute = (component: React.ReactNode, route: string) => {
   const role = {
     roleArn: TEST_ROLE_ARN,
   };
@@ -550,14 +516,9 @@ export const renderWithCustomRoute = (
     ...render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
-          <ShellHooksProvider
-            shellHooks={mockShellHooks}
-            shellAlerts={mockShellAlerts}
-          >
+          <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
             <MemoryRouter initialEntries={[route]}>
-              <_ConfigContext.Provider
-                value={zenkoUITestConfig}
-              >
+              <_ConfigContext.Provider value={zenkoUITestConfig}>
                 <_DataServiceRoleContext.Provider
                   //@ts-expect-error fix this when you are working on it
                   value={{ role, setRole: jest.fn() }}
@@ -610,54 +571,49 @@ const DataServiceProvider = ({ children }) => {
 
 export const NewWrapper =
   (route = '/') =>
-    ({ children }: { children: ReactNode }) => {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider theme={theme}>
-            <ShellHooksProvider
-              shellHooks={mockShellHooks}
-              shellAlerts={mockShellAlerts}
-            >
-              <MemoryRouter initialEntries={[route]}>
-                <ToastProvider>
-                  <DataServiceProvider>
-                    <_ManagementContext.Provider
-                      value={{
-                        managementClient: TEST_MANAGEMENT_CLIENT,
-                      }}
-                    >
-                      <LocationAdapterProvider>
-                        <MetricsAdapterProvider>
-                          <AccountsLocationsEndpointsAdapterProvider>
-                            <AccessibleAccountsAdapterProvider>
-                              <ErrorProvider>
-                                <TestProvidersWrapper>
-                                  {children}
-                                  <ErrorHandlerModal />
-                                </TestProvidersWrapper>
-                              </ErrorProvider>
-                            </AccessibleAccountsAdapterProvider>
-                          </AccountsLocationsEndpointsAdapterProvider>
-                        </MetricsAdapterProvider>
-                      </LocationAdapterProvider>
-                    </_ManagementContext.Provider>
-                  </DataServiceProvider>
-                </ToastProvider>
-              </MemoryRouter>
-            </ShellHooksProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
-      );
-    };
+  ({ children }: { children: ReactNode }) => {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
+            <MemoryRouter initialEntries={[route]}>
+              <ToastProvider>
+                <DataServiceProvider>
+                  <_ManagementContext.Provider
+                    value={{
+                      managementClient: TEST_MANAGEMENT_CLIENT,
+                    }}
+                  >
+                    <LocationAdapterProvider>
+                      <MetricsAdapterProvider>
+                        <AccountsLocationsEndpointsAdapterProvider>
+                          <AccessibleAccountsAdapterProvider>
+                            <ErrorProvider>
+                              <TestProvidersWrapper>
+                                {children}
+                                <ErrorHandlerModal />
+                              </TestProvidersWrapper>
+                            </ErrorProvider>
+                          </AccessibleAccountsAdapterProvider>
+                        </AccountsLocationsEndpointsAdapterProvider>
+                      </MetricsAdapterProvider>
+                    </LocationAdapterProvider>
+                  </_ManagementContext.Provider>
+                </DataServiceProvider>
+              </ToastProvider>
+            </MemoryRouter>
+          </ShellHooksProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+  };
 
 export const selectClick = async (component) => {
   await userEvent.click(component);
   await userEvent.keyboard('{ArrowDown}');
 };
 
-export const expectElementNotToBeInDocument = async (
-  selector: () => HTMLElement,
-) => {
+export const expectElementNotToBeInDocument = async (selector: () => HTMLElement) => {
   try {
     await waitFor(() => {
       expect(selector()).not.toBeInTheDocument();

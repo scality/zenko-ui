@@ -1,28 +1,21 @@
-import { useState } from 'react';
+import { ConstrainedText, FormattedDateTime, Icon, spacing, Tooltip } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
-import { useIAMClient } from '../IAMProvider';
-
-import {
-  ConstrainedText,
-  Icon,
-  Tooltip,
-  spacing,
-  FormattedDateTime,
-} from '@scality/core-ui';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
-import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
-import IAMClient from '../../js/IAMClient';
-import { useErrorHandler } from '../ErrorProvider';
-import { errorParser } from '../utils';
-import { ApiError } from '../../types/actions';
-import { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
-import { ListPoliciesResponse, Policy } from 'aws-sdk/clients/iam';
-import { CoreUIColumn } from 'react-table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import type { ListPoliciesResponse, Policy } from 'aws-sdk/clients/iam';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import type { CoreUIColumn } from 'react-table';
+import type IAMClient from '../../js/IAMClient';
+import type { ApiError } from '../../types/actions';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useDataServiceRole } from '../DataServiceRoleProvider';
+import { useErrorHandler } from '../ErrorProvider';
+import { useIAMClient } from '../IAMProvider';
+import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { errorParser } from '../utils';
+import type { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
+import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
 
 const EditButton = ({
   policyName,
@@ -40,15 +33,11 @@ const EditButton = ({
   const navigate = useBasenameRelativeNavigate();
 
   const IAMClient = useIAMClient();
-  const { data, status } = useQuery(
-    getListPolicyVersionsQuery(policyArn, IAMClient),
-  );
+  const { data, status } = useQuery(getListPolicyVersionsQuery(policyArn, IAMClient));
 
-  const isLatestVersionTheDefaultOne =
-    data?.Versions?.[0].IsDefaultVersion || false;
+  const isLatestVersionTheDefaultOne = data?.Versions?.[0].IsDefaultVersion || false;
 
-  const isEditPolicyDisabled =
-    policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
+  const isEditPolicyDisabled = policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
 
   return (
     <Box>
@@ -61,9 +50,7 @@ const EditButton = ({
           icon={<Icon name="Eye" />}
           onClick={() =>
             navigate(
-              `/accounts/${accountName}/policies/${encodeURIComponent(
-                policyArn,
-              )}/${defaultVersionId}/update-policy`,
+              `/accounts/${accountName}/policies/${encodeURIComponent(policyArn)}/${defaultVersionId}/update-policy`,
             )
           }
           tooltip={{
@@ -74,8 +61,8 @@ const EditButton = ({
               status === 'idle' || status === 'loading' || !data
                 ? 'Disabled while loading...'
                 : !isLatestVersionTheDefaultOne
-                ? 'The latest version of the policy is not the default one, hence editing of the policy is disabled in the UI. Please use a S3 API client to edit the versions of this policy.'
-                : '',
+                  ? 'The latest version of the policy is not the default one, hence editing of the policy is disabled in the UI. Please use a S3 API client to edit the versions of this policy.'
+                  : '',
           }}
           aria-label={`View ${policyName}`}
         />
@@ -85,30 +72,21 @@ const EditButton = ({
           size="inline"
           style={{ width: '5rem' }}
           disabled={
-            status === 'idle' ||
-            status === 'loading' ||
-            status === 'error' ||
-            !data ||
-            !isLatestVersionTheDefaultOne
+            status === 'idle' || status === 'loading' || status === 'error' || !data || !isLatestVersionTheDefaultOne
           }
           variant="secondary"
           label="Edit"
           icon={<Icon name="Pen" />}
           onClick={() =>
             navigate(
-              `/accounts/${accountName}/policies/${encodeURIComponent(
-                policyArn,
-              )}/${defaultVersionId}/update-policy`,
+              `/accounts/${accountName}/policies/${encodeURIComponent(policyArn)}/${defaultVersionId}/update-policy`,
             )
           }
           tooltip={{
             overlayStyle: {
               width: '16.5rem',
             },
-            overlay:
-              status === 'idle' || status === 'loading' || !data
-                ? 'Disabled while loading...'
-                : '',
+            overlay: status === 'idle' || status === 'loading' || !data ? 'Disabled while loading...' : '',
           }}
           aria-label={`Edit ${policyName}`}
         />
@@ -133,39 +111,17 @@ const AttachButton = ({
       variant="secondary"
       label="Attach"
       icon={<Icon name="Link" />}
-      onClick={() =>
-        navigate(
-          `/accounts/${accountName}/policies/${encodeURIComponent(
-            policyArn,
-          )}/attachments`,
-        )
-      }
+      onClick={() => navigate(`/accounts/${accountName}/policies/${encodeURIComponent(policyArn)}/attachments`)}
       aria-label={`Attach ${policyName}`}
     />
   );
 };
 
-const ActionButtons = ({
-  rowValues,
-  accountName,
-}: {
-  rowValues: InternalPolicy;
-  accountName: string;
-}) => {
-  const { policyArn, policyName, policyPath, defaultVersionId, attachments } =
-    rowValues;
+const ActionButtons = ({ rowValues, accountName }: { rowValues: InternalPolicy; accountName: string }) => {
+  const { policyArn, policyName, policyPath, defaultVersionId, attachments } = rowValues;
   return (
-    <Box
-      gap={spacing.r12}
-      alignSelf="flex-end"
-      display="flex"
-      alignItems="center"
-    >
-      <AttachButton
-        policyName={policyName}
-        accountName={accountName}
-        policyArn={policyArn}
-      />
+    <Box gap={spacing.r12} alignSelf="flex-end" display="flex" alignItems="center">
+      <AttachButton policyName={policyName} accountName={accountName} policyArn={policyArn} />
       <EditButton
         policyName={policyName}
         policyPath={policyPath}
@@ -219,10 +175,7 @@ const DeletePolicyAction = ({
         );
         await Promise.all(
           nonDefaultPolicyVersions.map(async (policyVersion) =>
-            IAMClient.deletePolicyVersion(
-              arn,
-              notFalsyTypeGuard(policyVersion.VersionId),
-            ),
+            IAMClient.deletePolicyVersion(arn, notFalsyTypeGuard(policyVersion.VersionId)),
           ),
         );
       }
@@ -230,10 +183,7 @@ const DeletePolicyAction = ({
       return IAMClient.deletePolicy(arn);
     },
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(
-          getListPoliciesQuery(accountName, IAMClient).queryKey,
-        ),
+      onSuccess: () => queryClient.invalidateQueries(getListPoliciesQuery(accountName, IAMClient).queryKey),
       onError: (error: ApiError) => {
         try {
           handleClientError(error);
@@ -269,8 +219,8 @@ const DeletePolicyAction = ({
             overlay: isInternalPolicy
               ? `You can't delete a predefined Scality policy`
               : attachments
-              ? `You can't delete a policy with attachments`
-              : 'Delete',
+                ? `You can't delete a policy with attachments`
+                : 'Delete',
           }}
           aria-label={`Delete ${policyName}`}
         />
@@ -288,17 +238,8 @@ const AccessPolicyNameCell = ({ rowValues }: { rowValues: InternalPolicy }) => {
       {isInternalPolicy && (
         <ConstrainedText
           text={
-            <Tooltip
-              overlay={'This is a predefined Scality Policy'}
-              overlayStyle={{ width: '13rem' }}
-            >
-              {policyName}{' '}
-              <Icon
-                name="Info"
-                size="xs"
-                color="buttonSecondary"
-                {...styleProps}
-              />
+            <Tooltip overlay={'This is a predefined Scality Policy'} overlayStyle={{ width: '13rem' }}>
+              {policyName} <Icon name="Info" size="xs" color="buttonSecondary" {...styleProps} />
             </Tooltip>
           }
           lineClamp={2}
@@ -330,12 +271,9 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
 
   const getQuery = (IAMClient?: IAMClient | null) =>
     getListPoliciesQuery(notFalsyTypeGuard(accountName), IAMClient, [roleArn]);
-  const getEntitiesFromResult = (data?: ListPoliciesResponse) =>
-    data?.Policies || [];
+  const getEntitiesFromResult = (data?: ListPoliciesResponse) => data?.Policies || [];
 
-  const prepareData = (
-    queryResult: AWS_PAGINATED_ENTITIES<Policy>,
-  ): InternalPolicy[] => {
+  const prepareData = (queryResult: AWS_PAGINATED_ENTITIES<Policy>): InternalPolicy[] => {
     if (queryResult.firstPageStatus === 'success') {
       const iamPolicies =
         queryResult.data?.map((policy) => {
@@ -409,12 +347,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
         paddingRight: spacing.r12,
       },
       disableSortBy: true,
-      Cell: (value) => (
-        <ActionButtons
-          rowValues={value.row.original}
-          accountName={accountName}
-        />
-      ),
+      Cell: (value) => <ActionButtons rowValues={value.row.original} accountName={accountName} />,
     },
   ];
   return (

@@ -1,9 +1,9 @@
-import { LatestUsedCapacity } from './metrics';
-import { PromiseResult } from './promise';
-import { LocationTypeKey } from '../../../../types/config';
-import { Locationv1Details } from '../../../../js/managementClient/api';
-import { LocationInfo } from '../../adapters/accounts-locations/ILocationsAdapter';
-import { StorageOptionValues } from '../../../locations/LocationDetails';
+import type { Locationv1Details } from '../../../../js/managementClient/api';
+import type { LocationTypeKey } from '../../../../types/config';
+import type { StorageOptionValues } from '../../../locations/LocationDetails';
+import type { LocationInfo } from '../../adapters/accounts-locations/ILocationsAdapter';
+import type { LatestUsedCapacity } from './metrics';
+import type { PromiseResult } from './promise';
 
 export type Location = {
   id: string;

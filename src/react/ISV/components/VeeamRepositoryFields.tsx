@@ -1,9 +1,9 @@
-import { FormGroup, Toggle, Stack, Text } from '@scality/core-ui';
+import { FormGroup, Stack, Text, Toggle } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
+import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { MAX_IMMUTABLE_PERIOD_DAYS } from '../constants';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
-import { useEffect } from 'react';
 
 export const VeeamRepositoryFields = () => {
   const {
@@ -18,8 +18,7 @@ export const VeeamRepositoryFields = () => {
 
   const accountNameType = watch('accountNameType');
   const IAMUserNameType = watch('IAMUserNameType');
-  const isEnabled =
-    accountNameType === 'create' || IAMUserNameType === 'create';
+  const isEnabled = accountNameType === 'create' || IAMUserNameType === 'create';
 
   useEffect(() => {
     if (!isEnabled) {

@@ -1,13 +1,8 @@
-import {
-  AppContainer,
-  ErrorPage401,
-  ErrorPage500,
-  Icon,
-  Loader,
-} from '@scality/core-ui';
-import { useLocation } from 'react-router';
-
+import { AppContainer, ErrorPage401, ErrorPage500, Icon, Loader } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useLocation } from 'react-router';
+import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
@@ -17,9 +12,6 @@ import { NoAccountWarning } from '../ui-elements/Warning';
 import { useAuthGroups } from '../utils/hooks';
 import AccountList from './AccountList';
 import { MultiAccountsIcon } from './MultiAccountsIcon';
-
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 
 const Accounts = () => {
   const { pathname } = useLocation();
@@ -33,11 +25,7 @@ const Accounts = () => {
 
   const { isStorageManager } = useAuthGroups();
 
-  if (
-    accounts.status == 'success' &&
-    accounts.value.length === 0 &&
-    !isStorageManager
-  ) {
+  if (accounts.status == 'success' && accounts.value.length === 0 && !isStorageManager) {
     return <ErrorPage401 />;
   }
 

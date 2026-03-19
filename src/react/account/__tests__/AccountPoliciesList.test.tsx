@@ -1,11 +1,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { ResponseResolver, rest } from 'msw';
+import { type ResponseResolver, rest } from 'msw';
 import { setupServer } from 'msw/node';
-import {
-  mockOffsetSize,
-  testRender,
-  TEST_API_BASE_URL,
-} from '../../utils/testUtil';
+import { mockOffsetSize, TEST_API_BASE_URL, testRender } from '../../utils/testUtil';
 import AccountPoliciesList from '../AccountPoliciesList';
 
 const SCALITY_INTERNAL_POLICY_ID = 'LRDTTFT5ZKN6VIZCICXFSAD8I1960RBB';
@@ -14,8 +10,7 @@ const SCALITY_INTERNAL_POLICY_NAME = 'storage-manager-policy';
 const SCALITY_INTERNAL_USER_PATH = '/scality-internal/';
 const CREATE_DATE = '2022-03-02T09:08:41Z';
 const UPDATED_DATE = '2022-03-02T09:08:41Z';
-const SCALITY_INTERNAL_ARN =
-  'arn:aws:iam::621762876784:policy/scality-internal/storage-manager-policy';
+const SCALITY_INTERNAL_ARN = 'arn:aws:iam::621762876784:policy/scality-internal/storage-manager-policy';
 const SCALITY_INTERNAL_ATTACHMENTS = 1;
 const ATTACHABLE = true;
 
@@ -26,8 +21,7 @@ const NON_SCALITY_INTERNAL_ARN = 'arn:aws:iam::377232323695:policy/test-policy';
 const NON_SCALITY_INTERNAL_ATTACHMENTS = 0;
 
 const SCALITY_DATA_CONSUMER_POLICY_NAME = 'data-consumer-policy';
-const SCALITY_DATA_CONSUMER_POLICY_ARN =
-  'arn:aws:iam::377232323695:policy/scality-internal/data-consumer-policy';
+const SCALITY_DATA_CONSUMER_POLICY_ARN = 'arn:aws:iam::377232323695:policy/scality-internal/data-consumer-policy';
 const SCALITY_DATA_CONSUMER_POLICY_ID = '3I17NWO7MOCSNZ1J4V2JJFUXW18UOSJF';
 
 const nbrOfColumnsExpected = 5;
@@ -123,21 +117,15 @@ describe('AccountPoliciesList', () => {
 
       expect(screen.getAllByText('Loading policies...')).toHaveLength(2);
 
-      expect(
-        screen.getByPlaceholderText(/Search by Policy Name/i),
-      ).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Search by Policy Name/i)).toBeInTheDocument();
 
       const createButton = screen.getByText('Create Policy');
       expect(createButton).toBeInTheDocument();
 
       /**********           Number of columns :         ************/
-      expect(screen.getAllByRole('columnheader').length).toEqual(
-        nbrOfColumnsExpected,
-      );
+      expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpected);
 
-      expect(
-        screen.getByPlaceholderText(/Search by Policy Name/i),
-      ).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Search by Policy Name/i)).toBeInTheDocument();
 
       /**********           Table columns exist :         ************/
       expect(screen.getByText('Policy Path')).toBeInTheDocument();
@@ -153,9 +141,7 @@ describe('AccountPoliciesList', () => {
     //E
     await waitFor(() => screen.getAllByText(/Edit/i));
     //V
-    const attachButton = screen.getByLabelText(
-      `Attach ${SCALITY_INTERNAL_POLICY_NAME}`,
-    );
+    const attachButton = screen.getByLabelText(`Attach ${SCALITY_INTERNAL_POLICY_NAME}`);
     expect(attachButton).not.toBeDisabled();
   });
   it('should render Edit button for Non Scality internal Policy', async () => {
@@ -235,23 +221,16 @@ describe('AccountPoliciesList', () => {
 
     await waitFor(() =>
       screen.getAllByText(
-        new RegExp(
-          `Permanently remove the following policy ${NON_SCALITY_INTERNAL_POLICY_NAME} ?`,
-          'i',
-        ),
+        new RegExp(`Permanently remove the following policy ${NON_SCALITY_INTERNAL_POLICY_NAME} ?`, 'i'),
       ),
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
-    await waitFor(() =>
-      expect(mockedDeletePolicyInterceptor).toHaveBeenCalled(),
-    );
+    await waitFor(() => expect(mockedDeletePolicyInterceptor).toHaveBeenCalled());
 
     // V
-    expect(mockedDeletePolicyInterceptor).toHaveBeenCalledWith(
-      NON_SCALITY_INTERNAL_ARN,
-    );
+    expect(mockedDeletePolicyInterceptor).toHaveBeenCalledWith(NON_SCALITY_INTERNAL_ARN);
   });
   it('should render view button for non internal policies when their default version is not the latest one', async () => {
     //S
@@ -337,39 +316,26 @@ describe('AccountPoliciesList', () => {
 
     await waitFor(() =>
       screen.getAllByText(
-        new RegExp(
-          `Permanently remove the following policy ${NON_SCALITY_INTERNAL_POLICY_NAME} ?`,
-          'i',
-        ),
+        new RegExp(`Permanently remove the following policy ${NON_SCALITY_INTERNAL_POLICY_NAME} ?`, 'i'),
       ),
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
-    await waitFor(() =>
-      expect(mockedDeletePolicyInterceptor).toHaveBeenCalled(),
-    );
+    await waitFor(() => expect(mockedDeletePolicyInterceptor).toHaveBeenCalled());
 
     // V
-    expect(mockedDeletePolicyInterceptor).toHaveBeenCalledWith(
-      NON_SCALITY_INTERNAL_ARN,
-    );
+    expect(mockedDeletePolicyInterceptor).toHaveBeenCalledWith(NON_SCALITY_INTERNAL_ARN);
 
     await waitFor(() =>
       screen.getAllByText(
-        new RegExp(
-          `The request was rejected because it attempted to delete a resource that has attached subordinate entities. The error message describes these entities.`,
-          'i',
-        ),
+        /The request was rejected because it attempted to delete a resource that has attached subordinate entities. The error message describes these entities./i,
       ),
     );
 
     expect(
       screen.getByText(
-        new RegExp(
-          `The request was rejected because it attempted to delete a resource that has attached subordinate entities. The error message describes these entities.`,
-          'i',
-        ),
+        /The request was rejected because it attempted to delete a resource that has attached subordinate entities. The error message describes these entities./i,
       ),
     ).toBeInTheDocument();
   });
@@ -470,10 +436,7 @@ describe('AccountPoliciesList', () => {
 
     await waitFor(() =>
       screen.getAllByText(
-        new RegExp(
-          `Permanently remove the following policy ${NON_SCALITY_INTERNAL_POLICY_NAME} ?`,
-          'i',
-        ),
+        new RegExp(`Permanently remove the following policy ${NON_SCALITY_INTERNAL_POLICY_NAME} ?`, 'i'),
       ),
     );
 
@@ -485,8 +448,6 @@ describe('AccountPoliciesList', () => {
     });
 
     // V
-    expect(mockedDeletePolicyInterceptor).toHaveBeenCalledWith(
-      NON_SCALITY_INTERNAL_ARN,
-    );
+    expect(mockedDeletePolicyInterceptor).toHaveBeenCalledWith(NON_SCALITY_INTERNAL_ARN);
   });
 });

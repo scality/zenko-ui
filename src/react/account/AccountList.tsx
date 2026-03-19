@@ -1,33 +1,19 @@
-import {
-  ConstrainedText,
-  Icon,
-  Link,
-  Stack,
-  FormattedDateTime,
-} from '@scality/core-ui';
+import { ConstrainedText, FormattedDateTime, Icon, Link, Stack } from '@scality/core-ui';
 import { Button, Table } from '@scality/core-ui/dist/next';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useMemo } from 'react';
-import { CellProps, CoreUIColumn } from 'react-table';
-import { Account } from '../next-architecture/domain/entities/account';
+import type { CellProps, CoreUIColumn } from 'react-table';
 
-import {
-  useCurrentAccount,
-  useSetAssumedRole,
-} from '../DataServiceRoleProvider';
+import { useCurrentAccount, useSetAssumedRole } from '../DataServiceRoleProvider';
+import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
-
+import type { Account } from '../next-architecture/domain/entities/account';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 
-function useAutoAssumeRoleUponAccountDeletion({
-  accounts,
-}: {
-  accounts: Account[];
-}) {
+function useAutoAssumeRoleUponAccountDeletion({ accounts }: { accounts: Account[] }) {
   const { account } = useCurrentAccount();
   const setRole = useSetAssumedRole();
   useMemo(() => {
@@ -98,10 +84,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           minWidth: '20ch',
         },
         Cell: ({ value }: CellProps<Account, Date>) => (
-          <FormattedDateTime
-            format="date-time-second"
-            value={new Date(value)}
-          />
+          <FormattedDateTime format="date-time-second" value={new Date(value)} />
         ),
       },
       ...(isStorageManager ? additionalStorageManagerColumns : []),
@@ -145,10 +128,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
             )
           }
         />
-        <Table.SingleSelectableContent
-          rowHeight="h40"
-          separationLineVariant="backgroundLevel1"
-        />
+        <Table.SingleSelectableContent rowHeight="h40" separationLineVariant="backgroundLevel1" />
       </Table>
     </div>
   );

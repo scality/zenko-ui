@@ -2,28 +2,20 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
-import {
-  TEST_API_BASE_URL,
-  testRender,
-  renderWithRouterMatch,
-} from '../../utils/testUtil';
+import { getConfigOverlay, INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
+import { renderWithRouterMatch, TEST_API_BASE_URL, testRender } from '../../utils/testUtil';
 import AccountCreate from '../AccountCreate';
 
 const accountAlreadyExists = 'accountAlreadyExists';
 const server = setupServer(
   getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
-  rest.post(
-    `${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`,
-    (req, res, ctx) => {
-      //@ts-ignore
-      if (req.body.userName === accountAlreadyExists) {
-        return res(ctx.status(409));
-      }
-      return res(ctx.status(201));
-    },
-  ),
+  rest.post(`${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`, (req, res, ctx) => {
+    //@ts-expect-error
+    if (req.body.userName === accountAlreadyExists) {
+      return res(ctx.status(409));
+    }
+    return res(ctx.status(201));
+  }),
 );
 
 describe('AccountCreate', () => {
@@ -44,22 +36,12 @@ describe('AccountCreate', () => {
   it('should render AccountCreate component with error banner', async () => {
     await renderWithRouterMatch(<AccountCreate />);
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /name/i }),
-      accountAlreadyExists,
-    );
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /email/i }),
-      'test@test.local',
-    );
+    await userEvent.type(screen.getByRole('textbox', { name: /name/i }), accountAlreadyExists);
+    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'test@test.local');
     await userEvent.click(screen.getByRole('button', { name: /create/i }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(
-          'An account with the same name or email already exists',
-        ),
-      ).toBeInTheDocument();
+      expect(screen.getByText('An account with the same name or email already exists')).toBeInTheDocument();
     });
   });
   // * error input
@@ -111,8 +93,7 @@ describe('AccountCreate', () => {
       description: 'should render error if name is too long (> 64)',
       name: 'b'.repeat(65),
       email: 'test@test.com',
-      expectedNameError:
-        '"Name" length must be less than or equal to 64 characters long',
+      expectedNameError: '"Name" length must be less than or equal to 64 characters long',
       expectedEmailError: '',
     },
     {
@@ -134,8 +115,7 @@ describe('AccountCreate', () => {
       name: 'bart',
       email: `${'b'.repeat(257)}@long.com`,
       expectedNameError: '',
-      expectedEmailError:
-        '"Root Account Email" length must be less than or equal to 256 characters long',
+      expectedEmailError: '"Root Account Email" length must be less than or equal to 256 characters long',
     },
     {
       description: 'should render error if quota is invalid',
@@ -156,41 +136,27 @@ describe('AccountCreate', () => {
     it(`Simulate click: ${t.description}`, async () => {
       await testRender(<AccountCreate />);
       if (t.name) {
-        await userEvent.type(
-          screen.getByRole('textbox', { name: /name/i }),
-          t.name,
-        );
+        await userEvent.type(screen.getByRole('textbox', { name: /name/i }), t.name);
       }
       if (t.email) {
-        await userEvent.type(
-          screen.getByRole('textbox', { name: /email/i }),
-          t.email,
-        );
+        await userEvent.type(screen.getByRole('textbox', { name: /email/i }), t.email);
       }
       await userEvent.click(screen.getByRole('button', { name: /create/i }));
 
       if (t.expectedNameError) {
-        expect(
-          screen.getByText(new RegExp(`.*${t.expectedNameError}.*`, 'i')),
-        ).toBeInTheDocument();
+        expect(screen.getByText(new RegExp(`.*${t.expectedNameError}.*`, 'i'))).toBeInTheDocument();
       } else {
-        expect(
-          screen
-            .getByRole('textbox', { name: /name/i })
-            .attributes.getNamedItem('aria-invalid')?.value,
-        ).toBe('false');
+        expect(screen.getByRole('textbox', { name: /name/i }).attributes.getNamedItem('aria-invalid')?.value).toBe(
+          'false',
+        );
       }
 
       if (t.expectedEmailError) {
-        expect(
-          screen.getByText(new RegExp(`.*${t.expectedEmailError}.*`, 'i')),
-        ).toBeInTheDocument();
+        expect(screen.getByText(new RegExp(`.*${t.expectedEmailError}.*`, 'i'))).toBeInTheDocument();
       } else {
-        expect(
-          screen
-            .getByRole('textbox', { name: /email/i })
-            .attributes.getNamedItem('aria-invalid')?.value,
-        ).toBe('false');
+        expect(screen.getByRole('textbox', { name: /email/i }).attributes.getNamedItem('aria-invalid')?.value).toBe(
+          'false',
+        );
       }
     });
   });

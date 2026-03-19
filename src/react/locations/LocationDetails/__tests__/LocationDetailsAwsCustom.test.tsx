@@ -2,16 +2,12 @@
 import { JAGUAR_S3_LOCATION_KEY } from '../../../../types/config';
 import type { InstanceStateSnapshot } from '../../../../types/stats';
 import * as ConfigProvider from '../../../next-architecture/ui/ConfigProvider';
-import {
-  testMountAct,
-  updateInputText,
-  zenkoUITestConfig,
-} from '../../../utils/testUtil';
+import { testMountAct, updateInputText, zenkoUITestConfig } from '../../../utils/testUtil';
 import LocationDetailsAwsCustom from '../LocationDetailsAwsCustom';
 
 const props = {
   details: {},
-  onChange: () => { },
+  onChange: () => {},
   locationType: 'location-scality-ring-s3-v1',
   capabilities: {
     locationTypeLocal: true,
@@ -44,18 +40,10 @@ describe('class <LocationDetailsAwsCustom />', () => {
       <LocationDetailsAwsCustom {...props} />,
     );
 
-    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
-      '',
-    );
-    expect(
-      component.container.querySelector('input[name="secretKey"]'),
-    ).toHaveValue('');
-    expect(
-      component.container.querySelector('input[name="bucketName"]'),
-    ).toHaveValue('');
-    expect(
-      component.container.querySelector('input[name="endpoint"]'),
-    ).toHaveValue('');
+    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue('');
+    expect(component.container.querySelector('input[name="secretKey"]')).toHaveValue('');
+    expect(component.container.querySelector('input[name="bucketName"]')).toHaveValue('');
+    expect(component.container.querySelector('input[name="endpoint"]')).toHaveValue('');
   });
   it('should show custom details when editing an existing location', async () => {
     const locationDetails = {
@@ -70,18 +58,10 @@ describe('class <LocationDetailsAwsCustom />', () => {
       <LocationDetailsAwsCustom {...props} details={locationDetails} />,
     );
 
-    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
-      'ak',
-    );
-    expect(
-      component.container.querySelector('input[name="secretKey"]'),
-    ).toHaveValue(''); // encrypted
-    expect(
-      component.container.querySelector('input[name="bucketName"]'),
-    ).toHaveValue('bn');
-    expect(
-      component.container.querySelector('input[name="endpoint"]'),
-    ).toHaveValue('https://ep');
+    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue('ak');
+    expect(component.container.querySelector('input[name="secretKey"]')).toHaveValue(''); // encrypted
+    expect(component.container.querySelector('input[name="bucketName"]')).toHaveValue('bn');
+    expect(component.container.querySelector('input[name="endpoint"]')).toHaveValue('https://ep');
   });
   it('should call onChange on location details updates', async () => {
     const refLocation = {
@@ -94,7 +74,12 @@ describe('class <LocationDetailsAwsCustom />', () => {
     let location = {};
     const { container } = await testMountAct(
       //@ts-expect-error fix this when you are working on it
-      <LocationDetailsAwsCustom {...props} onChange={(l) => { location = l; }} />,
+      <LocationDetailsAwsCustom
+        {...props}
+        onChange={(l) => {
+          location = l;
+        }}
+      />,
     );
     updateInputText(container, 'accessKey', 'ak');
     updateInputText(container, 'secretKey', 'sk');
@@ -103,9 +88,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
     expect(location).toEqual(refLocation);
   });
   it('should display truststore link for non-Ring S3 Reseller locations and an HTTPS endpoint', async () => {
-    const useConfigSpy = jest
-      .spyOn(ConfigProvider, 'useConfig')
-      .mockReturnValue(zenkoUITestConfig);
+    const useConfigSpy = jest.spyOn(ConfigProvider, 'useConfig').mockReturnValue(zenkoUITestConfig);
     const component = await testMountAct(
       <LocationDetailsAwsCustom
         {...props}
@@ -123,25 +106,18 @@ describe('class <LocationDetailsAwsCustom />', () => {
       />,
     );
 
-    expect(
-      component.getByText(/Certificate for HTTPS Endpoint/i),
-    ).toBeInTheDocument();
+    expect(component.getByText(/Certificate for HTTPS Endpoint/i)).toBeInTheDocument();
 
     const truststoreLink = component.getByRole('link', {
       name: /open truststore/i,
     });
-    expect(truststoreLink).toHaveAttribute(
-      'href',
-      `${zenkoUITestConfig.basePath}/truststore`,
-    );
+    expect(truststoreLink).toHaveAttribute('href', `${zenkoUITestConfig.basePath}/truststore`);
     expect(truststoreLink).toHaveAttribute('target', '_blank');
 
     useConfigSpy.mockRestore();
   });
   it('should not display truststore link for Ring S3 Reseller locations', async () => {
-    const useConfigSpy = jest
-      .spyOn(ConfigProvider, 'useConfig')
-      .mockReturnValue(zenkoUITestConfig);
+    const useConfigSpy = jest.spyOn(ConfigProvider, 'useConfig').mockReturnValue(zenkoUITestConfig);
     const component = await testMountAct(
       <LocationDetailsAwsCustom
         {...props}
@@ -155,18 +131,12 @@ describe('class <LocationDetailsAwsCustom />', () => {
         }
       />,
     );
-    expect(
-      component.queryByText(/when using an https endpoint/i),
-    ).not.toBeInTheDocument();
+    expect(component.queryByText(/when using an https endpoint/i)).not.toBeInTheDocument();
     useConfigSpy.mockRestore();
   });
   it('should not display truststore link when MetalK8s is not deployed', async () => {
-    const useConfigSpy = jest
-      .spyOn(ConfigProvider, 'useConfig')
-      .mockReturnValue(zenkoUITestConfig);
-    const useDeployedMetalk8sSpy = jest
-      .spyOn(ConfigProvider, 'useDeployedMetalk8sInstances')
-      .mockReturnValue([]);
+    const useConfigSpy = jest.spyOn(ConfigProvider, 'useConfig').mockReturnValue(zenkoUITestConfig);
+    const useDeployedMetalk8sSpy = jest.spyOn(ConfigProvider, 'useDeployedMetalk8sInstances').mockReturnValue([]);
     const component = await testMountAct(
       <LocationDetailsAwsCustom
         {...props}
@@ -184,12 +154,8 @@ describe('class <LocationDetailsAwsCustom />', () => {
       />,
     );
 
-    expect(
-      component.getByText(/Certificate for HTTPS Endpoint/i),
-    ).toBeInTheDocument();
-    expect(
-      component.queryByRole('link', { name: /open truststore/i }),
-    ).not.toBeInTheDocument();
+    expect(component.getByText(/Certificate for HTTPS Endpoint/i)).toBeInTheDocument();
+    expect(component.queryByRole('link', { name: /open truststore/i })).not.toBeInTheDocument();
 
     useConfigSpy.mockRestore();
     useDeployedMetalk8sSpy.mockRestore();

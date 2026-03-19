@@ -1,9 +1,9 @@
+import { render, screen } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+import userEvent from '@testing-library/user-event';
 import { useRef } from 'react';
 import { useOutsideClick, usePrefixWithSlash } from '../hooks';
-import { renderHook } from '@testing-library/react-hooks';
 import { NewWrapper } from '../testUtil';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 describe('hooks', () => {
   it('should trigger if a click occurs outside the component', async () => {

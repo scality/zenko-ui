@@ -1,13 +1,10 @@
+import { ConstrainedText, Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
+import { fontSize } from '@scality/core-ui/dist/style/theme';
+import type { JSX } from 'react';
 import { Link, matchPath } from 'react-router';
-import {
-  Breadcrumb as CoreUIBreadcrumb,
-  ConstrainedText,
-} from '@scality/core-ui';
 import styled from 'styled-components';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
-import { fontSize } from '@scality/core-ui/dist/style/theme';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import { JSX } from 'react';
 
 // vendor from `polished` package
 type Styles = {
@@ -56,18 +53,12 @@ export const breadcrumbPathsBuckets = (
   basePath: string,
 ): JSX.IntrinsicElements['label'][] => {
   const accountsURLPrefix = `/accounts/:accountName`;
-  const matchCreateBucketRoute = matchPath(
-    basePath + `${accountsURLPrefix}/create-bucket`,
-    pathname,
-  );
+  const matchCreateBucketRoute = matchPath(basePath + `${accountsURLPrefix}/create-bucket`, pathname);
   if (matchCreateBucketRoute) {
     return [<label key="buckets">create bucket</label>];
   }
 
-  const matchObjectRoutes = matchPath(
-    basePath + `${accountsURLPrefix}/buckets/:bucketName/objects*`,
-    pathname,
-  );
+  const matchObjectRoutes = matchPath(basePath + `${accountsURLPrefix}/buckets/:bucketName/objects*`, pathname);
 
   if (matchObjectRoutes) {
     const bucketName = matchObjectRoutes.params.bucketName;
@@ -80,13 +71,7 @@ export const breadcrumbPathsBuckets = (
     const isInFolder = prefixPath && prefixPath.slice(-1) === '/';
     let splits: string[] = [];
 
-    if (
-      matchPath(
-        basePath +
-          `${accountsURLPrefix}/buckets/:bucketName/objects-retention-setting`,
-        pathname,
-      )
-    ) {
+    if (matchPath(basePath + `${accountsURLPrefix}/buckets/:bucketName/objects-retention-setting`, pathname)) {
       splits = prefixPath ? prefixPath.split('/') : [];
     } else if (prefixPath && isInFolder) {
       splits = prefixPath.split('/');
@@ -112,9 +97,7 @@ export const breadcrumbPathsBuckets = (
           <label key={s}>
             <Link
               to={{
-                pathname:
-                  basePath +
-                  `/accounts/${accountName}/buckets/${bucketName}/objects`,
+                pathname: basePath + `/accounts/${accountName}/buckets/${bucketName}/objects`,
                 search: `?prefix=${prefix}/`,
               }}
             >
@@ -140,8 +123,7 @@ export const breadcrumbPathsBuckets = (
         {' '}
         <Link
           to={{
-            pathname:
-              basePath + `/accounts/${accountName}/buckets/${bucketName}/objects`,
+            pathname: basePath + `/accounts/${accountName}/buckets/${bucketName}/objects`,
           }}
         >
           {' '}
@@ -152,10 +134,7 @@ export const breadcrumbPathsBuckets = (
     ];
   }
 
-  const matchObjectsRoute = matchPath(
-    basePath + `${accountsURLPrefix}/buckets/:bucketName/objects`,
-    pathname,
-  );
+  const matchObjectsRoute = matchPath(basePath + `${accountsURLPrefix}/buckets/:bucketName/objects`, pathname);
 
   if (matchObjectsRoute) {
     return [
@@ -188,9 +167,7 @@ export const breadcrumbPathsBuckets = (
             pathname: basePath + '/buckets',
           }}
         >
-          <ConstrainedText
-            text={matchBucketRetensionSettingRoute.params.bucketName}
-          />
+          <ConstrainedText text={matchBucketRetensionSettingRoute.params.bucketName} />
         </Link>
       </label>,
       <label key="bucket-name">
@@ -199,10 +176,7 @@ export const breadcrumbPathsBuckets = (
     ];
   }
 
-  const matchBucketsRoute = matchPath(
-    basePath + '/accounts/:accountName/buckets/:bucketName',
-    pathname,
-  );
+  const matchBucketsRoute = matchPath(basePath + '/accounts/:accountName/buckets/:bucketName', pathname);
 
   if (matchBucketsRoute) {
     return [
@@ -241,38 +215,21 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
     const userName = matchAccountUserAccessKey.params.userName;
     return (
       <CustomBreadCrumb
-        paths={[
-          <AccountRoleSelectButtonAndModal />,
-          <label key="user-name">keys for {userName}</label>,
-        ]}
+        paths={[<AccountRoleSelectButtonAndModal />, <label key="user-name">keys for {userName}</label>]}
       ></CustomBreadCrumb>
     );
   }
 
-  const matchAccountRoute = matchPath(
-    config.basePath + '/accounts/:accountName' + '/*',
-    pathname,
-  );
+  const matchAccountRoute = matchPath(config.basePath + '/accounts/:accountName' + '/*', pathname);
 
   if (matchAccountRoute) {
-    return (
-      <CustomBreadCrumb
-        paths={[<AccountRoleSelectButtonAndModal />]}
-      ></CustomBreadCrumb>
-    );
+    return <CustomBreadCrumb paths={[<AccountRoleSelectButtonAndModal />]}></CustomBreadCrumb>;
   }
 
-  const matchAllAccountsRoute = matchPath(
-    config.basePath + '/accounts/',
-    pathname,
-  );
+  const matchAllAccountsRoute = matchPath(config.basePath + '/accounts/', pathname);
 
   if (matchAllAccountsRoute) {
-    return (
-      <CustomBreadCrumb
-        paths={[<label key="accounts">All Accounts</label>]}
-      ></CustomBreadCrumb>
-    );
+    return <CustomBreadCrumb paths={[<label key="accounts">All Accounts</label>]}></CustomBreadCrumb>;
   }
 
   return <></>;

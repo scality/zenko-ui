@@ -10,25 +10,10 @@ export const VeeamMultipleBucketCapture = () => {
       style={{ maxWidth: '100%' }}
     >
       <rect width="704" height="501.39" fill="url(#pattern0_12505_238784)" />
-      <rect
-        x="432"
-        y="138"
-        width="191"
-        height="29"
-        stroke="#E84855"
-        strokeWidth="2"
-      />
+      <rect x="432" y="138" width="191" height="29" stroke="#E84855" strokeWidth="2" />
       <defs>
-        <pattern
-          id="pattern0_12505_238784"
-          patternContentUnits="objectBoundingBox"
-          width="1"
-          height="1"
-        >
-          <use
-            xlinkHref="#image0_12505_238784"
-            transform="scale(0.00132626 0.0018622)"
-          />
+        <pattern id="pattern0_12505_238784" patternContentUnits="objectBoundingBox" width="1" height="1">
+          <use xlinkHref="#image0_12505_238784" transform="scale(0.00132626 0.0018622)" />
         </pattern>
         <image
           id="image0_12505_238784"

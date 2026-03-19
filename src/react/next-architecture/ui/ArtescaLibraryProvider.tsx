@@ -3,12 +3,7 @@ import * as ModuleFederation from '@scality/module-federation';
 import { ErrorBoundary } from 'react-error-boundary';
 import type { UseMutationResult } from 'react-query';
 
-export type NewCredentialsStatus =
-  | 'IDLE'
-  | 'WAITING'
-  | 'VALID'
-  | 'INVALID'
-  | 'ERROR';
+export type NewCredentialsStatus = 'IDLE' | 'WAITING' | 'VALID' | 'INVALID' | 'ERROR';
 
 export type ArtescaLibraryHooks = {
   useArtescaPlusVeeamDefaultOrOpenMode: () => {
@@ -20,14 +15,8 @@ export type ArtescaLibraryHooks = {
     isLoading: boolean;
     isError: boolean;
   };
-  useChangeVeeamCredentials: (params: {
-    onNewCredentialsValid: () => void;
-  }) => {
-    changeCredentialsMutation: UseMutationResult<
-      unknown,
-      unknown,
-      { username: string; password: string }
-    >;
+  useChangeVeeamCredentials: (params: { onNewCredentialsValid: () => void }) => {
+    changeCredentialsMutation: UseMutationResult<unknown, unknown, { username: string; password: string }>;
     newCredentialsStatus: NewCredentialsStatus;
   };
   ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME: string;
@@ -68,11 +57,7 @@ function ErrorFallback() {
   return <ErrorPage500 data-cy="sc-error-page500" locale={'en'} />;
 }
 
-export function ArtescaLibraryProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function ArtescaLibraryProvider({ children }: { children: React.ReactNode }) {
   const { useDeployedApps, useConfig } = ModuleFederation.useShellHooks();
   const instances = useDeployedApps({ kind: 'artesca-base-ui' });
 

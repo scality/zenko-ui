@@ -1,12 +1,8 @@
-import IAM from 'aws-sdk/clients/iam';
 import type { AwsCredentialIdentity } from '@aws-sdk/types';
-import {
-  IAMClient as IAMClientInterface,
-  WebIdentityRoles,
-} from '../types/iam';
-import { notFalsyTypeGuard } from '../types/typeGuards';
-import { policyDocumentType } from 'aws-sdk/clients/iam';
+import IAM, { type policyDocumentType } from 'aws-sdk/clients/iam';
 import { genClientEndpoint } from '../react/utils';
+import type { IAMClient as IAMClientInterface, WebIdentityRoles } from '../types/iam';
+import { notFalsyTypeGuard } from '../types/typeGuards';
 
 export function getRolesForWebIdentity(
   endpoint: string,
@@ -23,51 +19,46 @@ export function getRolesForWebIdentity(
   if (maxItems) {
     data.append('MaxItems', `${maxItems}`);
   }
-  return fetch(endpoint, { method: 'POST', body: data.toString() }).then(
-    async (r) => {
-      if (r.ok) {
-        return r.json();
-      }
-      let error;
-      let textResponse;
-      try {
-        textResponse = await r.text();
-      } catch (e) {
-        throw r;
-      }
+  return fetch(endpoint, { method: 'POST', body: data.toString() }).then(async (r) => {
+    if (r.ok) {
+      return r.json();
+    }
+    let error;
+    let textResponse;
+    try {
+      textResponse = await r.text();
+    } catch (e) {
+      throw r;
+    }
 
+    try {
+      //Try to parse the json error
+      error = { status: r.status, ...JSON.parse(textResponse) };
+    } catch (e) {
       try {
-        //Try to parse the json error
-        error = { status: r.status, ...JSON.parse(textResponse) };
-      } catch (e) {
-        try {
-          //Fallback to xml error parsing
-          const parser = new DOMParser();
-          const errorDocument = parser.parseFromString(
-            textResponse,
-            'text/xml',
-          );
-          const codeElements = errorDocument.getElementsByTagName('Code');
-          const messageElements = errorDocument.getElementsByTagName('Message');
+        //Fallback to xml error parsing
+        const parser = new DOMParser();
+        const errorDocument = parser.parseFromString(textResponse, 'text/xml');
+        const codeElements = errorDocument.getElementsByTagName('Code');
+        const messageElements = errorDocument.getElementsByTagName('Message');
 
-          if (codeElements.length > 0 && messageElements.length > 0) {
-            error = {
-              status: r.status,
-              message: messageElements[0].textContent,
-              code: codeElements[0].textContent,
-            };
-          } else {
-            error = r;
-          }
-        } catch (e) {
-          //Fallback to simple error handling based on the fetch response object
+        if (codeElements.length > 0 && messageElements.length > 0) {
+          error = {
+            status: r.status,
+            message: messageElements[0].textContent,
+            code: codeElements[0].textContent,
+          };
+        } else {
           error = r;
         }
+      } catch (e) {
+        //Fallback to simple error handling based on the fetch response object
+        error = r;
       }
+    }
 
-      throw error;
-    },
-  );
+    throw error;
+  });
 }
 export default class IAMClient implements IAMClientInterface {
   client?: IAM;
@@ -182,9 +173,7 @@ export default class IAMClient implements IAMClientInterface {
   }
 
   listAttachedUserPolicies(userName: string) {
-    return notFalsyTypeGuard(this.client)
-      .listAttachedUserPolicies({ UserName: userName })
-      .promise();
+    return notFalsyTypeGuard(this.client).listAttachedUserPolicies({ UserName: userName }).promise();
   }
 
   listEntitiesForPolicy(policyArn: string, maxItems?: number, marker?: string) {
@@ -270,9 +259,7 @@ export default class IAMClient implements IAMClientInterface {
   }
 
   deletePolicyVersion(arn: string, versionId: string) {
-    return notFalsyTypeGuard(this.client)
-      .deletePolicyVersion({ PolicyArn: arn, VersionId: versionId })
-      .promise();
+    return notFalsyTypeGuard(this.client).deletePolicyVersion({ PolicyArn: arn, VersionId: versionId }).promise();
   }
 
   attachUserPolicy(userName: string, policyArn: string) {

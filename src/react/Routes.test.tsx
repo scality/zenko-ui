@@ -2,11 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { useAuthLoading } from './AuthLoadingProvider';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import InternalRoutes, { PrivateRoutes } from './Routes';
-import {
-  FAKE_TOKEN,
-  mockShellHooks,
-  renderWithRouterMatch,
-} from './utils/testUtil';
+import { FAKE_TOKEN, mockShellHooks, renderWithRouterMatch } from './utils/testUtil';
 
 jest.mock('./next-architecture/ui/ConfigProvider', () => ({
   useConfig: jest.fn(),

@@ -1,14 +1,14 @@
 import { DateTime } from 'luxon';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  QueryFunctionContext,
-  QueryObserverIdleResult,
-  QueryObserverLoadingErrorResult,
-  QueryObserverLoadingResult,
-  QueryObserverOptions,
-  QueryObserverSuccessResult,
+  type QueryFunctionContext,
+  type QueryObserverIdleResult,
+  type QueryObserverLoadingErrorResult,
+  type QueryObserverLoadingResult,
+  type QueryObserverOptions,
+  type QueryObserverSuccessResult,
+  type UseInfiniteQueryOptions,
   useInfiniteQuery,
-  UseInfiniteQueryOptions,
 } from 'react-query';
 import { useAccessToken } from '../next-architecture/ui/AuthProvider';
 
@@ -30,14 +30,8 @@ export type AWS_PAGINATED_QUERY<
   TError = unknown,
   MARKER_TYPE = { Marker?: string } | undefined,
 > = {
-  queryFn: (
-    context: QueryFunctionContext,
-    marker?: MARKER_TYPE,
-  ) => Promise<API_RESPONSE>;
-  onUnmountOrSettled?: (
-    data: ENTITY[] | undefined,
-    error: TError | null | { message: string } | unknown,
-  ) => void;
+  queryFn: (context: QueryFunctionContext, marker?: MARKER_TYPE) => Promise<API_RESPONSE>;
+  onUnmountOrSettled?: (data: ENTITY[] | undefined, error: TError | null | { message: string } | unknown) => void;
   onPageSuccess?: (data: ENTITY[]) => void;
   getNextPageParam?: (lastPage: API_RESPONSE) => MARKER_TYPE | undefined;
 } & Omit<QueryObserverOptions<API_RESPONSE, TError>, 'queryFn'>;
@@ -48,12 +42,9 @@ export const useAwsPaginatedEntities = <
   TError = unknown,
   MARKER_TYPE = { Marker?: string } | undefined,
 >(
-  reactQueryOptions: AWS_PAGINATED_QUERY<
-    API_RESPONSE,
-    ENTITY,
-    TError,
-    MARKER_TYPE
-  > & { additionalDepsToUpdateQueryFn?: unknown[] },
+  reactQueryOptions: AWS_PAGINATED_QUERY<API_RESPONSE, ENTITY, TError, MARKER_TYPE> & {
+    additionalDepsToUpdateQueryFn?: unknown[];
+  },
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
   preventNextPagesRetrieval = false,
 ): AWS_PAGINATED_ENTITIES<ENTITY> => {
@@ -64,12 +55,8 @@ export const useAwsPaginatedEntities = <
         : undefined) as MARKER_TYPE;
   }
 
-  const [status, setStatus] = useState<
-    'idle' | 'loading' | 'success' | 'error'
-  >('idle');
-  const [firstPageStatus, setFirstPageStatus] = useState<
-    'idle' | 'loading' | 'success' | 'error'
-  >('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [firstPageStatus, setFirstPageStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     return () => {
@@ -87,13 +74,7 @@ export const useAwsPaginatedEntities = <
    * refreshed in the queryFn closure.
    */
   const token = useAccessToken();
-  const ref =
-    useRef<
-      (
-        context: QueryFunctionContext,
-        marker?: MARKER_TYPE,
-      ) => Promise<API_RESPONSE>
-    >(undefined);
+  const ref = useRef<(context: QueryFunctionContext, marker?: MARKER_TYPE) => Promise<API_RESPONSE>>(undefined);
   useEffect(() => {
     ref.current = reactQueryOptions?.queryFn;
   }, [token, ...(reactQueryOptions.additionalDepsToUpdateQueryFn || [])]);
@@ -107,21 +88,14 @@ export const useAwsPaginatedEntities = <
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    ...(reactQueryOptions as UseInfiniteQueryOptions<
-      API_RESPONSE,
-      TError,
-      API_RESPONSE
-    >),
+    ...(reactQueryOptions as UseInfiniteQueryOptions<API_RESPONSE, TError, API_RESPONSE>),
     queryFn: (ctx) => {
       return ref.current?.(ctx, ctx.pageParam);
     },
   });
 
   const pageIndex = data?.pageParams?.length || 0;
-  const entities =
-    data &&
-    data.pages &&
-    data.pages.flatMap((page) => getEntitiesFromResult(page));
+  const entities = data && data.pages && data.pages.flatMap((page) => getEntitiesFromResult(page));
 
   useMemo(() => {
     if (pageIndex === 0 || (pageIndex === 1 && internalStatus === 'success')) {
@@ -130,20 +104,12 @@ export const useAwsPaginatedEntities = <
   }, [internalStatus, pageIndex]);
 
   useMemo(() => {
-    if (
-      internalStatus === 'idle' ||
-      internalStatus === 'loading' ||
-      internalStatus === 'error'
-    ) {
+    if (internalStatus === 'idle' || internalStatus === 'loading' || internalStatus === 'error') {
       setStatus(internalStatus);
       if (internalStatus === 'error' && reactQueryOptions.onUnmountOrSettled) {
         reactQueryOptions.onUnmountOrSettled(entities, error);
       }
-    } else if (
-      internalStatus === 'success' &&
-      !hasNextPage &&
-      !isFetchingNextPage
-    ) {
+    } else if (internalStatus === 'success' && !hasNextPage && !isFetchingNextPage) {
       setStatus('success');
       if (reactQueryOptions.onPageSuccess) {
         reactQueryOptions.onPageSuccess(entities || []);
@@ -175,13 +141,10 @@ type AccessKeyObject = {
   status: string;
 };
 
-export const useAccessKeyOutdatedStatus = (
-  accessKeyObject: AccessKeyObject,
-) => {
+export const useAccessKeyOutdatedStatus = (accessKeyObject: AccessKeyObject) => {
   // We consider if the access key was created 300 days ago is bad practice.
   // Return the hardcoded alert for the moment, later on we should retrieve it from AlertManager.
-  const outDatedAccessMsg =
-    'This access key has been generated more than 300 days ago. Please consider change it';
+  const outDatedAccessMsg = 'This access key has been generated more than 300 days ago. Please consider change it';
   const OUTDATED_DAYS = 300;
   const createdDate = DateTime.fromISO(accessKeyObject.createdOn);
   const currentDate = DateTime.now();

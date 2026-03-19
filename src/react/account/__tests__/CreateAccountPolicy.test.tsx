@@ -1,13 +1,9 @@
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import {
-  mockOffsetSize,
-  testRender,
-  TEST_API_BASE_URL,
-} from '../../utils/testUtil';
+import { mockOffsetSize, TEST_API_BASE_URL, testRender } from '../../utils/testUtil';
 import CreateAccountPolicy from '../CreateAccountPolicy';
-import userEvent from '@testing-library/user-event';
 
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
@@ -47,9 +43,7 @@ describe('CreateAccountPolicy', () => {
     testRender(<CreateAccountPolicy />);
     expect(screen.getByText('Policy Creation')).toBeInTheDocument();
     expect(screen.getByText('* are required fields')).toBeInTheDocument();
-    expect(
-      screen.getByText('We are supporting AWS IAM standards.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('We are supporting AWS IAM standards.')).toBeInTheDocument();
 
     const policyNameInput = screen.getByRole('textbox', {
       name: /Policy name/i,

@@ -1,7 +1,4 @@
-import {
-  useArtescaLibrary,
-  ArtescaLibraryNotAvailable,
-} from '../next-architecture/ui/ArtescaLibraryProvider';
+import { ArtescaLibraryNotAvailable, useArtescaLibrary } from '../next-architecture/ui/ArtescaLibraryProvider';
 
 /**
  * Hook that safely handles Artesca Plus Veeam mode when library is not available
@@ -20,14 +17,9 @@ export const useArtescaPlusVeeamMode = () => {
   }
 
   // Use the actual hook when library is available
-  const {
-    useArtescaPlusVeeamDefaultOrOpenMode,
-    ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME,
-  } = artescaLibrary;
-  const {
-    artescaPlusVeeamDefaultOrOpenMode,
-    artescaPlusVeeamDefaultOrOpenModeStatus,
-  } = useArtescaPlusVeeamDefaultOrOpenMode();
+  const { useArtescaPlusVeeamDefaultOrOpenMode, ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME } = artescaLibrary;
+  const { artescaPlusVeeamDefaultOrOpenMode, artescaPlusVeeamDefaultOrOpenModeStatus } =
+    useArtescaPlusVeeamDefaultOrOpenMode();
 
   return {
     artescaPlusVeeamDefaultOrOpenMode,

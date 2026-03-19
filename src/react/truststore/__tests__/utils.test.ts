@@ -18,16 +18,10 @@ describe('formatExpiryDate', () => {
       const result = formatExpiryDate(expiresOn);
 
       expect(result.status).toBe('healthy');
-      expect(result.shortFormatWithPrefix).toMatch(
-        /^In 15 days - \d{4}-\d{2}-\d{2}$/,
-      );
+      expect(result.shortFormatWithPrefix).toMatch(/^In 15 days - \d{4}-\d{2}-\d{2}$/);
       expect(result.shortFormat).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(result.longFormatWithPrefix).toMatch(
-        /^In 15 days - \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
-      );
-      expect(result.longFormat).toMatch(
-        /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
-      );
+      expect(result.longFormatWithPrefix).toMatch(/^In 15 days - \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+      expect(result.longFormat).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
     });
 
     it('should format date with healthy status when expiring in 100 days', () => {
@@ -72,9 +66,7 @@ describe('formatExpiryDate', () => {
       const result = formatExpiryDate(expiresOn);
 
       expect(result.status).toBe('critical');
-      expect(result.shortFormatWithPrefix).toMatch(
-        /^Expiration date is today - /,
-      );
+      expect(result.shortFormatWithPrefix).toMatch(/^Expiration date is today - /);
     });
 
     it('should format date with "Expired today" when expired today (past time)', () => {
@@ -119,9 +111,7 @@ describe('formatExpiryDate', () => {
 
       expect(result.longFormat).not.toMatch(/In \d+ days/);
       expect(result.longFormat).not.toMatch(/Expired/);
-      expect(result.longFormat).toMatch(
-        /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
-      );
+      expect(result.longFormat).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
     });
 
     it('should return shortFormatWithPrefix containing shortFormat', () => {

@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 import * as accountsModule from '../../next-architecture/domain/business/accounts';
 import * as adapterModule from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 
 const MOCK_ACCOUNTS_LOCATIONS_ENDPOINTS = {
   accounts: [],
@@ -26,14 +26,8 @@ describe('useGetS3ServicePoint', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAccountsLocationsEndpointsAdapter = jest.spyOn(
-      adapterModule,
-      'useAccountsLocationsEndpointsAdapter',
-    );
-    mockUseAccountsLocationsAndEndpoints = jest.spyOn(
-      accountsModule,
-      'useAccountsLocationsAndEndpoints',
-    );
+    mockUseAccountsLocationsEndpointsAdapter = jest.spyOn(adapterModule, 'useAccountsLocationsEndpointsAdapter');
+    mockUseAccountsLocationsAndEndpoints = jest.spyOn(accountsModule, 'useAccountsLocationsAndEndpoints');
 
     mockUseAccountsLocationsEndpointsAdapter.mockReturnValue({
       listAccountsLocationsAndEndpoints: jest.fn(),

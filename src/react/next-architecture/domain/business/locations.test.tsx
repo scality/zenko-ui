@@ -1,4 +1,11 @@
+import { ShellHooksProvider } from '@scality/module-federation';
 import { act, renderHook } from '@testing-library/react-hooks';
+import type { PropsWithChildren } from 'react';
+import { QueryClient } from 'react-query';
+import { QueryClientProvider } from '../../../../QueryClientProvider';
+import type { LocationTypeKey } from '../../../../types/config';
+import * as DSRProvider from '../../../DataServiceRoleProvider';
+import { mockShellAlerts, mockShellHooks, WrapperAsStorageManager } from '../../../utils/testUtil';
 import { MockedAccountsLocationsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
 import {
   ACCOUNT_OWN_METRICS,
@@ -6,25 +13,10 @@ import {
   DEFAULT_METRICS_MESURED_ON,
   MockedMetricsAdapter,
 } from '../../adapters/metrics/MockedMetricsAdapter';
-import { Location, LocationsPromiseResult } from '../entities/location';
-import { LatestUsedCapacity } from '../entities/metrics';
-import { PromiseResult } from '../entities/promise';
-
-import {
-  useListLocations,
-  useListLocationsForCurrentAccount,
-} from './locations';
-import { QueryClient } from 'react-query';
-import { PropsWithChildren } from 'react';
-import * as DSRProvider from '../../../DataServiceRoleProvider';
-import { LocationTypeKey } from '../../../../types/config';
-import {
-  mockShellAlerts,
-  mockShellHooks,
-  WrapperAsStorageManager,
-} from '../../../utils/testUtil';
-import { QueryClientProvider } from '../../../../QueryClientProvider';
-import { ShellHooksProvider } from '@scality/module-federation';
+import type { Location, LocationsPromiseResult } from '../entities/location';
+import type { LatestUsedCapacity } from '../entities/metrics';
+import type { PromiseResult } from '../entities/promise';
+import { useListLocations, useListLocationsForCurrentAccount } from './locations';
 
 const defaultUsedCapacity = {
   status: 'success' as const,
@@ -56,13 +48,8 @@ const queryClient = new QueryClient({
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
   return (
     <WrapperAsStorageManager isStorageManager={true}>
-      <ShellHooksProvider
-        shellHooks={mockShellHooks}
-        shellAlerts={mockShellAlerts}
-      >
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+      <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </ShellHooksProvider>
     </WrapperAsStorageManager>
   );
@@ -101,9 +88,7 @@ const genExpectedLocation = (
           id: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
           usedCapacity,
           details: {
-            bootstrapList: [
-              'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
-            ],
+            bootstrapList: ['artesca-storage-service-hdservice-proxy.xcore.svc:18888'],
           },
         },
       },
@@ -144,8 +129,7 @@ describe('useListLocations', () => {
     await waitFor(() => {
       return (
         result.current.locations.status === 'success' &&
-        result.current.locations.value['artesca-s3-location'].usedCapacity
-          .status === 'success'
+        result.current.locations.value['artesca-s3-location'].usedCapacity.status === 'success'
       );
     });
 
@@ -157,9 +141,7 @@ describe('useListLocations', () => {
   it('should return locations loading', async () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
-    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(
-      () => new Promise(() => {}),
-    );
+    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() => new Promise(() => {}));
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter);
 
     await flushPromises();
@@ -176,9 +158,7 @@ describe('useListLocations', () => {
   it('should return locations with error', async () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
-    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() =>
-      Promise.reject(),
-    );
+    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() => Promise.reject());
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter);
 
     await flushPromises();
@@ -200,13 +180,8 @@ describe('useListLocations', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockMetricsAdapter.listLocationsLatestUsedCapacity = jest.fn(
-      () => new Promise(() => {}),
-    );
-    const { result, waitFor } = setupAndRenderHook(
-      mockAccountAdapter,
-      mockMetricsAdapter,
-    );
+    mockMetricsAdapter.listLocationsLatestUsedCapacity = jest.fn(() => new Promise(() => {}));
+    const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     await flushPromises();
     // E
@@ -221,21 +196,15 @@ describe('useListLocations', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockMetricsAdapter.listLocationsLatestUsedCapacity = jest.fn(() =>
-      Promise.reject(),
-    );
-    const { result, waitFor } = setupAndRenderHook(
-      mockAccountAdapter,
-      mockMetricsAdapter,
-    );
+    mockMetricsAdapter.listLocationsLatestUsedCapacity = jest.fn(() => Promise.reject());
+    const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     await flushPromises();
     // E
     await waitFor(() => {
       return (
         result.current.locations.status === 'success' &&
-        result.current.locations.value['artesca-s3-location'].usedCapacity
-          .status === 'error'
+        result.current.locations.value['artesca-s3-location'].usedCapacity.status === 'error'
       );
     });
 
@@ -381,13 +350,8 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockMetricsAdapter.listAccountLocationsLatestUsedCapacity = jest.fn(
-      () => new Promise(() => {}),
-    );
-    const { result } = setupAndRenderHook(
-      mockAccountAdapter,
-      mockMetricsAdapter,
-    );
+    mockMetricsAdapter.listAccountLocationsLatestUsedCapacity = jest.fn(() => new Promise(() => {}));
+    const { result } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     // V
     const expectedRes = {
@@ -402,13 +366,8 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockMetricsAdapter.listAccountLocationsLatestUsedCapacity = jest.fn(() =>
-      Promise.reject(),
-    );
-    const { result, waitFor } = setupAndRenderHook(
-      mockAccountAdapter,
-      mockMetricsAdapter,
-    );
+    mockMetricsAdapter.listAccountLocationsLatestUsedCapacity = jest.fn(() => Promise.reject());
+    const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     // E
     await waitFor(() => {
@@ -430,13 +389,8 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() =>
-      Promise.reject(),
-    );
-    const { result, waitFor } = setupAndRenderHook(
-      mockAccountAdapter,
-      mockMetricsAdapter,
-    );
+    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() => Promise.reject());
+    const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     // E
     await waitFor(() => {

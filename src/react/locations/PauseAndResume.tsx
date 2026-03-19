@@ -1,17 +1,11 @@
 import { Icon, Loader, spacing } from '@scality/core-ui';
-import { Box, Button } from '@scality/core-ui/dist/next';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { Box, Button } from '@scality/core-ui/dist/next';
 import { useLocationReplicationControl } from './hooks/useLocationReplicationControl';
 
 export const PauseAndResume = ({ locationName }: { locationName: string }) => {
-  const {
-    replicationStatus,
-    ingestionStatus,
-    isLoading,
-    isUpdating,
-    pause,
-    resume,
-  } = useLocationReplicationControl(locationName);
+  const { replicationStatus, ingestionStatus, isLoading, isUpdating, pause, resume } =
+    useLocationReplicationControl(locationName);
 
   if (isLoading) {
     return (

@@ -1,22 +1,20 @@
 import { Loader, Stack, spacing } from '@scality/core-ui';
 import { Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
-import { CellProps, CoreUIColumn } from 'react-table';
+import type { CellProps, CoreUIColumn } from 'react-table';
 import { useListLocationsForCurrentAccount } from '../next-architecture/domain/business/locations';
-import { Location } from '../next-architecture/domain/entities/location';
+import type { Location } from '../next-architecture/domain/entities/location';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
-
-import { getLocationType } from '../utils/storageOptions';
 import { TableHeaderWrapper } from '../ui-elements/Table';
+import { getLocationType } from '../utils/storageOptions';
 
 export function AccountLocations() {
   const metricsAdapter = useMetricsAdapter();
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
+  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
   const { locations } = useListLocationsForCurrentAccount({
     metricsAdapter,
     accountsLocationsEndpointsAdapter,
@@ -105,20 +103,14 @@ export function AccountLocations() {
       entityName={{ en: { singular: 'location', plural: 'locations' } }}
       status={locations.status}
     >
-      <TableHeaderWrapper
-        search={
-          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
-        }
-      />
+      <TableHeaderWrapper search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />} />
 
       <Table.SingleSelectableContent
         id="singleTable"
         rowHeight="h40"
         separationLineVariant="backgroundLevel1"
         //@ts-expect-error fix this when you are working on it
-        customItemKey={(index: number, data: Array<Location>) =>
-          data[index].name
-        }
+        customItemKey={(index: number, data: Array<Location>) => data[index].name}
         //@ts-expect-error fix this when you are working on it
         key={(index: number, data: Array<Location>) => data[index].name}
       ></Table.SingleSelectableContent>

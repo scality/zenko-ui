@@ -1,37 +1,21 @@
-import Joi from 'joi';
 import { joiResolver } from '@hookform/resolvers/joi';
-import {
-  Banner,
-  Form,
-  FormGroup,
-  FormSection,
-  Icon,
-  Stack,
-} from '@scality/core-ui';
+import { Banner, Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { MouseEvent, MouseEventHandler, useRef } from 'react';
+import Joi from 'joi';
+import { type MouseEvent, type MouseEventHandler, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from 'react-query';
 import { useNavigate, useParams } from 'react-router';
+import { useCurrentAccount, useDataServiceRole } from '../DataServiceRoleProvider';
 import { useComponentError, useModalError } from '../ErrorProvider';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-} from '../DataServiceRoleProvider';
 import { useIAMClient } from '../IAMProvider';
 import { getListUsersQuery } from '../queries';
 import { useOutsideClick } from '../utils/hooks';
 
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
-  name: Joi.string()
-    .label('Name')
-    .required()
-    .min(2)
-    .max(64)
-    .regex(regexpName)
-    .message('Invalid Name'),
+  name: Joi.string().label('Name').required().min(2).max(64).regex(regexpName).message('Invalid Name'),
 });
 
 const AccountCreateUser = () => {
@@ -54,22 +38,17 @@ const AccountCreateUser = () => {
   const { account } = useCurrentAccount();
   const { roleArn } = useDataServiceRole();
 
-  const createUserMutation = useMutation(
-    (userName: string) => IAMClient.createUser(userName),
-    {
-      onSuccess: async () => {
-        const targetAccountName = accountName || account.Name;
-        await queryClient.refetchQueries(
-          getListUsersQuery(targetAccountName, IAMClient, [roleArn]).queryKey,
-        );
+  const createUserMutation = useMutation((userName: string) => IAMClient.createUser(userName), {
+    onSuccess: async () => {
+      const targetAccountName = accountName || account.Name;
+      await queryClient.refetchQueries(getListUsersQuery(targetAccountName, IAMClient, [roleArn]).queryKey);
 
-        baseNameRelativeNavigate(`/accounts/${targetAccountName}/users`);
-      },
-      onError: () => {
-        showModalError('An error occurred during the user creation.');
-      },
+      baseNameRelativeNavigate(`/accounts/${targetAccountName}/users`);
     },
-  );
+    onError: () => {
+      showModalError('An error occurred during the user creation.');
+    },
+  });
 
   const { componentError, clearComponentError } = useComponentError();
   const hasError = !!componentError;
@@ -81,9 +60,7 @@ const AccountCreateUser = () => {
     createUserMutation.mutate(name);
   };
 
-  const handleCancel: MouseEventHandler<HTMLButtonElement> = (
-    e: MouseEvent<HTMLElement>,
-  ) => {
+  const handleCancel: MouseEventHandler<HTMLButtonElement> = (e: MouseEvent<HTMLElement>) => {
     if (e) {
       e.preventDefault();
     }
@@ -111,29 +88,13 @@ const AccountCreateUser = () => {
       onSubmit={handleSubmit(onSubmit)}
       rightActions={
         <Stack gap="r16">
-          <Button
-            disabled={loading}
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            label="Cancel"
-          />
-          <Button
-            disabled={loading}
-            type="submit"
-            id="create-account-btn"
-            variant="primary"
-            label="Create"
-          />
+          <Button disabled={loading} type="button" variant="outline" onClick={handleCancel} label="Cancel" />
+          <Button disabled={loading} type="submit" id="create-account-btn" variant="primary" label="Create" />
         </Stack>
       }
       banner={
         errorMessage && (
-          <Banner
-            variant="danger"
-            icon={<Icon name="Exclamation-circle" />}
-            title={'Error'}
-          >
+          <Banner variant="danger" icon={<Icon name="Exclamation-circle" />} title={'Error'}>
             {errorMessage}
           </Banner>
         )
@@ -148,34 +109,23 @@ const AccountCreateUser = () => {
           labelHelpTooltip={
             <div style={{ textAlign: 'start' }}>
               <div>
-                The ARN and the (friendly) name for the user will be edited, but
-                the unique ID remains the same.
+                The ARN and the (friendly) name for the user will be edited, but the unique ID remains the same.
               </div>
               <br />
               <div>The User stays in the same Groups, under its new name.</div>
               <br />
               <div>Policies:</div>
+              <div>- Any Policies attached to the user stays with this user, under its new name.</div>
               <div>
-                - Any Policies attached to the user stays with this user, under
-                its new name.
+                - Any Role (Trust) Policies that refer to the User as a Principal are automatically updated with the new
+                name.
               </div>
               <div>
-                - Any Role (Trust) Policies that refer to the User as a
-                Principal are automatically updated with the new name.
-              </div>
-              <div>
-                - Any Policies that refer to the User as a Resource are not
-                updated, you have to do it manually.
+                - Any Policies that refer to the User as a Resource are not updated, you have to do it manually.
               </div>
             </div>
           }
-          content={
-            <Input
-              id="name"
-              autoFocus
-              {...register('name', { onChange: clearServerError })}
-            />
-          }
+          content={<Input id="name" autoFocus {...register('name', { onChange: clearServerError })} />}
           required
           error={errors.name?.message}
         />

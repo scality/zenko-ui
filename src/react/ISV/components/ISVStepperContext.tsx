@@ -1,13 +1,11 @@
 import { createContext, useContext } from 'react';
-import { ISVPlatform } from '../engine/types';
+import type { ISVPlatform } from '../engine/types';
 
 export type ISVStepperContextType = {
   platform: ISVPlatform;
 };
 
-export const ISVStepperContext = createContext<
-  ISVStepperContextType | undefined
->(undefined);
+export const ISVStepperContext = createContext<ISVStepperContextType | undefined>(undefined);
 
 export const useISVStepper = () => {
   const context = useContext(ISVStepperContext);
@@ -16,4 +14,3 @@ export const useISVStepper = () => {
   }
   return context;
 };
-

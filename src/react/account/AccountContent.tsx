@@ -1,6 +1,6 @@
 import { AppContainer } from '@scality/core-ui';
 import { useLocation, useParams } from 'react-router';
-import { Account } from '../../types/account';
+import type { Account } from '../../types/account';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import AccountDetails from './AccountDetails';

@@ -1,13 +1,11 @@
-import { LocationDetails } from '../../../types/config';
-import React from 'react';
-import {
-  FormGroup,
-  FormSection,
-} from '@scality/core-ui/dist/components/form/Form.component';
 import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Form.component';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
+import React from 'react';
+import type { LocationDetails } from '../../../types/config';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 import { SECRET_KEY_PLACEHOLDER } from './LocationDetailsOracle';
+
 type Props = {
   details: LocationDetails;
   onChange: (details: LocationDetails) => void;
@@ -27,10 +25,7 @@ const INIT_STATE: State = {
   bucketName: '',
   endpoint: '',
 };
-export default class LocationDetailsWasabi extends React.Component<
-  Props,
-  State
-> {
+export default class LocationDetailsWasabi extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);

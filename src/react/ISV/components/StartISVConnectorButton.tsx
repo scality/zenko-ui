@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import ISVModal from './Modal/ISVModal';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useState } from 'react';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
+import ISVModal from './Modal/ISVModal';
 
 export const StartISVConnectorButton = () => {
   const navigate = useBasenameRelativeNavigate();
@@ -13,9 +13,7 @@ export const StartISVConnectorButton = () => {
     <>
       <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
       <Button
-        label={
-          isVeeamVBROnly ? 'Start Veeam VBR Assistant' : 'Start ISV Connector'
-        }
+        label={isVeeamVBROnly ? 'Start Veeam VBR Assistant' : 'Start ISV Connector'}
         variant="secondary"
         onClick={() => {
           if (isVeeamVBROnly) {

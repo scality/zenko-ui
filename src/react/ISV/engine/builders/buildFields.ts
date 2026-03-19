@@ -5,21 +5,12 @@
  * Handles field ordering, overrides, and insertions.
  */
 
-import type {
-  PlatformConfig,
-  FieldDef,
-  BucketItemFieldDef,
-  FieldOverrideConfig,
-  BaseFieldDef,
-} from '../types';
+import type { BaseFieldDef, BucketItemFieldDef, FieldDef, FieldOverrideConfig, PlatformConfig } from '../types';
 
 /**
  * Apply field overrides to a base field definition
  */
-function applyOverrides(
-  baseDef: Partial<BaseFieldDef>,
-  override?: FieldOverrideConfig
-): Partial<BaseFieldDef> {
+function applyOverrides(baseDef: Partial<BaseFieldDef>, override?: FieldOverrideConfig): Partial<BaseFieldDef> {
   if (!override) return baseDef;
 
   const result = { ...baseDef };
@@ -52,8 +43,7 @@ function buildBucketItemFields(config: PlatformConfig): BucketItemFieldDef[] {
       name: 'name',
       type: 'text',
       label: 'Bucket Name',
-      placeholder:
-        config.fieldOverrides?.bucketName?.placeholder ?? 'Enter bucket name',
+      placeholder: config.fieldOverrides?.bucketName?.placeholder ?? 'Enter bucket name',
     },
   ];
 
@@ -64,8 +54,7 @@ function buildBucketItemFields(config: PlatformConfig): BucketItemFieldDef[] {
         name: 'capacity',
         type: 'number',
         label: config.fieldOverrides?.capacity?.label ?? 'Capacity',
-        placeholder:
-          config.fieldOverrides?.capacity?.placeholder ?? '100',
+        placeholder: config.fieldOverrides?.capacity?.placeholder ?? '100',
       },
       {
         name: 'capacityUnit',
@@ -77,7 +66,7 @@ function buildBucketItemFields(config: PlatformConfig): BucketItemFieldDef[] {
           { label: 'TiB', value: 'TiB' },
           { label: 'PiB', value: 'PiB' },
         ],
-      }
+      },
     );
   }
 
@@ -102,20 +91,14 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
   fields.push({
     name: 'accountName',
     type: 'accountSelector',
-    ...applyOverrides(
-      { label: 'Account' },
-      config.fieldOverrides?.accountName
-    ),
+    ...applyOverrides({ label: 'Account' }, config.fieldOverrides?.accountName),
   } as FieldDef);
 
   // 2. IAM User selector (shown in Advanced Settings for existing accounts)
   fields.push({
     name: 'IAMUserName',
     type: 'iamUserSelector',
-    ...applyOverrides(
-      { label: 'IAM User' },
-      config.fieldOverrides?.IAMUserName
-    ),
+    ...applyOverrides({ label: 'IAM User' }, config.fieldOverrides?.IAMUserName),
   } as FieldDef);
 
   // 3. Additional fields after account (and after Advanced Settings)
@@ -136,10 +119,9 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
   const immutableBase = applyOverrides(
     {
       label: 'Immutable Backup',
-      helpText:
-        'It enables object-lock on the bucket which means backups will be permanent and unchangeable.',
+      helpText: 'It enables object-lock on the bucket which means backups will be permanent and unchangeable.',
     },
-    immutableOverride
+    immutableOverride,
   );
 
   fields.push({

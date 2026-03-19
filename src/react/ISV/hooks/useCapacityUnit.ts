@@ -19,13 +19,8 @@ export const useCapacityUnit = (
   return { capacityValue, capacityUnit };
 };
 
-export const getCapacityBytes = (
-  capacityValue: string,
-  capacityUnit: string,
-) => {
+export const getCapacityBytes = (capacityValue: string, capacityUnit: string) => {
   // If capacityUnit is a unit string like 'GiB', 'TiB', 'PiB', convert it to bytes
   const unitMultiplier = unitChoices[capacityUnit as Units] || parseFloat(capacityUnit);
-  return Math.round(
-    parseFloat(capacityValue) * unitMultiplier,
-  ).toString();
+  return Math.round(parseFloat(capacityValue) * unitMultiplier).toString();
 };

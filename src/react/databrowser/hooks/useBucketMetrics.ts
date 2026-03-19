@@ -1,11 +1,10 @@
-import { useBuckets } from '@scality/data-browser-library';
-import { Bucket } from '@scality/data-browser-library';
+import { type Bucket, useBuckets } from '@scality/data-browser-library';
 import { useQuery, useQueryClient } from 'react-query';
-import { useAuthGroups } from '../../utils/hooks';
-import { IMetricsAdapter } from '../../next-architecture/adapters/metrics/IMetricsAdapter';
-import { LatestUsedCapacity } from '../../next-architecture/domain/entities/metrics';
-import { PromiseResult } from '../../next-architecture/domain/entities/promise';
+import type { IMetricsAdapter } from '../../next-architecture/adapters/metrics/IMetricsAdapter';
+import type { LatestUsedCapacity } from '../../next-architecture/domain/entities/metrics';
+import type { PromiseResult } from '../../next-architecture/domain/entities/promise';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
+import { useAuthGroups } from '../../utils/hooks';
 
 export type BucketLatestUsedCapacityPromiseResult = {
   usedCapacity: PromiseResult<LatestUsedCapacity>;
@@ -26,10 +25,7 @@ const noRefetchOptions = {
  * All buckets share a single cache entry for optimal performance.
  * The cache is populated by BucketMetricsPrefetch and consumed by useBucketMetrics.
  */
-export const createBucketMetricsQuery = (
-  metricsAdapter: IMetricsAdapter,
-  buckets: Bucket[],
-) => ({
+export const createBucketMetricsQuery = (metricsAdapter: IMetricsAdapter, buckets: Bucket[]) => ({
   queryKey: [BUCKET_METRICS_QUERY_KEY],
   queryFn: () => metricsAdapter.listBucketsLatestUsedCapacity(buckets),
   enabled: !!buckets.length,
@@ -53,9 +49,9 @@ export const useBucketMetrics = ({
   bucketName: string;
 }): BucketLatestUsedCapacityPromiseResult => {
   const queryClient = useQueryClient();
-  const allBucketsMetricsQuery = queryClient.getQueryState<
-    Record<string, LatestUsedCapacity>
-  >(createBucketMetricsQuery(metricsAdapter, []).queryKey);
+  const allBucketsMetricsQuery = queryClient.getQueryState<Record<string, LatestUsedCapacity>>(
+    createBucketMetricsQuery(metricsAdapter, []).queryKey,
+  );
 
   if (allBucketsMetricsQuery?.status === 'loading' || !allBucketsMetricsQuery) {
     return {
@@ -75,10 +71,7 @@ export const useBucketMetrics = ({
     };
   }
 
-  if (
-    allBucketsMetricsQuery?.status === 'success' &&
-    allBucketsMetricsQuery?.data?.[bucketName]
-  ) {
+  if (allBucketsMetricsQuery?.status === 'success' && allBucketsMetricsQuery?.data?.[bucketName]) {
     return {
       usedCapacity: {
         status: 'success',

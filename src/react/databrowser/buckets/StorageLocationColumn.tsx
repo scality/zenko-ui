@@ -1,5 +1,5 @@
 import { Loader } from '@scality/core-ui';
-import { Bucket } from '@scality/data-browser-library';
+import type { Bucket } from '@scality/data-browser-library';
 import { useBucketLocationDisplay } from '../hooks/useBucketLocationDisplay';
 
 export const StorageLocationColumn = ({ data }: { data: Bucket }) => {

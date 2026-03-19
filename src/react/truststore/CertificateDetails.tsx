@@ -1,18 +1,10 @@
-import {
-  ConstrainedText,
-  Icon,
-  Modal,
-  spacing,
-  Stack,
-  Text,
-  Wrap,
-} from '@scality/core-ui';
-import React from 'react';
-import { ModalBody } from '../ui-elements/Modal';
-import { ParsedCertificate } from '@scality/certchain';
-import styled from 'styled-components';
-import { Box, CopyButton } from '@scality/core-ui/dist/next';
+import type { ParsedCertificate } from '@scality/certchain';
+import { ConstrainedText, Icon, Modal, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { Box, CopyButton } from '@scality/core-ui/dist/next';
+import type React from 'react';
+import styled from 'styled-components';
+import { ModalBody } from '../ui-elements/Modal';
 import { downloadCertificate, formatExpiryDate } from './utils';
 
 const CertificateViewFieldWrapper = styled.div`
@@ -48,11 +40,7 @@ const NotSetItem = () => {
   );
 };
 
-const CertificateDetailRow = ({
-  label,
-  value,
-  copyable = false,
-}: CertificateDetailRowProps) => {
+const CertificateDetailRow = ({ label, value, copyable = false }: CertificateDetailRowProps) => {
   const renderValue = () => {
     // Handle null/undefined
     if (!value) {
@@ -80,10 +68,7 @@ const CertificateDetailRow = ({
       content = (
         <Stack direction="vertical" gap="r4">
           {value.map((item, idx) => (
-            <ConstrainedText
-              key={idx}
-              text={item && item.length ? item : <NotSetItem />}
-            />
+            <ConstrainedText key={idx} text={item && item.length ? item : <NotSetItem />} />
           ))}
         </Stack>
       );
@@ -95,11 +80,7 @@ const CertificateDetailRow = ({
     }
 
     return (
-      <Stack
-        direction="horizontal"
-        gap="r8"
-        style={{ maxWidth: MAX_CONTENT_WIDTH, flex: 1 }}
-      >
+      <Stack direction="horizontal" gap="r8" style={{ maxWidth: MAX_CONTENT_WIDTH, flex: 1 }}>
         <div style={{ flex: 1, minWidth: 0 }}>{content}</div>
         {copyable && <CopyButton textToCopy={displayValue} />}
       </Stack>
@@ -157,12 +138,7 @@ const CertificateDetails = ({
       close={handleClose}
       footer={
         <Box display="flex" justifyContent="flex-end">
-          <Button
-            label="Close"
-            onClick={handleClose}
-            variant="primary"
-            style={{ minWidth: '80px' }}
-          />
+          <Button label="Close" onClick={handleClose} variant="primary" style={{ minWidth: '80px' }} />
         </Box>
       }
       isOpen={isModalOpen}
@@ -171,11 +147,7 @@ const CertificateDetails = ({
       <ModalBody style={{ maxHeight: '24rem' }}>
         <Stack direction="vertical" gap="r32" withSeparators>
           {selectedCertificate.map((certificate, index) => (
-            <Stack
-              direction="vertical"
-              gap="r16"
-              key={`${certificate.name}-${index}`}
-            >
+            <Stack direction="vertical" gap="r16" key={`${certificate.name}-${index}`}>
               <Wrap
                 style={{
                   marginBottom: spacing.r8,
@@ -188,8 +160,7 @@ const CertificateDetails = ({
                     text={
                       <Text isEmphazed color="textPrimary">
                         {`${certificate.commonName}`}
-                        {selectedCertificate.length > 1 &&
-                        selectedCertificate.length === index + 1
+                        {selectedCertificate.length > 1 && selectedCertificate.length === index + 1
                           ? ' (Root certificate)'
                           : ''}
                       </Text>

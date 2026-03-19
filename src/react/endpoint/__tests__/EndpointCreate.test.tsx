@@ -1,19 +1,11 @@
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
-import { setupServer } from 'msw/node';
-import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
-import {
-  TEST_API_BASE_URL,
-  renderWithRouterMatch,
-  selectClick,
-} from '../../utils/testUtil';
-import EndpointCreate from '../EndpointCreate';
-import { useArtescaLibrary } from '../../next-architecture/ui/ArtescaLibraryProvider';
+import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { setupServer } from 'msw/node';
+import { getConfigOverlay, INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
+import { useArtescaLibrary } from '../../next-architecture/ui/ArtescaLibraryProvider';
+import { renderWithRouterMatch, selectClick, TEST_API_BASE_URL } from '../../utils/testUtil';
+import EndpointCreate from '../EndpointCreate';
+
 jest.mock('../../next-architecture/ui/ArtescaLibraryProvider');
 const mockUseArtescaLibrary = useArtescaLibrary as jest.Mock;
 
@@ -36,17 +28,14 @@ describe('EndpointCreate', () => {
     //E
     await renderWithRouterMatch(<EndpointCreate />);
 
-    await waitForElementToBeRemoved(() =>
-      screen.getByText('Loading locations...'),
-    );
+    await waitForElementToBeRemoved(() => screen.getByText('Loading locations...'));
 
-    await selectClick(
-      screen.getByRole('textbox', { name: /Storage Location/i }),
-    );
+    await selectClick(screen.getByRole('textbox', { name: /Storage Location/i }));
     //V
-    expect(
-      screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),
-    ).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('should always render the warning message', async () => {
@@ -54,9 +43,7 @@ describe('EndpointCreate', () => {
     //E
     await renderWithRouterMatch(<EndpointCreate />);
 
-    await waitForElementToBeRemoved(() =>
-      screen.getByText('Loading locations...'),
-    );
+    await waitForElementToBeRemoved(() => screen.getByText('Loading locations...'));
 
     const warningMessages = [
       `Expect some delay—creating a new Data Service takes time.`,
@@ -69,9 +56,7 @@ describe('EndpointCreate', () => {
   });
   it('should disable the create data service button in Artesca+Veeam default mode', async () => {
     renderWithRouterMatch(<EndpointCreate />);
-    await waitForElementToBeRemoved(() =>
-      screen.getByText('Loading locations...'),
-    );
+    await waitForElementToBeRemoved(() => screen.getByText('Loading locations...'));
 
     expect(screen.getByRole('button', { name: /Create/ })).toBeDisabled();
     await userEvent.hover(screen.getByRole('button', { name: /Create/ }));
@@ -91,9 +76,7 @@ describe('EndpointCreate', () => {
       }),
     });
     renderWithRouterMatch(<EndpointCreate />);
-    await waitForElementToBeRemoved(() =>
-      screen.getByText('Loading locations...'),
-    );
+    await waitForElementToBeRemoved(() => screen.getByText('Loading locations...'));
     userEvent.type(screen.getByRole('textbox', { name: /Hostname/i }), 'test');
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /Create/ })).toBeEnabled();

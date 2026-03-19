@@ -18,9 +18,7 @@ import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router';
 import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
 
-const server = setupServer(
-  getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
-);
+const server = setupServer(getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID));
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
@@ -106,22 +104,17 @@ describe('AccountInfo', () => {
     //S+E
     renderWithRouterMatch(<AccountInfo account={account1} />, undefined);
     //V
-    expect(
-      screen.queryByRole('button', { name: /Delete Account/i }),
-    ).toBeNull();
+    expect(screen.queryByRole('button', { name: /Delete Account/i })).toBeNull();
   });
 
   it('should be able to delete an account when user is a storage manager', async () => {
     //S
     const mockedRequestSearchParamsInterceptor = jest.fn();
     server.use(
-      rest.delete(
-        `${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`,
-        (req, res, ctx) => {
-          mockedRequestSearchParamsInterceptor(req.url.searchParams.toString());
-          return res(ctx.status(200));
-        },
-      ),
+      rest.delete(`${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`, (req, res, ctx) => {
+        mockedRequestSearchParamsInterceptor(req.url.searchParams.toString());
+        return res(ctx.status(200));
+      }),
     );
 
     renderWithCustomRoute(
@@ -133,9 +126,7 @@ describe('AccountInfo', () => {
     );
 
     //E
-    await userEvent.click(
-      screen.getByRole('button', { name: /Delete Account/i }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
 
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
@@ -144,32 +135,22 @@ describe('AccountInfo', () => {
         accountName: account1.Name,
         roleName: TEST_ROLE_PATH_NAME,
       }).toString();
-      return expect(mockedRequestSearchParamsInterceptor).toHaveBeenCalledWith(
-        params,
-      );
+      return expect(mockedRequestSearchParamsInterceptor).toHaveBeenCalledWith(params);
     });
   });
 
   it('should display an error message when attempting to delete if there is a bucket attached to the account', async () => {
     //S
     server.use(
-      rest.delete(
-        `${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`,
-        (_, res, ctx) => res(ctx.status(409)),
-      ),
+      rest.delete(`${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`, (_, res, ctx) => res(ctx.status(409))),
     );
     //E
     renderWithRouterMatch(<AccountInfo account={account1} />, undefined);
 
-    await userEvent.click(
-      screen.getByRole('button', { name: /Delete Account/i }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
 
     await userEvent.click(
-      within(screen.getByRole('dialog', { name: /Confirmation/i })).getByRole(
-        'button',
-        { name: /delete/i },
-      ),
+      within(screen.getByRole('dialog', { name: /Confirmation/i })).getByRole('button', { name: /delete/i }),
     );
     //V
     await waitFor(() => {
@@ -181,16 +162,11 @@ describe('AccountInfo', () => {
     });
     //E
     await userEvent.click(
-      within(screen.getByRole('dialog', { name: /Error/i })).getByRole(
-        'button',
-        { name: /close/i },
-      ),
+      within(screen.getByRole('dialog', { name: /Error/i })).getByRole('button', { name: /close/i }),
     );
     //V
     await waitFor(() => {
-      expect(
-        screen.queryByRole('dialog', { name: /Error/i }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog', { name: /Error/i })).not.toBeInTheDocument();
     });
   });
 });

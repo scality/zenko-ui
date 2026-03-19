@@ -25,7 +25,7 @@ describe('UsedCapacityInlinePromiseResult', () => {
   const selectors = {
     iconHelp: () => screen.getByRole('button', { name: /more information/i }),
     minusIcon: () => screen.getByLabelText(/Unknown/i),
-  }
+  };
   it('display loading on loading state', async () => {
     // S
     render(<UsedCapacityInlinePromiseResult result={{ status: 'loading' }} />);
@@ -64,7 +64,7 @@ describe('UsedCapacityInlinePromiseResult', () => {
     expect(screen.getByText('129.75 KiB')).toBeInTheDocument();
 
     // E + V
-    
+
     await getTextOnHover(selectors.iconHelp(), /Retrieved on 2023-05-22 15:00:05/i);
   });
 });
@@ -73,7 +73,7 @@ describe('UsedCapacity', () => {
   const selectors = {
     iconHelp: () => screen.getByRole('button', { name: /more information/i }),
     minusIcon: () => screen.getByLabelText(/Unknown/i),
-  }
+  };
   it('display error', async () => {
     // S
     render(

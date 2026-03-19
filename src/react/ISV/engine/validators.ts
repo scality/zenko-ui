@@ -7,8 +7,8 @@
 
 import Joi from 'joi';
 import { accountNameValidationSchema } from '../../account/AccountCreate';
-import { bucketNameValidationSchema } from '../utils/bucketNameValidation';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../constants';
+import { bucketNameValidationSchema } from '../utils/bucketNameValidation';
 
 // ============================================================================
 // Re-export base schemas for direct use
@@ -61,10 +61,7 @@ export const iamValidator = {
 /**
  * Helper to validate capacity decimals (max 2 decimal places)
  */
-export const checkDecimals = (
-  value: number,
-  helpers: Joi.CustomHelpers
-): number | Joi.ErrorReport => {
+export const checkDecimals = (value: number, helpers: Joi.CustomHelpers): number | Joi.ErrorReport => {
   const stringValue = value.toString();
   if (stringValue.includes('.')) {
     const decimals = stringValue.split('.')[1];
@@ -176,9 +173,7 @@ export const VeeamVBOValidator = Joi.object({
   ...accountValidator,
   ...iamValidator,
   ...bucketsValidator,
-  application: Joi.string()
-    .valid(VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8)
-    .required(),
+  application: Joi.string().valid(VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8).required(),
   enableImmutableBackup: Joi.when('application', {
     is: VEEAM_OFFICE_365_V8,
     then: Joi.boolean().required(),
@@ -196,4 +191,3 @@ export const VeeamVBOValidator = Joi.object({
 export function getBucketsValidator(withCapacity: boolean): Record<string, Joi.Schema> {
   return withCapacity ? bucketsWithCapacityValidator : bucketsValidator;
 }
-

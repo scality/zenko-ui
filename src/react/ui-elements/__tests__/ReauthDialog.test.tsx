@@ -1,23 +1,17 @@
 import { render, screen } from '@testing-library/react';
-import { ThemeProvider } from 'styled-components';
-import { MemoryRouter } from 'react-router';
-import ReauthDialog from '../ReauthDialog';
-import { theme } from '../../utils/testUtil';
-import ErrorProvider, { useAuthError, useAuthFailure, useModalError } from '../../ErrorProvider';
 import { useEffect } from 'react';
+import { MemoryRouter } from 'react-router';
+import { ThemeProvider } from 'styled-components';
+import ErrorProvider, { useAuthError, useAuthFailure, useModalError } from '../../ErrorProvider';
+import { theme } from '../../utils/testUtil';
+import ReauthDialog from '../ReauthDialog';
 
 jest.mock('../../account/AccountRoleSelectButtonAndModal', () => ({
   __esModule: true,
   default: () => <button>Switch Account</button>,
 }));
 
-const TestWrapper = ({
-  children,
-  initialRoute = '/',
-}: {
-  children: React.ReactNode;
-  initialRoute?: string;
-}) => (
+const TestWrapper = ({ children, initialRoute = '/' }: { children: React.ReactNode; initialRoute?: string }) => (
   <ThemeProvider theme={theme}>
     <MemoryRouter initialEntries={[initialRoute]}>
       <ErrorProvider>{children}</ErrorProvider>

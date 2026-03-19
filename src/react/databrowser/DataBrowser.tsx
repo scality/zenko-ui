@@ -1,27 +1,23 @@
+import { Box } from '@scality/core-ui/dist/next';
+import { type Bucket, type ColumnConfig, DataBrowserUI } from '@scality/data-browser-library';
 import { useMemo } from 'react';
 import { Route, Routes, useLocation, useParams } from 'react-router';
-import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
-import ListLayoutButtons from './HeaderButtons';
-import { useAuthGroups, useQueryParams } from '../utils/hooks';
-import { Box } from '@scality/core-ui/dist/next';
-import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import {
-  DataBrowserUI,
-  type Bucket,
-  type ColumnConfig,
-} from '@scality/data-browser-library';
-import { LocationSelector } from './buckets/LocationSelector';
-import { StorageClassSelector } from './buckets/StorageClassSelector';
-import { BucketCreateVersioning } from './buckets/BucketCreateVersioning';
-import { useBucketCreateConfig } from './buckets/useBucketCreateConfig';
-import { StorageLocationColumn } from './buckets/StorageLocationColumn';
-import { DataUsedColumn } from './buckets/DataUsedColumn';
-import { UseCaseSection } from './buckets/UseCaseSection';
-import { LocationSection } from './buckets/LocationSection';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
-import { BucketMetricsPrefetch } from './hooks/useBucketMetrics';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
+import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
+import { useAuthGroups, useQueryParams } from '../utils/hooks';
 import { BucketLocationsPrefetch } from './BucketLocationsPrefetch';
+import { BucketCreateVersioning } from './buckets/BucketCreateVersioning';
+import { DataUsedColumn } from './buckets/DataUsedColumn';
+import { LocationSection } from './buckets/LocationSection';
+import { LocationSelector } from './buckets/LocationSelector';
 import { ReplicationCRRDestinationFields } from './buckets/ReplicationCRRDestinationFields';
+import { StorageClassSelector } from './buckets/StorageClassSelector';
+import { StorageLocationColumn } from './buckets/StorageLocationColumn';
+import { UseCaseSection } from './buckets/UseCaseSection';
+import { useBucketCreateConfig } from './buckets/useBucketCreateConfig';
+import ListLayoutButtons from './HeaderButtons';
+import { BucketMetricsPrefetch } from './hooks/useBucketMetrics';
 
 const EXTRA_BUCKET_OVERVIEW_SECTIONS = [
   {
@@ -39,11 +35,7 @@ const EXTRA_BUCKET_OVERVIEW_GENERAL = [
   },
 ];
 
-export default function DataBrowser({
-  hideHeader = false,
-}: {
-  hideHeader?: boolean;
-}) {
+export default function DataBrowser({ hideHeader = false }: { hideHeader?: boolean }) {
   const { accountName } = useParams<{ accountName: string }>();
   const { isStorageManager } = useAuthGroups();
 
@@ -55,8 +47,7 @@ export default function DataBrowser({
 
   const dataBrowserBasePath = `${basePath}/accounts/${accountName}`;
 
-  const { bucketCreateExtraFields, transformBucketCreateData } =
-    useBucketCreateConfig();
+  const { bucketCreateExtraFields, transformBucketCreateData } = useBucketCreateConfig();
 
   const extraBucketListColumns = useMemo(() => {
     const columns: ColumnConfig<Bucket>[] = [
@@ -92,14 +83,7 @@ export default function DataBrowser({
   const headerComponent = useMemo(
     () => (
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Breadcrumb
-          breadcrumbPaths={breadcrumbPathsBuckets(
-            pathname,
-            prefixPath,
-            accountName,
-            basePath,
-          )}
-        />
+        <Breadcrumb breadcrumbPaths={breadcrumbPathsBuckets(pathname, prefixPath, accountName, basePath)} />
         <Routes>
           <Route path={':bucketName'} element={<ListLayoutButtons />} />
         </Routes>

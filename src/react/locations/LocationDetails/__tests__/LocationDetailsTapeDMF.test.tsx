@@ -14,13 +14,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    testRender(
-      <LocationDetailsTapeDMF
-        locationType="location-dmf-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
-    );
+    testRender(<LocationDetailsTapeDMF locationType="location-dmf-v1" details={sampleDetails} onChange={onChange} />);
 
     //E
     await userEvent.type(screen.getByRole('textbox', { name: /endpoint/i }), 't');
@@ -45,13 +39,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    testRender(
-      <LocationDetailsTapeDMF
-        locationType="location-dmf-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
-    );
+    testRender(<LocationDetailsTapeDMF locationType="location-dmf-v1" details={sampleDetails} onChange={onChange} />);
 
     //E
     await userEvent.type(screen.getByRole('textbox', { name: /Namespace Id/i }), 't');
@@ -76,13 +64,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    testRender(
-      <LocationDetailsTapeDMF
-        locationType="location-dmf-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
-    );
+    testRender(<LocationDetailsTapeDMF locationType="location-dmf-v1" details={sampleDetails} onChange={onChange} />);
 
     //E
     await userEvent.type(screen.getByRole('textbox', { name: /RepoId\(s\)/i }), 't');
@@ -107,13 +89,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    testRender(
-      <LocationDetailsTapeDMF
-        locationType="location-dmf-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
-    );
+    testRender(<LocationDetailsTapeDMF locationType="location-dmf-v1" details={sampleDetails} onChange={onChange} />);
 
     //V
     expect(screen.getByRole('button', { name: /Add/i })).toBeDisabled();
@@ -159,13 +135,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    testRender(
-      <LocationDetailsTapeDMF
-        locationType="location-dmf-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
-    );
+    testRender(<LocationDetailsTapeDMF locationType="location-dmf-v1" details={sampleDetails} onChange={onChange} />);
 
     //E
     await userEvent.type(screen.getByRole('textbox', { name: /username/i }), 't');
@@ -190,13 +160,7 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    testRender(
-      <LocationDetailsTapeDMF
-        locationType="location-dmf-v1"
-        details={sampleDetails}
-        onChange={onChange}
-      />,
-    );
+    testRender(<LocationDetailsTapeDMF locationType="location-dmf-v1" details={sampleDetails} onChange={onChange} />);
 
     //E
     await userEvent.type(screen.getByLabelText(/password/i), 't');

@@ -1,7 +1,7 @@
 import { Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
 import { Box, Button, CopyButton, Editor } from '@scality/core-ui/dist/next';
 import type { JSONSchema7 } from 'json-schema';
-import { type FormEvent, type JSX, type MouseEvent, useState } from 'react';
+import { type JSX, type MouseEvent, type SubmitEvent, useState } from 'react';
 import { type Control, Controller } from 'react-hook-form';
 import policySchema from '../../../policyJsonSchema.json';
 
@@ -19,7 +19,7 @@ export const CommonPolicyLayout = ({
 }: {
   policyArn?: string;
   policyNameField: JSX.Element;
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (e: SubmitEvent<HTMLFormElement>) => void;
   isReadOnly?: boolean;
   control: Control<{ policyDocument: string }>;
   policyDocument: string;
@@ -96,9 +96,7 @@ export const CommonPolicyLayout = ({
               </>
             }
           />
-        ) : (
-          <></>
-        )}
+        ) : null}
         <FormGroup
           id="policyDocument"
           label="Policy Document"

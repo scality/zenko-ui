@@ -1,8 +1,9 @@
-import { createContext, useContext, useMemo, PropsWithChildren } from 'react';
+import type { AwsCredentialIdentity } from '@aws-sdk/types';
+import { createContext, type PropsWithChildren, useContext, useMemo } from 'react';
 import ZenkoClientBase from 'zenkoclient';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { genClientEndpoint } from './utils';
-import type { AwsCredentialIdentity } from '@aws-sdk/types';
+
 class ZenkoSiteClient {
   private _jsonClient: ZenkoClientBase;
   private _isLogin = false;
@@ -19,9 +20,7 @@ class ZenkoSiteClient {
       signatureVersion: 'v4',
       maxRetries: 0,
     });
-    this._isLogin = !!(
-      credentials?.accessKeyId && credentials?.secretAccessKey
-    );
+    this._isLogin = !!(credentials?.accessKeyId && credentials?.secretAccessKey);
   }
 
   login(credentials: AwsCredentialIdentity): void {
@@ -85,27 +84,15 @@ type ZenkoProviderProps = PropsWithChildren<{
   credentials?: AwsCredentialIdentity;
 }>;
 
-export const ZenkoProvider = ({
-  children,
-  credentials,
-}: ZenkoProviderProps) => {
+export const ZenkoProvider = ({ children, credentials }: ZenkoProviderProps) => {
   const { zenkoEndpoint } = useConfig();
 
   const zenkoClient = useMemo(() => {
     const endpoint = genClientEndpoint(zenkoEndpoint);
     return new ZenkoSiteClient(endpoint, credentials);
-  }, [
-    zenkoEndpoint,
-    credentials?.accessKeyId,
-    credentials?.secretAccessKey,
-    credentials?.sessionToken,
-  ]);
+  }, [zenkoEndpoint, credentials?.accessKeyId, credentials?.secretAccessKey, credentials?.sessionToken]);
 
-  return (
-    <ZenkoContext.Provider value={zenkoClient}>
-      {children}
-    </ZenkoContext.Provider>
-  );
+  return <ZenkoContext.Provider value={zenkoClient}>{children}</ZenkoContext.Provider>;
 };
 
 export type { ZenkoSiteClient };
