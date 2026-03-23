@@ -107,23 +107,19 @@ export function AccountRoleSelectButtonAndModal({
     return (
       accounts?.flatMap((account) => {
         const accountName = account.Name;
-        const hasStorageManager = account.Roles.some(
-          (role) => regexArn.exec(role.Arn)?.groups?.['name'] === STORAGE_MANAGER_ROLE,
-        );
-        const rolesToDisplay = hasStorageManager
-          ? account.Roles.filter((role) => regexArn.exec(role.Arn)?.groups?.['name'] === STORAGE_MANAGER_ROLE)
-          : account.Roles;
-        return rolesToDisplay.map((role) => {
+        const parsedRoles = account.Roles.map((role) => {
           const parsedArn = regexArn.exec(role.Arn);
-          const rolePath = parsedArn?.groups['path'] || '';
-          const roleName = parsedArn?.groups['name'] || '';
           return {
             accountName,
-            roleName,
-            rolePath,
+            roleName: parsedArn?.groups['name'] || '',
+            rolePath: parsedArn?.groups['path'] || '',
             roleArn: role.Arn,
           };
         });
+        const storageManagerRoles = parsedRoles.filter(
+          (role) => role.roleName === STORAGE_MANAGER_ROLE,
+        );
+        return storageManagerRoles.length > 0 ? storageManagerRoles : parsedRoles;
       }) || []
     );
   }, [accountRolesHash]);
