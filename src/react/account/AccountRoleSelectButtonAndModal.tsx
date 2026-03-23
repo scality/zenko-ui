@@ -6,7 +6,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import { useCurrentAccount, useDataServiceRole, useSetAssumedRolePromise } from '../DataServiceRoleProvider';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { AccountSelectorButton } from '../ui-elements/Table';
-import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
+import { regexArn, SCALITY_INTERNAL_ROLES, STORAGE_MANAGER_ROLE, useAccounts } from '../utils/hooks';
 
 function AccountRoleList({ accountsWithRoles, onRowSelected }) {
   const { roleArn } = useDataServiceRole();
@@ -107,7 +107,13 @@ export function AccountRoleSelectButtonAndModal({
     return (
       accounts?.flatMap((account) => {
         const accountName = account.Name;
-        return account.Roles.map((role) => {
+        const hasStorageManager = account.Roles.some(
+          (role) => regexArn.exec(role.Arn)?.groups?.['name'] === STORAGE_MANAGER_ROLE,
+        );
+        const rolesToDisplay = hasStorageManager
+          ? account.Roles.filter((role) => regexArn.exec(role.Arn)?.groups?.['name'] === STORAGE_MANAGER_ROLE)
+          : account.Roles;
+        return rolesToDisplay.map((role) => {
           const parsedArn = regexArn.exec(role.Arn);
           const rolePath = parsedArn?.groups['path'] || '';
           const roleName = parsedArn?.groups['name'] || '';
