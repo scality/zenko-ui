@@ -336,7 +336,7 @@ const DataServiceRoleProvider = ({
   // Allow bypassing loader for components that handle loading states internally
   if (role.roleArn && assumeRoleQuery.isLoading && !noLoader) {
     return inlineLoader ? (
-      <div>Loading..</div>
+      <div>Loading...</div>
     ) : (
       <Loader>
         <>Loading...</>
