@@ -157,6 +157,7 @@ export const useCurrentAccount = () => {
   const accountId = roleArn ? regexArn.exec(roleArn)?.groups?.account_id : '';
   const { accounts } = useAccounts(noopBasedEventDispatcher);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Accounts in the depenency using JSON.stringify
   const account = useMemo(() => {
     return accounts.find((account) => {
       if (accountName) return account.Name === accountName;
@@ -221,6 +222,7 @@ const DataServiceRoleProvider = ({
 
   const assumedRole = assumeRoleQuery.data;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Accounts in the depenency using JSON.stringify
   useEffect(() => {
     const storedRole = getRoleArnStored();
     if (accountName) {
@@ -242,7 +244,7 @@ const DataServiceRoleProvider = ({
     } else if (!storedRole && !role.roleArn && accounts.length) {
       setRoleState({ roleArn: accounts[0].Roles[0].Arn });
     }
-  }, [accounts.length, accountName, role.roleArn, accounts]);
+  }, [accounts.length, accountName, role.roleArn, JSON.stringify(accounts)]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 
@@ -334,7 +336,7 @@ const DataServiceRoleProvider = ({
   // Allow bypassing loader for components that handle loading states internally
   if (role.roleArn && assumeRoleQuery.isLoading && !noLoader) {
     return inlineLoader ? (
-      <div>loading TEST...</div>
+      <div>Loading..</div>
     ) : (
       <Loader>
         <>Loading...</>

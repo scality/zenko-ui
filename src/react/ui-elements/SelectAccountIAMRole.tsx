@@ -3,7 +3,7 @@ import { Select } from '@scality/core-ui/dist/next';
 import type { Bucket } from '@scality/data-browser-library';
 import { ShellHooksProvider } from '@scality/module-federation';
 import type { IAM } from 'aws-sdk';
-import { type PropsWithChildren, useEffect, useState } from 'react';
+import { type PropsWithChildren, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
 import type { ShellAlerts, ShellHooks } from 'shell/compiled-types/src/hooks/useShellHooks';
