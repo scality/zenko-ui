@@ -3,7 +3,7 @@ import { Select } from '@scality/core-ui/dist/next';
 import type { Bucket } from '@scality/data-browser-library';
 import { ShellHooksProvider } from '@scality/module-federation';
 import type { IAM } from 'aws-sdk';
-import { type PropsWithChildren, useState } from 'react';
+import { type PropsWithChildren, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
 import type { ShellAlerts, ShellHooks } from 'shell/compiled-types/src/hooks/useShellHooks';
@@ -90,7 +90,7 @@ const InternalProvider = ({
   defaultValue,
 }: PropsWithChildren<Pick<SelectAccountIAMRoleWithAccountProps, 'defaultValue'>>) => {
   return (
-    <DataServiceRoleProvider inlineLoader>
+    <DataServiceRoleProvider noLoader>
       <AccountsLocationsEndpointsAdapterProvider>
         <AccessibleAccountsAdapterProvider DoNotChangePropsWithEventDispatcher={false}>
           <>
@@ -114,12 +114,13 @@ type SelectAccountIAMRoleProps = {
 
 type SelectAccountIAMRoleWithAccountProps = SelectAccountIAMRoleProps & {
   accounts: Account[];
+  isLoadingAccounts: boolean;
 };
 
 const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountProps) => {
   const IAMClient = useIAMClient();
   const setAssumedRole = useSetAssumedRole();
-  const { accounts, defaultValue, hideAccountRoles, onChange } = props;
+  const { accounts, defaultValue, hideAccountRoles, onChange, isLoadingAccounts } = props;
   const defaultAccountName = useParams<{ accountName: string }>()?.accountName;
   const defaultAccount =
     (defaultAccountName ? accounts.find((account) => account.name === defaultAccountName) : null) ?? null;
@@ -187,7 +188,8 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
           content={
             <Select
               id="select-account"
-              value={account?.name ?? defaultValue?.accountName}
+              value={isLoadingAccounts ? 'loading-accounts' : (account?.name ?? defaultValue?.accountName)}
+              disabled={isLoadingAccounts}
               onChange={(accountName) => {
                 const selectedAccount = accounts.find((account) => account.name === accountName);
 
@@ -202,11 +204,17 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
               menuPosition={props.menuPosition}
               placeholder="Select Account"
             >
-              {accounts.map((account) => (
-                <Select.Option key={`${account.name}`} value={account.name}>
-                  {account.name}
+              {isLoadingAccounts ? (
+                <Select.Option key="loading-accounts" value="loading-accounts" disabled>
+                  Loading accounts...
                 </Select.Option>
-              ))}
+              ) : (
+                accounts.map((account) => (
+                  <Select.Option key={`${account.name}`} value={account.name}>
+                    {account.name}
+                  </Select.Option>
+                ))
+              )}
             </Select>
           }
         />
@@ -314,21 +322,22 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
     metricsAdapter,
   });
 
-  if (accounts.accounts.status === 'success') {
-    return (
-      <SelectAccountIAMRoleWithAccount
-        accounts={accounts.accounts.value}
-        defaultValue={defaultValue}
-        hideAccountRoles={hideAccountRoles}
-        onChange={onChange}
-        menuPosition={props.menuPosition}
-        filterOutInternalRoles={props.filterOutInternalRoles}
-        identityProviderUrl={props.identityProviderUrl}
-      />
-    );
-  } else {
-    return <div>Loading accounts...</div>;
-  }
+  const accountsList = accounts.accounts.status === 'success' ? accounts.accounts.value : [];
+  const isLoadingAccounts = accounts.accounts.status === 'loading';
+
+  return (
+    <SelectAccountIAMRoleWithAccount
+      key="stable-account-role-selector"
+      accounts={accountsList}
+      defaultValue={defaultValue}
+      hideAccountRoles={hideAccountRoles}
+      onChange={onChange}
+      menuPosition={props.menuPosition}
+      filterOutInternalRoles={props.filterOutInternalRoles}
+      identityProviderUrl={props.identityProviderUrl}
+      isLoadingAccounts={isLoadingAccounts}
+    />
+  );
 };
 
 export const SelectAccountIAMRoleInternal = (props: SelectAccountIAMRoleProps) => {

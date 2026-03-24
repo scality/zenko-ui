@@ -173,9 +173,11 @@ export const useCurrentAccount = () => {
 const DataServiceRoleProvider = ({
   children,
   inlineLoader = false,
+  noLoader = false,
 }: {
   children: JSX.Element;
   inlineLoader?: boolean;
+  noLoader?: boolean;
 }) => {
   const [role, setRoleState] = useState<{ roleArn: string }>({
     roleArn: '',
@@ -240,7 +242,7 @@ const DataServiceRoleProvider = ({
     } else if (!storedRole && !role.roleArn && accounts.length) {
       setRoleState({ roleArn: accounts[0].Roles[0].Arn });
     }
-  }, [accounts.length, accountName, role.roleArn]);
+  }, [accounts.length, accountName, role.roleArn, accounts]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 
@@ -329,9 +331,15 @@ const DataServiceRoleProvider = ({
     return getS3Config(data, newRole.roleArn);
   };
 
-  if (role.roleArn && assumeRoleQuery.isLoading) {
-    //@ts-expect-error fix this when you are working on it
-    return inlineLoader ? <div>loading...</div> : <Loader>Loading...</Loader>;
+  // Allow bypassing loader for components that handle loading states internally
+  if (role.roleArn && assumeRoleQuery.isLoading && !noLoader) {
+    return inlineLoader ? (
+      <div>loading TEST...</div>
+    ) : (
+      <Loader>
+        <>Loading...</>
+      </Loader>
+    );
   }
 
   return (
