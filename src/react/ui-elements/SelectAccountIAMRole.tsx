@@ -3,7 +3,7 @@ import { Select } from '@scality/core-ui/dist/next';
 import type { Bucket } from '@scality/data-browser-library';
 import { ShellHooksProvider } from '@scality/module-federation';
 import type { IAM } from 'aws-sdk';
-import { type PropsWithChildren, useState } from 'react';
+import { type PropsWithChildren, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
 import type { ShellAlerts, ShellHooks } from 'shell/compiled-types/src/hooks/useShellHooks';
@@ -330,15 +330,18 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
   const { showToast } = useToast();
   const accountsList = accounts.accounts.status === 'success' ? accounts.accounts.value : [];
   const isLoadingAccounts = accounts.accounts.status === 'loading';
+  const isError = accounts.accounts.status === 'error';
 
-  if (accounts.accounts.status === 'error') {
-    showToast({
-      status: 'error',
-      open: true,
-      autoDismiss: false,
-      message: accounts.accounts.reason,
-    });
-  }
+  useEffect(() => {
+    if (accounts.accounts.status === 'error') {
+      showToast({
+        status: 'error',
+        open: true,
+        autoDismiss: false,
+        message: accounts.accounts.reason,
+      });
+    }
+  }, [accounts.accounts, showToast]);
 
   return (
     <SelectAccountIAMRoleWithAccount
@@ -351,7 +354,7 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
       filterOutInternalRoles={props.filterOutInternalRoles}
       identityProviderUrl={props.identityProviderUrl}
       isLoadingAccounts={isLoadingAccounts}
-      isError={accounts.accounts.status === 'error'}
+      isError={isError}
     />
   );
 };

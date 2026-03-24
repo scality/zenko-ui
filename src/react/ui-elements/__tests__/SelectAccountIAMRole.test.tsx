@@ -410,6 +410,38 @@ describe('SelectAccountIAMRole', () => {
     });
   });
 
+  it('should display an error toast and disable selects when failing to load accounts', async () => {
+    const getPayloadFn = jest.fn();
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-ignore
+        const params = new URLSearchParams(req.body);
+
+        if (params.get('Action') === 'GetRolesForWebIdentity') {
+          return res(ctx.status(500), ctx.json({ message: 'Internal server error' }));
+        }
+
+        return commonIAMHandlers(getPayloadFn, req, res, ctx);
+      }),
+    );
+
+    const onChange = jest.fn();
+    render(
+      <LocalWrapper>
+        <SelectAccountIAMRole onChange={onChange} />
+      </LocalWrapper>,
+    );
+
+    // Wait for error toast to appear
+    await waitFor(() => {
+      expect(screen.getByText(/An error occurred when fetching accounts/i)).toBeInTheDocument();
+    });
+
+    // Selects should be disabled when there's an error
+    expect(seletors.accountSelect()).toHaveAttribute('disabled');
+    expect(seletors.roleSelect()).toHaveAttribute('disabled');
+  });
+
   it('should display an error when failing to retrieve the role', async () => {
     const getPayloadFn = jest.fn();
     server.use(genFn(getPayloadFn, true));
@@ -450,7 +482,7 @@ describe('SelectAccountIAMRole', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     await waitFor(() => {
-      expect(screen.getByText(/An error occured on our side while fetching the role's policy/i)).toBeInTheDocument();
+      expect(screen.getByText(/An error occured while fetching the role's policy./i)).toBeInTheDocument();
     });
   });
 
