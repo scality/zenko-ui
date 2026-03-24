@@ -162,15 +162,17 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
   };
   const roleQueryData = useQuery(listRolesQuery);
 
-  const allRoles = props.filterOutInternalRoles
-    ? (roleQueryData?.data?.Roles ?? []).filter((role) => {
-        return SCALITY_IAM_ROLES.includes(role.RoleName) || !role.Arn.includes('role/scality-internal');
-      })
-    : (roleQueryData?.data?.Roles ?? []);
+  const unfilteredRoles = roleQueryData?.data?.Roles ?? [];
 
-  const roles = allRoles.some((r) => r.RoleName === STORAGE_MANAGER_ROLE)
-    ? allRoles.filter((r) => r.RoleName === STORAGE_MANAGER_ROLE)
-    : allRoles;
+  const storageManagerFiltered = unfilteredRoles.some((r) => r.RoleName === STORAGE_MANAGER_ROLE)
+    ? unfilteredRoles.filter((r) => r.RoleName === STORAGE_MANAGER_ROLE)
+    : unfilteredRoles;
+
+  const roles = props.filterOutInternalRoles
+    ? storageManagerFiltered.filter((role) => {
+        return role.RoleName === STORAGE_MANAGER_ROLE || SCALITY_IAM_ROLES.includes(role.RoleName) || !role.Arn.includes('role/scality-internal');
+      })
+    : storageManagerFiltered;
 
   const isDefaultAccountSelected = account?.name === defaultValue?.accountName;
   const defaultRole = isDefaultAccountSelected ? defaultValue?.roleName : null;

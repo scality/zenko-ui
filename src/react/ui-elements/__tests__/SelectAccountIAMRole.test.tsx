@@ -1044,4 +1044,70 @@ describe('SelectAccountIAMRole', () => {
     expect(screen.queryByRole('option', { name: /data-consumer-role/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /storage-account-owner-role/i })).not.toBeInTheDocument();
   });
+
+  it('should display storage-manager-role even when filterOutInternalRoles is true', async () => {
+    const getPayloadFn = jest.fn();
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-ignore
+        const params = new URLSearchParams(req.body);
+        if (params.get('Action') === 'ListRoles') {
+          return res(
+            ctx.xml(`
+              <ListRolesResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+                <ListRolesResult>
+                  <Roles>
+                    <member>
+                      <AssumeRolePolicyDocument>%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Aroles%22%3A%22StorageManager%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D</AssumeRolePolicyDocument>
+                      <Description>Storage Manager</Description>
+                      <Path>/scality-internal/</Path>
+                      <RoleName>storage-manager-role</RoleName>
+                      <RoleId>YRA3NTDUTWN6DRN76LSSDM6HA22RWBO9</RoleId>
+                      <Arn>arn:aws:iam::232853836441:role/scality-internal/storage-manager-role</Arn>
+                      <CreateDate>2024-04-17T16:31:36Z</CreateDate>
+                    </member>
+                    <member>
+                      <AssumeRolePolicyDocument>%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Agroups%22%3A%22100%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D</AssumeRolePolicyDocument>
+                      <Description>Data Consumer</Description>
+                      <Path>/scality-internal/</Path>
+                      <RoleName>data-consumer-role</RoleName>
+                      <RoleId>YGEX9QWC7RI9KMBQEKS4RA9OND4JZ35U</RoleId>
+                      <Arn>arn:aws:iam::232853836441:role/scality-internal/data-consumer-role</Arn>
+                      <CreateDate>2024-04-17T16:31:36Z</CreateDate>
+                    </member>
+                  </Roles>
+                  <IsTruncated>false</IsTruncated>
+                </ListRolesResult>
+              </ListRolesResponse>
+            `),
+          );
+        }
+        return commonIAMHandlers(getPayloadFn, req, res, ctx);
+      }),
+    );
+    const onChange = jest.fn();
+    render(
+      <LocalWrapper>
+        <SelectAccountIAMRole onChange={onChange} filterOutInternalRoles />
+      </LocalWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(seletors.accountSelect()).toBeInTheDocument();
+    });
+
+    await userEvent.click(seletors.accountSelect());
+    await userEvent.click(seletors.selectOption(/no-bucket/i));
+
+    await waitFor(() => {
+      expect(seletors.roleSelect()).toBeInTheDocument();
+    });
+
+    await userEvent.click(seletors.roleSelect());
+
+    // storage-manager-role should still be visible even though it's under /scality-internal/
+    expect(screen.getByRole('option', { name: /storage-manager-role/i })).toBeInTheDocument();
+    // other internal roles should be filtered out
+    expect(screen.queryByRole('option', { name: /data-consumer-role/i })).not.toBeInTheDocument();
+  });
 });
