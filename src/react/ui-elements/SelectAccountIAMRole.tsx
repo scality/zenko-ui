@@ -115,12 +115,13 @@ type SelectAccountIAMRoleProps = {
 type SelectAccountIAMRoleWithAccountProps = SelectAccountIAMRoleProps & {
   accounts: Account[];
   isLoadingAccounts: boolean;
+  isError: boolean;
 };
 
 const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountProps) => {
   const IAMClient = useIAMClient();
   const setAssumedRole = useSetAssumedRole();
-  const { accounts, defaultValue, hideAccountRoles, onChange, isLoadingAccounts } = props;
+  const { accounts, defaultValue, hideAccountRoles, onChange, isLoadingAccounts, isError } = props;
   const defaultAccountName = useParams<{ accountName: string }>()?.accountName;
   const defaultAccount =
     (defaultAccountName ? accounts.find((account) => account.name === defaultAccountName) : null) ?? null;
@@ -139,7 +140,7 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
         status: 'error',
         open: true,
         autoDismiss: false,
-        message: "An error occured on our side while fetching the role's policy.",
+        message: "An error occured while fetching the role's policy.",
       });
     },
   });
@@ -171,7 +172,11 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
 
   const roles = props.filterOutInternalRoles
     ? storageManagerFiltered.filter((role) => {
-        return role.RoleName === STORAGE_MANAGER_ROLE || SCALITY_IAM_ROLES.includes(role.RoleName) || !role.Arn.includes('role/scality-internal');
+        return (
+          role.RoleName === STORAGE_MANAGER_ROLE ||
+          SCALITY_IAM_ROLES.includes(role.RoleName) ||
+          !role.Arn.includes('role/scality-internal')
+        );
       })
     : storageManagerFiltered;
 
@@ -185,6 +190,7 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
         <FormGroup
           label="Account"
           id="select-account"
+          disabled={isError}
           content={
             <Select
               id="select-account"
@@ -238,7 +244,7 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
                         Principal: { Federated?: string };
                         Action: 'sts:AssumeRoleWithWebIdentity';
                         Condition: {
-                          StringEquals: { ['keycloak:roles']: string };
+                          StringEquals: { 'keycloak:roles': string };
                         };
                       }[];
                     } = JSON.parse(decodeURIComponent(data.Role.AssumeRolePolicyDocument));
@@ -321,9 +327,18 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
     accessibleAccountsAdapter,
     metricsAdapter,
   });
-
+  const { showToast } = useToast();
   const accountsList = accounts.accounts.status === 'success' ? accounts.accounts.value : [];
   const isLoadingAccounts = accounts.accounts.status === 'loading';
+
+  if (accounts.accounts.status === 'error') {
+    showToast({
+      status: 'error',
+      open: true,
+      autoDismiss: false,
+      message: accounts.accounts.reason,
+    });
+  }
 
   return (
     <SelectAccountIAMRoleWithAccount
@@ -336,6 +351,7 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
       filterOutInternalRoles={props.filterOutInternalRoles}
       identityProviderUrl={props.identityProviderUrl}
       isLoadingAccounts={isLoadingAccounts}
+      isError={accounts.accounts.status === 'error'}
     />
   );
 };
