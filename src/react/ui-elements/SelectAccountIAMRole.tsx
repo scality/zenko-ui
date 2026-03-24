@@ -332,6 +332,7 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
   const isLoadingAccounts = accounts.accounts.status === 'loading';
   const isError = accounts.accounts.status === 'error';
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We want to show the error toast only when the accounts status changes, reason is not needed in the dependency array
   useEffect(() => {
     if (accounts.accounts.status === 'error') {
       showToast({
@@ -341,7 +342,7 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
         message: accounts.accounts.reason,
       });
     }
-  }, [accounts.accounts, showToast]);
+  }, [accounts.accounts.status, showToast]);
 
   return (
     <SelectAccountIAMRoleWithAccount
