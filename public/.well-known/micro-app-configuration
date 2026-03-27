@@ -23,6 +23,10 @@
         "scope": "zenko"
       }
     ],
-    "publicPath": "/zenko"
+    "publicPath": "/zenko",
+    "mcpTools": {
+      "module": "./MCPTools",
+      "scope": "zenko"
+    }
   }
 }
