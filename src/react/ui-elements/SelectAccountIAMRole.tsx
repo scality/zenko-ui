@@ -346,7 +346,6 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
 
   return (
     <SelectAccountIAMRoleWithAccount
-      key="stable-account-role-selector"
       accounts={accountsList}
       defaultValue={defaultValue}
       hideAccountRoles={hideAccountRoles}
