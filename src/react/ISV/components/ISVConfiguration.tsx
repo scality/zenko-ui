@@ -102,10 +102,11 @@ const getDefaultFormValues = (
   paramsAccountName: string | null,
   isVeeamVBROnly: boolean,
 ): Partial<FormData> => {
+  const hasImmutableField = platform.fields.some((f) => f.name === 'enableImmutableBackup');
   const baseDefaults: Partial<FormData> = {
     accountName: paramsAccountName || '',
     accountNameType: paramsAccountName ? 'existing' : 'create',
-    enableImmutableBackup: true,
+    ...(hasImmutableField ? { enableImmutableBackup: true } : {}),
     buckets: [
       {
         name: '',
