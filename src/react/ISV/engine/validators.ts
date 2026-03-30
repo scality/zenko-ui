@@ -137,6 +137,15 @@ export const CommvaultValidator = Joi.object({
 });
 
 /**
+ * Rubrik validator (basic, no capacity, no immutability)
+ */
+export const RubrikValidator = Joi.object({
+  ...accountValidator,
+  ...iamValidator,
+  ...bucketsValidator,
+});
+
+/**
  * Veeam Kasten validator (basic, no capacity)
  */
 export const KastenValidator = Joi.object({

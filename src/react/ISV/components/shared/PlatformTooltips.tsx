@@ -7,7 +7,7 @@
 
 import { ListItem } from './StyledComponents';
 
-type PlatformName = 'Veeam' | 'Commvault' | 'Kasten';
+type PlatformName = 'Veeam' | 'Commvault' | 'Kasten' | 'Rubrik';
 
 /**
  * Account name tooltip - explains the purpose of the account field
