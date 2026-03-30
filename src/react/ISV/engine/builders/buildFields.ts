@@ -114,22 +114,24 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
     itemFields: buildBucketItemFields(config),
   } as FieldDef);
 
-  // 5. Immutable toggle
-  const immutableOverride = config.fieldOverrides?.enableImmutableBackup;
-  const immutableBase = applyOverrides(
-    {
-      label: 'Immutable Backup',
-      helpText: 'It enables object-lock on the bucket which means backups will be permanent and unchangeable.',
-    },
-    immutableOverride,
-  );
+  // 5. Immutable toggle (skipped if platform disables immutability)
+  if (!config.disableImmutability) {
+    const immutableOverride = config.fieldOverrides?.enableImmutableBackup;
+    const immutableBase = applyOverrides(
+      {
+        label: 'Immutable Backup',
+        helpText: 'It enables object-lock on the bucket which means backups will be permanent and unchangeable.',
+      },
+      immutableOverride,
+    );
 
-  fields.push({
-    name: 'enableImmutableBackup',
-    type: 'toggle',
-    defaultValue: true,
-    ...immutableBase,
-  } as FieldDef);
+    fields.push({
+      name: 'enableImmutableBackup',
+      type: 'toggle',
+      defaultValue: true,
+      ...immutableBase,
+    } as FieldDef);
+  }
 
   // 6. Additional fields after immutable
   if (config.additionalFields?.afterImmutable) {

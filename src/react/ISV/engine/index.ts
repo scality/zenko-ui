@@ -72,6 +72,7 @@ export {
   iamValidator,
   immutableValidator,
   KastenValidator,
+  RubrikValidator,
   VeeamVBOValidator,
   VeeamVBRValidator,
 } from './validators';

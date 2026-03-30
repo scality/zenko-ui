@@ -61,3 +61,28 @@ export const GET_COMMVAULT_POLICY = (buckets: string[], isImmutable: boolean) =>
   });
 
 export const GET_KASTEN_POLICY = GET_VEEAM_POLICY;
+
+export const GET_RUBRIK_POLICY = (buckets: string[], _isImmutable: boolean) =>
+  JSON.stringify({
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Sid: 'RubrikPolicy',
+        Effect: 'Allow',
+        Action: [
+          's3:PutObject',
+          's3:GetObject',
+          's3:ListBucket',
+          's3:DeleteObject',
+          's3:GetBucketLocation',
+          's3:AbortMultipartUpload',
+          's3:ListMultipartUploadParts',
+          's3:ListBucketMultipartUploads',
+          's3:RestoreObject',
+          's3:CreateBucket',
+          's3:GetBucketAcl',
+        ],
+        Resource: buckets.flatMap((bucket) => [`arn:aws:s3:::${bucket}/*`]),
+      },
+    ],
+  });
