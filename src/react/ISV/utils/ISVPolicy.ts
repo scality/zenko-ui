@@ -70,11 +70,14 @@ export const GET_RUBRIK_POLICY = (buckets: string[], _isImmutable: boolean) =>
         Sid: 'RubrikPolicy',
         Effect: 'Allow',
         Action: [
-          's3:PutObject',
+          // defaultActions required for policy update fingerprinting
           's3:GetObject',
-          's3:ListBucket',
+          's3:PutObject',
           's3:DeleteObject',
           's3:GetBucketLocation',
+          's3:GetBucketVersioning',
+          's3:GetBucketObjectLockConfiguration',
+          // Rubrik-specific actions
           's3:AbortMultipartUpload',
           's3:ListMultipartUploadParts',
           's3:ListBucketMultipartUploads',
@@ -82,7 +85,13 @@ export const GET_RUBRIK_POLICY = (buckets: string[], _isImmutable: boolean) =>
           's3:CreateBucket',
           's3:GetBucketAcl',
         ],
-        Resource: buckets.flatMap((bucket) => [`arn:aws:s3:::${bucket}/*`]),
+        Resource: buckets.flatMap((bucket) => [`arn:aws:s3:::${bucket}/*`, `arn:aws:s3:::${bucket}`]),
+      },
+      {
+        Sid: 'RubrikListBuckets',
+        Effect: 'Allow',
+        Action: ['s3:ListAllMyBuckets', 's3:ListBucket'],
+        Resource: '*',
       },
     ],
   });

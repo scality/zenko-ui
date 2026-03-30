@@ -62,25 +62,29 @@ describe('RubrikPlatform', () => {
   });
 
   describe('policy generation', () => {
-    it('should generate valid JSON policy', () => {
+    it('should generate valid JSON policy with two statements', () => {
       const policy = RubrikPlatform.getPolicy(['my-archive-rubrik-0'], false);
       const parsed = JSON.parse(policy);
 
       expect(parsed.Version).toBe('2012-10-17');
-      expect(parsed.Statement).toHaveLength(1);
+      expect(parsed.Statement).toHaveLength(2);
       expect(parsed.Statement[0].Sid).toBe('RubrikPolicy');
+      expect(parsed.Statement[1].Sid).toBe('RubrikListBuckets');
     });
 
-    it('should include Rubrik-specific actions', () => {
+    it('should include all defaultActions and Rubrik-specific actions in statement 0', () => {
       const policy = RubrikPlatform.getPolicy(['bucket1'], false);
       const parsed = JSON.parse(policy);
       const actions = parsed.Statement[0].Action;
 
-      expect(actions).toContain('s3:PutObject');
+      // defaultActions (required for policy update fingerprinting)
       expect(actions).toContain('s3:GetObject');
-      expect(actions).toContain('s3:ListBucket');
+      expect(actions).toContain('s3:PutObject');
       expect(actions).toContain('s3:DeleteObject');
       expect(actions).toContain('s3:GetBucketLocation');
+      expect(actions).toContain('s3:GetBucketVersioning');
+      expect(actions).toContain('s3:GetBucketObjectLockConfiguration');
+      // Rubrik-specific actions
       expect(actions).toContain('s3:AbortMultipartUpload');
       expect(actions).toContain('s3:ListMultipartUploadParts');
       expect(actions).toContain('s3:ListBucketMultipartUploads');
@@ -89,13 +93,23 @@ describe('RubrikPlatform', () => {
       expect(actions).toContain('s3:GetBucketAcl');
     });
 
-    it('should scope resource to objects only (bucket/*), not the bucket ARN', () => {
+    it('should scope statement 0 resources to bucket/* and bucket ARN', () => {
       const policy = RubrikPlatform.getPolicy(['my-archive-rubrik-0'], false);
       const parsed = JSON.parse(policy);
       const resources = parsed.Statement[0].Resource;
 
       expect(resources).toContain('arn:aws:s3:::my-archive-rubrik-0/*');
-      expect(resources).not.toContain('arn:aws:s3:::my-archive-rubrik-0');
+      expect(resources).toContain('arn:aws:s3:::my-archive-rubrik-0');
+    });
+
+    it('should have ListAllMyBuckets and ListBucket on * in statement 1', () => {
+      const policy = RubrikPlatform.getPolicy(['bucket1'], false);
+      const parsed = JSON.parse(policy);
+      const stmt1 = parsed.Statement[1];
+
+      expect(stmt1.Action).toContain('s3:ListAllMyBuckets');
+      expect(stmt1.Action).toContain('s3:ListBucket');
+      expect(stmt1.Resource).toBe('*');
     });
 
     it('should generate the same policy regardless of isImmutable flag', () => {
