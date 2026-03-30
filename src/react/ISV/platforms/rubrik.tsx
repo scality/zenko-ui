@@ -41,9 +41,8 @@ export const RubrikPlatform = definePlatform({
         render: () => (
           <Stack gap="r8" direction="vertical">
             <Text>
-              When configuring the Archive Location in Rubrik CDM, select{' '}
-              <b>Object Store (S3 Compatible)</b> then <b>Amazon S3 compatible</b> (do not select
-              "Scality").
+              When configuring the Archival Location in Rubrik CDM, select{' '}
+              <b>Object Store (S3 Compatible)</b> then <b>Amazon S3 compatible</b>.
             </Text>
             <Text>
               Use the <b>Bucket Prefix</b> field in Rubrik to enter the prefix portion of your
