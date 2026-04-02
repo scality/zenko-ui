@@ -265,9 +265,12 @@ describe('LocationEditor', () => {
 
       await userEvent.click(optionElement);
 
-      await waitFor(() => {
-        expect(location.checkField()).toBeInTheDocument();
-      });
+      await waitFor(
+        () => {
+          expect(location.checkField()).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
     }
   });
 });

@@ -1,8 +1,10 @@
 import { Box } from '@scality/core-ui/dist/next';
 import { type Bucket, type ColumnConfig, DataBrowserUI } from '@scality/data-browser-library';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Route, Routes, useLocation, useParams } from 'react-router';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
 import { useAuthGroups, useQueryParams } from '../utils/hooks';
@@ -48,6 +50,17 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
   const dataBrowserBasePath = `${basePath}/accounts/${accountName}`;
 
   const { bucketCreateExtraFields, transformBucketCreateData } = useBucketCreateConfig();
+
+  const adapter = useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter: adapter,
+  });
+  const locations = useMemo(() => accountsLocationsAndEndpoints?.locations ?? [], [accountsLocationsAndEndpoints?.locations]);
+
+  const isLocationCold = useCallback(
+    (locationName: string) => locations.some((loc) => loc.name === locationName && loc.isCold),
+    [locations],
+  );
 
   const extraBucketListColumns = useMemo(() => {
     const columns: ColumnConfig<Bucket>[] = [
@@ -111,6 +124,7 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
         bucketCreateVersioning={BucketCreateVersioning}
         replicationRoleDefault="arn:aws:iam::root:role/s3-replication-role"
         replicationDestinationFields={ReplicationCRRDestinationFields}
+        isLocationCold={isLocationCold}
       />
     </>
   );
