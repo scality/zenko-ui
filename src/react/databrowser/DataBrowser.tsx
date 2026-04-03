@@ -2,6 +2,7 @@ import { Box } from '@scality/core-ui/dist/next';
 import { type Bucket, type ColumnConfig, DataBrowserUI } from '@scality/data-browser-library';
 import { useCallback, useMemo } from 'react';
 import { Route, Routes, useLocation, useParams } from 'react-router';
+import { XDM_FEATURE } from '../../js/config';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
@@ -15,6 +16,7 @@ import { LocationSection } from './buckets/LocationSection';
 import { LocationSelector } from './buckets/LocationSelector';
 import { ReplicationCRRDestinationFields } from './buckets/ReplicationCRRDestinationFields';
 import { StorageClassSelector } from './buckets/StorageClassSelector';
+import { MetadataUpdatesColumn } from './buckets/MetadataUpdatesColumn';
 import { StorageLocationColumn } from './buckets/StorageLocationColumn';
 import { UseCaseSection } from './buckets/UseCaseSection';
 import { useBucketCreateConfig } from './buckets/useBucketCreateConfig';
@@ -45,7 +47,7 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
   const query = useQueryParams();
   const prefixPath = query.get('prefix');
 
-  const { basePath } = useConfig();
+  const { basePath, features } = useConfig();
 
   const dataBrowserBasePath = `${basePath}/accounts/${accountName}`;
 
@@ -55,7 +57,10 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
   const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
     accountsLocationsEndpointsAdapter: adapter,
   });
-  const locations = useMemo(() => accountsLocationsAndEndpoints?.locations ?? [], [accountsLocationsAndEndpoints?.locations]);
+  const locations = useMemo(
+    () => accountsLocationsAndEndpoints?.locations ?? [],
+    [accountsLocationsAndEndpoints?.locations],
+  );
 
   const isLocationCold = useCallback(
     (locationName: string) => locations.some((loc) => loc.name === locationName && loc.isCold),
@@ -73,6 +78,16 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
       },
     ];
 
+    if (features.includes(XDM_FEATURE)) {
+      columns.push({
+        id: 'ingestion',
+        header: 'Metadata updates',
+        render: MetadataUpdatesColumn,
+        width: '180px',
+        cellStyle: { textAlign: 'right' },
+      });
+    }
+
     if (isStorageManager) {
       columns.push({
         id: 'dataUsed',
@@ -84,7 +99,7 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
     }
 
     return columns;
-  }, [isStorageManager]);
+  }, [isStorageManager, features]);
 
   const extraBucketListActions = [
     {

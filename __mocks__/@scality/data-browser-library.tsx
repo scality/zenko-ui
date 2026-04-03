@@ -66,6 +66,16 @@ export const useGetBucketTagging = jest.fn(() => ({
   refetch: jest.fn(),
 }));
 
+export const useGetBucketLocation = jest.fn(() => ({
+  data: undefined,
+  status: 'pending',
+  isLoading: true,
+  isSuccess: false,
+  isError: false,
+  error: null,
+  refetch: jest.fn(),
+}));
+
 export const useGetObject = jest.fn(() => ({
   data: undefined,
   status: 'idle',
