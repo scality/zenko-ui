@@ -19,7 +19,7 @@ import {
 } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
-import { regexArn, SCALITY_IAM_ROLES, STORAGE_MANAGER_ROLE } from '../utils/hooks';
+import { regexArn, SCALITY_IAM_ROLES } from '../utils/hooks';
 
 export class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(buckets: Bucket[]): Promise<Record<string, LatestUsedCapacity>> {
@@ -164,21 +164,11 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
   };
   const roleQueryData = useQuery(listRolesQuery);
 
-  const unfilteredRoles = roleQueryData?.data?.Roles ?? [];
-
-  const storageManagerFiltered = unfilteredRoles.some((r) => r.RoleName === STORAGE_MANAGER_ROLE)
-    ? unfilteredRoles.filter((r) => r.RoleName === STORAGE_MANAGER_ROLE)
-    : unfilteredRoles;
-
   const roles = props.filterOutInternalRoles
-    ? storageManagerFiltered.filter((role) => {
-        return (
-          role.RoleName === STORAGE_MANAGER_ROLE ||
-          SCALITY_IAM_ROLES.includes(role.RoleName) ||
-          !role.Arn.includes('role/scality-internal')
-        );
+    ? (roleQueryData?.data?.Roles ?? []).filter((role) => {
+        return SCALITY_IAM_ROLES.includes(role.RoleName) || !role.Arn.includes('role/scality-internal');
       })
-    : storageManagerFiltered;
+    : (roleQueryData?.data?.Roles ?? []);
 
   const isDefaultAccountSelected = account?.name === defaultValue?.accountName;
   const defaultRole = isDefaultAccountSelected ? defaultValue?.roleName : null;
