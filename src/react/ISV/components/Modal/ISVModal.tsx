@@ -144,14 +144,14 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
   const navigate = useBasenameRelativeNavigate();
   const [selectedISV, setSelectedISV] = useState<ISVCardConfig>(null);
   const url = useLocation();
-  const match = url.pathname.match(/accounts\/([^/]+)\/buckets/);
+  const match = url.pathname.match(/accounts\/([^/]+)/);
   const accountName = match ? match[1] : null;
 
   const handleContinueClick = () => {
     if (selectedISV?.assistant) {
       navigate(`/isv/configuration?platform=${selectedISV.id}${accountName ? `&account=${accountName}` : ''}`);
     } else if (accountName) {
-      navigate(`/accounts/${accountName}/create-bucket`);
+      navigate(`/accounts/${accountName}/buckets/-/create`);
     } else {
       navigate(`/create-account`);
     }
