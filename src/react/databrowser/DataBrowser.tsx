@@ -9,6 +9,9 @@ import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/Ac
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
 import { useAuthGroups, useQueryParams } from '../utils/hooks';
+import { storageOptions } from '../locations/LocationDetails';
+import type { LocationTypeKey } from '../../types/config';
+import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { BucketLocationsPrefetch } from './BucketLocationsPrefetch';
 import { BucketCreateVersioning } from './buckets/BucketCreateVersioning';
 import { DataUsedColumn } from './buckets/DataUsedColumn';
@@ -39,6 +42,24 @@ const EXTRA_BUCKET_OVERVIEW_GENERAL = [
   },
 ];
 
+export function getVersioningDisabledStatus(
+  locations: LocationInfo[],
+  locationConstraint: string,
+): { disabled: boolean; tooltip?: string } {
+  const location = locations.find((loc) => loc.name === locationConstraint);
+  if (!location) return { disabled: false };
+  const options = (storageOptions as Partial<Record<string, (typeof storageOptions)[LocationTypeKey]>>)[
+    location.type as unknown as string
+  ];
+  if (options && !options.supportsVersioning) {
+    return {
+      disabled: true,
+      tooltip: `Versioning is not supported on ${options.name}.`,
+    };
+  }
+  return { disabled: false };
+}
+
 export default function DataBrowser({ hideHeader = false }: { hideHeader?: boolean }) {
   const { accountName } = useParams<{ accountName: string }>();
   const { isStorageManager } = useAuthGroups();
@@ -64,6 +85,11 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
 
   const isLocationCold = useCallback(
     (locationName: string) => locations.some((loc) => loc.name === locationName && loc.isCold),
+    [locations],
+  );
+
+  const isVersioningDisabled = useCallback(
+    (locationConstraint: string) => getVersioningDisabledStatus(locations, locationConstraint),
     [locations],
   );
 
@@ -140,6 +166,7 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
         replicationRoleDefault="arn:aws:iam::root:role/s3-replication-role"
         replicationDestinationFields={ReplicationCRRDestinationFields}
         isLocationCold={isLocationCold}
+        isVersioningDisabled={isVersioningDisabled}
       />
     </>
   );
