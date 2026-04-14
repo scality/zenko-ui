@@ -7,12 +7,12 @@
     {
       "matchManagers": ["dockerfile"],
       "matchUpdateTypes": ["minor", "patch"],
-      "labels": ["dependencies", "docker"]
+      "addLabels": ["dependencies", "docker", "renovate"]
     },
     {
       "matchManagers": ["dockerfile"],
       "matchUpdateTypes": ["major"],
-      "labels": ["dependencies", "docker", "major"]
+      "addLabels": ["dependencies", "docker", "major", "renovate"]
     }
   ]
 }
