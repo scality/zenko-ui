@@ -29,3 +29,16 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
+
+      - name: Auto-approve Renovate PRs
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr list --repo ${{ github.repository }} --author 'app/scality-actions' --state open --json number --jq '.[].number' | while read -r pr; do
+            if ! gh pr view "$pr" --repo ${{ github.repository }} --json comments --jq '.comments[].body' | grep -q '^/approve$'; then
+              gh pr comment "$pr" --repo ${{ github.repository }} --body '/approve'
+              echo "Approved PR #$pr"
+            else
+              echo "PR #$pr already approved, skipping"
+            fi
+          done
