@@ -284,13 +284,8 @@ const DataServiceRoleProvider = ({
             };
           })
           .catch((err) => {
-            console.warn('STS credential refresh failed:', err);
             refreshPromiseRef.current = null;
-            refreshCooldownUntilRef.current = Date.now() + REFRESH_COOLDOWN_MS;
-            return {
-              ...(s3ConfigRef.current.credentials as S3Credentials),
-              expiration: expiration ? new Date(expiration) : undefined,
-            };
+            throw err instanceof Error ? err : new Error(String(err));
           });
       }
       return await refreshPromiseRef.current;

@@ -60,6 +60,7 @@ jest.spyOn(hooks, 'useAccounts').mockReturnValue({
 } as any);
 
 import DataServiceRoleProvider, { useDataServiceRole, useAssumedRole } from '../DataServiceRoleProvider';
+import { DataBrowserProvider } from '@scality/data-browser-library';
 
 const theme = coreUIAvailableThemes.darkRebrand;
 
@@ -204,5 +205,54 @@ describe('DataServiceRoleProvider', () => {
         roleArn: TEST_ROLE_ARN,
       }),
     );
+  });
+
+  it('credentialProvider throws when STS refresh fails and resets the refresh promise', async () => {
+    // Use near-expiry credentials so credentialProvider triggers a refresh
+    const nearExpiryCredentials = {
+      Credentials: {
+        AccessKeyId: 'ASIA_NEAR_EXPIRY',
+        SecretAccessKey: 'secret',
+        SessionToken: 'session',
+        Expiration: new Date(Date.now() + 60 * 1000), // expires in 1 min (within 2 min buffer)
+      },
+    };
+    mockAssumeRoleWithWebIdentity.mockResolvedValue(nearExpiryCredentials);
+
+    let capturedGetS3Config: (() => any) | null = null;
+    (DataBrowserProvider as jest.Mock).mockImplementation(({ getS3Config, children }) => {
+      capturedGetS3Config = getS3Config;
+      return <>{children}</>;
+    });
+
+    const Wrapper = createWrapper();
+
+    render(
+      <Wrapper>
+        <DataServiceRoleProvider>
+          <div data-testid="child-content">Hello</div>
+        </DataServiceRoleProvider>
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('child-content')).toBeInTheDocument();
+    });
+
+    expect(capturedGetS3Config).not.toBeNull();
+
+    // Now simulate a failed STS refresh
+    const stsError = new Error('403 Forbidden');
+    mockAssumeRoleWithWebIdentity.mockRejectedValue(stsError);
+
+    const s3Config = capturedGetS3Config!();
+    const credentialProvider = s3Config.credentials;
+
+    // The first call should throw because the refresh fails
+    await expect(credentialProvider()).rejects.toThrow('403 Forbidden');
+
+    // After throwing, refreshPromiseRef should be reset — a subsequent call
+    // should also attempt a fresh fetch (and throw again if STS still fails)
+    await expect(credentialProvider()).rejects.toThrow('403 Forbidden');
   });
 });
