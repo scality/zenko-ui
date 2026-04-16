@@ -422,15 +422,41 @@ describe('useListLocationsForCurrentAccount', () => {
 
     // V
     await waitFor(() => {
-      return result.current.locations.status === 'error';
+      return result.current.locations.status === 'success';
     });
 
     // V
     const expectedRes = {
       locations: {
-        status: 'error',
-        title: 'Account Not Found Error',
-        reason: 'Account account-id-with-orphan-metrics not found',
+        status: 'success',
+        value: {},
+      },
+    };
+    expect(result.current).toStrictEqual(expectedRes);
+  });
+
+  it('account missing from overlay returns empty locations', async () => {
+    // S
+    jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
+      account: {
+        id: 'account-id-not-in-overlay',
+        Name: 'Unknown',
+        Roles: [],
+        CreationDate: DEFAULT_METRICS_MESURED_ON,
+      },
+    });
+    const { result, waitFor } = setupAndRenderHook();
+
+    // E
+    await waitFor(() => {
+      return result.current.locations.status === 'success';
+    });
+
+    // V
+    const expectedRes = {
+      locations: {
+        status: 'success',
+        value: {},
       },
     };
     expect(result.current).toStrictEqual(expectedRes);
