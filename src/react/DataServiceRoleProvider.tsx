@@ -42,9 +42,11 @@ const useAssumeRoleQuery = () => {
             roleArn: roleArn,
             RoleSessionName: roleSessionName,
           }),
-        refetchOnMount: false,
+        refetchOnMount: true,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
+        staleTime: 12 * 60 * 1000,
+        refetchInterval: 12 * 60 * 1000,
         enabled: !!roleArn,
       };
     },
