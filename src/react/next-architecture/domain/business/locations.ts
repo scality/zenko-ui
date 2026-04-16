@@ -189,7 +189,7 @@ export const useListLocationsForCurrentAccount = ({
   }
 
   // Account is defined but not found in the overlay — treat as having no locations
-  if (accountCannonicalIdResult.status === 'success' && accountCannonicalIdResult.value === '') {
+  if (accountCannonicalIdResult.status === 'unknown') {
     return {
       locations: {
         status: 'success',

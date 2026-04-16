@@ -408,33 +408,6 @@ describe('useListLocationsForCurrentAccount', () => {
     expect(result.current).toStrictEqual(expectedRes);
   });
 
-  it('should return an error when the location metrics exist but not the location', async () => {
-    // S
-    jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
-      account: {
-        id: 'account-id-with-orphan-metrics',
-        Name: 'Chat',
-        Roles: [],
-        CreationDate: DEFAULT_METRICS_MESURED_ON,
-      },
-    });
-    const { result, waitFor } = setupAndRenderHook();
-
-    // V
-    await waitFor(() => {
-      return result.current.locations.status === 'success';
-    });
-
-    // V
-    const expectedRes = {
-      locations: {
-        status: 'success',
-        value: {},
-      },
-    };
-    expect(result.current).toStrictEqual(expectedRes);
-  });
-
   it('account missing from overlay returns empty locations', async () => {
     // S
     jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({

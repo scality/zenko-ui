@@ -26,6 +26,7 @@ export const queries = {
   listAccountsLocationAndEndpoints: (accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter) => ({
     queryKey: ['configOverlay'],
     queryFn: () => accountsLocationsEndpointsAdapter.listAccountsLocationsAndEndpoints(),
+    ...noRefetchOptions,
   }),
   listAccountsMetrics: (metricsAdapter: IMetricsAdapter, accountsCanonicalIds: string[]) => ({
     queryKey: ['accountsMetrics'],
@@ -97,8 +98,7 @@ export const useAccountCannonicalId = ({
   const account = accountsLocationsAndEndpoints?.accounts?.find((a) => a.id === accountId);
   if (!account) {
     return {
-      status: 'success',
-      value: '',
+      status: 'unknown',
     };
   }
 
