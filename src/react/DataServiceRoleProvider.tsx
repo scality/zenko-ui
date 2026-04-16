@@ -42,7 +42,7 @@ const useAssumeRoleQuery = () => {
             roleArn: roleArn,
             RoleSessionName: roleSessionName,
           }),
-        refetchOnMount: true,
+        refetchOnMount: 'always',
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         staleTime: 12 * 60 * 1000,
@@ -215,7 +215,7 @@ const DataServiceRoleProvider = ({
     {
       enabled: !!role.roleArn,
       refetchOnWindowFocus: true,
-      refetchOnMount: true,
+      refetchOnMount: 'always',
       keepPreviousData: true,
       staleTime: 12 * 60 * 1000,
       refetchInterval: 12 * 60 * 1000,

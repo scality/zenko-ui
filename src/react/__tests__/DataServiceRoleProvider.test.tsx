@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { render, screen, waitFor, renderHook } from '@testing-library/react';
 import { QueryClient } from 'react-query';
 import { QueryClientProvider } from '../../QueryClientProvider';
 import { MemoryRouter } from 'react-router';
@@ -169,15 +168,34 @@ describe('DataServiceRoleProvider', () => {
     });
   });
 
-  it('assumeRoleQuery is called on remount (refetchOnMount: true)', async () => {
+  it('assumeRoleQuery refetches on remount with stale cache', async () => {
+    // Use a shared QueryClient so the cache persists across mounts.
+    // Between mounts we invalidate the cache to simulate credentials
+    // becoming stale, then verify refetchOnMount triggers a new STS call.
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+
+    function SharedWrapper({ children }: { children: React.ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <MemoryRouter>{children}</MemoryRouter>
+          </ThemeProvider>
+        </QueryClientProvider>
+      );
+    }
+
     // First mount — STS is called once
-    const Wrapper1 = createWrapper();
     const { unmount } = render(
-      <Wrapper1>
+      <SharedWrapper>
         <DataServiceRoleProvider>
           <div data-testid="child-content">Hello</div>
         </DataServiceRoleProvider>
-      </Wrapper1>,
+      </SharedWrapper>,
     );
 
     await waitFor(() => {
@@ -187,7 +205,9 @@ describe('DataServiceRoleProvider', () => {
     expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledTimes(1);
     unmount();
 
-    // Second mount with a fresh QueryClient — STS must be called again
+    // Mark cached queries as stale (simulates credentials aging past staleTime)
+    queryClient.invalidateQueries(['assumeRole']);
+
     jest.clearAllMocks();
     mockAssumeRoleWithWebIdentity.mockResolvedValue(MOCK_STS_CREDENTIALS);
     jest.spyOn(hooks, 'useAccounts').mockReturnValue({
@@ -200,20 +220,22 @@ describe('DataServiceRoleProvider', () => {
       ],
     } as any);
 
-    const Wrapper2 = createWrapper();
+    // Second mount — stale cache + refetchOnMount: 'always' triggers a new STS call
     render(
-      <Wrapper2>
+      <SharedWrapper>
         <DataServiceRoleProvider>
           <div data-testid="child-content-2">Hello again</div>
         </DataServiceRoleProvider>
-      </Wrapper2>,
+      </SharedWrapper>,
     );
 
     await waitFor(() => {
       expect(screen.getByTestId('child-content-2')).toBeInTheDocument();
     });
 
-    expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledTimes(1);
+    });
     expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledWith(
       expect.objectContaining({ roleArn: TEST_ROLE_ARN }),
     );
@@ -286,7 +308,7 @@ describe('DataServiceRoleProvider', () => {
     const queryConfig = result.current.getQuery(TEST_ROLE_ARN);
 
     expect(queryConfig).toMatchObject({
-      refetchOnMount: true,
+      refetchOnMount: 'always',
       refetchInterval: expect.any(Number),
       enabled: true,
     });
