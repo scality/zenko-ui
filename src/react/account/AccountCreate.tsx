@@ -73,6 +73,7 @@ function AccountCreate() {
         onSuccess: (data) => {
           refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
             onSuccess: () => {
+              queryClient.invalidateQueries(['configOverlay']);
               setRole({
                 roleArn: `arn:aws:iam::${data.id}:role/scality-internal/storage-manager-role`,
               });
