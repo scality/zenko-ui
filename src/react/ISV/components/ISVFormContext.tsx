@@ -36,7 +36,7 @@ type ISVFormContextValue = {
 
   // Actions
   onAccountSelected: (accountName: string) => void;
-  resetIAMFields: () => void;
+  resetIAMFields: (mode: 'create' | 'existing', firstAccountName?: string) => void;
 };
 
 const ISVFormContext = createContext<ISVFormContextValue | null>(null);
@@ -99,11 +99,19 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
   const iamUsersStatus = getIAMUsersMutation.status as 'idle' | 'loading' | 'success' | 'error';
 
   // Reset IAM fields
-  const resetIAMFields = useCallback(() => {
-    setValue('IAMUserName', '');
-    setValue('IAMUserNameType', 'create');
-    setSelectedAccount(null);
-  }, [setValue]);
+  const resetIAMFields = useCallback(
+    (mode: 'create' | 'existing', firstAccountName?: string) => {
+      setValue('IAMUserName', '');
+      setValue('IAMUserNameType', 'create');
+      setSelectedAccount(null);
+      if (mode === 'existing' && firstAccountName) {
+        setValue('accountName', firstAccountName, { shouldValidate: true });
+      } else {
+        setValue('accountName', '', { shouldValidate: true });
+      }
+    },
+    [setValue],
+  );
 
   // Handle account selection - fetch IAM users
   const onAccountSelected = useCallback(
