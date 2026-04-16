@@ -227,6 +227,17 @@ describe('ISVConfiguration', () => {
       expect(screen.queryByText('scality-internal-services')).not.toBeInTheDocument();
     });
 
+    it('should show first account as selected value when switching to existing account', async () => {
+      renderComponent();
+
+      await userEvent.click(selectors.existingAccountRadio());
+
+      // The select should display the first account (options[0].name) as the selected value
+      await waitFor(() => {
+        expect(screen.getByText('test-account')).toBeInTheDocument();
+      });
+    });
+
     it('should disable account selection when no accounts are available', async () => {
       (useListAccounts as jest.Mock).mockReturnValue({ accounts: [] });
 
@@ -434,6 +445,72 @@ describe('ISVConfiguration', () => {
       await userEvent.type(screen.getByRole('textbox', { name: 'Bucket #2 name *' }), 'test-bucket-1');
 
       expect(screen.getByText('Bucket name must be unique')).toBeInTheDocument();
+    });
+
+    it('should enable Continue button after switching to existing account and filling required fields', async () => {
+      renderComponent(CommvaultPlatform);
+
+      // Switch to existing account
+      await userEvent.click(selectors.existingAccountRadio());
+
+      // Assert the account select shows options[0].name as the selected value
+      await waitFor(() => {
+        expect(screen.getByText('test-account')).toBeInTheDocument();
+      });
+
+      // Open advanced settings to fill IAM user name (required for existing account)
+      await userEvent.click(screen.getByText('Advanced settings'));
+
+      // Fill in a valid IAM user name
+      await userEvent.type(screen.getByRole('textbox', { name: /IAM User Name \*/i }), 'new-iam-user');
+
+      // Fill in bucket name
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+
+      // Continue button should now be enabled
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
+
+    it('should disable Continue button after switching back to create account', async () => {
+      renderComponent(CommvaultPlatform);
+
+      // Switch to existing account and fill required fields
+      await userEvent.click(selectors.existingAccountRadio());
+
+      await waitFor(() => {
+        expect(screen.getByText('test-account')).toBeInTheDocument();
+      });
+
+      await userEvent.click(screen.getByText('Advanced settings'));
+      await userEvent.type(screen.getByRole('textbox', { name: /IAM User Name \*/i }), 'new-iam-user');
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+
+      // Switch back to create account — accountName is cleared by resetIAMFields
+      await userEvent.click(selectors.createAccountRadio());
+
+      // Continue button should be disabled again because accountName is cleared
+      await waitFor(() => {
+        expect(selectors.continueButton()).toBeDisabled();
+      });
+    });
+
+    it('should call resetIAMFields with undefined first account name when no accounts are available', async () => {
+      (useListAccounts as jest.Mock).mockReturnValue({
+        accounts: { status: 'success', value: [] },
+      });
+
+      renderComponent(CommvaultPlatform);
+
+      // With no accounts, the existing account radio is disabled and form stays invalid
+      const existingRadio = screen.getByRole('radio', { name: /Use an existing Account/i });
+      expect(existingRadio).toBeDisabled();
+      expect(selectors.continueButton()).toBeDisabled();
     });
   });
 
