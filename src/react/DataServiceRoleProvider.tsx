@@ -213,8 +213,10 @@ const DataServiceRoleProvider = ({
     {
       enabled: !!role.roleArn,
       refetchOnWindowFocus: true,
-      refetchOnMount: false,
+      refetchOnMount: true,
       keepPreviousData: true,
+      staleTime: 12 * 60 * 1000,
+      refetchInterval: 12 * 60 * 1000,
     },
   );
 

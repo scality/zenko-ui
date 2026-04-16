@@ -166,4 +166,43 @@ describe('DataServiceRoleProvider', () => {
       expect(screen.getByTestId('access-key')).toHaveTextContent('ASIA_TEST_ACCESS_KEY');
     });
   });
+
+  it('refetches credentials on mount even when cache is populated', async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+
+    // Pre-populate the cache to simulate a warm cache scenario
+    queryClient.setQueryData(['assumeRole', TEST_ROLE_ARN], MOCK_STS_CREDENTIALS);
+
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <MemoryRouter>{children}</MemoryRouter>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+
+    render(
+      <Wrapper>
+        <DataServiceRoleProvider>
+          <div data-testid="child-content">Hello</div>
+        </DataServiceRoleProvider>
+      </Wrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('child-content')).toBeInTheDocument();
+    });
+
+    // With refetchOnMount: true, a refetch should be triggered even though cache is populated
+    expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledWith(
+      expect.objectContaining({
+        roleArn: TEST_ROLE_ARN,
+      }),
+    );
+  });
 });
