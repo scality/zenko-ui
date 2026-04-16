@@ -24,7 +24,7 @@ export const AccountSelectorField = ({ field, formMethods }: AccountSelectorFiel
       fieldName="accountName"
       label={field.label || 'Account'}
       tooltip={field.tooltip as React.ReactElement}
-      onOptionChange={resetIAMFields}
+      onOptionChange={(mode: string) => resetIAMFields(mode as 'create' | 'existing', accounts[0]?.name)}
       onFieldNameChange={onAccountSelected}
     />
   );
