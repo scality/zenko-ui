@@ -260,28 +260,27 @@ const DataServiceRoleProvider = ({
   assumeRoleQueryRef.current = assumeRoleQuery;
 
   const refreshPromiseRef = useRef<Promise<S3Credentials> | null>(null);
-  const refreshCooldownUntilRef = useRef<number>(0);
-  const REFRESH_COOLDOWN_MS = 30 * 1000;
 
   const credentialProvider = useCallback(async (): Promise<S3Credentials> => {
     const expiration = assumeRoleQueryRef.current.data?.Credentials?.Expiration;
     const REFRESH_BUFFER_MS = 2 * 60 * 1000;
 
-    if (
-      expiration &&
-      new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS &&
-      Date.now() >= refreshCooldownUntilRef.current
-    ) {
+    if (expiration && new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS) {
       if (!refreshPromiseRef.current) {
         refreshPromiseRef.current = assumeRoleQueryRef.current
           .refetch()
           .then((result) => {
             refreshPromiseRef.current = null;
-            const exp = result.data?.Credentials?.Expiration;
+            if (result.isError || !result.data?.Credentials) {
+              throw result.error instanceof Error
+                ? result.error
+                : new Error(String(result.error || 'STS credential refresh failed'));
+            }
+            const exp = result.data.Credentials.Expiration;
             return {
-              accessKeyId: result.data?.Credentials?.AccessKeyId || '',
-              secretAccessKey: result.data?.Credentials?.SecretAccessKey || '',
-              sessionToken: result.data?.Credentials?.SessionToken || '',
+              accessKeyId: result.data.Credentials.AccessKeyId || '',
+              secretAccessKey: result.data.Credentials.SecretAccessKey || '',
+              sessionToken: result.data.Credentials.SessionToken || '',
               expiration: exp ? new Date(exp) : undefined,
             };
           })

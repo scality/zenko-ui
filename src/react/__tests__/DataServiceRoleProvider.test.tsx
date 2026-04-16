@@ -271,19 +271,10 @@ describe('DataServiceRoleProvider', () => {
     mockAssumeRoleWithWebIdentity.mockRejectedValue(stsError);
 
     // credentialProvider detects near-expiry and calls react-query's refetch().
-    // react-query v3 refetch() silently swallows errors by default (resolves with
-    // error result instead of rejecting). As a result, credentialProvider returns
-    // credentials (possibly empty/stale) rather than throwing. We verify the
-    // observable behaviour: a result object is returned with the expected shape,
-    // and STS was called (confirming the refresh was attempted).
-    const result = await credentialProvider();
-    expect(result).toMatchObject({
-      accessKeyId: expect.any(String),
-      secretAccessKey: expect.any(String),
-      sessionToken: expect.any(String),
-    });
+    // The .then() handler checks result.isError and throws, which is caught
+    // and re-thrown by .catch(). The error propagates to the caller.
+    await expect(credentialProvider()).rejects.toThrow('403 Forbidden');
 
-    // STS was called twice: once during initial mount and once during the refresh
     expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledTimes(2);
   });
 
