@@ -253,10 +253,11 @@ describe('DataServiceRoleProvider', () => {
     };
     mockAssumeRoleWithWebIdentity.mockResolvedValue(nearExpiryCredentials);
 
-    // The @scality/data-browser-library module is auto-mocked in jestSetupAfterEnv.tsx
-    // via jest.mock('@scality/data-browser-library'). Because DataBrowserProvider is
-    // exported as a named binding (not necessarily a jest.fn()), we use
-    // Object.defineProperty to replace it with a jest.fn() that captures getS3Config.
+    // @scality/data-browser-library is auto-mocked in jestSetupAfterEnv.tsx.
+    // DataBrowserProvider is a named export (not a jest.fn), so we swap it via
+    // Object.defineProperty and restore it at the end to avoid bleeding into
+    // later tests in this file.
+    const originalDataBrowserProvider = dataBrowserLibrary.DataBrowserProvider;
     let capturedGetS3Config: (() => any) | null = null;
     const captureImpl = jest.fn(({ getS3Config, children }: any) => {
       capturedGetS3Config = getS3Config;
@@ -268,36 +269,46 @@ describe('DataServiceRoleProvider', () => {
       configurable: true,
     });
 
-    const Wrapper = createWrapper();
+    try {
+      const Wrapper = createWrapper();
 
-    render(
-      <Wrapper>
-        <DataServiceRoleProvider>
-          <div data-testid="child-content">Hello</div>
-        </DataServiceRoleProvider>
-      </Wrapper>,
-    );
+      render(
+        <Wrapper>
+          <DataServiceRoleProvider>
+            <div data-testid="child-content">Hello</div>
+          </DataServiceRoleProvider>
+        </Wrapper>,
+      );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('child-content')).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(screen.getByTestId('child-content')).toBeInTheDocument();
+      });
 
-    expect(capturedGetS3Config).not.toBeNull();
+      expect(capturedGetS3Config).not.toBeNull();
 
-    // Retrieve the credentialProvider from the captured s3Config
-    const s3Config = capturedGetS3Config!();
-    const credentialProvider = s3Config.credentials;
+      const s3Config = capturedGetS3Config!();
+      const credentialProvider = s3Config.credentials;
 
-    // Now make STS fail on the next call
-    const stsError = new Error('403 Forbidden');
-    mockAssumeRoleWithWebIdentity.mockRejectedValue(stsError);
+      const stsError = new Error('403 Forbidden');
+      mockAssumeRoleWithWebIdentity.mockRejectedValue(stsError);
 
-    // credentialProvider detects near-expiry and calls react-query's refetch().
-    // The .then() handler checks result.isError and throws, which is caught
-    // and re-thrown by .catch(). The error propagates to the caller.
-    await expect(credentialProvider()).rejects.toThrow('403 Forbidden');
+      // credentialProvider detects near-expiry and calls react-query's refetch().
+      // The .then() handler checks result.isError and throws, which is caught
+      // and re-thrown by .catch(). The error propagates to the caller.
+      await expect(credentialProvider()).rejects.toThrow('403 Forbidden');
+      expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledTimes(2);
 
-    expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledTimes(2);
+      // A second call inside the cooldown window must NOT hit STS again —
+      // it fast-fails with the cached error.
+      await expect(credentialProvider()).rejects.toThrow('403 Forbidden');
+      expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledTimes(2);
+    } finally {
+      Object.defineProperty(dataBrowserLibrary, 'DataBrowserProvider', {
+        value: originalDataBrowserProvider,
+        writable: true,
+        configurable: true,
+      });
+    }
   });
 
   it('useAssumeRoleQuery getQuery carries refetchInterval option', () => {

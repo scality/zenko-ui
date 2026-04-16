@@ -22,6 +22,15 @@ export type S3Config = S3BrowserConfig & {
   credentials: S3Credentials;
 };
 
+// STS credentials have a 15-minute TTL. Refresh ~3 minutes early so S3/IAM
+// callers always see a valid session. The 2-minute buffer below matches the
+// AWS SDK v3 memoize threshold so on-demand refresh and proactive refresh
+// agree on when to rotate.
+const STS_REFRESH_INTERVAL_MS = 12 * 60 * 1000;
+const STS_REFRESH_BUFFER_MS = 2 * 60 * 1000;
+// Prevents tight retry loops against STS when refresh is failing (e.g. 403).
+const STS_REFRESH_COOLDOWN_MS = 10 * 1000;
+
 const useAssumeRoleQuery = () => {
   const { stsEndpoint } = useConfig();
   const { useAuth } = useShellHooks();
@@ -43,10 +52,11 @@ const useAssumeRoleQuery = () => {
             RoleSessionName: roleSessionName,
           }),
         refetchOnMount: 'always',
-        refetchOnWindowFocus: false,
+        refetchOnWindowFocus: true,
         refetchOnReconnect: false,
-        staleTime: 12 * 60 * 1000,
-        refetchInterval: 12 * 60 * 1000,
+        staleTime: STS_REFRESH_INTERVAL_MS,
+        refetchInterval: STS_REFRESH_INTERVAL_MS,
+        refetchIntervalInBackground: true,
         enabled: !!roleArn,
       };
     },
@@ -217,8 +227,9 @@ const DataServiceRoleProvider = ({
       refetchOnWindowFocus: true,
       refetchOnMount: 'always',
       keepPreviousData: true,
-      staleTime: 12 * 60 * 1000,
-      refetchInterval: 12 * 60 * 1000,
+      staleTime: STS_REFRESH_INTERVAL_MS,
+      refetchInterval: STS_REFRESH_INTERVAL_MS,
+      refetchIntervalInBackground: true,
     },
   );
 
@@ -260,12 +271,18 @@ const DataServiceRoleProvider = ({
   assumeRoleQueryRef.current = assumeRoleQuery;
 
   const refreshPromiseRef = useRef<Promise<S3Credentials> | null>(null);
+  const refreshCooldownUntilRef = useRef<number>(0);
+  const lastRefreshErrorRef = useRef<Error | null>(null);
 
   const credentialProvider = useCallback(async (): Promise<S3Credentials> => {
     const expiration = assumeRoleQueryRef.current.data?.Credentials?.Expiration;
-    const REFRESH_BUFFER_MS = 2 * 60 * 1000;
 
-    if (expiration && new Date(expiration).getTime() - Date.now() <= REFRESH_BUFFER_MS) {
+    if (expiration && new Date(expiration).getTime() - Date.now() <= STS_REFRESH_BUFFER_MS) {
+      // In-cooldown after a recent failure: fail fast with the last error
+      // instead of hammering STS from every S3/IAM call.
+      if (Date.now() < refreshCooldownUntilRef.current && lastRefreshErrorRef.current) {
+        throw lastRefreshErrorRef.current;
+      }
       if (!refreshPromiseRef.current) {
         refreshPromiseRef.current = assumeRoleQueryRef.current
           .refetch()
@@ -276,6 +293,8 @@ const DataServiceRoleProvider = ({
                 ? result.error
                 : new Error(String(result.error || 'STS credential refresh failed'));
             }
+            lastRefreshErrorRef.current = null;
+            refreshCooldownUntilRef.current = 0;
             const exp = result.data.Credentials.Expiration;
             return {
               accessKeyId: result.data.Credentials.AccessKeyId || '',
@@ -286,7 +305,10 @@ const DataServiceRoleProvider = ({
           })
           .catch((err) => {
             refreshPromiseRef.current = null;
-            throw err instanceof Error ? err : new Error(String(err));
+            const normalized = err instanceof Error ? err : new Error(String(err));
+            lastRefreshErrorRef.current = normalized;
+            refreshCooldownUntilRef.current = Date.now() + STS_REFRESH_COOLDOWN_MS;
+            throw normalized;
           });
       }
       return await refreshPromiseRef.current;
