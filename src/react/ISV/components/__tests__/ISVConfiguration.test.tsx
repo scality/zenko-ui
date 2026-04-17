@@ -500,7 +500,7 @@ describe('ISVConfiguration', () => {
       });
     });
 
-    it('should call resetIAMFields with undefined first account name when no accounts are available', async () => {
+    it('should disable existing account radio and keep Continue disabled when no accounts are available', async () => {
       (useListAccounts as jest.Mock).mockReturnValue({
         accounts: { status: 'success', value: [] },
       });
@@ -570,6 +570,58 @@ describe('ISVConfiguration', () => {
       await waitFor(() => {
         expect(screen.getByText(/IAM User Management/i)).toBeInTheDocument();
       });
+    });
+
+    it('should show Advanced settings with existing IAM user option selected after switching to a different account with no matching IAM user', async () => {
+      const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
+      useIAMUserMock.mockReset();
+      useIAMUserMock.mockReturnValue({
+        isIAMUserExist: false,
+        IAMUsersStatus: 'success',
+        IAMUsers: [
+          { id: '1', name: 'test-user' },
+          { id: '2', name: 'test-user-2' },
+        ],
+        getIAMUsersMutation: {
+          mutate: jest.fn().mockImplementation((roleArn, options) => {
+            if (options && options.onSuccess) {
+              options.onSuccess({
+                Users: [
+                  { UserName: 'test-user', UserId: 'test-user-id', Arn: 'test-arn' },
+                  { UserName: 'test-user-2', UserId: 'test-user-id-2', Arn: 'test-arn-2' },
+                ],
+              });
+            }
+          }),
+          status: 'success',
+        },
+        accessKeys: null,
+        hasActiveKeys: false,
+      });
+
+      (useListAccounts as jest.Mock).mockReturnValue({
+        accounts: {
+          status: 'success',
+          value: [
+            { id: '1', name: 'test-account', preferredAssumableRoleArn: 'test-arn' },
+            { id: '2', name: 'second-account', preferredAssumableRoleArn: 'second-arn' },
+          ],
+        },
+      });
+
+      renderComponent();
+
+      await userEvent.click(selectors.existingAccountRadio());
+
+      // test-account is auto-selected; select a different account to trigger onAccountSelected
+      await userEvent.click(selectors.useExistingAccountSelect());
+      await userEvent.click(screen.getByRole('option', { name: 'second-account' }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/IAM User Management/i)).toBeInTheDocument();
+        expect(selectors.existingUserRadio()).toBeChecked();
+      });
+      expect(selectors.createUserRadio()).not.toBeChecked();
     });
 
     it('should show IAM user management section when using existing account', async () => {
