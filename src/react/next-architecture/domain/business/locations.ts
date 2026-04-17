@@ -174,9 +174,27 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
+  if (accountCannonicalIdResult.status === 'loading') {
+    return {
+      locations: {
+        status: 'loading',
+      },
+    };
+  }
+
   if (accountCannonicalIdResult.status === 'error') {
     return {
       locations: accountCannonicalIdResult,
+    };
+  }
+
+  // Account is defined but not found in the overlay — treat as having no locations
+  if (accountCannonicalIdResult.status === 'unknown') {
+    return {
+      locations: {
+        status: 'success',
+        value: {},
+      },
     };
   }
 

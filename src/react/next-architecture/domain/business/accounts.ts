@@ -98,9 +98,7 @@ export const useAccountCannonicalId = ({
   const account = accountsLocationsAndEndpoints?.accounts?.find((a) => a.id === accountId);
   if (!account) {
     return {
-      status: 'error',
-      title: 'Account Not Found Error',
-      reason: `Account ${accountId} not found`,
+      status: 'unknown',
     };
   }
 
