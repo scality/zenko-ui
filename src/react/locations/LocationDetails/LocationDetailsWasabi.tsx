@@ -1,4 +1,4 @@
-import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { Checkbox } from '@scality/core-ui';
 import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Form.component';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
@@ -131,7 +131,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
         <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
           <FormGroup
             id="bucketMatch"
-            label=""
+            label="Write objects without prefix"
             direction="vertical"
             helpErrorPosition="bottom"
             error={
@@ -147,7 +147,6 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 checked={this.state.bucketMatch}
                 disabled={this.props.editingExisting}
                 onChange={this.onChange}
-                label="Write objects without prefix"
               />
             }
           />

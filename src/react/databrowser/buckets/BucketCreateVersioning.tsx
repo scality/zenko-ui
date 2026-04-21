@@ -25,7 +25,7 @@ export function BucketCreateVersioning({ isVersioning, isObjectLockEnabled }: Bu
   return (
     <FormGroup
       id="isVersioning"
-      label="Versioning"
+      label="Enable Versioning"
       disabled={isDisabled}
       labelHelpTooltip={
         <ul>
@@ -42,7 +42,6 @@ export function BucketCreateVersioning({ isVersioning, isObjectLockEnabled }: Bu
         <Checkbox
           id="isVersioning"
           disabled={isDisabled}
-          label={isVersioning ? 'Active' : 'Inactive'}
           {...register('isVersioning')}
         />
       }

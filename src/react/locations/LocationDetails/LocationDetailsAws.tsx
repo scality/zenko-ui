@@ -1,4 +1,4 @@
-import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { Checkbox } from '@scality/core-ui';
 import { FormGroup, FormSection } from '@scality/core-ui/dist/components/form/Form.component';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
@@ -119,7 +119,7 @@ export default class LocationDetailsAws extends React.Component<LocationDetailsF
         </FormSection>
         <FormSection forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
           <FormGroup
-            label=""
+            label="Write objects without prefix"
             id="bucketMatch"
             direction="vertical"
             helpErrorPosition="bottom"
@@ -135,14 +135,13 @@ export default class LocationDetailsAws extends React.Component<LocationDetailsF
                 checked={this.state.bucketMatch}
                 disabled={this.props.editingExisting}
                 onChange={this.onChange}
-                label="Write objects without prefix"
               />
             }
             help="Store objects in the target bucket without a source-bucket prefix."
           />
 
           <FormGroup
-            label=""
+            label="Enable Server-Side Encryption"
             direction="vertical"
             id="serverSideEncryption"
             helpErrorPosition="bottom"
@@ -153,7 +152,6 @@ export default class LocationDetailsAws extends React.Component<LocationDetailsF
                 value={this.state.serverSideEncryption}
                 checked={this.state.serverSideEncryption}
                 onChange={this.onChange}
-                label="Server-Side Encryption"
               />
             }
           />

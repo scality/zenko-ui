@@ -42,7 +42,7 @@ export function BucketCreateLocationEffects() {
       {showXDM && (
         <FormGroup
           id="isAsyncNotification"
-          label="Async Metadata updates"
+          label="Enable Async Metadata Updates"
           help={
             locationConstraint && isIngest && isAsyncNotification
               ? helpAsyncNotification
@@ -61,7 +61,6 @@ export function BucketCreateLocationEffects() {
                 <Checkbox
                   id="isAsyncNotification"
                   disabled={!isIngest}
-                  label={value ? 'Enabled' : 'Disabled'}
                   checked={!!value}
                   onChange={(e) => onChange(e.target.checked)}
                   ref={ref}
