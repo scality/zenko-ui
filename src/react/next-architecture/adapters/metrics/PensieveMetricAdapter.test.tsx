@@ -178,4 +178,20 @@ describe('PensieveMetricsAdapter - listAccountLocationsLatestUsedCapacity', () =
     };
     expect(result).toStrictEqual(EXPECTED_LOCATIONS_METRICS);
   });
+
+  it('should return empty metrics when pensieve returns 204 No Content', async () => {
+    //S
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
+    server.use(
+      rest.get(`${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_CANONICAL_ID}/metrics`, (req, res, ctx) =>
+        res(ctx.status(204)),
+      ),
+    );
+
+    //E
+    const result = await SUT.listAccountLocationsLatestUsedCapacity(ACCOUNT_CANONICAL_ID);
+
+    //V
+    expect(result).toStrictEqual({});
+  });
 });
