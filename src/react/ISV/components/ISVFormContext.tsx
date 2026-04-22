@@ -101,13 +101,18 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
   // Reset IAM fields
   const resetIAMFields = useCallback(
     (mode: 'create' | 'existing', firstAccountName?: string) => {
-      setValue('IAMUserName', '');
       setValue('IAMUserNameType', 'create');
       setSelectedAccount(null);
       if (mode === 'existing' && firstAccountName) {
         setValue('accountName', firstAccountName, { shouldValidate: true });
+        // Pre-fill IAMUserName with accountName so the form is valid even if
+        // onAccountSelected's async mutate never resolves (e.g. AssumeRole
+        // failure). onSuccess will refine this to the actual matching user or
+        // Users[0] once IAM users are fetched.
+        setValue('IAMUserName', firstAccountName, { shouldValidate: true });
       } else {
         setValue('accountName', '', { shouldValidate: true });
+        setValue('IAMUserName', '');
       }
     },
     [setValue],
@@ -128,6 +133,7 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
             if (user) {
               setValue('IAMUserName', user.UserName);
             } else {
+              setValue('IAMUserName', data.Users[0].UserName);
               setIsAccordionExpanded(true);
             }
           } else {

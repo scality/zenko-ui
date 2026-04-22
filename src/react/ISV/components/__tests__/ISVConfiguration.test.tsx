@@ -512,6 +512,154 @@ describe('ISVConfiguration', () => {
       expect(existingRadio).toBeDisabled();
       expect(selectors.continueButton()).toBeDisabled();
     });
+
+    it('should sync IAMUserName when toggling IAM user radio from create back to existing', async () => {
+      const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
+      useIAMUserMock.mockReset();
+      useIAMUserMock.mockReturnValue({
+        isIAMUserExist: false,
+        IAMUsersStatus: 'success',
+        IAMUsers: [{ id: '1', name: 'iam-user-1' }],
+        getIAMUsersMutation: {
+          mutate: jest.fn().mockImplementation((_roleArn, options) => {
+            if (options?.onSuccess) {
+              options.onSuccess({
+                Users: [{ UserName: 'iam-user-1', UserId: 'id1', Arn: 'arn1' }],
+              });
+            }
+          }),
+          status: 'success',
+        },
+        accessKeys: null,
+        hasActiveKeys: false,
+      });
+
+      renderComponent(CommvaultPlatform);
+
+      // Switch to existing account; onAccountSelected auto-expands advanced settings
+      // because no IAM user matches 'test-account'. IAMUserNameType becomes 'existing'
+      // but IAMUserName stays '' (resetIAMFields cleared it).
+      await userEvent.click(selectors.existingAccountRadio());
+
+      // Fill bucket name so Continue validity only depends on IAMUserName.
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+
+      await waitFor(() => {
+        expect(screen.getByText(/IAM User Management/i)).toBeInTheDocument();
+      });
+
+      // Toggle IAM user radio: existing -> create -> existing. On the final switch
+      // back to 'existing', IAMUserName must be synced to iamUsers[0].name so the
+      // Controller doesn't fall back to the registered '' value.
+      await userEvent.click(selectors.createUserRadio());
+      await userEvent.click(selectors.existingUserRadio());
+
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
+
+    it('should enable Continue button after only switching to existing account radio without touching advanced settings', async () => {
+      const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
+      useIAMUserMock.mockReset();
+      useIAMUserMock.mockReturnValue({
+        isIAMUserExist: false,
+        IAMUsersStatus: 'success',
+        IAMUsers: [],
+        getIAMUsersMutation: {
+          mutate: jest.fn().mockImplementation((_roleArn, options) => {
+            if (options && options.onSuccess) {
+              options.onSuccess({ Users: [] });
+            }
+          }),
+          status: 'success',
+        },
+        accessKeys: null,
+        hasActiveKeys: false,
+      });
+
+      renderComponent(CommvaultPlatform);
+
+      // Only switch to the existing account radio. Do NOT open Advanced settings
+      // and do NOT interact with the account Select. This mirrors what a real
+      // user does when they just click the radio and expect Continue to work.
+      await userEvent.click(selectors.existingAccountRadio());
+
+      // Fill the only other required field (bucket name) so validity hinges on
+      // IAMUserName being auto-synced by the radio switch.
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+
+      // Radio switch should trigger onAccountSelected(accounts[0].name), which
+      // on empty Users auto-sets IAMUserName=accountName, making the form valid.
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
+
+    it('should enable Continue button after switching to existing account even if IAM users fetch never resolves', async () => {
+      // Simulate a real-world slow / failed AssumeRole where mutate is called
+      // but onSuccess is never invoked. Without a pre-fill fallback the form
+      // would stay invalid forever, making Continue freeze.
+      const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
+      useIAMUserMock.mockReset();
+      useIAMUserMock.mockReturnValue({
+        isIAMUserExist: false,
+        IAMUsersStatus: 'loading',
+        IAMUsers: [],
+        getIAMUsersMutation: {
+          mutate: jest.fn(),
+          status: 'loading',
+        },
+        accessKeys: null,
+        hasActiveKeys: false,
+      });
+
+      renderComponent(CommvaultPlatform);
+
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
+
+    it('should enable Continue button when account has IAM users but none matches accountName', async () => {
+      // Case C: accordion auto-expands but IAMUserName was previously left as ''
+      // so the Controller's defaultValue gets ignored -- Select displays the first
+      // user in the UI but form state stays empty, freezing the Continue button.
+      const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
+      useIAMUserMock.mockReset();
+      useIAMUserMock.mockReturnValue({
+        isIAMUserExist: false,
+        IAMUsersStatus: 'success',
+        IAMUsers: [{ id: '1', name: 'iam-user-1' }],
+        getIAMUsersMutation: {
+          mutate: jest.fn().mockImplementation((_roleArn, options) => {
+            if (options?.onSuccess) {
+              options.onSuccess({
+                Users: [{ UserName: 'iam-user-1', UserId: 'id1', Arn: 'arn1' }],
+              });
+            }
+          }),
+          status: 'success',
+        },
+        accessKeys: null,
+        hasActiveKeys: false,
+      });
+
+      renderComponent(CommvaultPlatform);
+
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+
+      // onAccountSelected auto-expands the accordion (no user matches
+      // 'test-account'); IAMUserName should be defaulted to iamUsers[0].name
+      // so the form is valid without the user having to touch the Select.
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
   });
 
   describe('Advanced Settings', () => {
@@ -706,7 +854,7 @@ describe('ISVConfiguration', () => {
       // Select existing IAM user
       await userEvent.click(selectors.existingUserRadio());
       await userEvent.click(screen.queryByRole('listbox', { name: /Select existing user/ }));
-      await userEvent.click(screen.getByText('test-user'));
+      await userEvent.click(screen.getByRole('option', { name: 'test-user' }));
 
       expect(selectors.generateKey()).not.toBeChecked();
     });
@@ -725,7 +873,7 @@ describe('ISVConfiguration', () => {
       // Select existing IAM user
       await userEvent.click(selectors.existingUserRadio());
       await userEvent.click(selectors.selectExistingUser());
-      await userEvent.click(screen.getByText('test-user'));
+      await userEvent.click(screen.getByRole('option', { name: 'test-user' }));
 
       expect(selectors.generateKey()).toBeInTheDocument();
     });

@@ -18,7 +18,7 @@ export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFiel
     useISVFormContext();
 
   const selectRef = useRef<SelectRef<Option, false, null>>(null);
-  const { watch, control } = formMethods;
+  const { watch, control, setValue } = formMethods;
 
   const accountNameType = watch('accountNameType');
   const accountName = watch('accountName');
@@ -49,6 +49,14 @@ export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFiel
             tooltip={field.tooltip as React.ReactElement}
             fieldName="IAMUserName"
             label="IAM User Management"
+            onOptionChange={(mode: string) => {
+              const firstIAMUserName = iamUsers[0]?.name;
+              if (mode === 'existing' && firstIAMUserName) {
+                setValue('IAMUserName', firstIAMUserName, { shouldValidate: true });
+              } else {
+                setValue('IAMUserName', '', { shouldValidate: true });
+              }
+            }}
           >
             {IAMUserNameType === 'existing' && (
               <Controller
