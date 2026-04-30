@@ -137,6 +137,7 @@ const config: Configuration = {
       exposes: {
         './FederableApp': './src/react/FederableApp.tsx',
         './WelcomeModal': './src/react/ISV/components/Modal/WelcomeModal.tsx',
+        './ISVConnectorModal': './src/react/ISV/components/Modal/ISVConnectorModal.tsx',
         './SelectAccountIAMRole': './src/react/ui-elements/SelectAccountIAMRole.tsx',
       },
       remotes: !isProduction

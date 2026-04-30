@@ -158,7 +158,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
   };
 
   if (!isOpen) {
-    return <></>;
+    return null;
   }
 
   const continueLabel = !selectedISV
