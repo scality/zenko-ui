@@ -59,7 +59,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@scality/certchain": "1.4.0",
-    "@scality/core-ui": "0.202.0",
+    "@scality/core-ui": "0.215.0",
     "@scality/data-browser-library": "1.1.19",
     "@scality/module-federation": "1.6.1",
     "@scality/react-chained-query": "^2.1.0",

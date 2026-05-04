@@ -1,20 +1,13 @@
-import { Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
+import { Icon, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import { ShellHooksProvider, useShellHooks } from '@scality/module-federation';
-import { useMemo, useState } from 'react';
+import { ShellHooksProvider } from '@scality/module-federation';
+import { useState } from 'react';
 import type { ShellAlerts, ShellHooks } from 'shell/compiled-types/src/hooks/useShellHooks';
-import styled from 'styled-components';
+import { useISVNavigation } from '../../hooks/useISVNavigation';
 import type { ISVCardConfig } from '../../types';
 import { ArtescaLogo } from '../ArtescaLogo';
+import { ISVWideModal } from '../shared/StyledComponents';
 import { ISVModalContent } from './ISVModal';
-
-const CustomModal = styled(Modal)`
-  background-color: ${(props) => props.theme.backgroundLevel1};
-  > div {
-    max-width: 60vw;
-    width: 60vw;
-  }
-`;
 
 type ISVConnectorModalProps = {
   isOpen: boolean;
@@ -28,47 +21,15 @@ const ISVConnectorModalInternal = ({
   setIsOpen,
 }: Pick<ISVConnectorModalProps, 'isOpen' | 'setIsOpen'>) => {
   const [selectedISV, setSelectedISV] = useState<ISVCardConfig>(null);
-  const { useLinkOpener, useDeployedApps } = useShellHooks();
-  const { openLink } = useLinkOpener();
-  const deployedApps = useDeployedApps();
-  const zenkoUI = deployedApps.find((app: { kind: string }) => app.kind === 'zenko-ui');
-
-  const currentApp =
-    deployedApps.find(
-      (app) => window.location.pathname.startsWith(app.appHistoryBasePath) && app.appHistoryBasePath !== '',
-    )?.kind ?? deployedApps.find((app) => app.appHistoryBasePath === '')?.kind;
-
-  const zenkoUIView = useMemo(
-    () =>
-      selectedISV?.assistant
-        ? {
-          path: `/isv/configuration?platform=${selectedISV.id}`,
-          label: { en: 'ISV Configuration', fr: 'Configuration ISV' },
-          module: './FederableApp',
-          scope: 'zenko',
-        }
-        : {
-          path: `/accounts`,
-          label: { en: 'Accounts', fr: 'Comptes' },
-          module: './FederableApp',
-          scope: 'zenko',
-        },
-    [selectedISV],
-  );
+  const { navigate } = useISVNavigation(selectedISV);
 
   const handleContinueClick = () => {
     setIsOpen(false);
-    const configurationView = { view: zenkoUIView, app: zenkoUI, isFederated: true as const };
-
-    if (currentApp === 'zenko-ui') {
-      window.dispatchEvent(new CustomEvent('HistoryPushEvent', { detail: { path: zenkoUIView.path } }));
-    } else {
-      openLink(configurationView);
-    }
+    navigate();
   };
 
   return (
-    <CustomModal
+    <ISVWideModal
       title={
         <Stack direction="horizontal" gap="r8">
           <Text variant="Large">Select an ISV</Text> <ArtescaLogo />
@@ -92,7 +53,7 @@ const ISVConnectorModalInternal = ({
       }
     >
       <ISVModalContent selectedISV={selectedISV} setSelectedISV={setSelectedISV} />
-    </CustomModal>
+    </ISVWideModal>
   );
 };
 
