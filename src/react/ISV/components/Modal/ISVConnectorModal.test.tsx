@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ShellAlerts, ShellHooks } from 'shell/compiled-types/src/hooks/useShellHooks';
 import { mockOffsetSize, mockShellAlerts, mockShellHooks } from '../../../utils/testUtil';
 import ISVConnectorModal from './ISVConnectorModal';
 
@@ -56,8 +57,8 @@ describe('ISVConnectorModal', () => {
       <ISVConnectorModal
         isOpen={true}
         setIsOpen={mockSetIsOpen}
-        shellHooks={mockShellHooks}
-        shellAlerts={mockShellAlerts}
+        shellHooks={mockShellHooks as unknown as ShellHooks}
+        shellAlerts={mockShellAlerts as unknown as ShellAlerts}
       />,
     );
 

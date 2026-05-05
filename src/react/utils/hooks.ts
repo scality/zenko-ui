@@ -1,5 +1,5 @@
 import { useShellHooks } from '@scality/module-federation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { type QueryKey, type UseQueryOptions, type UseQueryResult, useQuery } from 'react-query';
 import { useLocation } from 'react-router';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
@@ -218,24 +218,26 @@ export const useAccounts = (
     (data) => data?.Accounts,
   );
 
-  const uniqueAccountsWithRoles = Object.values(
-    data?.reduce(
-      (agg, current) => ({
-        ...agg,
-        [current.Name]: {
-          Name: current.Name,
-          CreationDate: current.CreationDate,
-          Roles: [...(agg[current.Name]?.Roles || []), ...current.Roles],
-          id: regexArn.exec(current.Roles[0].Arn).groups['account_id'],
-        },
-      }),
-      {} as Record<string, Account>,
-    ) || {},
-  );
-  return {
-    accounts: uniqueAccountsWithRoles.filter((account) => account.Name !== 'scality-internal-services'),
-    status,
-  };
+  return useMemo(() => {
+    const uniqueAccountsWithRoles = Object.values(
+      data?.reduce(
+        (agg, current) => ({
+          ...agg,
+          [current.Name]: {
+            Name: current.Name,
+            CreationDate: current.CreationDate,
+            Roles: [...(agg[current.Name]?.Roles || []), ...current.Roles],
+            id: regexArn.exec(current.Roles[0].Arn).groups['account_id'],
+          },
+        }),
+        {} as Record<string, Account>,
+      ) || {},
+    );
+    return {
+      accounts: uniqueAccountsWithRoles.filter((account) => account.Name !== 'scality-internal-services'),
+      status,
+    };
+  }, [data, status]);
 };
 
 export const useRolePathName = () => {
