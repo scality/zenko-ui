@@ -1,4 +1,4 @@
-import { Banner, Icon, Link, Modal, Stack, spacing, Text, Wrap } from '@scality/core-ui';
+import { Banner, Icon, Link, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useState } from 'react';
@@ -7,15 +7,8 @@ import styled, { useTheme } from 'styled-components';
 import { ISVList } from '../../ISVList';
 import { ISV_CATEGORIES, type ISVCardConfig } from '../../types';
 import { ArtescaLogo } from '../ArtescaLogo';
+import { ISVWideModal } from '../shared/StyledComponents';
 import { CardISV } from './CardISV';
-
-const CustomModal = styled(Modal)`
-  background-color: ${(props) => props.theme.backgroundLevel1};
-  > div {
-    max-width: 60vw;
-    width: 60vw;
-  }
-`;
 
 export const StyledGrid = styled.div`
   display: grid;
@@ -158,7 +151,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
   };
 
   if (!isOpen) {
-    return <></>;
+    return null;
   }
 
   const continueLabel = !selectedISV
@@ -170,7 +163,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
         : 'Continue to create account';
 
   return (
-    <CustomModal
+    <ISVWideModal
       title={
         <Stack direction="horizontal" gap="r8">
           <Text variant="Large">Select an ISV</Text> <ArtescaLogo />
@@ -194,7 +187,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
       }
     >
       <ISVModalContent selectedISV={selectedISV} setSelectedISV={setSelectedISV}></ISVModalContent>
-    </CustomModal>
+    </ISVWideModal>
   );
 };
 

@@ -5,6 +5,7 @@ import {
   Icon,
   Stack,
   spacing,
+  Text,
   TextBadge,
   Toggle,
   Tooltip,
@@ -247,7 +248,7 @@ const AccountUserAccessKeys = () => {
       </AppContainer.ContextContainer>
       <AppContainer.OverallSummary>
         <Stack withSeparators gap="r32">
-          <>
+          <Stack direction="horizontal" gap="r24">
             <Icon
               name="Arrow-left"
               size="2x"
@@ -257,8 +258,8 @@ const AccountUserAccessKeys = () => {
               }}
             />
             <Icon name="Key" size="2x" color={theme.infoPrimary} />
-            <>{`Access Keys for: ${IAMUserName}`}</>
-          </>
+            <Text>{`Access Keys for: ${IAMUserName}`}</Text>
+          </Stack>
           <>{accessKeysCountComponent}</>
         </Stack>
       </AppContainer.OverallSummary>

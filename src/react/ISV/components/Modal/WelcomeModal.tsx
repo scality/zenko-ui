@@ -1,31 +1,24 @@
 import { Banner, Icon, Link, Modal, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { ShellHooksProvider, useShellHooks } from '@scality/module-federation';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import styled from 'styled-components';
 import { useLocation } from 'react-router';
 import type { ShellAlerts, ShellHooks } from 'shell/compiled-types/src/hooks/useShellHooks';
-import styled from 'styled-components';
 import AlertProvider, { useAlerts } from '../../../next-architecture/ui/AlertProvider';
 import { useAccounts, useAuthGroups } from '../../../utils/hooks';
 import { setSessionState } from '../../../utils/localStorage';
 import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
+import { useISVNavigation } from '../../hooks/useISVNavigation';
 import { useNextLogin } from '../../hooks/useNextLogin';
 import { ISVList } from '../../ISVList';
 import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
 import type { ISVCardConfig } from '../../types';
 import { ArtescaLogo } from '../ArtescaLogo';
 import { ArtescaPlusLogo } from '../ArtescaPLusLogo';
+import { ISVWideModal } from '../shared/StyledComponents';
 import { ISVModalContent } from './ISVModal';
 import VeeamLogo from './Logos/VeeamLogo';
-
-const CustomModal = styled(Modal)`
-  background-color: ${(props) => props.theme.backgroundLevel1};
-
-  > div {
-    max-width: 60vw;
-    width: 60vw;
-  }
-`;
 
 const SmallModal = styled(Modal)`
   > div {
@@ -71,7 +64,7 @@ export const WelcomeModalInternal = (props: Omit<NavbarUpdaterComponentProps, 's
     !isTrialLicenseModalDisplayed;
 
   if (!isWelcomeModalEnabled) {
-    return <></>;
+    return null;
   }
 
   return isVeeamVBROnly ? <VeeamOnlyModalComponent /> : <ModalComponent />;
@@ -80,60 +73,12 @@ export const WelcomeModalInternal = (props: Omit<NavbarUpdaterComponentProps, 's
 const useWelcomeModal = (defaultISV?: ISVCardConfig) => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [selectedISV, setSelectedISV] = useState<ISVCardConfig>(defaultISV);
-  const { useLinkOpener, useDeployedApps, useAuth } = useShellHooks();
-  const { openLink } = useLinkOpener();
-  const deployedApps = useDeployedApps();
-  const zenkoUI = deployedApps.find((app: { kind: string }) => app.kind === 'zenko-ui');
-
-  const currentApp =
-    deployedApps.find(
-      (app) => window.location.pathname.startsWith(app.appHistoryBasePath) && app.appHistoryBasePath !== '',
-    )?.kind ?? deployedApps.find((app) => app.appHistoryBasePath === '')?.kind;
-
-  const zenkoUIConfigurationView = useMemo(() => {
-    const view = selectedISV?.assistant
-      ? {
-          path: `/isv/configuration?platform=${selectedISV.id}`,
-          label: {
-            en: 'ISV Configuration',
-            fr: 'Configuration ISV',
-          },
-          module: './FederableApp',
-          scope: 'zenko',
-        }
-      : {
-          path: `/accounts`,
-          label: {
-            en: 'Accounts',
-            fr: 'Comptes',
-          },
-          module: './FederableApp',
-          scope: 'zenko',
-        };
-    return view;
-  }, [selectedISV]);
-
-  const configurationView = {
-    view: zenkoUIConfigurationView,
-    app: zenkoUI,
-    isFederated: true as const,
-  };
+  const { navigate } = useISVNavigation(selectedISV);
+  const { useAuth } = useShellHooks();
 
   const handleContinueClick = () => {
     setIsOpen(false);
-    // If we are already in zenko-ui context, we can't use the openLink function.
-    // That's why we have to create a custom event, and listen to it to change the route.
-
-    if (currentApp === 'zenko-ui') {
-      const event = new CustomEvent('HistoryPushEvent', {
-        detail: {
-          path: configurationView.view.path,
-        },
-      });
-      window.dispatchEvent(event);
-    } else {
-      openLink(configurationView);
-    }
+    navigate();
   };
 
   const user = useAuth();
@@ -214,7 +159,7 @@ const ModalComponent = () => {
   const { isOpen, selectedISV, setSelectedISV, handleContinueClick, handleSkipClick } = useWelcomeModal();
 
   return (
-    <CustomModal
+    <ISVWideModal
       title={
         <Stack direction="horizontal" gap="r8">
           <Text variant="Large">Welcome to</Text>
@@ -242,7 +187,7 @@ const ModalComponent = () => {
       }
     >
       <ISVModalContent selectedISV={selectedISV} setSelectedISV={setSelectedISV}></ISVModalContent>
-    </CustomModal>
+    </ISVWideModal>
   );
 };
 
