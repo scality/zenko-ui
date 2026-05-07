@@ -15,6 +15,9 @@ export const getCredentialsInstructionsTool = {
     },
     required: ['roleArn'],
   },
+  annotations: {
+    readOnlyHint: true,
+  },
   execute: async (
     params: { roleArn: string; context: ToolContext },
     _client: unknown,

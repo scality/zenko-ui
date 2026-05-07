@@ -10,6 +10,9 @@ export const getAWSCLIS3InstructionsTool = {
     properties: {},
     required: [],
   },
+  annotations: {
+    readOnlyHint: true,
+  },
   execute: async (
     params: { context: ToolContext },
     _client: unknown,
