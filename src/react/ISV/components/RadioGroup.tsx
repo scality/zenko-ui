@@ -115,6 +115,53 @@ const RadioDescription = styled.span`
   font-size: 0.875rem;
 `;
 
+const renderRadioOption = (
+  option: RadioOption,
+  groupName: string,
+  isGroupDisabled: boolean,
+  onChange: (value: string) => void,
+  checked: boolean,
+) => {
+  const optionId = `${groupName}-${option.value}`;
+  const isDisabled = isGroupDisabled || option.disabled;
+
+  const wrapper = (
+    <RadioWrapper key={option.value} data-disabled={isDisabled}>
+      <RadioInput
+        type="radio"
+        id={optionId}
+        name={groupName}
+        value={option.value}
+        checked={checked}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={isDisabled}
+      />
+      <RadioContent>
+        <RadioLabel htmlFor={optionId}>{option.label}</RadioLabel>
+        {option.description && <RadioDescription>{option.description}</RadioDescription>}
+      </RadioContent>
+    </RadioWrapper>
+  );
+
+  if (isDisabled && option.disabledReason) {
+    return (
+      <Tooltip
+        key={option.value}
+        overlay={option.disabledReason}
+        overlayStyle={{
+          height: 'fit-content',
+          maxWidth: '20rem',
+          width: 'fit-content',
+        }}
+      >
+        {wrapper}
+      </Tooltip>
+    );
+  }
+
+  return wrapper;
+};
+
 export const RadioGroup = ({
   options,
   value,
@@ -128,46 +175,9 @@ export const RadioGroup = ({
 
   return (
     <RadioContainer direction={direction}>
-      {options.map((option) => {
-        const optionId = `${groupName}-${option.value}`;
-        const isDisabled = disabled || option.disabled;
-
-        const radioWrapper = (
-          <RadioWrapper key={option.value} data-disabled={isDisabled}>
-            <RadioInput
-              type="radio"
-              id={optionId}
-              name={groupName}
-              value={option.value}
-              checked={value === option.value}
-              onChange={(e) => onChange(e.target.value)}
-              disabled={isDisabled}
-            />
-            <RadioContent>
-              <RadioLabel htmlFor={optionId}>{option.label}</RadioLabel>
-              {option.description && <RadioDescription>{option.description}</RadioDescription>}
-            </RadioContent>
-          </RadioWrapper>
-        );
-
-        if (isDisabled && option.disabledReason) {
-          return (
-            <Tooltip
-              key={option.value}
-              overlay={option.disabledReason}
-              overlayStyle={{
-                height: 'fit-content',
-                maxWidth: '20rem',
-                width: 'fit-content',
-              }}
-            >
-              {radioWrapper}
-            </Tooltip>
-          );
-        }
-
-        return radioWrapper;
-      })}
+      {options.map((option) =>
+        renderRadioOption(option, groupName, disabled, onChange, value === option.value),
+      )}
     </RadioContainer>
   );
 };

@@ -57,6 +57,73 @@ export function getRadioOptions(
   ];
 }
 
+const renderNameInput = (
+  fieldName: string,
+  status: string,
+  options: Option[],
+  platform: string,
+  register: ReturnType<typeof useFormContext>['register'],
+) => {
+  const showPlaceholder = status === 'success' && options.length !== 0;
+  return (
+    <Input
+      id={fieldName}
+      type="text"
+      autoComplete="off"
+      placeholder={showPlaceholder ? platform : undefined}
+      {...register(fieldName)}
+    />
+  );
+};
+
+const renderNameSelect = (
+  fieldName: string,
+  status: string,
+  options: Option[],
+  isAccount: boolean,
+  isSelectAccountDisabled: boolean,
+  onFieldNameChange: ((fieldValue: string) => void) | undefined,
+  control: ReturnType<typeof useFormContext>['control'],
+  selectRef: Ref<SelectRef<Option, false, null>> | undefined,
+) => (
+  <Controller
+    name={fieldName}
+    control={control}
+    defaultValue={options.length > 0 ? options[0].name : ''}
+    render={({ field: { onChange, value } }) => (
+      <Select
+        menuPosition="fixed"
+        ref={selectRef}
+        id={fieldName}
+        onChange={(selectedValue) => {
+          onFieldNameChange?.(selectedValue);
+          onChange(selectedValue);
+        }}
+        value={value}
+        disabled={isSelectAccountDisabled && isAccount}
+        placeholder={`Select existing ${isAccount ? 'account' : 'user'}`}
+      >
+        {status === 'loading' && (
+          <Select.Option
+            disabled
+            disabledReason="Please wait until the list is loaded"
+            key="loading"
+            value="loading"
+            icon={<Loader size="small" />}
+          >
+            Loading...
+          </Select.Option>
+        )}
+        {options.map((item) => (
+          <Select.Option key={item.name} value={item.name}>
+            {item.name}
+          </Select.Option>
+        ))}
+      </Select>
+    )}
+  />
+);
+
 export const CreateOrSelectNameField = ({
   isExist,
   status,
@@ -76,11 +143,14 @@ export const CreateOrSelectNameField = ({
     control,
     formState: { errors },
   } = useFormContext();
-  const isAccount = onFieldNameChange ? true : false;
+
+  const isAccount = !!onFieldNameChange;
   const typeFieldName = isAccount ? FORM_FIELDS.ACCOUNT_NAME_TYPE : FORM_FIELDS.IAM_USER_NAME_TYPE;
+
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
   const isParamsAccountNameInOptions = options.some((option) => option.name === paramsAccountName);
+
   const isExistingDisabled = (isAccount && isParamsAccountNameInOptions && isExist) || options.length === 0;
   const isCreateDisabled = isAccount && isExist && isParamsAccountNameInOptions;
   const isSelectAccountDisabled = isAccount && isParamsAccountNameInOptions && isExist;
@@ -89,6 +159,12 @@ export const CreateOrSelectNameField = ({
     !isAccount && options.length === 0 ? 'No existing IAM Users available' : undefined;
 
   const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled, disabledExistingReason);
+
+  const showCreateInput = type === 'create' || options.length === 0;
+
+  const existsError = isExist && type === 'create'
+    ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
+    : ((errors[fieldName]?.message as string) ?? '');
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -106,11 +182,9 @@ export const CreateOrSelectNameField = ({
               <RadioGroup
                 options={radioOptions}
                 value={options.length === 0 ? radioOptions[0].value : value}
-                onChange={(value) => {
-                  onChange(value);
-                  if (onOptionChange) {
-                    onOptionChange(value);
-                  }
+                onChange={(selectedValue) => {
+                  onChange(selectedValue);
+                  onOptionChange?.(selectedValue);
                 }}
                 direction="vertical"
               />
@@ -124,63 +198,21 @@ export const CreateOrSelectNameField = ({
         label={isAccount ? 'Account Name' : 'IAM User Name'}
         required
         helpErrorPosition="bottom"
-        error={
-          isExist && type === 'create'
-            ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
-            : ((errors[fieldName]?.message as string) ?? '')
-        }
+        error={existsError}
         content={
           <Stack gap="r8" direction="vertical">
-            {type === 'create' || options.length === 0 ? (
-              <Input
-                id={fieldName}
-                type="text"
-                autoComplete="off"
-                placeholder={status === 'success' && options.length !== 0 ? `${platform}` : undefined}
-                {...register(fieldName)}
-              />
-            ) : (
-              <Controller
-                name={fieldName}
-                control={control}
-                defaultValue={options.length > 0 ? options[0].name : ''}
-                render={({ field: { onChange, value } }) => {
-                  return (
-                    <Select
-                      menuPosition="fixed"
-                      ref={selectRef}
-                      id={fieldName}
-                      onChange={(value) => {
-                        if (onFieldNameChange) {
-                          onFieldNameChange(value);
-                        }
-                        onChange(value);
-                      }}
-                      value={value}
-                      disabled={isSelectAccountDisabled && isAccount}
-                      placeholder={`Select existing ${isAccount ? 'account' : 'user'}`}
-                    >
-                      {status === 'loading' && (
-                        <Select.Option
-                          disabled
-                          disabledReason="Please wait until the list is loaded"
-                          key="loading"
-                          value="loading"
-                          icon={<Loader size="small" />}
-                        >
-                          Loading...
-                        </Select.Option>
-                      )}
-                      {options.map((item) => (
-                        <Select.Option key={item.name} value={item.name}>
-                          {item.name}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  );
-                }}
-              />
-            )}
+            {showCreateInput
+              ? renderNameInput(fieldName, status, options, platform, register)
+              : renderNameSelect(
+                  fieldName,
+                  status,
+                  options,
+                  isAccount,
+                  isSelectAccountDisabled,
+                  onFieldNameChange,
+                  control,
+                  selectRef,
+                )}
             {children}
           </Stack>
         }
