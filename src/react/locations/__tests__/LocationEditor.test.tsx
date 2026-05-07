@@ -269,7 +269,10 @@ describe('LocationEditor', () => {
         () => {
           expect(location.checkField()).toBeInTheDocument();
         },
-        { timeout: 5000 },
+        // 0.218.0's Selectv2 register/unregister triggers extra state updates
+        // per option mount; the cumulative cost on CI runners can exceed the
+        // previous 5s window. 15s is well over the slowest observed.
+        { timeout: 15000 },
       );
     }
   });
