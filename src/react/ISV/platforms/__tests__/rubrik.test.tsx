@@ -7,6 +7,7 @@ describe('RubrikPlatform', () => {
         accountName: 'test-account',
         accountNameType: 'create',
         buckets: [{ name: 'test-rubrik-0' }],
+        enableImmutableBackup: true,
       };
 
       const { error } = RubrikPlatform.validator.validate(validData);
@@ -21,22 +22,23 @@ describe('RubrikPlatform', () => {
         IAMUserNameType: 'create',
         generateKey: true,
         buckets: [{ name: 'my-archive-rubrik-0' }],
+        enableImmutableBackup: false,
       };
 
       const { error } = RubrikPlatform.validator.validate(validData);
       expect(error).toBeUndefined();
     });
 
-    it('should not require enableImmutableBackup', () => {
-      const validData = {
+    it('should require enableImmutableBackup', () => {
+      const invalidData = {
         accountName: 'test-account',
         accountNameType: 'create',
         buckets: [{ name: 'test-rubrik-0' }],
         // enableImmutableBackup intentionally absent
       };
 
-      const { error } = RubrikPlatform.validator.validate(validData);
-      expect(error).toBeUndefined();
+      const { error } = RubrikPlatform.validator.validate(invalidData);
+      expect(error).toBeDefined();
     });
 
     it('should reject invalid bucket name', () => {
@@ -44,6 +46,7 @@ describe('RubrikPlatform', () => {
         accountName: 'test-account',
         accountNameType: 'create',
         buckets: [{ name: 'INVALID_BUCKET' }],
+        enableImmutableBackup: true,
       };
 
       const { error } = RubrikPlatform.validator.validate(invalidData);
@@ -54,6 +57,7 @@ describe('RubrikPlatform', () => {
       const invalidData = {
         accountNameType: 'create',
         buckets: [{ name: 'valid-rubrik-0' }],
+        enableImmutableBackup: true,
       };
 
       const { error } = RubrikPlatform.validator.validate(invalidData);
@@ -62,7 +66,7 @@ describe('RubrikPlatform', () => {
   });
 
   describe('policy generation', () => {
-    it('should generate valid JSON policy with two statements', () => {
+    it('should generate non-immutable policy with 2 statements', () => {
       const policy = RubrikPlatform.getPolicy(['my-archive-rubrik-0'], false);
       const parsed = JSON.parse(policy);
 
@@ -72,19 +76,17 @@ describe('RubrikPlatform', () => {
       expect(parsed.Statement[1].Sid).toBe('RubrikListBuckets');
     });
 
-    it('should include all defaultActions and Rubrik-specific actions in statement 0', () => {
+    it('should include all defaultActions and Rubrik-specific actions in non-immutable statement 0', () => {
       const policy = RubrikPlatform.getPolicy(['bucket1'], false);
       const parsed = JSON.parse(policy);
       const actions = parsed.Statement[0].Action;
 
-      // defaultActions (required for policy update fingerprinting)
       expect(actions).toContain('s3:GetObject');
       expect(actions).toContain('s3:PutObject');
       expect(actions).toContain('s3:DeleteObject');
       expect(actions).toContain('s3:GetBucketLocation');
       expect(actions).toContain('s3:GetBucketVersioning');
       expect(actions).toContain('s3:GetBucketObjectLockConfiguration');
-      // Rubrik-specific actions
       expect(actions).toContain('s3:AbortMultipartUpload');
       expect(actions).toContain('s3:ListMultipartUploadParts');
       expect(actions).toContain('s3:ListBucketMultipartUploads');
@@ -93,7 +95,7 @@ describe('RubrikPlatform', () => {
       expect(actions).toContain('s3:GetBucketAcl');
     });
 
-    it('should scope statement 0 resources to bucket/* and bucket ARN', () => {
+    it('should scope non-immutable statement 0 resources to bucket/* and bucket ARN', () => {
       const policy = RubrikPlatform.getPolicy(['my-archive-rubrik-0'], false);
       const parsed = JSON.parse(policy);
       const resources = parsed.Statement[0].Resource;
@@ -102,7 +104,7 @@ describe('RubrikPlatform', () => {
       expect(resources).toContain('arn:aws:s3:::my-archive-rubrik-0');
     });
 
-    it('should have ListAllMyBuckets and ListBucket on * in statement 1', () => {
+    it('should have ListAllMyBuckets and ListBucket on * in non-immutable statement 1', () => {
       const policy = RubrikPlatform.getPolicy(['bucket1'], false);
       const parsed = JSON.parse(policy);
       const stmt1 = parsed.Statement[1];
@@ -112,14 +114,83 @@ describe('RubrikPlatform', () => {
       expect(stmt1.Resource).toBe('*');
     });
 
-    it('should generate the same policy regardless of isImmutable flag', () => {
-      const policyNonImmutable = RubrikPlatform.getPolicy(['bucket1'], false);
-      const policyImmutable = RubrikPlatform.getPolicy(['bucket1'], true);
+    it('should generate immutable policy with 3 statements', () => {
+      const policy = RubrikPlatform.getPolicy(['my-archive-rubrik-0'], true);
+      const parsed = JSON.parse(policy);
 
-      expect(policyNonImmutable).toBe(policyImmutable);
+      expect(parsed.Version).toBe('2012-10-17');
+      expect(parsed.Statement).toHaveLength(3);
+      expect(parsed.Statement[0].Sid).toBe('GlobalPermission');
+      expect(parsed.Statement[1].Sid).toBe('BucketLevel');
+      expect(parsed.Statement[2].Sid).toBe('ObjectLevel');
     });
 
-    it('should include resources for multiple buckets', () => {
+    it('should have ListAllMyBuckets on * in immutable GlobalPermission', () => {
+      const policy = RubrikPlatform.getPolicy(['bucket1'], true);
+      const parsed = JSON.parse(policy);
+      const stmt0 = parsed.Statement[0];
+
+      expect(stmt0.Action).toEqual(['s3:ListAllMyBuckets']);
+      expect(stmt0.Resource).toBe('*');
+    });
+
+    it('should include PutBucketObjectLockConfiguration in immutable BucketLevel', () => {
+      const policy = RubrikPlatform.getPolicy(['bucket1'], true);
+      const parsed = JSON.parse(policy);
+      const actions = parsed.Statement[1].Action;
+
+      expect(actions).toContain('s3:GetBucketObjectLockConfiguration');
+      expect(actions).toContain('s3:PutBucketObjectLockConfiguration');
+      expect(actions).toContain('s3:GetBucketVersioning');
+      expect(actions).toContain('s3:GetBucketPolicy');
+      expect(actions).toContain('s3:GetBucketPublicAccessBlock');
+    });
+
+    it('should scope immutable BucketLevel resources to bucket ARN only (no wildcard)', () => {
+      const policy = RubrikPlatform.getPolicy(['my-archive-rubrik-0'], true);
+      const parsed = JSON.parse(policy);
+      const resources = parsed.Statement[1].Resource;
+
+      expect(resources).toContain('arn:aws:s3:::my-archive-rubrik-0');
+      expect(resources).not.toContain('arn:aws:s3:::my-archive-rubrik-0/*');
+    });
+
+    it('should include Object Lock and versioning actions in immutable ObjectLevel', () => {
+      const policy = RubrikPlatform.getPolicy(['bucket1'], true);
+      const parsed = JSON.parse(policy);
+      const actions = parsed.Statement[2].Action;
+
+      expect(actions).toContain('s3:GetObjectVersion');
+      expect(actions).toContain('s3:DeleteObjectVersion');
+      expect(actions).toContain('s3:GetObjectVersionTagging');
+      expect(actions).toContain('s3:PutObjectVersionTagging');
+      expect(actions).toContain('s3:PutObjectRetention');
+      expect(actions).toContain('s3:GetObjectRetention');
+      expect(actions).toContain('s3:PutObjectLegalHold');
+      expect(actions).toContain('s3:GetObjectLegalHold');
+      expect(actions).toContain('s3:BypassGovernanceRetention');
+    });
+
+    it('should scope immutable ObjectLevel resources to bucket/* only', () => {
+      const policy = RubrikPlatform.getPolicy(['my-archive-rubrik-0'], true);
+      const parsed = JSON.parse(policy);
+      const resources = parsed.Statement[2].Resource;
+
+      expect(resources).toContain('arn:aws:s3:::my-archive-rubrik-0/*');
+      expect(resources).not.toContain('arn:aws:s3:::my-archive-rubrik-0');
+    });
+
+    it('should include resources for multiple buckets in immutable policy', () => {
+      const policy = RubrikPlatform.getPolicy(['bucket1', 'bucket2'], true);
+      const parsed = JSON.parse(policy);
+
+      expect(parsed.Statement[1].Resource).toContain('arn:aws:s3:::bucket1');
+      expect(parsed.Statement[1].Resource).toContain('arn:aws:s3:::bucket2');
+      expect(parsed.Statement[2].Resource).toContain('arn:aws:s3:::bucket1/*');
+      expect(parsed.Statement[2].Resource).toContain('arn:aws:s3:::bucket2/*');
+    });
+
+    it('should include resources for multiple buckets in non-immutable policy', () => {
       const policy = RubrikPlatform.getPolicy(['bucket1', 'bucket2'], false);
       const parsed = JSON.parse(policy);
       const resources = parsed.Statement[0].Resource;
@@ -134,9 +205,9 @@ describe('RubrikPlatform', () => {
       expect(RubrikPlatform.assistant).toBe(true);
     });
 
-    it('should not have an immutability field', () => {
+    it('should have an immutability field', () => {
       const hasImmutableField = RubrikPlatform.fields.some((f) => f.name === 'enableImmutableBackup');
-      expect(hasImmutableField).toBe(false);
+      expect(hasImmutableField).toBe(true);
     });
 
     it('should have account, IAM user, and bucket fields', () => {

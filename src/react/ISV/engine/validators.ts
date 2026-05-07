@@ -137,12 +137,13 @@ export const CommvaultValidator = Joi.object({
 });
 
 /**
- * Rubrik validator (basic, no capacity, no immutability)
+ * Rubrik validator (basic, no capacity, with immutability)
  */
 export const RubrikValidator = Joi.object({
   ...accountValidator,
   ...iamValidator,
   ...bucketsValidator,
+  ...immutableValidator,
 });
 
 /**

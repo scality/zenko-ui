@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { FormGroup, FormSection, Stack, Text } from '@scality/core-ui';
 import { CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
@@ -6,12 +7,78 @@ import { IAMUSerTooltip } from '../components/IAMUserTooltip';
 import { DEFAULT_REGION } from '../components/ISVSummary';
 import RubrikLogo from '../components/Modal/Logos/RubrikLogo';
 import { AccountTooltip, BucketNameTooltip } from '../components/shared/PlatformTooltips';
-import { definePlatform, RubrikValidator } from '../engine';
+import { definePlatform } from '../engine';
 import { GET_RUBRIK_POLICY } from '../utils/ISVPolicy';
 
 const WrapperWithWidth = styled(Wrap)`
   width: 20rem;
 `;
+
+// Rubrik CDM requires PKCS#1 PEM format. The Web Crypto API only exports PKCS#8,
+// but PKCS#1 is embedded inside it: the first 26 bytes of the PKCS#8 DER are a
+// fixed wrapper (outer SEQUENCE 4B + version INTEGER 3B + AlgorithmIdentifier 15B
+// + OCTET STRING header 4B) for RSA-2048.
+async function generateRSAPKCS1Pem(): Promise<string> {
+  const keyPair = await window.crypto.subtle.generateKey(
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: 'SHA-256',
+    },
+    true,
+    ['sign', 'verify'],
+  );
+  const pkcs8 = await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+  const pkcs1 = new Uint8Array(pkcs8, 26);
+  const binary = Array.from(pkcs1)
+    .map((b) => String.fromCharCode(b))
+    .join('');
+  const base64 = btoa(binary);
+  const body = base64.match(/.{1,64}/g)?.join('\n') ?? base64;
+  return `-----BEGIN RSA PRIVATE KEY-----\n${body}\n-----END RSA PRIVATE KEY-----`;
+}
+
+function RubrikRSAKeySection() {
+  const [pem, setPem] = useState<string | null>(null);
+
+  useEffect(() => {
+    generateRSAPKCS1Pem().then(setPem);
+  }, []);
+
+  const downloadKey = () => {
+    if (!pem) return;
+    const blob = new Blob([pem], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'rubrik_encryption_key.pem';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Stack gap="r8" direction="vertical" style={{ paddingTop: spacing.r8 }}>
+      <Text>
+        Rubrik requires an RSA private key to encrypt archived data. A 2048-bit key has been generated below — copy or
+        download it and keep it in a safe place before configuring the Archive Location.
+      </Text>
+      {pem ? (
+        <>
+          <Stack gap="r4" direction="horizontal">
+            <CopyButton textToCopy={pem} aria-label="copy RSA private key" />
+            <button type="button" onClick={downloadKey}>
+              Download .pem
+            </button>
+          </Stack>
+          <code style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.75rem' }}>{pem}</code>
+        </>
+      ) : (
+        <Text>Generating key…</Text>
+      )}
+    </Stack>
+  );
+}
 
 export const RubrikPlatform = definePlatform({
   id: 'rubrik',
@@ -20,9 +87,6 @@ export const RubrikPlatform = definePlatform({
   policy: GET_RUBRIK_POLICY,
   documentationLink: '/artesca/docs/partner_applications/backup_and_archives/rubrik_security_cloud.html',
   category: 'backup-and-archive',
-
-  disableImmutability: true,
-  customValidator: RubrikValidator,
 
   fieldOverrides: {
     accountName: {
@@ -110,15 +174,7 @@ export const RubrikPlatform = definePlatform({
       { id: 'buckets' },
       {
         id: 'rsaKey',
-        render: () => (
-          <Stack gap="r8" direction="vertical" style={{ paddingTop: spacing.r8 }}>
-            <Text>
-              Rubrik requires an RSA private key to encrypt archived data. Generate one on a secure computer before
-              configuring the Archive Location:
-            </Text>
-            <code>{'openssl genrsa -traditional -out rubrik_encryption_key.pem 2048'}</code>
-          </Stack>
-        ),
+        render: () => <RubrikRSAKeySection />,
       },
     ],
     serviceEndpointLabel: 'S3 Endpoint (Host Name in Rubrik)',
