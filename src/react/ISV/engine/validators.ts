@@ -136,13 +136,24 @@ export const CommvaultValidator = Joi.object({
   ...immutableValidator,
 });
 
+// Rubrik CDM requires buckets to follow the {prefix}-rubrik-{N} naming convention
+const rubrikBucketNameSchema = bucketNameValidationSchema
+  .pattern(/^[a-z0-9.-]+-rubrik-\d+$/, { name: 'rubrikSuffix' })
+  .messages({ 'string.pattern.name': 'Bucket name must end with -rubrik-{N} (e.g. my-archive-rubrik-0)' });
+
+const rubrikBucketItemSchema = Joi.object({ name: rubrikBucketNameSchema }).unknown(true);
+
+const rubrikBucketsValidator = {
+  buckets: Joi.array().min(1).max(20).items(rubrikBucketItemSchema),
+};
+
 /**
- * Rubrik validator (basic, no capacity, with immutability)
+ * Rubrik validator (rubrik-suffixed bucket names, with immutability)
  */
 export const RubrikValidator = Joi.object({
   ...accountValidator,
   ...iamValidator,
-  ...bucketsValidator,
+  ...rubrikBucketsValidator,
   ...immutableValidator,
 });
 

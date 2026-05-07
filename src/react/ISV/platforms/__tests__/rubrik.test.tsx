@@ -53,6 +53,18 @@ describe('RubrikPlatform', () => {
       expect(error).toBeDefined();
     });
 
+    it('should reject bucket name without rubrik suffix', () => {
+      const invalidData = {
+        accountName: 'test-account',
+        accountNameType: 'create',
+        buckets: [{ name: 'valid-bucket' }],
+        enableImmutableBackup: true,
+      };
+
+      const { error } = RubrikPlatform.validator.validate(invalidData);
+      expect(error).toBeDefined();
+    });
+
     it('should reject missing account name', () => {
       const invalidData = {
         accountNameType: 'create',

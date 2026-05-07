@@ -7,7 +7,7 @@ import { IAMUSerTooltip } from '../components/IAMUserTooltip';
 import { DEFAULT_REGION } from '../components/ISVSummary';
 import RubrikLogo from '../components/Modal/Logos/RubrikLogo';
 import { AccountTooltip, BucketNameTooltip } from '../components/shared/PlatformTooltips';
-import { definePlatform } from '../engine';
+import { definePlatform, RubrikValidator } from '../engine';
 import { GET_RUBRIK_POLICY } from '../utils/ISVPolicy';
 
 const WrapperWithWidth = styled(Wrap)`
@@ -85,6 +85,7 @@ export const RubrikPlatform = definePlatform({
   name: 'Rubrik',
   logo: <RubrikLogo />,
   policy: GET_RUBRIK_POLICY,
+  customValidator: RubrikValidator,
   documentationLink: '/artesca/docs/partner_applications/backup_and_archives/rubrik_security_cloud.html',
   category: 'backup-and-archive',
 
