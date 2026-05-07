@@ -8,14 +8,13 @@ jest.mock('react-hook-form', () => {
     useFormContext: jest.fn(),
     Controller: ({ name, defaultValue, render }) => {
       if (name === 'accountNameType' || name === 'IAMUserNameType') {
-        const { field } = render({
+        return render({
           field: {
             onChange: jest.fn(),
             value: defaultValue,
             name,
           },
         });
-        return <div>{field}</div>;
       }
 
       return (
@@ -46,6 +45,12 @@ jest.mock('@scality/core-ui', () => ({
       <div>{label}</div>
       {content || children}
       {error && <div>{error}</div>}
+    </div>
+  ),
+  Tooltip: ({ children, overlay }: { children: React.ReactNode; overlay: React.ReactNode }) => (
+    <div>
+      <div data-testid="tooltip-overlay">{overlay}</div>
+      {children}
     </div>
   ),
 }));
@@ -231,5 +236,29 @@ describe('CreateOrSelectNameField', () => {
     rerender(<CreateOrSelectNameField {...defaultProps} type="existing" />);
 
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('shows disabledReason tooltip for existing option in IAM-mode when options are empty', () => {
+    render(
+      <CreateOrSelectNameField
+        {...defaultProps}
+        onFieldNameChange={null}
+        options={[]}
+      />,
+    );
+
+    expect(screen.getByTestId('tooltip-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('tooltip-overlay')).toHaveTextContent('No existing IAM Users available');
+  });
+
+  it('does not show disabledReason tooltip for existing option in Account-mode when options are empty', () => {
+    render(
+      <CreateOrSelectNameField
+        {...defaultProps}
+        options={[]}
+      />,
+    );
+
+    expect(screen.queryByTestId('tooltip-overlay')).not.toBeInTheDocument();
   });
 });

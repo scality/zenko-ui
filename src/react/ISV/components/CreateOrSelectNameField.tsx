@@ -36,7 +36,12 @@ const FORM_FIELDS = {
   GENERATE_KEY: 'generateKey',
 };
 
-const getRadioOptions = (isAccount: boolean, disableCreate: boolean, disableExisting: boolean) => {
+export function getRadioOptions(
+  isAccount: boolean,
+  disableCreate: boolean,
+  disableExisting: boolean,
+  disabledExistingReason?: string,
+) {
   return [
     {
       value: 'create',
@@ -47,9 +52,10 @@ const getRadioOptions = (isAccount: boolean, disableCreate: boolean, disableExis
       value: 'existing',
       label: `Use an existing ${isAccount ? 'Account' : 'IAM User'}`,
       disabled: disableExisting,
+      disabledReason: disabledExistingReason,
     },
   ];
-};
+}
 
 export const CreateOrSelectNameField = ({
   isExist,
@@ -79,7 +85,10 @@ export const CreateOrSelectNameField = ({
   const isCreateDisabled = isAccount && isExist && isParamsAccountNameInOptions;
   const isSelectAccountDisabled = isAccount && isParamsAccountNameInOptions && isExist;
 
-  const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled);
+  const disabledExistingReason =
+    !isAccount && options.length === 0 ? 'No existing IAM Users available' : undefined;
+
+  const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled, disabledExistingReason);
 
   return (
     <Stack gap="r8" direction="vertical">
