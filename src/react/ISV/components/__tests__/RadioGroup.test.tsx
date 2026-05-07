@@ -2,6 +2,16 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import { RadioGroup } from '../RadioGroup';
 
+jest.mock('@scality/core-ui', () => ({
+  ...jest.requireActual('@scality/core-ui'),
+  Tooltip: ({ children, overlay }: { children: React.ReactNode; overlay: React.ReactNode }) => (
+    <div>
+      <div data-testid="tooltip-overlay">{overlay}</div>
+      {children}
+    </div>
+  ),
+}));
+
 describe('RadioGroup', () => {
   const options = [
     { value: 'option1', label: 'Option 1', description: 'Description 1' },
@@ -81,5 +91,28 @@ describe('RadioGroup', () => {
     radioInputs.forEach((radio) => {
       expect(radio).toBeDisabled();
     });
+  });
+
+  it('should render tooltip overlay text for disabled option with disabledReason', () => {
+    const optionsWithDisabledReason = [
+      { value: 'option1', label: 'Option 1' },
+      { value: 'option2', label: 'Option 2', disabled: true, disabledReason: 'This option is not available' },
+    ];
+
+    renderRadioGroup({ options: optionsWithDisabledReason });
+
+    expect(screen.getByTestId('tooltip-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('tooltip-overlay')).toHaveTextContent('This option is not available');
+  });
+
+  it('should not render tooltip for disabled option without disabledReason', () => {
+    const optionsWithoutDisabledReason = [
+      { value: 'option1', label: 'Option 1' },
+      { value: 'option2', label: 'Option 2', disabled: true },
+    ];
+
+    renderRadioGroup({ options: optionsWithoutDisabledReason });
+
+    expect(screen.queryByTestId('tooltip-overlay')).not.toBeInTheDocument();
   });
 });

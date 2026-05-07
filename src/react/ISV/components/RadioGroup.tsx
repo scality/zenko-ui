@@ -1,3 +1,4 @@
+import { Tooltip } from '@scality/core-ui';
 import { spacing } from '@scality/core-ui/dist/spacing';
 import { useId } from 'react';
 import styled from 'styled-components';
@@ -7,6 +8,7 @@ type RadioOption = {
   label: string;
   description?: string;
   disabled?: boolean;
+  disabledReason?: string;
 };
 
 type RadioGroupProps = {
@@ -128,8 +130,10 @@ export const RadioGroup = ({
     <RadioContainer direction={direction}>
       {options.map((option) => {
         const optionId = `${groupName}-${option.value}`;
-        return (
-          <RadioWrapper key={option.value} data-disabled={disabled || option.disabled}>
+        const isDisabled = disabled || option.disabled;
+
+        const radioWrapper = (
+          <RadioWrapper key={option.value} data-disabled={isDisabled}>
             <RadioInput
               type="radio"
               id={optionId}
@@ -137,7 +141,7 @@ export const RadioGroup = ({
               value={option.value}
               checked={value === option.value}
               onChange={(e) => onChange(e.target.value)}
-              disabled={disabled || option.disabled}
+              disabled={isDisabled}
             />
             <RadioContent>
               <RadioLabel htmlFor={optionId}>{option.label}</RadioLabel>
@@ -145,6 +149,24 @@ export const RadioGroup = ({
             </RadioContent>
           </RadioWrapper>
         );
+
+        if (isDisabled && option.disabledReason) {
+          return (
+            <Tooltip
+              key={option.value}
+              overlay={option.disabledReason}
+              overlayStyle={{
+                height: 'fit-content',
+                maxWidth: '20rem',
+                width: 'fit-content',
+              }}
+            >
+              {radioWrapper}
+            </Tooltip>
+          );
+        }
+
+        return radioWrapper;
       })}
     </RadioContainer>
   );
