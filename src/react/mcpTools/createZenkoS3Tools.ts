@@ -48,20 +48,52 @@ const NO_ROLE_TOOLS = new Set(['getApplicationRoutes', 'getCurrentRoute', 'navig
  * to repair so the next debug session can see whether the LLM is still
  * shipping stringified payloads.
  */
+/**
+ * Resolve a JSON Schema property entry to its concrete `type`, following any
+ * `$ref` to the schema's local `definitions` block. AWS-generated tool
+ * schemas express most complex inputs as `{ "$ref": "#/definitions/X" }`
+ * (e.g. `VersioningConfiguration`, `LifecycleConfiguration`,
+ * `CORSConfiguration`); without resolving the ref we'd fail to identify
+ * those as object-typed and the string-coercion below would skip them.
+ */
+function resolveSchemaType(
+  rootSchema: Record<string, unknown> | undefined,
+  propSchema: { type?: string | string[]; $ref?: string } | undefined,
+  depth = 0,
+): string | undefined {
+  if (!propSchema || depth > 5) return undefined;
+  if (propSchema.type) {
+    return Array.isArray(propSchema.type) ? propSchema.type[0] : propSchema.type;
+  }
+  const ref = propSchema.$ref;
+  if (typeof ref === 'string' && ref.startsWith('#/') && rootSchema) {
+    const path = ref.slice(2).split('/');
+    let target: unknown = rootSchema;
+    for (const part of path) {
+      if (target && typeof target === 'object') {
+        target = (target as Record<string, unknown>)[part];
+      } else {
+        return undefined;
+      }
+    }
+    return resolveSchemaType(rootSchema, target as never, depth + 1);
+  }
+  return undefined;
+}
+
 function normalizeStringifiedSchemaArgs(
   args: Record<string, unknown>,
   inputSchema: Record<string, unknown> | undefined,
 ): { args: Record<string, unknown>; repaired: string[] } {
-  const properties = (inputSchema as { properties?: Record<string, { type?: string | string[] }> } | undefined)
+  const properties = (inputSchema as { properties?: Record<string, { type?: string | string[]; $ref?: string }> } | undefined)
     ?.properties;
   if (!properties) return { args, repaired: [] };
 
   const repaired: string[] = [];
   const out: Record<string, unknown> = { ...args };
   for (const [key, value] of Object.entries(args)) {
-    const declared = properties[key]?.type;
-    const declaredTypes = Array.isArray(declared) ? declared : declared ? [declared] : [];
-    const wantsStructured = declaredTypes.includes('object') || declaredTypes.includes('array');
+    const resolvedType = resolveSchemaType(inputSchema, properties[key]);
+    const wantsStructured = resolvedType === 'object' || resolvedType === 'array';
     if (!wantsStructured || typeof value !== 'string') continue;
 
     const trimmed = value.trim();
