@@ -20,6 +20,11 @@ export type ZenkoSelfConfiguration = {
   iamEndpoint: string;
   stsEndpoint: string;
   zenkoEndpoint: string;
+  // Internal cluster-local hostname the ARTESCA ingress rewrites Host to before
+  // forwarding /zenko/s3/* to cloudserver. Required for SigV4 to validate at
+  // the backend — see createZenkoS3Tools and the v2 monkey-patch in
+  // src/react/utils/index.ts (initializeAWSSigner).
+  s3InternalFQDN: string;
 };
 
 export type ZenkoToolContext = ToolContext & ZenkoSelfConfiguration;
@@ -32,6 +37,7 @@ export function buildZenkoContext(context: ToolContext): ZenkoToolContext {
     iamEndpoint: genClientEndpoint(cfg.iamEndpoint),
     stsEndpoint: genClientEndpoint(cfg.stsEndpoint),
     zenkoEndpoint: genClientEndpoint(cfg.zenkoEndpoint),
+    s3InternalFQDN: cfg.s3InternalFQDN,
   };
 }
 

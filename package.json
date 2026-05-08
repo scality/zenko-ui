@@ -12,7 +12,8 @@
     "start": "rspack serve -c rspack.config.ts",
     "build": "npm run check-types && npm run rsbuild",
     "jest-preview": "jest-preview",
-    "rsbuild": "rspack build -c rspack.config.ts"
+    "rsbuild": "rspack build -c rspack.config.ts",
+    "postinstall": "patch-package"
   },
   "keywords": [],
   "author": "",
@@ -52,6 +53,7 @@
     "jest-preview": "^0.3.1",
     "msw": "0.36.8",
     "node-fetch": "^2.6.1",
+    "patch-package": "^8.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.2",
     "vega-lite": "^4.0.0-beta.10"

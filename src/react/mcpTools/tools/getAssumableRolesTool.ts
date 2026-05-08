@@ -1,4 +1,5 @@
 import { getRolesForWebIdentity } from '../../../js/IAMClient';
+import { setAssumableAccounts } from '../accountsCache';
 import { buildZenkoContext, ToolContext } from '../types';
 
 export const getAssumableRolesTool = {
@@ -25,6 +26,11 @@ export const getAssumableRolesTool = {
   ) => {
     const ctx = buildZenkoContext(params.context);
     const token = await ctx.getToken();
-    return getRolesForWebIdentity(ctx.iamEndpoint, token, params.marker);
+    const result = await getRolesForWebIdentity(ctx.iamEndpoint, token, params.marker);
+    // Cache the account list so other MCP tool wrappers can resolve
+    // `roleArn → account Name` for navigation post-S3 operations and for
+    // navigateToRoute fallbacks (see ../accountsCache.ts).
+    setAssumableAccounts(result);
+    return result;
   },
 };

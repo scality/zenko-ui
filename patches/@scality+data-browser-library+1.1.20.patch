@@ -1,0 +1,90 @@
+diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/s3Client.js b/node_modules/@scality/data-browser-library/dist/mcpTools/s3Client.js
+index c14e9e1..3431656 100644
+--- a/node_modules/@scality/data-browser-library/dist/mcpTools/s3Client.js
++++ b/node_modules/@scality/data-browser-library/dist/mcpTools/s3Client.js
+@@ -1,5 +1,5 @@
+ import { S3Client } from "@aws-sdk/client-s3";
+-import { createProxyMiddleware } from "../utils/proxyMiddleware.js";
++import { createProxyMiddleware, resolveProxyEndpoint } from "../utils/proxyMiddleware.js";
+ function cacheKey(config) {
+     const { accessKeyId, secretAccessKey, sessionToken = '' } = config.credentials;
+     return [
+@@ -19,8 +19,15 @@ function createS3ClientFromContext(context) {
+     const config = context.getS3Config();
+     const key = cacheKey(config);
+     if (key === _cachedKey && _cachedClient) return _cachedClient;
++    // HOTPATCH (zenko-ui): when proxy is enabled, point the SDK at the proxy
++    // endpoint so the pre-signing middleware can strip the proxy path prefix
++    // and rewrite Host before SigV4 signing. Mirrors utils/s3Client.ts; will
++    // land upstream — see data-browser/packages/data-browser-library/src/mcpTools/s3Client.ts.
++    const clientEndpoint = config.proxy?.enabled
++        ? resolveProxyEndpoint(config.proxy.endpoint)
++        : config.endpoint;
+     const client = new S3Client({
+-        endpoint: config.endpoint,
++        endpoint: clientEndpoint,
+         region: config.region,
+         forcePathStyle: config.forcePathStyle ?? true,
+         credentials: config.credentials
+diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/tools/applicationRoutesTool.js b/node_modules/@scality/data-browser-library/dist/mcpTools/tools/applicationRoutesTool.js
+index 0ad02a5..af1b375 100644
+--- a/node_modules/@scality/data-browser-library/dist/mcpTools/tools/applicationRoutesTool.js
++++ b/node_modules/@scality/data-browser-library/dist/mcpTools/tools/applicationRoutesTool.js
+@@ -227,10 +227,18 @@ const getCurrentRouteTool = {
+         properties: {},
+         additionalProperties: false
+     },
+-    execute: async (_args)=>{
++    execute: async (args)=>{
++        const ctx = args && args.context;
+         const { pathname, search } = window.location;
++        // HOTPATCH: strip context.basePath so the path returned to the LLM
++        // matches the route shapes from getApplicationRoutes. Will land
++        // upstream — see data-browser/.../mcpTools/tools/applicationRoutesTool.ts
++        const basePath = (ctx && ctx.basePath) || '';
++        const stripped = basePath && pathname.startsWith(basePath)
++            ? pathname.slice(basePath.length) || '/'
++            : pathname;
+         return {
+-            pathname,
++            pathname: stripped,
+             search,
+             isEditRoute: isCurrentRouteEdit()
+         };
+@@ -264,10 +272,17 @@ const navigateToRouteTool = {
+     },
+     execute: async (args)=>{
+         const { context, path: routePath } = args;
+-        context.navigate(routePath);
++        // HOTPATCH: prepend context.basePath so the host's navigate (which is
++        // wired to the parent shell's router, NOT the data-browser internal
++        // router) routes through the correct app prefix. The library's route
++        // patterns are emitted by getApplicationRoutes without the host
++        // prefix; the host supplies it via context.basePath at call time.
++        const basePath = (context && context.basePath) || '';
++        const fullPath = basePath ? `${basePath}${routePath}` : routePath;
++        context.navigate(fullPath);
+         return {
+             navigated: true,
+-            path: routePath
++            path: fullPath
+         };
+     }
+ };
+diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.js b/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.js
+index 6b71e32..a871812 100644
+--- a/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.js
++++ b/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.js
+@@ -51,6 +51,11 @@ function autoNavigateAfterOperation(context, params, operationName) {
+         targetPath = `/buckets/${bucket}/objects${qs.toString() ? `?${qs.toString()}` : ''}`;
+         if (pathname.includes(`/buckets/${bucket}/objects`)) return;
+     }
+-    context.navigate(targetPath);
++    // HOTPATCH: honour context.basePath so the post-operation navigation
++    // lands on the host's mounted route. Will land upstream — see
++    // data-browser/.../mcpTools/utils/autoNavigate.ts.
++    const basePath = context.basePath || '';
++    const fullPath = basePath ? `${basePath}${targetPath}` : targetPath;
++    context.navigate(fullPath);
+ }
+ export { autoNavigateAfterOperation };
