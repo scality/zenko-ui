@@ -341,7 +341,12 @@ export function createZenkoS3Tools(
             }),
             navigate,
             basePath,
-            queryClient: ctx.queryClient,
+            // Intentionally omit queryClient: the chat-side data-browser
+            // panels mount their `useQuery` observers against the library's
+            // own @tanstack/react-query v5 QueryClient (defaultQueryClient),
+            // not shell-ui's react-query v3 client we'd pass via ctx.
+            // invalidateAfter falls back to defaultQueryClient when no client
+            // is supplied here, which is what we want.
             queryKeyPrefix,
           },
         }, client);
