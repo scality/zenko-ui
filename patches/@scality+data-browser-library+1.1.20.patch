@@ -1,3 +1,213 @@
+diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/CreateBucketTool.test.d.ts b/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/CreateBucketTool.test.d.ts
+new file mode 100644
+index 0000000..cb0ff5c
+--- /dev/null
++++ b/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/CreateBucketTool.test.d.ts
+@@ -0,0 +1 @@
++export {};
+diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/CreateBucketTool.test.js b/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/CreateBucketTool.test.js
+new file mode 100644
+index 0000000..1b62ed9
+--- /dev/null
++++ b/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/CreateBucketTool.test.js
+@@ -0,0 +1,60 @@
++import { createBucketTool } from "../generated/CreateBucketTool.js";
++jest.mock('../s3Client', ()=>({
++        createS3ClientFromContext: jest.fn(()=>({
++                send: jest.fn().mockResolvedValue({
++                    Location: '/test-bucket'
++                })
++            }))
++    }));
++jest.mock('../utils/autoNavigate', ()=>({
++        autoNavigateAfterOperation: jest.fn()
++    }));
++describe('createBucketTool (generated)', ()=>{
++    it('invalidates the ListBuckets key with the queryKeyPrefix after success', async ()=>{
++        const invalidateQueries = jest.fn();
++        const queryClient = {
++            invalidateQueries
++        };
++        const context = {
++            getS3Config: ()=>({
++                    endpoint: 'https://s3.local',
++                    region: 'us-east-1',
++                    credentials: {
++                        accessKeyId: 'a',
++                        secretAccessKey: 'b'
++                    }
++                }),
++            navigate: ()=>{},
++            queryClient,
++            queryKeyPrefix: 'cache-id'
++        };
++        await createBucketTool.execute({
++            Bucket: 'test-bucket',
++            context
++        }, void 0);
++        expect(invalidateQueries).toHaveBeenCalledTimes(1);
++        expect(invalidateQueries).toHaveBeenCalledWith({
++            queryKey: [
++                'cache-id',
++                'ListBuckets'
++            ]
++        });
++    });
++    it('runs successfully when no QueryClient is wired up (cache-sync optional)', async ()=>{
++        const context = {
++            getS3Config: ()=>({
++                    endpoint: 'https://s3.local',
++                    region: 'us-east-1',
++                    credentials: {
++                        accessKeyId: 'a',
++                        secretAccessKey: 'b'
++                    }
++                }),
++            navigate: ()=>{}
++        };
++        await expect(createBucketTool.execute({
++            Bucket: 'test-bucket',
++            context
++        }, void 0)).resolves.toBeDefined();
++    });
++});
+diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/cacheSyncHelpers.test.d.ts b/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/cacheSyncHelpers.test.d.ts
+new file mode 100644
+index 0000000..cb0ff5c
+--- /dev/null
++++ b/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/cacheSyncHelpers.test.d.ts
+@@ -0,0 +1 @@
++export {};
+diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/cacheSyncHelpers.test.js b/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/cacheSyncHelpers.test.js
+new file mode 100644
+index 0000000..c1f2baa
+--- /dev/null
++++ b/node_modules/@scality/data-browser-library/dist/mcpTools/__tests__/cacheSyncHelpers.test.js
+@@ -0,0 +1,124 @@
++import { invalidateAfter, keyWithPrefix } from "../cacheSyncHelpers.js";
++function makeContext(overrides = {}) {
++    const queryClient = {
++        invalidateQueries: jest.fn()
++    };
++    return {
++        getS3Config: ()=>{
++            throw new Error('not used by cacheSyncHelpers');
++        },
++        navigate: ()=>{},
++        queryClient: queryClient,
++        ...overrides
++    };
++}
++describe('keyWithPrefix', ()=>{
++    it('returns the key unchanged when no prefix is set', ()=>{
++        const ctx = makeContext({
++            queryKeyPrefix: void 0
++        });
++        expect(keyWithPrefix(ctx, [
++            'ListBuckets'
++        ])).toEqual([
++            'ListBuckets'
++        ]);
++    });
++    it('prepends the prefix when set', ()=>{
++        const ctx = makeContext({
++            queryKeyPrefix: 'foo'
++        });
++        expect(keyWithPrefix(ctx, [
++            'ListBuckets'
++        ])).toEqual([
++            'foo',
++            'ListBuckets'
++        ]);
++    });
++    it('preserves later key parts (e.g. filter objects)', ()=>{
++        const ctx = makeContext({
++            queryKeyPrefix: 'foo'
++        });
++        const key = [
++            'ListObjects',
++            {
++                Bucket: 'b'
++            }
++        ];
++        expect(keyWithPrefix(ctx, key)).toEqual([
++            'foo',
++            'ListObjects',
++            {
++                Bucket: 'b'
++            }
++        ]);
++    });
++    it('wraps a non-array logical key into an array', ()=>{
++        const ctx = makeContext({
++            queryKeyPrefix: 'foo'
++        });
++        expect(keyWithPrefix(ctx, 'ListBuckets')).toEqual([
++            'foo',
++            'ListBuckets'
++        ]);
++    });
++});
++describe('invalidateAfter', ()=>{
++    it('calls invalidateQueries once per key', ()=>{
++        const ctx = makeContext({
++            queryKeyPrefix: 'foo'
++        });
++        invalidateAfter(ctx, [
++            [
++                'ListBuckets'
++            ],
++            [
++                'ListObjects',
++                {
++                    Bucket: 'b'
++                }
++            ]
++        ]);
++        expect(ctx.queryClient.invalidateQueries).toHaveBeenCalledTimes(2);
++        expect(ctx.queryClient.invalidateQueries).toHaveBeenNthCalledWith(1, {
++            queryKey: [
++                'foo',
++                'ListBuckets'
++            ]
++        });
++        expect(ctx.queryClient.invalidateQueries).toHaveBeenNthCalledWith(2, {
++            queryKey: [
++                'foo',
++                'ListObjects',
++                {
++                    Bucket: 'b'
++                }
++            ]
++        });
++    });
++    it('omits the prefix when none is set', ()=>{
++        const ctx = makeContext();
++        invalidateAfter(ctx, [
++            [
++                'ListBuckets'
++            ]
++        ]);
++        expect(ctx.queryClient.invalidateQueries).toHaveBeenCalledWith({
++            queryKey: [
++                'ListBuckets'
++            ]
++        });
++    });
++    it('is a no-op when no QueryClient is on the context', ()=>{
++        const ctx = {
++            getS3Config: ()=>{
++                throw new Error('unused');
++            },
++            navigate: ()=>{}
++        };
++        expect(()=>invalidateAfter(ctx, [
++                [
++                    'ListBuckets'
++                ]
++            ])).not.toThrow();
++    });
++});
 diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/cacheSyncHelpers.d.ts b/node_modules/@scality/data-browser-library/dist/mcpTools/cacheSyncHelpers.d.ts
 new file mode 100644
 index 0000000..633014c
@@ -1792,13 +2002,75 @@ index effc20b..0ff5457 100644
  };
  export type MCPToolDefinition = {
      name: string;
+diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.d.ts b/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.d.ts
+index 3feecf6..b54622a 100644
+--- a/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.d.ts
++++ b/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.d.ts
+@@ -5,15 +5,21 @@ import type { DataBrowserToolContext } from '../types';
+  * unsaved changes.
+  *
+  * Navigation heuristic (in priority order):
+- *   Bucket + Key  → object detail (/buckets/{Bucket}/objects?objectKey=…[&prefix=…][&versionId=…][&tab=…])
+- *   Bucket only   → bucket objects view (/buckets/{Bucket}/objects[?prefix=…])
+- *   Neither       → no-op
++ *   Bucket + Key                          → object detail (/buckets/{Bucket}/objects?objectKey=…[&prefix=…][&versionId=…][&tab=…])
++ *   Bucket only, object-listing operation → bucket objects view (/buckets/{Bucket}/objects[?prefix=…])
++ *   Bucket only, bucket-level operation   → bucket details (/buckets/{Bucket} — list page with this bucket selected)
++ *   Neither                               → no-op
++ *
++ * "Bucket-level" means any operation that modifies the bucket itself rather
++ * than its contents — CreateBucket, DeleteBucket, Put*Bucket*, Delete*Bucket*,
++ * GetBucket* probes, etc. Landing on the details page surfaces the config
++ * that was just changed; the previous /objects target buried it.
+  *
+  * Tab selection (when Key is present):
+  *   Tag operations      → ?tab=tags
+  *   Metadata operations → ?tab=metadata
+  *   Everything else     → summary (no tab param)
+  *
+- * Also skips navigation if already on the matching bucket objects page (bucket-only case).
++ * Also skips navigation if already on the matching destination.
+  */
+ export declare function autoNavigateAfterOperation(context: DataBrowserToolContext, params: Record<string, unknown>, operationName?: string): void;
 diff --git a/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.js b/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.js
-index 6b71e32..98718be 100644
+index 6b71e32..60372e9 100644
 --- a/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.js
 +++ b/node_modules/@scality/data-browser-library/dist/mcpTools/utils/autoNavigate.js
-@@ -51,6 +51,8 @@ function autoNavigateAfterOperation(context, params, operationName) {
-         targetPath = `/buckets/${bucket}/objects${qs.toString() ? `?${qs.toString()}` : ''}`;
-         if (pathname.includes(`/buckets/${bucket}/objects`)) return;
+@@ -12,6 +12,12 @@ const METADATA_OPERATIONS = new Set([
+ const VERSIONS_OPERATIONS = new Set([
+     'ListObjectVersions'
+ ]);
++const OBJECT_LISTING_OPERATIONS = new Set([
++    'ListObjects',
++    'ListObjectsV2',
++    'ListObjectVersions',
++    'ListMultipartUploads'
++]);
+ function tabForOperation(operationName) {
+     if (TAG_OPERATIONS.has(operationName)) return 'tags';
+     if (METADATA_OPERATIONS.has(operationName)) return 'metadata';
+@@ -44,13 +50,21 @@ function autoNavigateAfterOperation(context, params, operationName) {
+         if (tab) qs.set('tab', tab);
+         targetPath = `/buckets/${bucket}/objects?${qs.toString()}`;
+     } else {
+-        const qs = new URLSearchParams();
+-        if (folderOnlyPrefix) qs.set('prefix', folderOnlyPrefix);
+-        if (impliesVersions) qs.set('showversions', 'true');
+-        else if (currentShowVersions) qs.set('showversions', currentShowVersions);
+-        targetPath = `/buckets/${bucket}/objects${qs.toString() ? `?${qs.toString()}` : ''}`;
+-        if (pathname.includes(`/buckets/${bucket}/objects`)) return;
++        const goToObjectListing = impliesVersions || (operationName ? OBJECT_LISTING_OPERATIONS.has(operationName) : false);
++        if (goToObjectListing) {
++            const qs = new URLSearchParams();
++            if (folderOnlyPrefix) qs.set('prefix', folderOnlyPrefix);
++            if (impliesVersions) qs.set('showversions', 'true');
++            else if (currentShowVersions) qs.set('showversions', currentShowVersions);
++            targetPath = `/buckets/${bucket}/objects${qs.toString() ? `?${qs.toString()}` : ''}`;
++            if (pathname.includes(`/buckets/${bucket}/objects`)) return;
++        } else {
++            targetPath = `/buckets/${bucket}`;
++            if (pathname.endsWith(`/buckets/${bucket}`) || pathname.match(new RegExp(`/buckets/${bucket}/(?!objects)`))) return;
++        }
      }
 -    context.navigate(targetPath);
 +    const basePath = context.basePath ?? '';
