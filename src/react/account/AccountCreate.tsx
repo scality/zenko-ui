@@ -80,7 +80,8 @@ function AccountCreate() {
               queryClient.invalidateQueries(['WebIdentityRoles']);
               const platform = searchParams.get('platform');
               if (platform) {
-                basenameRelativeNavigate(`/isv/configuration?platform=${platform}&account=${name}`);
+                const params = new URLSearchParams({ platform, account: name });
+                basenameRelativeNavigate(`/isv/configuration?${params.toString()}`);
               } else {
                 basenameRelativeNavigate(`/accounts/${name}`);
               }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FormGroup, FormSection, Stack, Text } from '@scality/core-ui';
-import { Box, CopyButton } from '@scality/core-ui/dist/next';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import styled from 'styled-components';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
@@ -12,6 +12,12 @@ import { GET_RUBRIK_POLICY } from '../utils/ISVPolicy';
 
 const WrapperWithWidth = styled(Wrap)`
   width: 20rem;
+`;
+
+const KeyCode = styled.code`
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 0.75rem;
 `;
 
 // Rubrik CDM requires PKCS#1 PEM format. The Web Crypto API only exports PKCS#8,
@@ -41,9 +47,12 @@ async function generateRSAPKCS1Pem(): Promise<string> {
 
 function RubrikRSAKeySection() {
   const [pem, setPem] = useState<string | null>(null);
+  const [keyError, setKeyError] = useState<string | null>(null);
 
   useEffect(() => {
-    generateRSAPKCS1Pem().then(setPem);
+    generateRSAPKCS1Pem().then(setPem).catch((e: unknown) => {
+      setKeyError(e instanceof Error ? e.message : 'Key generation failed.');
+    });
   }, []);
 
   const downloadKey = () => {
@@ -63,15 +72,17 @@ function RubrikRSAKeySection() {
         Rubrik requires an RSA private key to encrypt archived data. A 2048-bit key has been generated below. You may copy it or
         download it. Keep it in a safe place before configuring the Archive Location.
       </Text>
-      {pem ? (
+      {keyError ? (
+        <Text variant="Smaller" color="statusCritical">
+          Key generation failed: {keyError}
+        </Text>
+      ) : pem ? (
         <>
           <Stack gap="r4" direction="horizontal">
             <CopyButton textToCopy={pem} aria-label="copy RSA private key" />
-            <button type="button" onClick={downloadKey}>
-              Download .pem
-            </button>
+            <Button type="button" variant="outline" onClick={downloadKey} label="Download .pem" />
           </Stack>
-          <code style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.75rem' }}>{pem}</code>
+          <KeyCode>{pem}</KeyCode>
         </>
       ) : (
         <Text>Generating key…</Text>
