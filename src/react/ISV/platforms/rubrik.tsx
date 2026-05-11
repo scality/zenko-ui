@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FormGroup, FormSection, Stack, Text } from '@scality/core-ui';
-import { CopyButton } from '@scality/core-ui/dist/next';
+import { Box, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import styled from 'styled-components';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
@@ -60,8 +60,8 @@ function RubrikRSAKeySection() {
   return (
     <Stack gap="r8" direction="vertical" style={{ paddingTop: spacing.r8 }}>
       <Text>
-        Rubrik requires an RSA private key to encrypt archived data. A 2048-bit key has been generated below — copy or
-        download it and keep it in a safe place before configuring the Archive Location.
+        Rubrik requires an RSA private key to encrypt archived data. A 2048-bit key has been generated below. You may copy it or
+        download it. Keep it in a safe place before configuring the Archive Location.
       </Text>
       {pem ? (
         <>
@@ -184,10 +184,10 @@ export const RubrikPlatform = definePlatform({
   },
 
   description: (
-    <Stack gap="r8">
+    <Box gap={spacing.r8} alignItems="baseline" display="flex" flexDirection="row">
       <Text variant="Large">Prepare ARTESCA for</Text>
       <RubrikLogo />
-    </Stack>
+    </Box>
   ),
 
   skipModalContent: (
