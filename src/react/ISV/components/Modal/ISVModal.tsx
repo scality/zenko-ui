@@ -146,7 +146,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
     } else if (accountName) {
       navigate(`/accounts/${accountName}/buckets/-/create`);
     } else {
-      navigate(`/create-account?platform=${selectedISV.id}`);
+      navigate('/create-account');
     }
   };
 
