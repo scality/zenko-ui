@@ -75,7 +75,7 @@ export class BaseAPI {
  * @extends {Error}
  */
 export class RequiredError extends window.Error {
-  name: 'RequiredError';
+  name = 'RequiredError';
   constructor(
     public field: string,
     msg?: string,
@@ -4096,6 +4096,61 @@ export interface ReportV1 {
 /**
  *
  * @export
+ * @interface ReportingAccountUsageV1
+ */
+export interface ReportingAccountUsageV1 {
+  [key: string]: ReportingLocationUsageV1;
+}
+
+/**
+ *
+ * @export
+ * @interface ReportingLocationUsageV1
+ */
+export interface ReportingLocationUsageV1 {
+  /**
+   * Total bytes stored in this location.
+   * @type {number}
+   * @memberof ReportingLocationUsageV1
+   */
+  bytesTotal?: number;
+  /**
+   * Total number of objects stored in this location.
+   * @type {number}
+   * @memberof ReportingLocationUsageV1
+   */
+  objectsTotal?: number;
+}
+
+/**
+ *
+ * @export
+ * @interface ReportingUsageResponseV1
+ */
+export interface ReportingUsageResponseV1 {
+  /**
+   * Whether there are more accounts beyond this page.
+   * @type {boolean}
+   * @memberof ReportingUsageResponseV1
+   */
+  isTruncated: boolean;
+  /**
+   * Token to pass as the marker parameter to fetch the next page.
+   * @type {string}
+   * @memberof ReportingUsageResponseV1
+   */
+  marker: string;
+  /**
+   * Per-account storage usage keyed by account name.
+   * @type {{ [key: string]: ReportingAccountUsageV1; }}
+   * @memberof ReportingUsageResponseV1
+   */
+  accounts?: { [key: string]: ReportingAccountUsageV1 };
+}
+
+/**
+ *
+ * @export
  * @interface ScheduleV1
  */
 export interface ScheduleV1 {
@@ -6207,7 +6262,6 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
       const localVarQueryParameter = {} as any;
 
       // authentication public-api required
-      // oauth required
       if (configuration && configuration.apiKey) {
         const localVarApiKeyValue =
           typeof configuration.apiKey === 'function'
@@ -6835,7 +6889,6 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
       const localVarQueryParameter = {} as any;
 
       // authentication public-api required
-      // oauth required
       if (configuration && configuration.apiKey) {
         const localVarApiKeyValue =
           typeof configuration.apiKey === 'function'
@@ -7087,6 +7140,55 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
             ? configuration.apiKey('X-Authentication-Token')
             : configuration.apiKey;
         localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+      }
+
+      localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+      localVarUrlObj.search = null;
+      localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+      return {
+        url: url.format(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     * Get aggregated storage usage across all accounts. Results are paginated. Use the marker from a truncated response to fetch the next page.
+     * @param {string} uuid
+     * @param {string} [marker] Pagination token from a previous truncated response.
+     * @param {number} [maxItems] Maximum number of accounts to return per page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getReportingUsage(uuid: string, marker?: string, maxItems?: number, options: any = {}): FetchArgs {
+      // verify required parameter 'uuid' is not null or undefined
+      if (uuid === null || uuid === undefined) {
+        throw new RequiredError(
+          'uuid',
+          'Required parameter uuid was null or undefined when calling getReportingUsage.',
+        );
+      }
+      const localVarPath = `/instance/{uuid}/reporting/usage`.replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)));
+      const localVarUrlObj = url.parse(localVarPath, true);
+      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication public-api required
+      if (configuration && configuration.apiKey) {
+        const localVarApiKeyValue =
+          typeof configuration.apiKey === 'function'
+            ? configuration.apiKey('X-Authentication-Token')
+            : configuration.apiKey;
+        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+      }
+
+      if (marker !== undefined) {
+        localVarQueryParameter['marker'] = marker;
+      }
+
+      if (maxItems !== undefined) {
+        localVarQueryParameter['maxItems'] = maxItems;
       }
 
       localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -8932,6 +9034,36 @@ export const UiFacingApiFp = function (configuration?: Configuration) {
       };
     },
     /**
+     * Get aggregated storage usage across all accounts. Results are paginated. Use the marker from a truncated response to fetch the next page.
+     * @param {string} uuid
+     * @param {string} [marker] Pagination token from a previous truncated response.
+     * @param {number} [maxItems] Maximum number of accounts to return per page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getReportingUsage(
+      uuid: string,
+      marker?: string,
+      maxItems?: number,
+      options?: any,
+    ): (fetch?: FetchAPI, basePath?: string) => Promise<ReportingUsageResponseV1> {
+      const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).getReportingUsage(
+        uuid,
+        marker,
+        maxItems,
+        options,
+      );
+      return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+        return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+          if (response.status >= 200 && response.status < 300) {
+            return response.json();
+          } else {
+            throw response;
+          }
+        });
+      };
+    },
+    /**
      * Get storage consumption metrics for a specific account, including all locations' metrics within the account.
      * @param {string} uuid
      * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
@@ -9053,7 +9185,7 @@ export const UiFacingApiFp = function (configuration?: Configuration) {
       userId: string,
       invites: Array<Invites>,
       options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response | Record<string, never>> {
+    ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
       const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).inviteOrbitUsersByEmail(
         userId,
         invites,
@@ -9062,9 +9194,6 @@ export const UiFacingApiFp = function (configuration?: Configuration) {
       return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
         return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
           if (response.status >= 200 && response.status < 300) {
-            if (response.status === 204) {
-              return {};
-            }
             return response;
           } else {
             throw response;
@@ -9882,6 +10011,17 @@ export const UiFacingApiFactory = function (configuration?: Configuration, fetch
      */
     getLatestInstanceStatus(uuid: string, options?: any) {
       return UiFacingApiFp(configuration).getLatestInstanceStatus(uuid, options)(fetch, basePath);
+    },
+    /**
+     * Get aggregated storage usage across all accounts. Results are paginated. Use the marker from a truncated response to fetch the next page.
+     * @param {string} uuid
+     * @param {string} [marker] Pagination token from a previous truncated response.
+     * @param {number} [maxItems] Maximum number of accounts to return per page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getReportingUsage(uuid: string, marker?: string, maxItems?: number, options?: any) {
+      return UiFacingApiFp(configuration).getReportingUsage(uuid, marker, maxItems, options)(fetch, basePath);
     },
     /**
      * Get storage consumption metrics for a specific account, including all locations' metrics within the account.
@@ -10726,6 +10866,24 @@ export class UiFacingApi extends BaseAPI {
    */
   public getLatestInstanceStatus(uuid: string, options?: any) {
     return UiFacingApiFp(this.configuration).getLatestInstanceStatus(uuid, options)(this.fetch, this.basePath);
+  }
+
+  /**
+   * Get aggregated storage usage across all accounts. Results are paginated. Use the marker from a truncated response to fetch the next page.
+   * @param {string} uuid
+   * @param {string} [marker] Pagination token from a previous truncated response.
+   * @param {number} [maxItems] Maximum number of accounts to return per page.
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UiFacingApi
+   */
+  public getReportingUsage(uuid: string, marker?: string, maxItems?: number, options?: any) {
+    return UiFacingApiFp(this.configuration).getReportingUsage(
+      uuid,
+      marker,
+      maxItems,
+      options,
+    )(this.fetch, this.basePath);
   }
 
   /**
