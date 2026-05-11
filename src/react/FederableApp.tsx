@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import AuthLoadingProvider from './AuthLoadingProvider';
 import ErrorProvider from './ErrorProvider';
+import { McpQueryClientPublisher } from './mcpTools/McpQueryClientPublisher';
 import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { LocationsEndpointsAdapterProvider } from './next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { ArtescaLibraryProvider } from './next-architecture/ui/ArtescaLibraryProvider';
@@ -47,6 +48,10 @@ const FederableApp = (props) => {
       <XCoreLibraryProvider>
         <ArtescaLibraryProvider>
           <HistoryPushEventListener />
+          {/* Publishes the live QueryClient to a module-level ref so the MCP
+              tool wrappers (which run outside React) can invalidate the
+              cache after a successful agent operation. */}
+          <McpQueryClientPublisher />
           <ZenkoUIGuard>
             <LocationsEndpointsAdapterProvider>
               <LocationAdapterProvider>

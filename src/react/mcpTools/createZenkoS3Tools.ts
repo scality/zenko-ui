@@ -5,6 +5,7 @@ import {
 import { accountNameForRoleArn, inferSoleAccountName } from './accountsCache';
 import { getCredentials } from './stsCredentialCache';
 import { buildZenkoContext, type ToolContext } from './types';
+import { withQueryCacheInvalidation } from './withQueryCacheInvalidation';
 
 /** Tool names that perform no S3 calls and don't need a roleArn. */
 const NO_ROLE_TOOLS = new Set(['getApplicationRoutes', 'getCurrentRoute', 'navigateToRoute']);
@@ -195,7 +196,7 @@ export function createZenkoS3Tools(
           }
         : tool.inputSchema;
 
-      return {
+      return withQueryCacheInvalidation({
         ...tool,
         inputSchema,
         execute: async (args: Record<string, unknown> & { context: unknown }, client: unknown) => {
@@ -219,7 +220,7 @@ export function createZenkoS3Tools(
             },
           }, client);
         },
-      };
+      });
     }
 
     // S3 operation tools: add roleArn to schema, resolve STS credentials at call time
@@ -240,7 +241,7 @@ export function createZenkoS3Tools(
       ],
     };
 
-    return {
+    return withQueryCacheInvalidation({
       ...tool,
       inputSchema: wrappedSchema,
       execute: async (
@@ -320,6 +321,6 @@ export function createZenkoS3Tools(
           },
         }, client);
       },
-    };
+    });
   });
 }

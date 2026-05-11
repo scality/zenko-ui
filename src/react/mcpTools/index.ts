@@ -7,6 +7,7 @@ import { getAWSCLIS3InstructionsTool } from './tools/getAWSCLIS3InstructionsTool
 import { getCredentialsInstructionsTool } from './tools/getCredentialsInstructionsTool';
 import { getIAMActionsTool } from './tools/getIAMActionsTool';
 import { buildZenkoContext, type ToolContext } from './types';
+import { withQueryCacheInvalidation } from './withQueryCacheInvalidation';
 
 /**
  * Factory consumed by shell-ui's MCPRegistrar (createTools API).
@@ -26,14 +27,16 @@ export function createTools(
 
   // In the createTools factory approach shell-ui does NOT inject ToolContext into
   // params, so we bake zenkoContext into each Zenko tool's execute closure.
-  function bake<T extends { execute: (args: any, client: unknown) => Promise<unknown> }>(
+  // We also wrap each tool with `withQueryCacheInvalidation` so mutations
+  // (createAccount, executeIAMAction, …) refresh the on-page panels.
+  function bake<T extends { name: string; execute: (args: any, client: unknown) => Promise<unknown> }>(
     tool: T,
   ): T {
-    return {
+    return withQueryCacheInvalidation({
       ...tool,
       execute: (args: Record<string, unknown>, client: unknown) =>
         tool.execute({ ...args, context: zenkoContext }, client),
-    };
+    });
   }
 
   return [
@@ -46,6 +49,9 @@ export function createTools(
     bake(executeIAMActionTool),
     // data-browser S3 tools adapted for Zenko: each gains a roleArn param
     // and resolves STS credentials at call time via createZenkoS3Tools.
+    // Cache invalidation is applied per-tool inside createZenkoS3Tools
+    // so navigation tools (which auto-navigate after S3 success in the
+    // generated code) don't trigger a second refetch.
     ...createZenkoS3Tools(context, navigate),
   ];
 }
