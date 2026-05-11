@@ -26,10 +26,16 @@ export const createAccountTool = {
     const ctx = buildZenkoContext(params.context);
     const token = await ctx.getToken();
     const instanceId = extractInstanceId(token);
-    return createAccountCore(ctx.managementEndpoint, token, {
+    const result = await createAccountCore(ctx.managementEndpoint, token, {
       userName: params.name,
       email: params.email,
       instanceId,
     });
+    // Refresh chat-side panels: the accounts list is sourced from
+    // useAccountsLocationsEndpointsAdapter → ['WebIdentityRoles'] (see
+    // src/react/utils/hooks.ts:195 — same key ISVApplyActions invalidates).
+    // No separate ['accounts'] key in this codebase.
+    ctx.queryClient?.invalidateQueries({ queryKey: ['WebIdentityRoles'] });
+    return result;
   },
 };

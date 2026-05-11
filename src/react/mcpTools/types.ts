@@ -1,3 +1,4 @@
+import type { QueryClient } from 'react-query';
 import { genClientEndpoint } from '../../react/utils';
 
 // Mirror of shell-ui's ToolContext — update when @mf-types/shell exposes mcp/types
@@ -13,6 +14,15 @@ export type ToolContext = {
   getToken: () => Promise<string | null>;
   userData: UserData | undefined;
   selfConfiguration: Record<string, unknown>;
+  /**
+   * Shell-ui–owned QueryClient, shared with every federated app via
+   * <QueryClientProvider contextSharing>. Tools read it from the context
+   * shell-ui injects and use it to keep the chat-side UI panels in sync
+   * with their mutations (typically `invalidateQueries` after a successful
+   * write). Optional so that pre-shell-ui-cache-sync hosts don't break
+   * during the rollout — once every host injects it we can tighten.
+   */
+  queryClient?: QueryClient;
 };
 
 export type ZenkoSelfConfiguration = {

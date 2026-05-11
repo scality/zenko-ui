@@ -1,6 +1,59 @@
 import IAM from 'aws-sdk/clients/iam';
+import { accountNameForRoleArn } from '../accountsCache';
 import { getCredentials } from '../stsCredentialCache';
 import { buildZenkoContext, ToolContext } from '../types';
+
+/**
+ * Map an IAM action camelCase name to the chat-side panel query keys it
+ * affects. Keys mirror the factories in src/react/queries.ts so invalidating
+ * them refetches the same data the panels render. Unmapped actions don't
+ * trigger any invalidation (read-only actions OR actions whose UI surface
+ * isn't observed on the chat side).
+ *
+ * `accountName` is required because every panel key is account-scoped.
+ */
+function iamActionInvalidationKeys(
+  action: string,
+  accountName: string | undefined,
+): Array<readonly unknown[]> {
+  if (!accountName) return [];
+  switch (action) {
+    case 'createUser':
+    case 'deleteUser':
+    case 'updateUser':
+    case 'attachUserPolicy':
+    case 'detachUserPolicy':
+    case 'addUserToGroup':
+    case 'removeUserFromGroup':
+      return [['listIAMUsers', accountName]];
+
+    case 'createPolicy':
+    case 'deletePolicy':
+    case 'createPolicyVersion':
+    case 'deletePolicyVersion':
+    case 'setDefaultPolicyVersion':
+      return [['listPolicies', accountName]];
+
+    case 'createGroup':
+    case 'deleteGroup':
+    case 'updateGroup':
+    case 'attachGroupPolicy':
+    case 'detachGroupPolicy':
+      return [['listGroups', accountName]];
+
+    case 'createRole':
+    case 'deleteRole':
+    case 'updateRole':
+    case 'updateAssumeRolePolicy':
+    case 'attachRolePolicy':
+    case 'detachRolePolicy':
+      // Roles also drive the assumable-roles list the agent uses next turn.
+      return [['listRoles', accountName], ['WebIdentityRoles']];
+
+    default:
+      return [];
+  }
+}
 
 export const executeIAMActionTool = {
   name: 'executeIAMAction',
@@ -59,6 +112,13 @@ export const executeIAMActionTool = {
           resolve({ error: { code: e['code'], message: e['message'], statusCode: e['statusCode'] } });
         } else {
           console.debug('[executeIAMAction] iam.%s success:', args.action, data);
+          // Refresh the chat-side panels the action affects. Keys come from
+          // src/react/queries.ts so they match the panel `useQuery` callsites.
+          const accountName = accountNameForRoleArn(args.roleArn);
+          const keys = iamActionInvalidationKeys(args.action, accountName);
+          for (const queryKey of keys) {
+            ctx.queryClient?.invalidateQueries({ queryKey: queryKey as unknown[] });
+          }
           resolve(JSON.parse(JSON.stringify(data)));
         }
       });

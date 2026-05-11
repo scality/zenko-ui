@@ -1,3 +1,4 @@
+import { computeS3ConfigIdentifier } from '@scality/data-browser-library';
 import {
   createS3Tools,
   type MCPToolDefinition,
@@ -5,7 +6,14 @@ import {
 import { accountNameForRoleArn, inferSoleAccountName } from './accountsCache';
 import { getCredentials } from './stsCredentialCache';
 import { buildZenkoContext, type ToolContext } from './types';
-import { withQueryCacheInvalidation } from './withQueryCacheInvalidation';
+
+/**
+ * S3 region the chat-side DataBrowserProvider uses
+ * (see DataServiceRoleProvider.tsx → DEFAULT_REGION). Mirrored here so the
+ * tool-side queryKeyPrefix matches what the panel namespaces queries against;
+ * if the panel and tools disagree the invalidations would silently miss.
+ */
+const PANEL_REGION = 'us-east-1';
 
 /** Tool names that perform no S3 calls and don't need a roleArn. */
 const NO_ROLE_TOOLS = new Set(['getApplicationRoutes', 'getCurrentRoute', 'navigateToRoute']);
@@ -196,7 +204,7 @@ export function createZenkoS3Tools(
           }
         : tool.inputSchema;
 
-      return withQueryCacheInvalidation({
+      return {
         ...tool,
         inputSchema,
         execute: async (args: Record<string, unknown> & { context: unknown }, client: unknown) => {
@@ -217,10 +225,12 @@ export function createZenkoS3Tools(
               },
               navigate,
               basePath,
+              // Navigation tools have no `invalidates` in the lib codegen,
+              // so no queryClient/queryKeyPrefix needed here.
             },
           }, client);
         },
-      });
+      };
     }
 
     // S3 operation tools: add roleArn to schema, resolve STS credentials at call time
@@ -241,7 +251,7 @@ export function createZenkoS3Tools(
       ],
     };
 
-    return withQueryCacheInvalidation({
+    return {
       ...tool,
       inputSchema: wrappedSchema,
       execute: async (
@@ -290,6 +300,19 @@ export function createZenkoS3Tools(
           { roleArn },
         );
 
+        // queryKeyPrefix mirrors what zenko-ui's chat-side DataBrowserProvider
+        // computes via `computeS3ConfigIdentifier` — the same `cacheKey=roleArn`
+        // + external zenkoEndpoint + DEFAULT_REGION the panel queries are
+        // namespaced under (see DataServiceRoleProvider.tsx:73-114). The tool's
+        // own SDK call uses a different internal endpoint for SigV4 reasons,
+        // but the cache-sync target is the panel — so the prefix must match
+        // the panel's, not the tool's wire request.
+        const queryKeyPrefix = computeS3ConfigIdentifier({
+          cacheKey: roleArn,
+          region: PANEL_REGION,
+          endpoint: ctx.zenkoEndpoint,
+        });
+
         return tool.execute({
           ...s3Params,
           context: {
@@ -303,7 +326,7 @@ export function createZenkoS3Tools(
             // src/react/utils/index.ts:initializeAWSSigner.
             getS3Config: () => ({
               endpoint: `https://${ctx.s3InternalFQDN}`,
-              region: 'us-east-1',
+              region: PANEL_REGION,
               forcePathStyle: true,
               credentials: {
                 accessKeyId: creds.AccessKeyId,
@@ -318,9 +341,11 @@ export function createZenkoS3Tools(
             }),
             navigate,
             basePath,
+            queryClient: ctx.queryClient,
+            queryKeyPrefix,
           },
         }, client);
       },
-    });
+    };
   });
 }
