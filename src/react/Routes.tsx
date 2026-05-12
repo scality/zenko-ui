@@ -1,6 +1,6 @@
 import { AppContainer, EmptyState, ErrorPage401, Icon, Loader, Sidebar } from '@scality/core-ui';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useCallback, useState } from 'react';
+import { type JSX, useCallback, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation } from 'react-router';
 import { useAuthLoading } from './AuthLoadingProvider';
 import AccountContent from './account/AccountContent';
@@ -25,7 +25,8 @@ import STSProvider from './STSProvider';
 import ImportCertificate from './truststore/ImportCertificate';
 import Truststore from './truststore/Truststore';
 import ReauthDialog from './ui-elements/ReauthDialog';
-import { useAuthGroups } from './utils/hooks';
+import { DATA_CONSUMER_ROLE, regexArn, useAuthGroups } from './utils/hooks';
+import { getRoleArnStored } from './utils/localStorage';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -69,11 +70,13 @@ const RedirectToAccount = () => {
   }
 };
 
-export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }) {
+export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }): JSX.Element {
   const { isClientsLoaded } = useAuthLoading();
   const config = useConfig();
 
   const { isPlatformAdmin } = useAuthGroups();
+  const storedRoleArn = getRoleArnStored();
+  const isDataConsumerRole = regexArn.exec(storedRoleArn)?.groups?.name === DATA_CONSUMER_ROLE;
   const metalK8sInstances = useDeployedMetalk8sInstances();
   const isMetalK8sEnabled = metalK8sInstances.length > 0;
   if (!isClientsLoaded) {
