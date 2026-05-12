@@ -25,8 +25,7 @@ import STSProvider from './STSProvider';
 import ImportCertificate from './truststore/ImportCertificate';
 import Truststore from './truststore/Truststore';
 import ReauthDialog from './ui-elements/ReauthDialog';
-import { DATA_CONSUMER_ROLE, regexArn, useAuthGroups } from './utils/hooks';
-import { getRoleArnStored } from './utils/localStorage';
+import { getIsDataConsumerRole, useAuthGroups } from './utils/hooks';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -70,13 +69,14 @@ const RedirectToAccount = () => {
   }
 };
 
+const DataBrowserGuard = ({ children }: { children: JSX.Element }): JSX.Element =>
+  getIsDataConsumerRole() ? <ErrorPage401 /> : children;
+
 export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }): JSX.Element {
   const { isClientsLoaded } = useAuthLoading();
   const config = useConfig();
 
   const { isPlatformAdmin } = useAuthGroups();
-  const storedRoleArn = getRoleArnStored();
-  const isDataConsumerRole = regexArn.exec(storedRoleArn)?.groups?.name === DATA_CONSUMER_ROLE;
   const metalK8sInstances = useDeployedMetalk8sInstances();
   const isMetalK8sEnabled = metalK8sInstances.length > 0;
   if (!isClientsLoaded) {
@@ -220,25 +220,21 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
       <Route
         path="accounts/:accountName/data/buckets/*"
         element={
-          isDataConsumerRole ? (
-            <ErrorPage401 />
-          ) : (
+          <DataBrowserGuard>
             <DataServiceRoleProvider>
               <DataBrowser hideHeader={hideSideBar} />
             </DataServiceRoleProvider>
-          )
+          </DataBrowserGuard>
         }
       />
       <Route
         path="accounts/:accountName/buckets/*"
         element={
-          isDataConsumerRole ? (
-            <ErrorPage401 />
-          ) : (
+          <DataBrowserGuard>
             <DataServiceRoleProvider>
               <DataBrowser hideHeader={hideSideBar} />
             </DataServiceRoleProvider>
-          )
+          </DataBrowserGuard>
         }
       />
       <Route
@@ -260,13 +256,11 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
       <Route
         path="buckets/*"
         element={
-          isDataConsumerRole ? (
-            <ErrorPage401 />
-          ) : (
+          <DataBrowserGuard>
             <DataServiceRoleProvider>
               <RedirectToAccount />
             </DataServiceRoleProvider>
-          )
+          </DataBrowserGuard>
         }
       />
       <Route path="/" element={<Navigate to="accounts" replace />} />
@@ -283,8 +277,7 @@ function InternalRoutes(): JSX.Element {
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const config = useConfig();
 
-  const storedRoleArn = getRoleArnStored();
-  const isDataConsumerRole = regexArn.exec(storedRoleArn)?.groups?.name === DATA_CONSUMER_ROLE;
+  const isDataConsumerRole = getIsDataConsumerRole();
 
   const metalK8sInstances = useDeployedMetalk8sInstances();
   const isMetalK8sEnabled = metalK8sInstances.length > 0;

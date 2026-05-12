@@ -11,6 +11,7 @@ import { useErrorHandler } from '../ErrorProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { addTrailingSlash, errorParser } from '.';
 import { useAwsPaginatedEntities } from './IAMhooks';
+import { getRoleArnStored } from './localStorage';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -146,6 +147,10 @@ export const SCALITY_INTERNAL_ROLES = [
   DATA_ACCESSOR_ROLE,
 ];
 export const SCALITY_IAM_ROLES = [STORAGE_ACCOUNT_OWNER_ROLE, DATA_CONSUMER_ROLE, DATA_ACCESSOR_ROLE];
+
+export function getIsDataConsumerRole(): boolean {
+  return regexArn.exec(getRoleArnStored())?.groups?.name === DATA_CONSUMER_ROLE;
+}
 
 const defaultEventDispatcher = () => {
   const { handleClientError, showModalError } = useErrorHandler();
