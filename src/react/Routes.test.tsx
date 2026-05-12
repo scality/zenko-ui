@@ -3,6 +3,7 @@ import { useAuthLoading } from './AuthLoadingProvider';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import InternalRoutes, { PrivateRoutes } from './Routes';
 import { FAKE_TOKEN, mockShellHooks, renderWithRouterMatch } from './utils/testUtil';
+import { setRoleArnStored, removeRoleArnStored } from './utils/localStorage';
 
 jest.mock('./next-architecture/ui/ConfigProvider', () => ({
   useConfig: jest.fn(),
@@ -438,6 +439,99 @@ describe('Routes component', () => {
       // Truststore route should not be rendered - verify Truststore content is not present
       await waitFor(() => {
         expect(screen.queryByText(/Import Certificate/i)).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Data Browser route guards', () => {
+    const DATA_CONSUMER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/data-consumer-role';
+    const STORAGE_MANAGER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
+
+    afterEach(() => {
+      removeRoleArnStored();
+    });
+
+    describe('accounts/:accountName/data/buckets route', () => {
+      it('should render ErrorPage401 for data-consumer-role ARN', async () => {
+        setRoleArnStored(DATA_CONSUMER_ARN);
+
+        renderWithRouterMatch(<PrivateRoutes />, {
+          path: '/*',
+          route: '/accounts/test/data/buckets',
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText(/Access Denied/i)).toBeInTheDocument();
+        });
+      });
+
+      it('should render Data Browser for storage-manager-role ARN', async () => {
+        setRoleArnStored(STORAGE_MANAGER_ARN);
+
+        renderWithRouterMatch(<PrivateRoutes />, {
+          path: '/*',
+          route: '/accounts/test/data/buckets',
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText(/Access Denied/i)).not.toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('accounts/:accountName/buckets route', () => {
+      it('should render ErrorPage401 for data-consumer-role ARN', async () => {
+        setRoleArnStored(DATA_CONSUMER_ARN);
+
+        renderWithRouterMatch(<PrivateRoutes />, {
+          path: '/*',
+          route: '/accounts/test/buckets',
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText(/Access Denied/i)).toBeInTheDocument();
+        });
+      });
+
+      it('should render Data Browser for storage-manager-role ARN', async () => {
+        setRoleArnStored(STORAGE_MANAGER_ARN);
+
+        renderWithRouterMatch(<PrivateRoutes />, {
+          path: '/*',
+          route: '/accounts/test/buckets',
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText(/Access Denied/i)).not.toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('buckets route', () => {
+      it('should render ErrorPage401 for data-consumer-role ARN', async () => {
+        setRoleArnStored(DATA_CONSUMER_ARN);
+
+        renderWithRouterMatch(<PrivateRoutes />, {
+          path: '/*',
+          route: '/buckets',
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText(/Access Denied/i)).toBeInTheDocument();
+        });
+      });
+
+      it('should render redirect or empty state for storage-manager-role ARN', async () => {
+        setRoleArnStored(STORAGE_MANAGER_ARN);
+
+        renderWithRouterMatch(<PrivateRoutes />, {
+          path: '/*',
+          route: '/buckets',
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText(/Access Denied/i)).not.toBeInTheDocument();
+        });
       });
     });
   });

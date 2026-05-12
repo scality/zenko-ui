@@ -220,17 +220,25 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
       <Route
         path="accounts/:accountName/data/buckets/*"
         element={
-          <DataServiceRoleProvider>
-            <DataBrowser hideHeader={hideSideBar} />
-          </DataServiceRoleProvider>
+          isDataConsumerRole ? (
+            <ErrorPage401 />
+          ) : (
+            <DataServiceRoleProvider>
+              <DataBrowser hideHeader={hideSideBar} />
+            </DataServiceRoleProvider>
+          )
         }
       />
       <Route
         path="accounts/:accountName/buckets/*"
         element={
-          <DataServiceRoleProvider>
-            <DataBrowser hideHeader={hideSideBar} />
-          </DataServiceRoleProvider>
+          isDataConsumerRole ? (
+            <ErrorPage401 />
+          ) : (
+            <DataServiceRoleProvider>
+              <DataBrowser hideHeader={hideSideBar} />
+            </DataServiceRoleProvider>
+          )
         }
       />
       <Route
@@ -252,9 +260,13 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
       <Route
         path="buckets/*"
         element={
-          <DataServiceRoleProvider>
-            <RedirectToAccount />
-          </DataServiceRoleProvider>
+          isDataConsumerRole ? (
+            <ErrorPage401 />
+          ) : (
+            <DataServiceRoleProvider>
+              <RedirectToAccount />
+            </DataServiceRoleProvider>
+          )
         }
       />
       <Route path="/" element={<Navigate to="accounts" replace />} />
