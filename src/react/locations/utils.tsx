@@ -45,11 +45,11 @@ function newLocationForm(): LocationForm {
   };
 }
 
-const GLACIER_LOCATION_TYPES = ['location-aws-glacier-v1', 'location-scaleway-glacier-v1'];
+const COLD_LOCATION_TYPES = ['location-aws-glacier-v1', 'location-scaleway-glacier-v1'];
 
 function convertToLocation(locationState: LocationForm): LegacyLocation {
   const { options } = locationState;
-  const isGlacier = GLACIER_LOCATION_TYPES.includes(locationState.locationType);
+  const isColdLocation = COLD_LOCATION_TYPES.includes(locationState.locationType);
   const ret = {
     name: locationState.name,
     locationType: locationState.locationType,
@@ -58,7 +58,7 @@ function convertToLocation(locationState: LocationForm): LegacyLocation {
     isTransient: options.isTransient,
     isBuiltin: options.isBuiltin,
     //@ts-expect-error fix this when you are working on it
-    isCold: !!options.isCold || isGlacier,
+    isCold: !!options.isCold || isColdLocation,
     sizeLimitGB: options.isSizeLimitChecked && options.sizeLimitGB ? parseInt(options.sizeLimitGB, 10) : 0,
     legacyAwsBehavior: locationState.options.legacyAwsBehavior,
   };

@@ -3,12 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { LocationQueue, type Locationv1Details } from '../../../../js/managementClient/api';
 import type { LocationTypeKey } from '../../../../types/config';
 import { renderWithCustomRoute } from '../../../utils/testUtil';
-import LocationDetailsGlacier from '../LocationDetailsGlacier';
+import LocationDetailsColdLocation from '../LocationDetailsColdLocation';
 
 const setupAndRender = (details?: Locationv1Details, locationType: LocationTypeKey = 'location-aws-glacier-v1') => {
   const onChange = jest.fn();
   const { container } = renderWithCustomRoute(
-    <LocationDetailsGlacier locationType={locationType} details={details || {}} onChange={onChange} />,
+    <LocationDetailsColdLocation locationType={locationType} details={details || {}} onChange={onChange} />,
     '/',
   );
   return { onChange, container };
@@ -46,7 +46,7 @@ const fillCredentials = async (
   }
 };
 
-describe('<LocationDetailsGlacier />', () => {
+describe('<LocationDetailsColdLocation />', () => {
   it('renders empty form with all fields for AWS Glacier', () => {
     setupAndRender(undefined, 'location-aws-glacier-v1');
     expect(screen.getByRole('textbox', { name: /Endpoint/i })).toBeInTheDocument();

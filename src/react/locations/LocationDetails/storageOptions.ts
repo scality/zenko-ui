@@ -13,7 +13,7 @@ import LocationDetailsAzureArchive from './LocationDetailsAzureArchive';
 import LocationDetailsCRR from './LocationDetailsCRR';
 import LocationDetailsDOSpaces from './LocationDetailsDOSpaces';
 import LocationDetailsGcp from './LocationDetailsGcp';
-import LocationDetailsGlacier from './LocationDetailsGlacier';
+import LocationDetailsColdLocation from './LocationDetailsColdLocation';
 import LocationDetailsHyperdriveV2 from './LocationDetailsHyperdriveV2';
 import LocationDetailsNFS from './LocationDetailsNFS';
 import LocationDetailsOracle from './LocationDetailsOracle';
@@ -125,7 +125,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
   'location-aws-glacier-v1': {
     name: 'Amazon S3 Glacier',
     short: 'AWS Glacier',
-    formDetails: LocationDetailsGlacier,
+    formDetails: LocationDetailsColdLocation,
     supportsVersioning: false,
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
@@ -135,7 +135,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
   'location-scaleway-glacier-v1': {
     name: 'Scaleway Glacier',
     short: 'Scaleway Glacier',
-    formDetails: LocationDetailsGlacier,
+    formDetails: LocationDetailsColdLocation,
     supportsVersioning: false,
     supportsReplicationTarget: true,
     supportsReplicationSource: false,

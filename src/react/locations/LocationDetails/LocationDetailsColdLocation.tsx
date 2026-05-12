@@ -8,16 +8,19 @@ import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, S3_ENDPOINT
 import type { LocationDetailsFormProps } from '.';
 
 /**
- * Glacier location specific types and constants for the form
- * 2 Glacier providers: AWS and Scaleway
- * 
-**/
-const GLACIER_PROVIDER_KEYS = ['location-aws-glacier-v1', 'location-scaleway-glacier-v1'] as const;
-type GlacierLocationType = (typeof GLACIER_PROVIDER_KEYS)[number];
+ * Cold-location form. Generic over the set of cold S3-like locations that
+ * share the same backend schema (validateGlacierLocation) and only differ
+ * in provider-specific defaults / placeholders.
+ *
+ * Today: AWS Glacier and Scaleway Glacier.
+ * Extensible: OVH Cold Archive, Versity Tape Archive (added in a follow-up PR).
+ */
+const COLD_LOCATION_TYPES = ['location-aws-glacier-v1', 'location-scaleway-glacier-v1'] as const;
+type ColdLocationType = (typeof COLD_LOCATION_TYPES)[number];
 
 /** Provider-specific placeholders */
-const GLACIER_PLACEHOLDERS: Record<
-  GlacierLocationType,
+const COLD_LOCATION_PLACEHOLDERS: Record<
+  ColdLocationType,
   { endpoint: string; region: string; storageClass: string }
 > = {
   'location-aws-glacier-v1': {
@@ -33,8 +36,8 @@ const GLACIER_PLACEHOLDERS: Record<
 };
 
 /** Provider-specific labels */
-const GLACIER_LABELS: Record<
-  GlacierLocationType,
+const COLD_LOCATION_LABELS: Record<
+  ColdLocationType,
   { accessKey: string; secretKey: string; bucketName: string }
 > = {
   'location-aws-glacier-v1': {
@@ -71,12 +74,12 @@ const defaultQueueSqs: LocationAwsSqsV1 = {
   queueUrl: '',
 };
 
-const LocationDetailsGlacier = ({ details, onChange, locationType }: LocationDetailsFormProps) => {
-  const provider = GLACIER_PROVIDER_KEYS.includes(locationType as GlacierLocationType)
-    ? (locationType as GlacierLocationType)
+const LocationDetailsColdLocation = ({ details, onChange, locationType }: LocationDetailsFormProps) => {
+  const provider = COLD_LOCATION_TYPES.includes(locationType as ColdLocationType)
+    ? (locationType as ColdLocationType)
     : 'location-aws-glacier-v1';
-  const placeholders = GLACIER_PLACEHOLDERS[provider];
-  const labels = GLACIER_LABELS[provider];
+  const placeholders = COLD_LOCATION_PLACEHOLDERS[provider];
+  const labels = COLD_LOCATION_LABELS[provider];
   const [formState, setFormState] = useState<State>({
     endpoint: '',
     accessKey: '',
@@ -298,4 +301,4 @@ const LocationDetailsGlacier = ({ details, onChange, locationType }: LocationDet
   );
 };
 
-export default LocationDetailsGlacier;
+export default LocationDetailsColdLocation;
