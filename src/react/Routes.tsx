@@ -263,13 +263,16 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
   );
 }
 
-function InternalRoutes() {
+function InternalRoutes(): JSX.Element {
   const [isSideBarOpen, setIsSideBarOpen] = useState(
     localStorage.getItem('isSideBarOpen') === null || localStorage.getItem('isSideBarOpen') === 'true',
   );
   const location = useLocation();
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const config = useConfig();
+
+  const storedRoleArn = getRoleArnStored();
+  const isDataConsumerRole = regexArn.exec(storedRoleArn)?.groups?.name === DATA_CONSUMER_ROLE;
 
   const metalK8sInstances = useDeployedMetalk8sInstances();
   const isMetalK8sEnabled = metalK8sInstances.length > 0;
@@ -331,7 +334,7 @@ function InternalRoutes() {
           doesRouteMatch('/accounts/:accountName/users') ||
           doesRouteMatch('/accounts/:accountName/policies'),
       },
-      {
+      !isDataConsumerRole && {
         label: 'Data Browser',
         icon: <Icon name="Bucket" />,
         onClick: () => {
