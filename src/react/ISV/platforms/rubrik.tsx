@@ -69,8 +69,9 @@ function RubrikRSAKeySection() {
   return (
     <Stack gap="r8" direction="vertical" style={{ paddingTop: spacing.r8 }}>
       <Text>
-        Rubrik requires an RSA private key to encrypt archived data. A 2048-bit key has been generated below. You may copy it or
-        download it. Keep it in a safe place before configuring the Archive Location.
+        Rubrik requires an RSA private key to encrypt archived data. A 2048-bit key has been generated below directly in your
+        browser. ARTESCA has never been aware of nor stored this key. You may copy it or download it. Keep it in a safe place
+        before configuring the Archive Location.
       </Text>
       {keyError ? (
         <Text variant="Smaller" color="statusCritical">
