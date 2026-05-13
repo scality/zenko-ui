@@ -6,7 +6,7 @@ import Joi from 'joi';
 import type { MouseEventHandler } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useCreateAccountMutation } from '../../js/mutations';
 import { useSetAssumedRole } from '../DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
@@ -45,7 +45,6 @@ function AccountCreate() {
   });
   const navigate = useNavigate();
   const basenameRelativeNavigate = useBasenameRelativeNavigate();
-  const [searchParams] = useSearchParams();
 
   const setRole = useSetAssumedRole();
   const instanceId = useInstanceId();
@@ -78,13 +77,7 @@ function AccountCreate() {
                 roleArn: `arn:aws:iam::${data.id}:role/scality-internal/storage-manager-role`,
               });
               queryClient.invalidateQueries(['WebIdentityRoles']);
-              const platform = searchParams.get('platform');
-              if (platform) {
-                const params = new URLSearchParams({ platform, account: name });
-                basenameRelativeNavigate(`/isv/configuration?${params.toString()}`);
-              } else {
-                basenameRelativeNavigate(`/accounts/${name}`);
-              }
+              basenameRelativeNavigate(`/accounts/${name}`);
             },
           });
         },
