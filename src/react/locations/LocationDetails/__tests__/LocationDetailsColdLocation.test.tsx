@@ -15,13 +15,17 @@ const setupAndRender = (details?: Locationv1Details, locationType: LocationTypeK
 };
 
 type queueType = 'location-polling-v1' | 'location-aws-sqs-v1';
+const QUEUE_TYPE_LABELS: Record<queueType, string> = {
+  'location-polling-v1': 'Polling',
+  'location-aws-sqs-v1': 'AWS SQS',
+};
 const selectQueueType = (queue: queueType, container: HTMLElement) => {
+  // Open the dropdown via the input, then click the option by its visible
+  // label rather than positional arrow keys (which would silently break if
+  // the option order ever changes).
   const selector = getByRole(container, 'textbox', { name: /Queue type/i });
   fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
-  if (queue === 'location-aws-sqs-v1') {
-    fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
-  }
-  fireEvent.keyDown(selector, { key: 'Enter', which: 13, keyCode: 13 });
+  fireEvent.click(screen.getByText(QUEUE_TYPE_LABELS[queue]));
 };
 
 const fillCredentials = async (
@@ -81,7 +85,7 @@ describe('<LocationDetailsColdLocation />', () => {
     const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0];
     expect(lastCall.accessKey).toBe('AKIAIOSFODNN7EXAMPLE');
     expect(lastCall.bucketName).toBe('my-glacier-bucket');
-    expect(lastCall.queue?.type).toBe('location-polling-v1');
+    expect(lastCall.queue?.type).toBe(LocationQueue.TypeEnum.PollingV1.toString());
   });
 
   it('switches to SQS queue and shows queue URL field', async () => {
@@ -92,7 +96,7 @@ describe('<LocationDetailsColdLocation />', () => {
     await userEvent.paste('https://sqs.us-east-1.amazonaws.com/123456789012/my-queue');
     expect(onChange).toHaveBeenCalled();
     const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0];
-    expect(lastCall.queue?.type).toBe('location-aws-sqs-v1');
+    expect(lastCall.queue?.type).toBe(LocationQueue.TypeEnum.AwsSqsV1.toString());
     expect((lastCall.queue as { queueUrl?: string }).queueUrl).toBe(
       'https://sqs.us-east-1.amazonaws.com/123456789012/my-queue',
     );

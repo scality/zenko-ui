@@ -1,6 +1,5 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
-import lodashSet from 'lodash.set';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import { LocationAwsQueue, type LocationAwsSqsV1, type LocationPollingV1 } from '../../../js/managementClient/api';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
@@ -66,15 +65,31 @@ type State = {
   queue: QueueState;
 };
 
+/**
+ * Default queue payloads sent to the backend when the user hasn't entered
+ * provider-specific fields. `interval` is explicitly `undefined` (not `''`):
+ *   - `in` narrowing on `formState.queue` keeps working (the key exists).
+ *   - JSON.stringify drops undefined values, so the backend sees a missing
+ *     `interval` and uses its server-side default. Sending `''` would be an
+ *     invalid duration string per the swagger `format: duration` contract.
+ */
 const defaultQueuePolling: LocationPollingV1 = {
   type: LocationAwsQueue.TypeEnum.PollingV1,
-  interval: '',
+  interval: undefined,
 };
 
 const defaultQueueSqs: LocationAwsSqsV1 = {
   type: LocationAwsQueue.TypeEnum.AwsSqsV1,
   queueUrl: '',
 };
+
+/**
+ * The generated `<any>`-cast enum can't be passed directly as a `string`
+ * prop value, so hoist the stringified queue-type discriminators once
+ * and reuse them in JSX + control flow.
+ */
+const QUEUE_TYPE_POLLING = LocationAwsQueue.TypeEnum.PollingV1.toString();
+const QUEUE_TYPE_SQS = LocationAwsQueue.TypeEnum.AwsSqsV1.toString();
 
 const LocationDetailsColdLocation = ({ details, onChange, locationType }: LocationDetailsFormProps) => {
   const provider = isColdLocationType(locationType) ? locationType : 'location-aws-glacier-v1';
@@ -115,24 +130,23 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
 
   const onFormItemChange = (e: ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
-    const value: string | boolean | object = target.type === 'checkbox' ? target.checked : target.value;
-    let targetName = target.name;
-    if (target.name.includes('.')) {
-      targetName = target.name.split('.')[0];
-      if (targetName === 'queue') {
-        const newState = { ...formState, queue: { ...formState.queue } };
-        lodashSet(newState, target.name, value);
-        onInternalStateChange([['queue', newState.queue]]);
-        return;
-      }
+    const value: string | boolean = target.type === 'checkbox' ? target.checked : target.value;
+    if (target.name.startsWith('queue.')) {
+      const field = target.name.slice('queue.'.length);
+      // The polling `interval` field is optional in the API; an empty string
+      // is not a valid duration. Drop the key so the backend uses its default.
+      const nextValue = field === 'interval' && value === '' ? undefined : value;
+      const newQueue = { ...formState.queue, [field]: nextValue } as QueueState;
+      onInternalStateChange([['queue', newQueue]]);
+      return;
     }
-    onInternalStateChange([[targetName, value]]);
+    onInternalStateChange([[target.name, value]]);
   };
 
   const onChangeQueueType = (newType: string) => {
-    if (newType === LocationAwsQueue.TypeEnum.PollingV1.toString()) {
+    if (newType === QUEUE_TYPE_POLLING) {
       onInternalStateChange([['queue', { ...defaultQueuePolling }]]);
-    } else if (newType === LocationAwsQueue.TypeEnum.AwsSqsV1.toString()) {
+    } else if (newType === QUEUE_TYPE_SQS) {
       onInternalStateChange([['queue', { ...defaultQueueSqs }]]);
     }
   };
@@ -155,7 +169,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
               id="endpoint"
               type="text"
               placeholder={placeholders.endpoint}
-              value={formState.endpoint || ''}
+              value={formState.endpoint}
               onChange={onFormItemChange}
               autoComplete="off"
             />
@@ -172,7 +186,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
               id="accessKey"
               type="text"
               placeholder={ACCESS_KEY_PLACEHOLDER}
-              value={formState.accessKey || ''}
+              value={formState.accessKey}
               onChange={onFormItemChange}
               autoComplete="off"
             />
@@ -190,7 +204,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
               id="secretKey"
               type="password"
               placeholder={SECRET_KEY_PLACEHOLDER}
-              value={formState.secretKey || ''}
+              value={formState.secretKey}
               onChange={onFormItemChange}
               autoComplete="new-password"
             />
@@ -207,7 +221,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
               id="bucketName"
               type="text"
               placeholder="Bucket Name"
-              value={formState.bucketName || ''}
+              value={formState.bucketName}
               onChange={onFormItemChange}
               autoComplete="off"
             />
@@ -223,7 +237,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
               id="region"
               type="text"
               placeholder={placeholders.region}
-              value={formState.region || ''}
+              value={formState.region}
               onChange={onFormItemChange}
               autoComplete="off"
             />
@@ -239,7 +253,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
               id="storageClass"
               type="text"
               placeholder={placeholders.storageClass}
-              value={formState.storageClass || ''}
+              value={formState.storageClass}
               onChange={onFormItemChange}
               autoComplete="off"
             />
@@ -259,8 +273,8 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
               onChange={onChangeQueueType}
               value={formState.queue.type.toString()}
             >
-              <Select.Option value={LocationAwsQueue.TypeEnum.PollingV1.toString()}>Polling</Select.Option>
-              <Select.Option value={LocationAwsQueue.TypeEnum.AwsSqsV1.toString()}>AWS SQS</Select.Option>
+              <Select.Option value={QUEUE_TYPE_POLLING}>Polling</Select.Option>
+              <Select.Option value={QUEUE_TYPE_SQS}>AWS SQS</Select.Option>
             </Select>
           }
         />
@@ -275,7 +289,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
                 id="queue.interval"
                 type="text"
                 placeholder="e.g. 5m"
-                value={formState.queue.interval || ''}
+                value={formState.queue.interval ?? ''}
                 onChange={onFormItemChange}
                 autoComplete="off"
               />
@@ -294,7 +308,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
                 id="queue.queueUrl"
                 type="text"
                 placeholder="https://sqs.region.amazonaws.com/account-id/queue-name"
-                value={formState.queue.queueUrl || ''}
+                value={formState.queue.queueUrl}
                 onChange={onFormItemChange}
                 autoComplete="off"
               />
