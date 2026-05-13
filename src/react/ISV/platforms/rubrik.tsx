@@ -81,7 +81,7 @@ function RubrikRSAKeySection() {
         <>
           <Stack gap="r4" direction="horizontal">
             <CopyButton textToCopy={pem} aria-label="copy RSA private key" />
-            <Button type="button" variant="outline" onClick={downloadKey} label="Download .pem" />
+            <Button type="button" variant="outline" onClick={downloadKey} label="Download Key" />
           </Stack>
           <KeyCode>{pem}</KeyCode>
         </>
