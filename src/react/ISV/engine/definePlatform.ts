@@ -19,7 +19,7 @@ function buildValidator(config: PlatformConfig): Joi.ObjectSchema {
     ...accountValidator,
     ...iamValidator,
     ...getBucketsValidator(config.bucketCapacity ?? false),
-    ...(config.disableImmutability ? {} : immutableValidator),
+    ...immutableValidator,
   };
 
   return Joi.object(baseSchema);

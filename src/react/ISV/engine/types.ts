@@ -368,7 +368,6 @@ export type PlatformConfig = {
   // Feature switches
   sosAPI?: boolean;
   bucketCapacity?: boolean;
-  disableImmutability?: boolean;
 
   // Field overrides
   fieldOverrides?: {
