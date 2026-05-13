@@ -102,7 +102,7 @@ describe('<LocationDetailsColdLocation />', () => {
     const details: Locationv1Details = {
       endpoint: 'https://s3.us-east-1.amazonaws.com',
       accessKey: 'prefilled-key',
-      secretKey: '',
+      secretKey: 'should-not-be-shown',
       bucketName: 'prefilled-bucket',
       region: 'us-east-1',
       storageClass: 'GLACIER',
@@ -110,11 +110,29 @@ describe('<LocationDetailsColdLocation />', () => {
         type: LocationQueue.TypeEnum.PollingV1,
       },
     };
-    const { container } = setupAndRender(details);
+    const { container, onChange } = setupAndRender(details);
     expect(getByRole(container, 'textbox', { name: /Endpoint/i })).toHaveValue('https://s3.us-east-1.amazonaws.com');
     expect(getByRole(container, 'textbox', { name: /Access Key/i })).toHaveValue('prefilled-key');
     expect(getByRole(container, 'textbox', { name: /Target Bucket Name/i })).toHaveValue('prefilled-bucket');
     expect(getByRole(container, 'textbox', { name: /Region/i })).toHaveValue('us-east-1');
     expect(getByRole(container, 'textbox', { name: /Storage class/i })).toHaveValue('GLACIER');
+    // Polling interval input should render when details.queue is a polling queue,
+    // even if details.queue does not include `interval` itself (defaults fill in).
+    expect(getByRole(container, 'textbox', { name: /Polling interval/i })).toBeInTheDocument();
+    // secretKey from the server must NOT be displayed (always reset in edit mode).
+    expect(container.querySelector<HTMLInputElement>('#secretKey')?.value).toBe('');
+    // Mount-time onChange must fire with the prefilled state so the parent
+    // LocationEditor receives initial details even if the user doesn't touch
+    // any field before clicking Save.
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        endpoint: 'https://s3.us-east-1.amazonaws.com',
+        accessKey: 'prefilled-key',
+        bucketName: 'prefilled-bucket',
+        region: 'us-east-1',
+        storageClass: 'GLACIER',
+        secretKey: '',
+      }),
+    );
   });
 });

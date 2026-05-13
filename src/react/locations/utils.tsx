@@ -13,6 +13,7 @@ import type { BucketList } from '../../types/stats';
 import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import type { Location as NextLocation } from '../next-architecture/domain/entities/location';
 import { getLocationType } from '../utils/storageOptions';
+import { isColdLocationType } from './LocationDetails/coldLocations';
 import { storageOptions } from './LocationDetails';
 
 function newLocationDetails(): NextLocation {
@@ -45,11 +46,9 @@ function newLocationForm(): LocationForm {
   };
 }
 
-const COLD_LOCATION_TYPES = ['location-aws-glacier-v1', 'location-scaleway-glacier-v1'];
-
 function convertToLocation(locationState: LocationForm): LegacyLocation {
   const { options } = locationState;
-  const isColdLocation = COLD_LOCATION_TYPES.includes(locationState.locationType);
+  const isColdLocation = isColdLocationType(locationState.locationType);
   const ret = {
     name: locationState.name,
     locationType: locationState.locationType,

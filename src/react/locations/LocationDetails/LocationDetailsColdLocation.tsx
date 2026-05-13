@@ -1,11 +1,12 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import lodashSet from 'lodash.set';
-import { useState } from 'react';
+import { type ChangeEvent, useEffect, useState } from 'react';
 import { LocationAwsQueue, type LocationAwsSqsV1, type LocationPollingV1 } from '../../../js/managementClient/api';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
 import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, S3_ENDPOINT_PATH_STYLE_TOOLTIP, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
+import { type ColdLocationType, isColdLocationType } from './coldLocations';
 
 /**
  * Cold-location form. Generic over the set of cold S3-like locations that
@@ -14,9 +15,10 @@ import type { LocationDetailsFormProps } from '.';
  *
  * Today: AWS Glacier and Scaleway Glacier.
  * Extensible: OVH Cold Archive, Versity Tape Archive (added in a follow-up PR).
+ *
+ * The COLD_LOCATION_TYPES registry lives in ./coldLocations so utils.tsx
+ * (convertToLocation -> isCold) reads from the same single source.
  */
-const COLD_LOCATION_TYPES = ['location-aws-glacier-v1', 'location-scaleway-glacier-v1'] as const;
-type ColdLocationType = (typeof COLD_LOCATION_TYPES)[number];
 
 /** Provider-specific placeholders */
 const COLD_LOCATION_PLACEHOLDERS: Record<
@@ -75,24 +77,29 @@ const defaultQueueSqs: LocationAwsSqsV1 = {
 };
 
 const LocationDetailsColdLocation = ({ details, onChange, locationType }: LocationDetailsFormProps) => {
-  const provider = COLD_LOCATION_TYPES.includes(locationType as ColdLocationType)
-    ? (locationType as ColdLocationType)
-    : 'location-aws-glacier-v1';
+  const provider = isColdLocationType(locationType) ? locationType : 'location-aws-glacier-v1';
   const placeholders = COLD_LOCATION_PLACEHOLDERS[provider];
   const labels = COLD_LOCATION_LABELS[provider];
   const [formState, setFormState] = useState<State>({
     endpoint: '',
     accessKey: '',
-    secretKey: '',
     bucketName: '',
     region: '',
     storageClass: '',
-    queue: {
-      ...defaultQueuePolling,
-      ...(details.queue as QueueState),
-    },
     ...details,
+    // Never display server-returned credentials, even in edit mode.
+    secretKey: '',
+    queue:
+      details.queue?.type === LocationAwsQueue.TypeEnum.AwsSqsV1
+        ? { ...defaultQueueSqs, ...(details.queue as LocationAwsSqsV1) }
+        : { ...defaultQueuePolling, ...(details.queue as LocationPollingV1) },
   });
+
+  //TODO check why the tests expect onChange to be called on mount
+  // biome-ignore lint/correctness/useExhaustiveDependencies: matches LocationDetailsAwsCustom / LocationDetailsOracle
+  useEffect(() => {
+    onChange(formState);
+  }, []);
 
   const onInternalStateChange = (newStates: [string, string | boolean | object][]) => {
     const newState = newStates.reduce<State>(
@@ -103,19 +110,17 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
       { ...formState },
     );
     setFormState(newState);
-    if (onChange) {
-      onChange(newState);
-    }
+    onChange(newState);
   };
 
-  const onFormItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFormItemChange = (e: ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
     const value: string | boolean | object = target.type === 'checkbox' ? target.checked : target.value;
     let targetName = target.name;
     if (target.name.includes('.')) {
       targetName = target.name.split('.')[0];
       if (targetName === 'queue') {
-        const newState = { ...formState };
+        const newState = { ...formState, queue: { ...formState.queue } };
         lodashSet(newState, target.name, value);
         onInternalStateChange([['queue', newState.queue]]);
         return;
@@ -125,15 +130,15 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
   };
 
   const onChangeQueueType = (newType: string) => {
-    if (newType === 'location-polling-v1') {
+    if (newType === LocationAwsQueue.TypeEnum.PollingV1.toString()) {
       onInternalStateChange([['queue', { ...defaultQueuePolling }]]);
-    } else if (newType === 'location-aws-sqs-v1') {
+    } else if (newType === LocationAwsQueue.TypeEnum.AwsSqsV1.toString()) {
       onInternalStateChange([['queue', { ...defaultQueueSqs }]]);
     }
   };
 
-  const isPolling = formState.queue?.type === LocationAwsQueue.TypeEnum.PollingV1;
-  const isSqs = formState.queue?.type === LocationAwsQueue.TypeEnum.AwsSqsV1;
+  const isPolling = formState.queue.type === LocationAwsQueue.TypeEnum.PollingV1;
+  const isSqs = formState.queue.type === LocationAwsQueue.TypeEnum.AwsSqsV1;
 
   return (
     <>
@@ -252,10 +257,10 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
               id="queue.type"
               placeholder="Select an option..."
               onChange={onChangeQueueType}
-              value={formState.queue?.type?.toString() ?? 'location-polling-v1'}
+              value={formState.queue.type.toString()}
             >
-              <Select.Option value="location-polling-v1">Polling</Select.Option>
-              <Select.Option value="location-aws-sqs-v1">AWS SQS</Select.Option>
+              <Select.Option value={LocationAwsQueue.TypeEnum.PollingV1.toString()}>Polling</Select.Option>
+              <Select.Option value={LocationAwsQueue.TypeEnum.AwsSqsV1.toString()}>AWS SQS</Select.Option>
             </Select>
           }
         />
