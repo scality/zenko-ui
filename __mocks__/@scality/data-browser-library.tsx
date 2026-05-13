@@ -87,3 +87,12 @@ export const useGetObject = jest.fn(() => ({
 }));
 
 export const DataBrowserUI = () => null;
+
+export const useBuckets = jest.fn(() => ({
+  data: undefined,
+  status: 'idle',
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+  error: null,
+}));

@@ -462,7 +462,7 @@ describe('Routes component', () => {
         });
 
         await waitFor(() => {
-          expect(screen.getByText(/Access Denied/i)).toBeInTheDocument();
+          expect(screen.getByText(/Not authorized/i)).toBeInTheDocument();
         });
       });
 
@@ -475,7 +475,7 @@ describe('Routes component', () => {
         });
 
         await waitFor(() => {
-          expect(screen.queryByText(/Access Denied/i)).not.toBeInTheDocument();
+          expect(screen.queryByText(/Not authorized/i)).not.toBeInTheDocument();
         });
       });
     });
@@ -490,7 +490,7 @@ describe('Routes component', () => {
         });
 
         await waitFor(() => {
-          expect(screen.getByText(/Access Denied/i)).toBeInTheDocument();
+          expect(screen.getByText(/Not authorized/i)).toBeInTheDocument();
         });
       });
 
@@ -503,7 +503,7 @@ describe('Routes component', () => {
         });
 
         await waitFor(() => {
-          expect(screen.queryByText(/Access Denied/i)).not.toBeInTheDocument();
+          expect(screen.queryByText(/Not authorized/i)).not.toBeInTheDocument();
         });
       });
     });
@@ -518,7 +518,7 @@ describe('Routes component', () => {
         });
 
         await waitFor(() => {
-          expect(screen.getByText(/Access Denied/i)).toBeInTheDocument();
+          expect(screen.getByText(/Not authorized/i)).toBeInTheDocument();
         });
       });
 
@@ -531,7 +531,7 @@ describe('Routes component', () => {
         });
 
         await waitFor(() => {
-          expect(screen.queryByText(/Access Denied/i)).not.toBeInTheDocument();
+          expect(screen.queryByText(/Not authorized/i)).not.toBeInTheDocument();
         });
       });
     });
