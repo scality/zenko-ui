@@ -85,3 +85,5 @@ export const useGetObject = jest.fn(() => ({
   error: null,
   refetch: jest.fn(),
 }));
+
+export const DataBrowserUI = () => null;
