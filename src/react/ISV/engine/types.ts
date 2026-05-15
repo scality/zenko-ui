@@ -17,9 +17,9 @@ export type ISVId =
   | 'veeam-vbr'
   | 'commvault'
   | 'veeam-vbo'
-  // Platforms without assistant (documentation only)
   | 'kasten'
   | 'rubrik'
+  // Platforms without assistant (documentation only)
   | 'zerto'
   | 'splunk'
   | 'hycu'
