@@ -444,7 +444,7 @@ describe('Routes component', () => {
   });
 
   describe('Data Browser route guards', () => {
-    const DATA_CONSUMER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/data-consumer-role';
+    const STORAGE_USAGE_CONSUMER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-usage-consumer-role';
     const STORAGE_MANAGER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
     const STORAGE_ACCOUNT_OWNER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-account-owner-role';
 
@@ -453,8 +453,8 @@ describe('Routes component', () => {
     });
 
     describe('accounts/:accountName/data/buckets route', () => {
-      it('should render ErrorPage401 for data-consumer-role ARN', async () => {
-        setRoleArnStored(DATA_CONSUMER_ARN);
+      it('should render ErrorPage401 for storage-usage-consumer-role ARN', async () => {
+        setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
 
         renderWithRouterMatch(<PrivateRoutes />, {
           path: '/*',
@@ -481,8 +481,8 @@ describe('Routes component', () => {
     });
 
     describe('accounts/:accountName/buckets route', () => {
-      it('should render ErrorPage401 for data-consumer-role ARN', async () => {
-        setRoleArnStored(DATA_CONSUMER_ARN);
+      it('should render ErrorPage401 for storage-usage-consumer-role ARN', async () => {
+        setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
 
         renderWithRouterMatch(<PrivateRoutes />, {
           path: '/*',
@@ -509,8 +509,8 @@ describe('Routes component', () => {
     });
 
     describe('buckets route', () => {
-      it('should render ErrorPage401 for data-consumer-role ARN', async () => {
-        setRoleArnStored(DATA_CONSUMER_ARN);
+      it('should render ErrorPage401 for storage-usage-consumer-role ARN', async () => {
+        setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
 
         renderWithRouterMatch(<PrivateRoutes />, {
           path: '/*',
@@ -537,8 +537,8 @@ describe('Routes component', () => {
     });
 
     describe('sidebar Data Browser entry gating', () => {
-      it('should hide Data Browser sidebar entry for data-consumer-role ARN', async () => {
-        setRoleArnStored(DATA_CONSUMER_ARN);
+      it('should hide Data Browser sidebar entry for storage-usage-consumer-role ARN', async () => {
+        setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
 
         renderWithRouterMatch(<InternalRoutes />, {
           path: '/*',
