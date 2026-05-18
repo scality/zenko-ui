@@ -1,7 +1,7 @@
 import { useShellHooks } from '@scality/module-federation';
 import { createContext, type JSX, useContext } from 'react';
 import type { IAccountsLocationsEndpointsAdapter } from '../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
-import { PensieveAccountsLocationsAdapter } from '../adapters/accounts-locations/PensieveAccountsLocationsAdapter';
+import { VaultAccountsLocationsAdapter } from '../adapters/accounts-locations/VaultAccountsLocationsAdapter';
 import { useInstanceId } from './AuthProvider';
 import { useConfig } from './ConfigProvider';
 
@@ -25,11 +25,12 @@ export const AccountsLocationsEndpointsAdapterProvider = ({ children }: { childr
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const instanceId = useInstanceId();
-  const { managementEndpoint } = useConfig();
-  const accountsLocationsEndpointsAdapter = new PensieveAccountsLocationsAdapter(
+  const { managementEndpoint, iamEndpoint } = useConfig();
+  const accountsLocationsEndpointsAdapter = new VaultAccountsLocationsAdapter(
+    iamEndpoint,
+    getToken,
     managementEndpoint,
     instanceId,
-    getToken,
   );
   return (
     <_AccountsLocationsEndpointsAdapterContext.Provider value={{ accountsLocationsEndpointsAdapter }}>
