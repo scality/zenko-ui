@@ -235,6 +235,7 @@ export const useAccounts = (
             CreationDate: current.CreationDate,
             Roles: [...(agg[current.Name]?.Roles || []), ...current.Roles],
             id: regexArn.exec(current.Roles[0].Arn).groups['account_id'],
+            canonicalId: current.canonicalId,
           },
         }),
         {} as Record<string, Account>,
