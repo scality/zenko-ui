@@ -1,7 +1,7 @@
 import { createContext, type JSX, useContext } from 'react';
 import type { IAccessibleAccounts } from '../adapters/accessible-accounts/IAccessibleAccounts';
 import { IAMPensieveAccessibleAccounts } from '../adapters/accessible-accounts/IAMPensieveAccessibleAccounts';
-import { useAccountsLocationsEndpointsAdapter } from './AccountsLocationsEndpointsAdapterProvider';
+import { noopBasedEventDispatcher } from '../../utils/hooks';
 
 const _AccessibleAccountsAdapterContext = createContext<null | {
   accessibleAccountsAdapter: IAccessibleAccounts;
@@ -28,11 +28,8 @@ export const AccessibleAccountsAdapterProvider = ({
   children: JSX.Element;
   DoNotChangePropsWithEventDispatcher?: boolean;
 }) => {
-  const accountAdapter = useAccountsLocationsEndpointsAdapter();
-  const accessibleAccountsAdapter = new IAMPensieveAccessibleAccounts(
-    accountAdapter,
-    DoNotChangePropsWithEventDispatcher,
-  );
+  const dispatcher = DoNotChangePropsWithEventDispatcher ? undefined : noopBasedEventDispatcher;
+  const accessibleAccountsAdapter = new IAMPensieveAccessibleAccounts(dispatcher);
 
   return (
     <_AccessibleAccountsAdapterContext.Provider value={{ accessibleAccountsAdapter }}>

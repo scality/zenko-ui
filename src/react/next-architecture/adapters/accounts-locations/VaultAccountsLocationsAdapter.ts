@@ -1,5 +1,5 @@
 import makeMgtClient, { type UiFacingApiWrapper } from '../../../../js/managementClient';
-import type { UserV1 } from '../../../../js/managementClient/api';
+import type { LocationV1, UserV1 } from '../../../../js/managementClient/api';
 import type { Endpoint } from '../../../../types/config';
 import type { WebIdentityRoles } from '../../../../types/iam';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
@@ -10,14 +10,7 @@ import type { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
 
 const SCALITY_INTERNAL_SERVICES = 'scality-internal-services';
 
-const mapLocation = (location: {
-  objectId?: string;
-  name: string;
-  locationType: string;
-  details?: Record<string, unknown>;
-  isTransient?: boolean;
-  isCold?: boolean;
-}): LocationInfo => ({
+const mapLocation = (location: LocationV1): LocationInfo => ({
   id: location.objectId || '',
   name: location.name,
   type: location.locationType,
