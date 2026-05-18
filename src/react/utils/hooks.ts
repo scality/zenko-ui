@@ -154,7 +154,7 @@ export function getIsStorageUsageConsumerRole(): boolean {
   return regexArn.exec(getRoleArnStored())?.groups?.name === STORAGE_USAGE_CONSUMER_ROLE;
 }
 
-const defaultEventDispatcher = () => {
+export const defaultEventDispatcher = () => {
   const { handleClientError, showModalError } = useErrorHandler();
   return {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -235,6 +235,7 @@ export const useAccounts = (
             CreationDate: current.CreationDate,
             Roles: [...(agg[current.Name]?.Roles || []), ...current.Roles],
             id: regexArn.exec(current.Roles[0].Arn).groups['account_id'],
+            canonicalId: current.canonicalId,
           },
         }),
         {} as Record<string, Account>,

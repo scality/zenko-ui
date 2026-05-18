@@ -223,6 +223,7 @@ const commonIAMHandlers = (getPayloadFn: jest.Mock, req, res, ctx) => {
         Accounts: accounts.map((account) => {
           return {
             Name: account.userName,
+            canonicalId: account.canonicalId,
             CreationDate: account.createDate,
             Roles: [
               {
