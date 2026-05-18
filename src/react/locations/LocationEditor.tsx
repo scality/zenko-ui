@@ -64,12 +64,12 @@ const StyledSelect = styled(Select)`
  * Option so capability-disabled types are unselectable in the dropdown.
  */
 export const buildLocationTypeOptions = (groups: GroupedStorageOption[]): ReactNode[] =>
-  groups.flatMap((group, groupIndex) => [
-    <StyledSelect.Option key={`group-${groupIndex}`} value={`__group_${groupIndex}__`} disabled={true}>
+  groups.flatMap((group) => [
+    <StyledSelect.Option key={`group-${group.label}`} value={`__group_${group.label}__`} disabled={true}>
       {group.label}
     </StyledSelect.Option>,
-    ...group.options.map((opt, i) => (
-      <StyledSelect.Option key={`${groupIndex}-${i}`} value={opt.value} disabled={opt.disabled}>
+    ...group.options.map((opt) => (
+      <StyledSelect.Option key={opt.value} value={opt.value} disabled={opt.disabled}>
         {opt.label}
       </StyledSelect.Option>
     )),

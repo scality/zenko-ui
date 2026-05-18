@@ -12,8 +12,10 @@ import { type ColdLocationType, isColdLocationType } from './coldLocations';
  * share the same backend schema (validateGlacierLocation) and only differ
  * in provider-specific defaults / placeholders.
  *
- * Today: AWS Glacier and Scaleway Glacier.
- * Extensible: OVH Cold Archive, Versity Tape Archive (added in a follow-up PR).
+ * Supported providers: AWS Glacier, Scaleway Glacier, OVH Cold Archive,
+ * Versity Tape Archive. Adding a new cold S3-like provider is a matter of
+ * appending a key to COLD_LOCATION_TYPES (in ./coldLocations) and adding
+ * matching entries here in COLD_LOCATION_PLACEHOLDERS / COLD_LOCATION_LABELS.
  *
  * The COLD_LOCATION_TYPES registry lives in ./coldLocations so utils.tsx
  * (convertToLocation -> isCold) reads from the same single source.
