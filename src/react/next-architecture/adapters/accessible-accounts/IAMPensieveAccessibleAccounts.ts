@@ -1,10 +1,10 @@
-import { noopBasedEventDispatcher, useAccounts } from '../../../utils/hooks';
+import { defaultEventDispatcher, useAccounts } from '../../../utils/hooks';
 import type { AccountInfo, Role } from '../../domain/entities/account';
 import type { PromiseResult } from '../../domain/entities/promise';
 import type { IAccessibleAccounts } from './IAccessibleAccounts';
 
 export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
-  constructor(private withEventDispatcher = noopBasedEventDispatcher) {}
+  constructor(private withEventDispatcher = defaultEventDispatcher) {}
 
   useListAccessibleAccounts(): {
     accountInfos: PromiseResult<(AccountInfo & { assumableRoles: Role[] })[]>;

@@ -154,7 +154,7 @@ export function getIsStorageUsageConsumerRole(): boolean {
   return regexArn.exec(getRoleArnStored())?.groups?.name === STORAGE_USAGE_CONSUMER_ROLE;
 }
 
-const defaultEventDispatcher = () => {
+export const defaultEventDispatcher = () => {
   const { handleClientError, showModalError } = useErrorHandler();
   return {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
