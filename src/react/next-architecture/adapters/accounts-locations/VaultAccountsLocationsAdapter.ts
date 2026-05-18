@@ -10,6 +10,35 @@ import type { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
 
 const SCALITY_INTERNAL_SERVICES = 'scality-internal-services';
 
+const mapLocation = (location: {
+  objectId?: string;
+  name: string;
+  locationType: string;
+  details?: Record<string, unknown>;
+  isTransient?: boolean;
+  isCold?: boolean;
+}): LocationInfo => ({
+  id: location.objectId || '',
+  name: location.name,
+  type: location.locationType,
+  details: location.details || {},
+  isTransient: location.isTransient,
+  isCold: location.isCold,
+});
+
+const mapUser = (user: UserV1): AccountInfo => ({
+  id: notFalsyTypeGuard(user.id),
+  name: user.userName,
+  canonicalId: notFalsyTypeGuard(user.canonicalId),
+  creationDate: new Date(notFalsyTypeGuard(user.createDate)),
+});
+
+const mapEndpoint = (endpoint: { hostname: string; locationName: string; isBuiltin?: boolean }): Endpoint => ({
+  hostname: endpoint.hostname,
+  locationName: endpoint.locationName,
+  isBuiltin: !!endpoint.isBuiltin,
+});
+
 export class VaultAccountsLocationsAdapter
   implements IAccountsAdapter, ILocationsAdapter, IAccountsLocationsEndpointsAdapter
 {
@@ -53,8 +82,7 @@ export class VaultAccountsLocationsAdapter
         if (account.Name === SCALITY_INTERNAL_SERVICES) {
           continue;
         }
-        const existing = accounts.find((a) => a.id === account.id);
-        if (existing) {
+        if (accounts.some((a) => a.id === account.id)) {
           continue;
         }
         accounts.push({
@@ -78,46 +106,17 @@ export class VaultAccountsLocationsAdapter
     endpoints: Endpoint[];
   }> {
     this.managementClient.setToken(await this.getToken());
-    return this.managementClient.getConfigurationOverlayView(this.instanceId).then((overlay) => {
-      return {
-        accounts: notFalsyTypeGuard(overlay.users).map((user: UserV1) => ({
-          id: notFalsyTypeGuard(user.id),
-          name: user.userName,
-          canonicalId: notFalsyTypeGuard(user.canonicalId),
-          creationDate: new Date(notFalsyTypeGuard(user.createDate)),
-        })),
-        locations: Object.values(overlay.locations || {}).map((location) => ({
-          id: location.objectId || '',
-          name: location.name,
-          type: location.locationType,
-          details: location.details || {},
-          isTransient: location.isTransient,
-          isCold: location.isCold,
-        })),
-        endpoints: (overlay.endpoints || []).map((endpoint) => {
-          return {
-            hostname: endpoint.hostname,
-            locationName: endpoint.locationName,
-            isBuiltin: !!endpoint.isBuiltin,
-          };
-        }),
-      };
-    });
+    const overlay = await this.managementClient.getConfigurationOverlayView(this.instanceId);
+    return {
+      accounts: notFalsyTypeGuard(overlay.users).map(mapUser),
+      locations: Object.values(overlay.locations || {}).map(mapLocation),
+      endpoints: (overlay.endpoints || []).map(mapEndpoint),
+    };
   }
 
   async listLocations(): Promise<LocationInfo[]> {
     this.managementClient.setToken(await this.getToken());
-    return (
-      this.managementClient.getConfigurationOverlayView(this.instanceId).then((config) => {
-        return Object.values(config.locations || {}).map((location) => ({
-          id: location.objectId || '',
-          name: location.name,
-          type: location.locationType,
-          details: location.details || {},
-          isTransient: location.isTransient,
-          isCold: location.isCold,
-        }));
-      }) || []
-    );
+    const config = await this.managementClient.getConfigurationOverlayView(this.instanceId);
+    return Object.values(config.locations || {}).map(mapLocation);
   }
 }

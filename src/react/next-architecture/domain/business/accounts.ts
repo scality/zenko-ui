@@ -79,30 +79,59 @@ export const useAccountCannonicalId = ({
   });
 
   if (status === 'loading' || status === 'idle') {
-    return {
-      status: 'loading',
-    };
+    return { status: 'loading' };
   }
 
   if (status === 'error') {
     return {
-      status: status,
+      status: 'error',
       title: 'Account Error',
-      reason: `Unexpected error while fetching account`,
+      reason: 'Unexpected error while fetching account',
     };
   }
 
   const account = accountsLocationsAndEndpoints?.accounts?.find((a) => a.id === accountId);
   if (!account) {
-    return {
-      status: 'unknown',
-    };
+    return { status: 'unknown' };
   }
 
   return {
     status: 'success',
     value: account.canonicalId,
   };
+};
+
+const resolvePreferredRoleArn = (assumableRoles: { Name: string; Arn: string }[]): string => {
+  const roleStorageAccountOwner = assumableRoles.find((role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE);
+  if (roleStorageAccountOwner) {
+    return roleStorageAccountOwner.Arn;
+  }
+  const roleStorageManager = assumableRoles.find((role) => role.Name === STORAGE_MANAGER_ROLE);
+  if (roleStorageManager) {
+    return roleStorageManager.Arn;
+  }
+  return assumableRoles[0].Arn;
+};
+
+const resolveUsedCapacity = (
+  metricsStatus: string,
+  metrics: Record<string, LatestUsedCapacity> | undefined,
+  canonicalId: string,
+): Account['usedCapacity'] => {
+  if (metricsStatus === 'idle' || metricsStatus === 'loading') {
+    return { status: 'loading' };
+  }
+  if (metricsStatus === 'error') {
+    return {
+      status: 'error',
+      title: 'Account metrics error',
+      reason: 'An error occurred when fetching metrics',
+    };
+  }
+  if (metrics?.[canonicalId]) {
+    return { status: 'success', value: metrics[canonicalId] };
+  }
+  return { status: 'unknown' };
 };
 
 export const useListAccounts = ({
@@ -113,82 +142,30 @@ export const useListAccounts = ({
   metricsAdapter: IMetricsAdapter;
 }): AccountsPromiseResult => {
   const { accountInfos } = accessibleAccountsAdapter.useListAccessibleAccounts();
-
   const { isStorageManager } = useAuthGroups();
 
   const { data: metrics, status: metricsStatus } = useQuery({
     ...queries.listAccountsMetrics(
       metricsAdapter,
-      accountInfos.status === 'success'
-        ? accountInfos.value?.map((ai: AccountInfo) => ai.canonicalId)
-        : [],
+      accountInfos.status === 'success' ? accountInfos.value?.map((ai: AccountInfo) => ai.canonicalId) : [],
     ),
     enabled: !!(accountInfos.status === 'success') && accountInfos.value.length > 0 && isStorageManager,
   });
 
-  const accountInfosWithPerferredAssumableRole = useMemo(() => {
-    if (accountInfos.status === 'success') {
-      const accounts = accountInfos.value.map((accountInfo) => {
-        const roleStorageAccountOwner = accountInfo.assumableRoles.find(
-          (role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
-        );
-
-        const roleStorageManager = accountInfo.assumableRoles.find((role) => role.Name === STORAGE_MANAGER_ROLE);
-        let preferredAssumableRoleArn = accountInfo.assumableRoles[0].Arn;
-        if (roleStorageAccountOwner) {
-          preferredAssumableRoleArn = roleStorageAccountOwner.Arn;
-        } else if (roleStorageManager) {
-          preferredAssumableRoleArn = roleStorageManager.Arn;
-        }
-
-        return {
-          ...accountInfo,
-          preferredAssumableRoleArn,
-          canManageAccount: !!roleStorageAccountOwner || !!roleStorageManager,
-        };
-      });
-      return accounts;
+  const accountInfosWithPreferredAssumableRole = useMemo(() => {
+    if (accountInfos.status !== 'success') {
+      return [];
     }
-    return [];
+    return accountInfos.value.map((accountInfo) => ({
+      ...accountInfo,
+      preferredAssumableRoleArn: resolvePreferredRoleArn(accountInfo.assumableRoles),
+      canManageAccount:
+        !!accountInfo.assumableRoles.find((role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE) ||
+        !!accountInfo.assumableRoles.find((role) => role.Name === STORAGE_MANAGER_ROLE),
+    }));
   }, [accountInfos.status]);
 
-  if (accountInfos.status === 'success' && (metricsStatus === 'idle' || metricsStatus === 'loading')) {
-    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map((accountInfo) => {
-      return {
-        ...accountInfo,
-        usedCapacity: { status: 'loading' },
-      };
-    });
-    return { accounts: { status: 'success', value: accounts } };
-  } else if (accountInfos.status === 'success' && metricsStatus === 'success') {
-    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map((accountInfo) => {
-      const accountCanonicalId = accountInfo.canonicalId;
-      return {
-        ...accountInfo,
-        usedCapacity: metrics[accountCanonicalId]
-          ? {
-              status: 'success',
-              value: metrics[accountCanonicalId],
-            }
-          : {
-              status: 'unknown',
-            },
-      };
-    });
-    return { accounts: { status: 'success', value: accounts } };
-  } else if (accountInfos.status === 'success' && metricsStatus === 'error') {
-    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map((accountInfo) => {
-      return {
-        ...accountInfo,
-        usedCapacity: {
-          status: 'error',
-          title: 'Account metrics error',
-          reason: 'An error occurred when fetching metrics',
-        },
-      };
-    });
-    return { accounts: { status: 'success', value: accounts } };
-  } else if (accountInfos.status === 'error') {
+  if (accountInfos.status === 'error') {
     return {
       accounts: {
         status: 'error',
@@ -197,7 +174,16 @@ export const useListAccounts = ({
       },
     };
   }
-  return { accounts: { status: 'loading' } };
+
+  if (accountInfos.status !== 'success') {
+    return { accounts: { status: 'loading' } };
+  }
+
+  const accounts: Account[] = accountInfosWithPreferredAssumableRole.map((accountInfo) => ({
+    ...accountInfo,
+    usedCapacity: resolveUsedCapacity(metricsStatus, metrics, accountInfo.canonicalId),
+  }));
+  return { accounts: { status: 'success', value: accounts } };
 };
 
 /**
@@ -225,7 +211,7 @@ export const useAccountLatestUsedCapacity = ({
       !isAccountCanonicalIdMetricsCacheExist &&
       isStorageManager,
   });
-  // if the metrics cache for a specific account exist, directly return the value.
+
   if (isAccountCanonicalIdMetricsCacheExist) {
     return {
       usedCapacity: {
@@ -233,14 +219,18 @@ export const useAccountLatestUsedCapacity = ({
         value: queryCache.data[accountCanonicalId],
       },
     };
-  } else if (status === 'success') {
+  }
+
+  if (status === 'success') {
     return {
       usedCapacity: {
         status: 'success',
         value: data[accountCanonicalId],
       },
     };
-  } else if (status === 'error') {
+  }
+
+  if (status === 'error') {
     return {
       usedCapacity: {
         status: 'error',
@@ -248,8 +238,11 @@ export const useAccountLatestUsedCapacity = ({
         reason: 'An error occurred when fetching the metrics',
       },
     };
-  } else if (status === 'loading' || accountMetricsQueryState?.status === 'loading') {
+  }
+
+  if (status === 'loading' || accountMetricsQueryState?.status === 'loading') {
     return { usedCapacity: { status: 'loading' } };
   }
+
   return { usedCapacity: { status: 'loading' } };
 };
