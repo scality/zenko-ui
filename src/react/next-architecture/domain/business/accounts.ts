@@ -13,9 +13,6 @@ import type {
 import type { LatestUsedCapacity } from '../entities/metrics';
 import type { PromiseResult } from '../entities/promise';
 
-// Pensieve API return an error with 400 if the number of requested accounts exceed 1000.
-const MAX_NUM_ACCOUNT_REQUEST = 1000;
-
 const noRefetchOptions = {
   refetchOnWindowFocus: false,
   refetchOnMount: false,
@@ -108,11 +105,6 @@ export const useAccountCannonicalId = ({
   };
 };
 
-/**
- * The hook returns the entire account list and the Storage Metrics ONLY for the first 1000 accounts.
- * @param metricsAdapter
- * @param accessibleAccountsAdapter
- */
 export const useListAccounts = ({
   accessibleAccountsAdapter,
   metricsAdapter,
@@ -128,7 +120,7 @@ export const useListAccounts = ({
     ...queries.listAccountsMetrics(
       metricsAdapter,
       accountInfos.status === 'success'
-        ? accountInfos.value?.map((ai: AccountInfo) => ai.canonicalId).slice(0, MAX_NUM_ACCOUNT_REQUEST)
+        ? accountInfos.value?.map((ai: AccountInfo) => ai.canonicalId)
         : [],
     ),
     enabled: !!(accountInfos.status === 'success') && accountInfos.value.length > 0 && isStorageManager,
@@ -185,17 +177,14 @@ export const useListAccounts = ({
     });
     return { accounts: { status: 'success', value: accounts } };
   } else if (accountInfos.status === 'success' && metricsStatus === 'error') {
-    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map((accountInfo, i) => {
+    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map((accountInfo) => {
       return {
         ...accountInfo,
-        usedCapacity:
-          i < MAX_NUM_ACCOUNT_REQUEST
-            ? {
-                status: 'error',
-                title: 'Account metrics error',
-                reason: 'An error occurred when fetching metrics',
-              }
-            : { status: 'unknown' },
+        usedCapacity: {
+          status: 'error',
+          title: 'Account metrics error',
+          reason: 'An error occurred when fetching metrics',
+        },
       };
     });
     return { accounts: { status: 'success', value: accounts } };
