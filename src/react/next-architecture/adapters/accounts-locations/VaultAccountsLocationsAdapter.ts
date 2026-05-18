@@ -35,7 +35,7 @@ const mapEndpoint = (endpoint: { hostname: string; locationName: string; isBuilt
 export class VaultAccountsLocationsAdapter
   implements IAccountsAdapter, ILocationsAdapter, IAccountsLocationsEndpointsAdapter
 {
-  managementClient: UiFacingApiWrapper;
+  private managementClient: UiFacingApiWrapper;
   constructor(
     private iamEndpoint: string,
     private getToken: () => Promise<string | null>,

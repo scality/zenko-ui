@@ -46,7 +46,7 @@ const vaultPage1Response: WebIdentityRoles = {
 
 const vaultPage2Response: WebIdentityRoles = {
   IsTruncated: false,
-  Accounts: [VAULT_ACCOUNT_2],
+  Accounts: [VAULT_ACCOUNT_1, VAULT_ACCOUNT_2],
 };
 
 const getVaultRolesHandler = (response: WebIdentityRoles) =>
