@@ -259,10 +259,20 @@ describe('useListAccounts', () => {
         result.current.accounts.status === 'success' &&
         result.current.accounts.value[0].usedCapacity.status === 'error',
     );
-    //Verify the status of usedCapacity after a thousand account should be unknown.
+    //Verify that all accounts carry the error status when metrics fetch fails.
     expect(result.current.accounts).toStrictEqual({
       status: 'success',
-      value: [...MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY, ONE_THOUSAND_AND_ONE_ACCOUNT],
+      value: [
+        ...MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY,
+        {
+          ...ONE_THOUSAND_AND_ONE_ACCOUNT,
+          usedCapacity: {
+            status: 'error',
+            title: 'Account metrics error',
+            reason: 'An error occurred when fetching metrics',
+          },
+        },
+      ],
     });
   });
 });
