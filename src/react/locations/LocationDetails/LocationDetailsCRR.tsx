@@ -3,7 +3,7 @@ import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import type React from 'react';
 import { useState } from 'react';
 import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
-import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
+import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
 
 type FieldNames = 'endpoint' | 'stsEndpoint' | 'accessKey' | 'secretKey';
@@ -132,6 +132,7 @@ function LocationDetailsCRR({ details, onChange, editingExisting }: LocationDeta
       label: 'Access Key',
       type: 'text',
       required: true,
+      placeholder: ACCESS_KEY_PLACEHOLDER,
       validator: crrValidators.validateAccessKey,
     },
     {
@@ -139,6 +140,7 @@ function LocationDetailsCRR({ details, onChange, editingExisting }: LocationDeta
       label: 'Secret Key',
       type: 'password',
       required: true,
+      placeholder: SECRET_KEY_PLACEHOLDER,
       help: "Your credentials are encrypted in transit, then at rest using your instance's RSA key pair so that we're unable to see them.",
       validator: crrValidators.validateSecretKey,
     },

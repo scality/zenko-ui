@@ -130,7 +130,7 @@ function _checkAdvancedOptions(options) {
 
   const val = parseInt(sizeLimitGB, 10);
 
-  if (val <= 0 || isNaN(val)) {
+  if (val <= 0 || Number.isNaN(val)) {
     return {
       disable: true,
       errorMessage: 'Error: Size limit must be greater than 0.',
@@ -140,7 +140,7 @@ function _checkAdvancedOptions(options) {
   return null;
 }
 
-function locationFormCheck(location) {
+function locationFormCheck(location): { disable: boolean; errorMessage?: string } {
   const optionsError = _checkAdvancedOptions(location.options);
 
   const type = location.locationType;

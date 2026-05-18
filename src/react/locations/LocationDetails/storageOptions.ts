@@ -13,7 +13,7 @@ import LocationDetailsAzureArchive from './LocationDetailsAzureArchive';
 import LocationDetailsCRR from './LocationDetailsCRR';
 import LocationDetailsDOSpaces from './LocationDetailsDOSpaces';
 import LocationDetailsGcp from './LocationDetailsGcp';
-import LocationDetailsGlacier from './LocationDetailsGlacier';
+import LocationDetailsColdLocation from './LocationDetailsColdLocation';
 import LocationDetailsHyperdriveV2 from './LocationDetailsHyperdriveV2';
 import LocationDetailsNFS from './LocationDetailsNFS';
 import LocationDetailsOracle from './LocationDetailsOracle';
@@ -122,27 +122,26 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     hasIcon: false,
     category: 'public-cloud',
   },
-  // TODO: Add Glacier locations after Form is implemented
-  // 'location-aws-glacier-v1': {
-  //   name: 'Amazon S3 Glacier',
-  //   short: 'AWS Glacier',
-  //   formDetails: LocationDetailsGlacier,
-  //   supportsVersioning: false,
-  //   supportsReplicationTarget: true,
-  //   supportsReplicationSource: false,
-  //   hasIcon: false,
-  //   category: 'public-cloud',
-  // },
-  // 'location-scaleway-glacier-v1': {
-  //   name: 'Scaleway Glacier',
-  //   short: 'Scaleway Glacier',
-  //   formDetails: LocationDetailsGlacier,
-  //   supportsVersioning: false,
-  //   supportsReplicationTarget: true,
-  //   supportsReplicationSource: false,
-  //   hasIcon: false,
-  //   category: 'public-cloud',
-  // },
+  'location-aws-glacier-v1': {
+    name: 'Amazon S3 Glacier',
+    short: 'AWS Glacier',
+    formDetails: LocationDetailsColdLocation,
+    supportsVersioning: false,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: false,
+    hasIcon: false,
+    category: 'public-cloud',
+  },
+  'location-scaleway-glacier-v1': {
+    name: 'Scaleway Glacier',
+    short: 'Scaleway Glacier',
+    formDetails: LocationDetailsColdLocation,
+    supportsVersioning: false,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: false,
+    hasIcon: false,
+    category: 'public-cloud',
+  },
   [JAGUAR_S3_LOCATION_KEY]: {
     name: 'Atlas Object Storage (Free Pro)',
     short: 'Atlas S3',

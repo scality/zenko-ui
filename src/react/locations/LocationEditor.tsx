@@ -33,7 +33,21 @@ const StyledForm = styled(Form)`
   height: calc(100vh - 48px);
 `;
 
+// Form constants
+export const ACCESS_KEY_PLACEHOLDER = 'AKI5HMPCLRB86WCKTN2C';
+export const SECRET_KEY_PLACEHOLDER = 'QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6';
 export const LOCATION_EDITOR_FORCED_LABEL_WIDTH = 280;
+
+/** Endpoint field tooltip for S3 / Amazon Glacier S3 (path-style access). */
+export const S3_ENDPOINT_PATH_STYLE_TOOLTIP =
+  'Endpoint to reach the S3 server, including scheme and optional port. The buckets will have a path-style access.';
+
+/** Checkbox label for writing objects without source-bucket prefix. */
+export const WRITE_OBJECTS_WITHOUT_PREFIX_LABEL = 'Write objects without prefix';
+
+/** Help text for the "write objects without prefix" option. */
+export const WRITE_OBJECTS_WITHOUT_PREFIX_HELP =
+  'Your objects will be stored in the target bucket without a source-bucket prefix.';
 
 const StyledSelect = styled(Select)`
   .sc-select__option--is-disabled > * {
@@ -210,9 +224,8 @@ function LocationEditor() {
     );
   };
 
-  //@ts-expect-error fix this when you are working on it
-  const { disable, errorMessageFront } = locationFormCheck(location);
-  let displayErrorMessage;
+  const { disable, errorMessage: errorMessageFront } = locationFormCheck(location);
+  let displayErrorMessage: string | undefined;
 
   const hasError = createLocationMutation.isError || updateLocationMutation.isError || waiterStatus === 'error';
 

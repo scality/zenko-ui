@@ -1,8 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Wrapper } from '../../../utils/testUtil';
-import LocationDetailsOracle, { SECRET_KEY_PLACEHOLDER } from '../LocationDetailsOracle';
 import { ORACLE_CLOUD_LOCATION_KEY } from '../../../../types/config';
+import { Wrapper } from '../../../utils/testUtil';
+import { SECRET_KEY_PLACEHOLDER } from '../../LocationEditor';
+import LocationDetailsOracle from '../LocationDetailsOracle';
 
 const selectors = {
   namespaceSelector: () => screen.getByRole('textbox', { name: /Namespace/ }),

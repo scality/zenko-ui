@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { LocationDetails } from '../../../../types/config';
 import { NewWrapper } from '../../../utils/testUtil';
-import { SECRET_KEY_PLACEHOLDER } from '../LocationDetailsOracle';
+import { SECRET_KEY_PLACEHOLDER } from '../../LocationEditor';
 import LocationDetailsWasabi from '../LocationDetailsWasabi';
 
 const props = {

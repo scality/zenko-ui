@@ -180,7 +180,7 @@ export function isIngestLocation(location, capabilities) {
   const locationType = location.locationType || location.type;
 
   if (isIngestSource(storageOptions, locationType, capabilities)) {
-    if (locationType === 'location-nfs-mount-v1' || (location.details && location.details.bucketMatch)) {
+    if (locationType === 'location-nfs-mount-v1' || location.details?.bucketMatch) {
       return true;
     }
   }

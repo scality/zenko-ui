@@ -13,6 +13,7 @@ import type { BucketList } from '../../types/stats';
 import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import type { Location as NextLocation } from '../next-architecture/domain/entities/location';
 import { getLocationType } from '../utils/storageOptions';
+import { isColdLocationType } from './LocationDetails/coldLocations';
 import { storageOptions } from './LocationDetails';
 
 function newLocationDetails(): NextLocation {
@@ -47,6 +48,7 @@ function newLocationForm(): LocationForm {
 
 function convertToLocation(locationState: LocationForm): LegacyLocation {
   const { options } = locationState;
+  const isColdLocation = isColdLocationType(locationState.locationType);
   const ret = {
     name: locationState.name,
     locationType: locationState.locationType,
@@ -55,7 +57,7 @@ function convertToLocation(locationState: LocationForm): LegacyLocation {
     isTransient: options.isTransient,
     isBuiltin: options.isBuiltin,
     //@ts-expect-error fix this when you are working on it
-    isCold: !!options.isCold,
+    isCold: !!options.isCold || isColdLocation,
     sizeLimitGB: options.isSizeLimitChecked && options.sizeLimitGB ? parseInt(options.sizeLimitGB, 10) : 0,
     legacyAwsBehavior: locationState.options.legacyAwsBehavior,
   };
