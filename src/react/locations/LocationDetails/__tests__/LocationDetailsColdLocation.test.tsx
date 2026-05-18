@@ -1,4 +1,4 @@
-import { fireEvent, getByRole, screen } from '@testing-library/react';
+import { getByRole, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LocationQueue, type Locationv1Details } from '../../../../js/managementClient/api';
 import type { LocationTypeKey } from '../../../../types/config';
@@ -19,13 +19,11 @@ const QUEUE_TYPE_LABELS: Record<queueType, string> = {
   'location-polling-v1': 'Polling',
   'location-aws-sqs-v1': 'AWS SQS',
 };
-const selectQueueType = (queue: queueType, container: HTMLElement) => {
-  // Open the dropdown via the input, then click the option by its visible
-  // label rather than positional arrow keys (which would silently break if
-  // the option order ever changes).
+const selectQueueType = async (queue: queueType, container: HTMLElement) => {
   const selector = getByRole(container, 'textbox', { name: /Queue type/i });
-  fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
-  fireEvent.click(screen.getByText(QUEUE_TYPE_LABELS[queue]));
+  await userEvent.click(selector);
+  await userEvent.keyboard('{ArrowDown}');
+  await userEvent.click(screen.getByText(QUEUE_TYPE_LABELS[queue]));
 };
 
 const fillCredentials = async (
@@ -74,6 +72,23 @@ describe('<LocationDetailsColdLocation />', () => {
     expect(screen.getByRole('textbox', { name: /Polling interval/i })).toBeInTheDocument();
   });
 
+  it('renders empty form with OVH-specific labels for OVH Cold Archive', () => {
+    const { container } = setupAndRender(undefined, 'location-ovh-cold-archive-v1');
+    expect(getByRole(container, 'textbox', { name: /OVH Access Key/i })).toBeInTheDocument();
+    expect(container.querySelector<HTMLInputElement>('#secretKey')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Target Bucket Name/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Queue type/i })).toBeInTheDocument();
+  });
+
+  it('renders empty form with generic labels for Versity Tape Archive', () => {
+    const { container } = setupAndRender(undefined, 'location-versity-tape-archive-v1');
+    // Versity is on-prem tape; credential labels are generic, no provider defaults.
+    expect(getByRole(container, 'textbox', { name: /^Access Key/i })).toBeInTheDocument();
+    expect(container.querySelector<HTMLInputElement>('#secretKey')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Target Bucket Name/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Queue type/i })).toBeInTheDocument();
+  });
+
   it('calls onChange with credentials and default polling queue', async () => {
     const { container, onChange } = setupAndRender();
     await fillCredentials(container, {
@@ -90,7 +105,7 @@ describe('<LocationDetailsColdLocation />', () => {
 
   it('switches to SQS queue and shows queue URL field', async () => {
     const { container, onChange } = setupAndRender();
-    selectQueueType('location-aws-sqs-v1', container);
+    await selectQueueType('location-aws-sqs-v1', container);
     expect(screen.getByRole('textbox', { name: /SQS Queue URL/i })).toBeInTheDocument();
     await userEvent.click(getByRole(container, 'textbox', { name: /SQS Queue URL/i }));
     await userEvent.paste('https://sqs.us-east-1.amazonaws.com/123456789012/my-queue');

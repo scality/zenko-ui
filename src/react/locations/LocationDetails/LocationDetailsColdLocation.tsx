@@ -34,6 +34,16 @@ const COLD_LOCATION_PLACEHOLDERS: Record<
     region: 'fr-par',
     storageClass: 'GLACIER',
   },
+  'location-ovh-cold-archive-v1': {
+    endpoint: 'https://s3.eu-west-par.io.cloud.ovh.net',
+    region: 'eu-west-par',
+    storageClass: 'DEEP_ARCHIVE',
+  },
+  'location-versity-tape-archive-v1': {
+    endpoint: '',
+    region: '',
+    storageClass: '',
+  },
 };
 
 /** Provider-specific labels */
@@ -49,6 +59,16 @@ const COLD_LOCATION_LABELS: Record<
   'location-scaleway-glacier-v1': {
     accessKey: 'Scaleway Access Key',
     secretKey: 'Scaleway Secret Key',
+    bucketName: 'Target Bucket Name',
+  },
+  'location-ovh-cold-archive-v1': {
+    accessKey: 'OVH Access Key',
+    secretKey: 'OVH Secret Key',
+    bucketName: 'Target Bucket Name',
+  },
+  'location-versity-tape-archive-v1': {
+    accessKey: 'Access Key',
+    secretKey: 'Secret Key',
     bucketName: 'Target Bucket Name',
   },
 };

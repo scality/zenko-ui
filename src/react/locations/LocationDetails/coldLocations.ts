@@ -1,6 +1,8 @@
 export const COLD_LOCATION_TYPES = [
   'location-aws-glacier-v1',
   'location-scaleway-glacier-v1',
+  'location-ovh-cold-archive-v1',
+  'location-versity-tape-archive-v1',
 ] as const;
 
 export type ColdLocationType = (typeof COLD_LOCATION_TYPES)[number];
