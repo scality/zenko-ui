@@ -33,7 +33,7 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
       id: account.id,
       name: account.Name,
       canonicalId: account.canonicalId,
-      creationDate: account.CreationDate,
+      creationDate: new Date(account.CreationDate as unknown as string),
       assumableRoles: account.Roles,
     }));
 
