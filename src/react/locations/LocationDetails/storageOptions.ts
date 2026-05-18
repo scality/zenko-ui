@@ -34,7 +34,7 @@ export type StorageOptionValues = {
   ingestCapability?: string;
   hidden?: boolean;
   supportsVersion?: string;
-  category?: 'crr' | 'scality' | 'public-cloud' | 'on-prem';
+  category?: 'crr' | 'scality' | 'public-cloud' | 'cold' | 'on-prem';
 };
 export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
   'location-scality-crr-v1': {
@@ -130,7 +130,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
     hasIcon: false,
-    category: 'public-cloud',
+    category: 'cold',
   },
   'location-scaleway-glacier-v1': {
     name: 'Scaleway Glacier',
@@ -140,7 +140,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
     hasIcon: false,
-    category: 'public-cloud',
+    category: 'cold',
   },
   'location-ovh-cold-archive-v1': {
     name: 'OVH Cold Archive',
@@ -150,7 +150,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
     hasIcon: false,
-    category: 'public-cloud',
+    category: 'cold',
   },
   'location-versity-tape-archive-v1': {
     name: 'Versity Tape Archive',
@@ -160,7 +160,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
     hasIcon: false,
-    category: 'on-prem',
+    category: 'cold',
   },
   [JAGUAR_S3_LOCATION_KEY]: {
     name: 'Atlas Object Storage (Free Pro)',

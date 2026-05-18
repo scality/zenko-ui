@@ -108,10 +108,11 @@ export type GroupedStorageOption = {
   options: Array<StorageOptionSelect>;
 };
 
-const categoryLabels = {
+export const categoryLabels = {
   crr: 'CRR Location',
   scality: 'Scality S3 Locations',
   'public-cloud': 'Public Cloud Locations',
+  cold: 'Cold Storage Locations',
   'on-prem': 'On Prem Locations',
 };
 
@@ -157,10 +158,11 @@ export function selectStorageOptionsGrouped(
   const options = selectStorageOptions(capabilities, locations, labelFn, exceptHidden);
 
   const groupedOptions: Array<GroupedStorageOption> = [];
-  const categoryOrder: Array<'crr' | 'scality' | 'public-cloud' | 'on-prem'> = [
+  const categoryOrder: Array<'crr' | 'scality' | 'public-cloud' | 'cold' | 'on-prem'> = [
     'crr',
     'scality',
     'public-cloud',
+    'cold',
     'on-prem',
   ];
 
