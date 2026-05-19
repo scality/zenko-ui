@@ -14,7 +14,7 @@ const VAULT_ACCOUNT_1 = {
   CreationDate: new Date('2023-01-01T00:00:00.000Z'),
   Roles: [{ Name: 'storage-manager-role', Arn: 'arn:aws:iam::111111111111:role/storage-manager-role' }],
   id: 'account-id-1',
-  canonicalId: 'canonical-id-1',
+  CanonicalId: 'canonical-id-1',
 };
 
 const VAULT_ACCOUNT_2 = {
@@ -22,7 +22,7 @@ const VAULT_ACCOUNT_2 = {
   CreationDate: new Date('2023-02-01T00:00:00.000Z'),
   Roles: [{ Name: 'storage-account-owner-role', Arn: 'arn:aws:iam::222222222222:role/storage-account-owner-role' }],
   id: 'account-id-2',
-  canonicalId: 'canonical-id-2',
+  CanonicalId: 'canonical-id-2',
 };
 
 const SCALITY_INTERNAL_ACCOUNT = {
@@ -30,7 +30,7 @@ const SCALITY_INTERNAL_ACCOUNT = {
   CreationDate: new Date('2023-01-01T00:00:00.000Z'),
   Roles: [],
   id: 'internal-id',
-  canonicalId: 'internal-canonical-id',
+  CanonicalId: 'internal-canonical-id',
 };
 
 const vaultSinglePageResponse: WebIdentityRoles = {
@@ -83,13 +83,13 @@ describe('VaultAccountsLocationsAdapter - listAccounts', () => {
       {
         id: VAULT_ACCOUNT_1.id,
         name: VAULT_ACCOUNT_1.Name,
-        canonicalId: VAULT_ACCOUNT_1.canonicalId,
+        canonicalId: VAULT_ACCOUNT_1.CanonicalId,
         creationDate: new Date(VAULT_ACCOUNT_1.CreationDate),
       },
       {
         id: VAULT_ACCOUNT_2.id,
         name: VAULT_ACCOUNT_2.Name,
-        canonicalId: VAULT_ACCOUNT_2.canonicalId,
+        canonicalId: VAULT_ACCOUNT_2.CanonicalId,
         creationDate: new Date(VAULT_ACCOUNT_2.CreationDate),
       },
     ]);
@@ -205,7 +205,7 @@ describe('VaultAccountsLocationsAdapter - listAccountsLocationsAndEndpoints', ()
     server.close();
   });
 
-  it('should return accounts, locations and endpoints from pensieve overlay', async () => {
+  it('should return locations and endpoints from pensieve overlay', async () => {
     //S
     const SUT = new VaultAccountsLocationsAdapter(iamEndpoint, mockGetToken, managementBaseUrl, instanceId);
 
@@ -213,10 +213,9 @@ describe('VaultAccountsLocationsAdapter - listAccountsLocationsAndEndpoints', ()
     const result = await SUT.listAccountsLocationsAndEndpoints();
 
     //V
-    expect(result).toHaveProperty('accounts');
     expect(result).toHaveProperty('locations');
     expect(result).toHaveProperty('endpoints');
-    expect(Array.isArray(result.accounts)).toBe(true);
+    expect(result).not.toHaveProperty('accounts');
     expect(Array.isArray(result.locations)).toBe(true);
     expect(Array.isArray(result.endpoints)).toBe(true);
   });

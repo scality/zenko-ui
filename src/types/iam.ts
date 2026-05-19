@@ -11,8 +11,8 @@ export type Account = {
   Name: string;
   CreationDate: Date;
   Roles: Role[];
+  CanonicalId: string;
   id: string;
-  canonicalId: string;
 };
 
 export type Role = {

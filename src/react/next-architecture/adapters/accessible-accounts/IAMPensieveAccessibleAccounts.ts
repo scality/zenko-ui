@@ -32,7 +32,7 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
     const value: (AccountInfo & { assumableRoles: Role[] })[] = (accounts || []).map((account) => ({
       id: account.id,
       name: account.Name,
-      canonicalId: account.canonicalId,
+      canonicalId: account.CanonicalId,
       creationDate: new Date(account.CreationDate as unknown as string),
       assumableRoles: account.Roles,
     }));

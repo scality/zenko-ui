@@ -1,14 +1,6 @@
 import makeMgtClient, { type UiFacingApiWrapper } from '../../../../js/managementClient';
-import type { UserV1 } from '../../../../js/managementClient/api';
-import type { Endpoint } from '../../../../types/config';
-import { notFalsyTypeGuard } from '../../../../types/typeGuards';
-import type { AccountInfo } from '../../domain/entities/account';
-import type { IAccountsAdapter } from './IAccountsAdapter';
-import type { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
 import type { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
-export class PensieveAccountsLocationsAdapter
-  implements IAccountsAdapter, ILocationsAdapter, IAccountsLocationsEndpointsAdapter
-{
+export class PensieveAccountsLocationsAdapter implements ILocationsAdapter {
   managementClient: UiFacingApiWrapper;
   constructor(
     private baseUrl: string,
@@ -16,38 +8,6 @@ export class PensieveAccountsLocationsAdapter
     private getToken: () => Promise<string | null>,
   ) {
     this.managementClient = makeMgtClient(baseUrl, 'NOT_YET_AUTHENTICATED');
-  }
-  async listAccountsLocationsAndEndpoints(): Promise<{
-    accounts: AccountInfo[];
-    locations: LocationInfo[];
-    endpoints: Endpoint[];
-  }> {
-    this.managementClient.setToken(await this.getToken());
-    return this.managementClient.getConfigurationOverlayView(this.instanceId).then((overlay) => {
-      return {
-        accounts: notFalsyTypeGuard(overlay.users).map((user: UserV1) => ({
-          id: notFalsyTypeGuard(user.id),
-          name: user.userName,
-          canonicalId: notFalsyTypeGuard(user.canonicalId),
-          creationDate: new Date(notFalsyTypeGuard(user.createDate)),
-        })),
-        locations: Object.values(overlay.locations || {}).map((location) => ({
-          id: location.objectId || '',
-          name: location.name,
-          type: location.locationType,
-          details: location.details || {},
-          isTransient: location.isTransient,
-          isCold: location.isCold,
-        })),
-        endpoints: (overlay.endpoints || []).map((endpoint) => {
-          return {
-            hostname: endpoint.hostname,
-            locationName: endpoint.locationName,
-            isBuiltin: !!endpoint.isBuiltin,
-          };
-        }),
-      };
-    });
   }
   async listLocations(): Promise<LocationInfo[]> {
     this.managementClient.setToken(await this.getToken());
@@ -63,18 +23,5 @@ export class PensieveAccountsLocationsAdapter
         }));
       }) || []
     );
-  }
-  async listAccounts(): Promise<AccountInfo[]> {
-    this.managementClient.setToken(await this.getToken());
-    return this.managementClient.getConfigurationOverlayView(this.instanceId).then((overlay) => {
-      return notFalsyTypeGuard(overlay.users).map((user: UserV1) => {
-        return {
-          id: notFalsyTypeGuard(user.id),
-          name: user.userName,
-          canonicalId: notFalsyTypeGuard(user.canonicalId),
-          creationDate: new Date(notFalsyTypeGuard(user.createDate)),
-        };
-      });
-    });
   }
 }

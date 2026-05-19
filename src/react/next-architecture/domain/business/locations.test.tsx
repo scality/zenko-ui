@@ -246,7 +246,7 @@ describe('useListLocationsForCurrentAccount', () => {
         Name: 'Renard',
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
-        canonicalId: 'canonical-id-renard',
+        CanonicalId: 'canonical-id-renard',
       },
     });
     new MockedAccountsLocationsAdapter();
@@ -259,7 +259,7 @@ describe('useListLocationsForCurrentAccount', () => {
         Name: 'Souris',
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
-        canonicalId: 'canonical-id-souris-diff-metrics',
+        CanonicalId: 'canonical-id-souris-diff-metrics',
       },
     });
 
@@ -305,7 +305,7 @@ describe('useListLocationsForCurrentAccount', () => {
         Name: 'Renard',
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
-        canonicalId: 'canonical-id-renard-without-location',
+        CanonicalId: 'canonical-id-renard-without-location',
       },
     });
     const { result, waitFor } = setupAndRenderHook();
@@ -412,7 +412,7 @@ describe('useListLocationsForCurrentAccount', () => {
         Name: 'Unknown',
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
-        canonicalId: '',
+        CanonicalId: '',
       },
     });
     const { result, waitFor } = setupAndRenderHook();

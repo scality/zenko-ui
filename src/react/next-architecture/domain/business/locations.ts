@@ -150,7 +150,7 @@ export const useListLocationsForCurrentAccount = ({
     metricsAdapter,
   });
 
-  const accountCannonicalId = account?.canonicalId || '';
+  const accountCannonicalId = account?.CanonicalId || '';
 
   const { data: accountLocationData, status: accountLocationStatus } = useQuery({
     queryKey: ['accountLocations', accountCannonicalId],

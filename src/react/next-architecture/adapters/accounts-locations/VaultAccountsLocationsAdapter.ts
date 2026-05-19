@@ -73,7 +73,7 @@ export class VaultAccountsLocationsAdapter
         accounts.push({
           id: account.id,
           name: account.Name,
-          canonicalId: account.canonicalId,
+          canonicalId: account.CanonicalId,
           creationDate: new Date(account.CreationDate),
         });
       }
@@ -86,14 +86,12 @@ export class VaultAccountsLocationsAdapter
   }
 
   async listAccountsLocationsAndEndpoints(): Promise<{
-    accounts: AccountInfo[];
     locations: LocationInfo[];
     endpoints: Endpoint[];
   }> {
     this.managementClient.setToken(await this.getToken());
     const overlay = await this.managementClient.getConfigurationOverlayView(this.instanceId);
     return {
-      accounts: [],
       locations: Object.values(overlay.locations || {}).map(mapLocation),
       endpoints: (overlay.endpoints || []).map(mapEndpoint),
     };

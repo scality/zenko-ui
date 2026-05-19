@@ -171,7 +171,7 @@ const defaultCurrentAccount = {
   Name: 'Renard',
   Roles: [],
   CreationDate: new Date('2022-03-18T12:51:44Z'),
-  canonicalId: 'canonical-id-renard',
+  CanonicalId: 'canonical-id-renard',
 };
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
