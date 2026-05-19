@@ -1,13 +1,8 @@
 import makeMgtClient, { type UiFacingApiWrapper } from '../../../../js/managementClient';
 import type { LocationV1 } from '../../../../js/managementClient/api';
 import type { Endpoint } from '../../../../types/config';
-import type { WebIdentityRoles } from '../../../../types/iam';
-import type { AccountInfo } from '../../domain/entities/account';
-import type { IAccountsAdapter } from './IAccountsAdapter';
 import type { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
 import type { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
-
-const SCALITY_INTERNAL_SERVICES = 'scality-internal-services';
 
 const mapLocation = (location: LocationV1): LocationInfo => ({
   id: location.objectId || '',
@@ -25,7 +20,7 @@ const mapEndpoint = (endpoint: { hostname: string; locationName: string; isBuilt
 });
 
 export class VaultAccountsLocationsAdapter
-  implements IAccountsAdapter, ILocationsAdapter, IAccountsLocationsEndpointsAdapter
+  implements ILocationsAdapter, IAccountsLocationsEndpointsAdapter
 {
   private managementClient: UiFacingApiWrapper;
   constructor(
@@ -35,54 +30,6 @@ export class VaultAccountsLocationsAdapter
     private instanceId: string,
   ) {
     this.managementClient = makeMgtClient(managementBaseUrl, 'NOT_YET_AUTHENTICATED');
-  }
-
-  async listAccounts(): Promise<AccountInfo[]> {
-    const token = await this.getToken();
-    const accounts: AccountInfo[] = [];
-    let marker: string | undefined = undefined;
-    let isTruncated = true;
-
-    while (isTruncated) {
-      const url = new URL(`${this.iamEndpoint}/`);
-      url.searchParams.set('Action', 'GetRolesForWebIdentity');
-      if (marker) {
-        url.searchParams.set('Marker', marker);
-      }
-
-      const response = await fetch(url.toString(), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Vault API error: ${response.status} ${response.statusText}`);
-      }
-
-      const data: WebIdentityRoles = await response.json();
-
-      for (const account of data.Accounts) {
-        if (account.Name === SCALITY_INTERNAL_SERVICES) {
-          continue;
-        }
-        if (accounts.some((a) => a.id === account.id)) {
-          continue;
-        }
-        accounts.push({
-          id: account.id,
-          name: account.Name,
-          canonicalId: account.CanonicalId,
-          creationDate: new Date(account.CreationDate),
-        });
-      }
-
-      isTruncated = data.IsTruncated;
-      marker = data.Marker;
-    }
-
-    return accounts;
   }
 
   async listAccountsLocationsAndEndpoints(): Promise<{
