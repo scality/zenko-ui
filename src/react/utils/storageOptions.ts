@@ -13,7 +13,7 @@ import {
 } from '../../types/config';
 import type { LocationForm } from '../../types/location';
 import type { Capabilities, InstanceStateSnapshot } from '../../types/stats';
-import type { LabelFunction, StorageOptionSelect } from '../../types/storageOptionsHelper';
+import type { LabelFunction, LocationCategory, StorageOptionSelect } from '../../types/storageOptionsHelper';
 import { storageOptions } from '../locations/LocationDetails';
 import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import type { Location } from '../next-architecture/domain/entities/location';
@@ -108,7 +108,7 @@ export type GroupedStorageOption = {
   options: Array<StorageOptionSelect>;
 };
 
-export const categoryLabels = {
+export const categoryLabels: Record<LocationCategory, string> = {
   crr: 'CRR Location',
   scality: 'Scality S3 Locations',
   'public-cloud': 'Public Cloud Locations',
@@ -158,13 +158,7 @@ export function selectStorageOptionsGrouped(
   const options = selectStorageOptions(capabilities, locations, labelFn, exceptHidden);
 
   const groupedOptions: Array<GroupedStorageOption> = [];
-  const categoryOrder: Array<'crr' | 'scality' | 'public-cloud' | 'cold' | 'on-prem'> = [
-    'crr',
-    'scality',
-    'public-cloud',
-    'cold',
-    'on-prem',
-  ];
+  const categoryOrder: Array<LocationCategory> = ['crr', 'scality', 'public-cloud', 'cold', 'on-prem'];
 
   categoryOrder.forEach((category) => {
     const categoryOptions = options.filter((opt) => opt.category === category);

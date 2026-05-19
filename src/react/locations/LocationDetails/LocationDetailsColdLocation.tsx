@@ -42,8 +42,8 @@ const COLD_LOCATION_PLACEHOLDERS: Record<
     storageClass: 'DEEP_ARCHIVE',
   },
   'location-versity-tape-archive-v1': {
-    endpoint: '',
-    region: '',
+    endpoint: 'https://your-versity-instance:443',
+    region: 'us-east-1',
     storageClass: '',
   },
 };

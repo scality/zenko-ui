@@ -6,6 +6,7 @@ import {
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
   OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../../types/config';
+import type { LocationCategory } from '../../../types/storageOptionsHelper';
 import LocationDetailsAws from './LocationDetailsAws';
 import LocationDetailsAwsCustom from './LocationDetailsAwsCustom';
 import LocationDetailsAzure from './LocationDetailsAzure';
@@ -34,7 +35,7 @@ export type StorageOptionValues = {
   ingestCapability?: string;
   hidden?: boolean;
   supportsVersion?: string;
-  category?: 'crr' | 'scality' | 'public-cloud' | 'cold' | 'on-prem';
+  category?: LocationCategory;
 };
 export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
   'location-scality-crr-v1': {
