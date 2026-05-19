@@ -43,7 +43,7 @@ const COLD_LOCATION_PLACEHOLDERS: Record<
   },
   'location-versity-tape-archive-v1': {
     endpoint: 'https://your-versity-instance:443',
-    region: 'us-east-1',
+    region: 'your-region',
     storageClass: '',
   },
 };
@@ -69,8 +69,8 @@ const COLD_LOCATION_LABELS: Record<
     bucketName: 'Target Bucket Name',
   },
   'location-versity-tape-archive-v1': {
-    accessKey: 'Access Key',
-    secretKey: 'Secret Key',
+    accessKey: 'Versity Access Key',
+    secretKey: 'Versity Secret Key',
     bucketName: 'Target Bucket Name',
   },
 };

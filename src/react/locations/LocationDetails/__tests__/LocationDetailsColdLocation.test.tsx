@@ -80,10 +80,9 @@ describe('<LocationDetailsColdLocation />', () => {
     expect(screen.getByRole('textbox', { name: /Queue type/i })).toBeInTheDocument();
   });
 
-  it('renders empty form with generic labels for Versity Tape Archive', () => {
+  it('renders empty form with Versity-specific labels for Versity Tape Archive', () => {
     const { container } = setupAndRender(undefined, 'location-versity-tape-archive-v1');
-    // Versity is on-prem tape; credential labels are generic, no provider defaults.
-    expect(getByRole(container, 'textbox', { name: /^Access Key/i })).toBeInTheDocument();
+    expect(getByRole(container, 'textbox', { name: /Versity Access Key/i })).toBeInTheDocument();
     expect(container.querySelector<HTMLInputElement>('#secretKey')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /Target Bucket Name/i })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /Queue type/i })).toBeInTheDocument();
