@@ -166,7 +166,7 @@ export const getConfigOverlay = (baseUrl: string, instanceId: string) => {
         locations: LOCATIONS,
         replicationStreams: [],
         updatedAt: '2022-04-27T13:18:58Z',
-        users: USERS,
+        users: null,
         version: 12,
       }),
     ),

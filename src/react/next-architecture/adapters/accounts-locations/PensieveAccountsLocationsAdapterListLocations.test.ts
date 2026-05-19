@@ -8,6 +8,42 @@ const instanceId = 'test-instance-id';
 const server = setupServer(getConfigOverlay(baseUrl, instanceId));
 const mockGettoken = () => Promise.resolve('test-token');
 
+describe('PensieveAccountsAdapter - listAccountsLocationsAndEndpoints', () => {
+  beforeEach(() => {
+    server.listen({ onUnhandledRequest: 'error' });
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
+
+  it('should return locations and endpoints from pensieve overlay', async () => {
+    //S
+    const SUT = new PensieveAccountsLocationsAdapter(baseUrl, instanceId, mockGettoken);
+
+    //E
+    const result = await SUT.listAccountsLocationsAndEndpoints();
+
+    //V
+    expect(result).toHaveProperty('locations');
+    expect(result).toHaveProperty('endpoints');
+    expect(result).not.toHaveProperty('accounts');
+    expect(Array.isArray(result.locations)).toBe(true);
+    expect(Array.isArray(result.endpoints)).toBe(true);
+  });
+
+  it('should reject when pensieve api returns an error', async () => {
+    //S
+    const SUT = new PensieveAccountsLocationsAdapter(baseUrl, instanceId, mockGettoken);
+    server.use(
+      rest.get(`${baseUrl}/api/v1/config/overlay/view/${instanceId}`, (req, res, ctx) => res(ctx.status(500))),
+    );
+
+    //E+V
+    await expect(SUT.listAccountsLocationsAndEndpoints()).rejects.toBeDefined();
+  });
+});
+
 describe('PensieveAccountsAdapter - listLocations', () => {
   beforeEach(() => {
     server.listen({ onUnhandledRequest: 'error' });
