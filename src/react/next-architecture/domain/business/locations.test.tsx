@@ -259,7 +259,7 @@ describe('useListLocationsForCurrentAccount', () => {
         Name: 'Souris',
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
-        canonicalId: 'canonical-id-souris',
+        canonicalId: 'canonical-id-souris-diff-metrics',
       },
     });
 
@@ -401,25 +401,18 @@ describe('useListLocationsForCurrentAccount', () => {
     });
 
     // V
-    const expectedRes = {
-      locations: {
-        status: 'error',
-        title: 'Account Error',
-        reason: `Unexpected error while fetching account`,
-      },
-    };
-    expect(result.current).toStrictEqual(expectedRes);
+    expect(result.current.locations.status).toBe('error');
   });
 
-  it('account missing from overlay returns empty locations', async () => {
+  it('account without canonicalId returns empty locations', async () => {
     // S
     jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
       account: {
-        id: 'account-id-not-in-overlay',
+        id: 'account-id-no-canonical',
         Name: 'Unknown',
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
-        canonicalId: 'canonical-id-unknown',
+        canonicalId: '',
       },
     });
     const { result, waitFor } = setupAndRenderHook();

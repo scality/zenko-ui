@@ -7,7 +7,7 @@ import type { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import type { Location, LocationStorageInfos, LocationsPromiseResult } from '../entities/location';
 import type { LatestUsedCapacity } from '../entities/metrics';
 import type { PromiseResult } from '../entities/promise';
-import { useAccountCannonicalId, useAccountsLocationsAndEndpoints } from './accounts';
+import { useAccountsLocationsAndEndpoints } from './accounts';
 
 export const useLocationAndStorageInfos = ({
   locationName,
@@ -150,13 +150,7 @@ export const useListLocationsForCurrentAccount = ({
     metricsAdapter,
   });
 
-  const accountCannonicalIdResult = useAccountCannonicalId({
-    accountId: account?.id || '',
-    accountsLocationsEndpointsAdapter,
-  });
-
-  const accountCannonicalId =
-    account === undefined || accountCannonicalIdResult.status !== 'success' ? '' : accountCannonicalIdResult.value;
+  const accountCannonicalId = account?.canonicalId || '';
 
   const { data: accountLocationData, status: accountLocationStatus } = useQuery({
     queryKey: ['accountLocations', accountCannonicalId],
@@ -174,22 +168,7 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  if (accountCannonicalIdResult.status === 'loading') {
-    return {
-      locations: {
-        status: 'loading',
-      },
-    };
-  }
-
-  if (accountCannonicalIdResult.status === 'error') {
-    return {
-      locations: accountCannonicalIdResult,
-    };
-  }
-
-  // Account is defined but not found in the overlay — treat as having no locations
-  if (accountCannonicalIdResult.status === 'unknown') {
+  if (!accountCannonicalId) {
     return {
       locations: {
         status: 'success',

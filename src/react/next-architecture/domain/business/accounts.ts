@@ -11,7 +11,6 @@ import type {
   AccountsPromiseResult,
 } from '../entities/account';
 import type { LatestUsedCapacity } from '../entities/metrics';
-import type { PromiseResult } from '../entities/promise';
 
 const noRefetchOptions = {
   refetchOnWindowFocus: false,
@@ -67,39 +66,6 @@ export const useAccountsLocationsAndEndpoints = ({
   };
 };
 
-export const useAccountCannonicalId = ({
-  accountsLocationsEndpointsAdapter,
-  accountId,
-}: {
-  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
-  accountId: string;
-}): PromiseResult<string> => {
-  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
-  });
-
-  if (status === 'loading' || status === 'idle') {
-    return { status: 'loading' };
-  }
-
-  if (status === 'error') {
-    return {
-      status: 'error',
-      title: 'Account Error',
-      reason: 'Unexpected error while fetching account',
-    };
-  }
-
-  const account = accountsLocationsAndEndpoints?.accounts?.find((a) => a.id === accountId);
-  if (!account) {
-    return { status: 'unknown' };
-  }
-
-  return {
-    status: 'success',
-    value: account.canonicalId,
-  };
-};
 
 const resolvePreferredRoleArn = (assumableRoles: { Name: string; Arn: string }[]): string => {
   const roleStorageAccountOwner = assumableRoles.find((role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE);
@@ -222,12 +188,15 @@ export const useAccountLatestUsedCapacity = ({
   }
 
   if (status === 'success') {
-    return {
-      usedCapacity: {
-        status: 'success',
-        value: data[accountCanonicalId],
-      },
-    };
+    if (data[accountCanonicalId]) {
+      return {
+        usedCapacity: {
+          status: 'success',
+          value: data[accountCanonicalId],
+        },
+      };
+    }
+    return { usedCapacity: { status: 'unknown' } };
   }
 
   if (status === 'error') {
