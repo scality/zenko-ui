@@ -2,22 +2,22 @@ import { useQuery } from 'react-query';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
 import { useAuthGroups } from '../../../utils/hooks';
-import type { IAccountsLocationsEndpointsAdapter } from '../../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import type { ILocationsEndpointsAdapter } from '../../adapters/accounts-locations/ILocationsEndpointsBundledAdapter';
 import type { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import type { Location, LocationStorageInfos, LocationsPromiseResult } from '../entities/location';
 import type { LatestUsedCapacity } from '../entities/metrics';
 import type { PromiseResult } from '../entities/promise';
-import { useAccountsLocationsAndEndpoints } from './accounts';
+import { useLocationsAndEndpoints } from './accounts';
 
 export const useLocationAndStorageInfos = ({
   locationName,
-  accountsLocationsEndpointsAdapter,
+  locationsEndpointsAdapter,
 }: {
   locationName: string;
-  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
+  locationsEndpointsAdapter: ILocationsEndpointsAdapter;
 }): PromiseResult<LocationStorageInfos> => {
-  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const { locationsAndEndpoints, status } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
 
   if (status === 'loading' || status === 'idle') {
@@ -34,7 +34,7 @@ export const useLocationAndStorageInfos = ({
     };
   }
 
-  const location = accountsLocationsAndEndpoints?.locations?.find((l) => l.name === locationName);
+  const location = locationsAndEndpoints?.locations?.find((l) => l.name === locationName);
   const locationStorageOption = location
     ? storageOptions[location.type as unknown as keyof typeof storageOptions]
     : undefined;
@@ -63,25 +63,25 @@ export const useLocationAndStorageInfos = ({
  * @param metricsAdapter
  */
 export const useListLocations = ({
-  accountsLocationsEndpointsAdapter,
+  locationsEndpointsAdapter,
   metricsAdapter,
 }: {
-  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
+  locationsEndpointsAdapter: ILocationsEndpointsAdapter;
   metricsAdapter: IMetricsAdapter;
 }): LocationsPromiseResult => {
-  const { accountsLocationsAndEndpoints, status: locationStatus } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const { locationsAndEndpoints, status: locationStatus } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
 
   const { isStorageManager } = useAuthGroups();
 
-  const ids = accountsLocationsAndEndpoints?.locations?.map((l) => l.id) ?? [];
+  const ids = locationsAndEndpoints?.locations?.map((l) => l.id) ?? [];
   const { data: metricsData, status: metricsStatus } = useQuery({
     queryKey: ['locationsMetrics', ids],
     queryFn: () => {
       return metricsAdapter.listLocationsLatestUsedCapacity(ids);
     },
-    enabled: !!accountsLocationsAndEndpoints?.locations && ids.length > 0 && isStorageManager,
+    enabled: !!locationsAndEndpoints?.locations && ids.length > 0 && isStorageManager,
   });
 
   if (locationStatus === 'loading' || locationStatus === 'idle') {
@@ -104,7 +104,7 @@ export const useListLocations = ({
 
   const locations: Record<string, Location> = {};
 
-  accountsLocationsAndEndpoints?.locations.forEach((l) => {
+  locationsAndEndpoints?.locations.forEach((l) => {
     let usedCapacity: PromiseResult<LatestUsedCapacity> = {
       status: 'loading',
     };
@@ -139,14 +139,14 @@ export const useListLocations = ({
 
 export const useListLocationsForCurrentAccount = ({
   metricsAdapter,
-  accountsLocationsEndpointsAdapter,
+  locationsEndpointsAdapter,
 }: {
   metricsAdapter: IMetricsAdapter;
-  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
+  locationsEndpointsAdapter: ILocationsEndpointsAdapter;
 }): LocationsPromiseResult => {
   const { account } = useCurrentAccount();
   const allLocations = useListLocations({
-    accountsLocationsEndpointsAdapter,
+    locationsEndpointsAdapter,
     metricsAdapter,
   });
 

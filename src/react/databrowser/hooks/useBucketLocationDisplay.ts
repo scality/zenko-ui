@@ -1,6 +1,6 @@
 import { useGetBucketLocation } from '@scality/data-browser-library';
 import { useLocationAndStorageInfos } from '../../next-architecture/domain/business/locations';
-import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsEndpointsAdapter } from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 
 type LocationDisplayResult =
   | { status: 'loading' }
@@ -19,10 +19,10 @@ export const useBucketLocationDisplay = (bucketName: string): LocationDisplayRes
     Bucket: bucketName,
   });
 
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
   const locationConstraint = bucketLocation?.LocationConstraint || 'us-east-1';
   const locationInfos = useLocationAndStorageInfos({
-    accountsLocationsEndpointsAdapter,
+    locationsEndpointsAdapter,
     locationName: locationConstraint,
   });
 

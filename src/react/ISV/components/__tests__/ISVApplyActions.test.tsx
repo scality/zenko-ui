@@ -34,13 +34,13 @@ jest.mock('../../../DataServiceRoleProvider', () => ({
 }));
 
 jest.mock('../../../next-architecture/domain/business/accounts', () => ({
-  useAccountsLocationsAndEndpoints: () => ({
-    refetchAccountsLocationsEndpointsMutation: { mutate: jest.fn(), status: 'idle' },
+  useLocationsAndEndpoints: () => ({
+    refetchLocationsEndpointsMutation: { mutate: jest.fn(), status: 'idle' },
   }),
 }));
 
-jest.mock('../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider', () => ({
-  useAccountsLocationsEndpointsAdapter: () => ({}),
+jest.mock('../../../next-architecture/ui/LocationsEndpointsAdapterProvider', () => ({
+  useLocationsEndpointsAdapter: () => ({}),
 }));
 
 jest.mock('../../../next-architecture/ui/AuthProvider', () => ({

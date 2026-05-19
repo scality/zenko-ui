@@ -4,8 +4,8 @@ import { useCallback, useMemo } from 'react';
 import { Route, Routes, useLocation, useParams } from 'react-router';
 import { XDM_FEATURE } from '../../js/config';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
 import { useAuthGroups, useQueryParams } from '../utils/hooks';
@@ -74,13 +74,13 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
 
   const { bucketCreateExtraFields, transformBucketCreateData } = useBucketCreateConfig();
 
-  const adapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter: adapter,
+  const adapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter: adapter,
   });
   const locations = useMemo(
-    () => accountsLocationsAndEndpoints?.locations ?? [],
-    [accountsLocationsAndEndpoints?.locations],
+    () => locationsAndEndpoints?.locations ?? [],
+    [locationsAndEndpoints?.locations],
   );
 
   const isLocationCold = useCallback(

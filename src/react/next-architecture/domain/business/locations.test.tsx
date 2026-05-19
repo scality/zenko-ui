@@ -100,14 +100,14 @@ describe('useListLocations', () => {
   beforeEach(() => queryClient.clear());
 
   const setupAndRenderHook = (
-    accountsLocationsEndpointsAdapter = new MockedAccountsLocationsAdapter(),
+    locationsEndpointsAdapter = new MockedAccountsLocationsAdapter(),
     metricsAdapter = new MockedMetricsAdapter(),
   ) => {
     return {
       ...renderHook(
         () =>
           useListLocations({
-            accountsLocationsEndpointsAdapter,
+            locationsEndpointsAdapter,
             metricsAdapter: metricsAdapter,
           }),
         {
@@ -141,7 +141,7 @@ describe('useListLocations', () => {
   it('should return locations loading', async () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
-    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() => new Promise(() => {}));
+    mockAccountAdapter.listLocationsAndEndpoints = jest.fn(() => new Promise(() => {}));
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter);
 
     await flushPromises();
@@ -158,7 +158,7 @@ describe('useListLocations', () => {
   it('should return locations with error', async () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
-    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() => Promise.reject());
+    mockAccountAdapter.listLocationsAndEndpoints = jest.fn(() => Promise.reject());
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter);
 
     await flushPromises();
@@ -220,14 +220,14 @@ describe('useListLocations', () => {
 
 describe('useListLocationsForCurrentAccount', () => {
   const setupAndRenderHook = (
-    accountsLocationsEndpointsAdapter = new MockedAccountsLocationsAdapter(),
+    locationsEndpointsAdapter = new MockedAccountsLocationsAdapter(),
     metricsAdapter = new MockedMetricsAdapter(),
   ) => {
     return {
       ...renderHook(
         () =>
           useListLocationsForCurrentAccount({
-            accountsLocationsEndpointsAdapter,
+            locationsEndpointsAdapter,
             metricsAdapter: metricsAdapter,
           }),
         {
@@ -392,7 +392,7 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() => Promise.reject());
+    mockAccountAdapter.listLocationsAndEndpoints = jest.fn(() => Promise.reject());
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     // E

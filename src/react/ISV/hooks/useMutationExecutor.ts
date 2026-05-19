@@ -24,8 +24,8 @@ import {
   useEnableSOSAPIMutation,
 } from '../../../js/mutations';
 import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
-import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { expandLoopMutation, isLoopMutation } from '../engine/builders/buildMutations';
 import type {
@@ -43,11 +43,11 @@ import { useCreateVeeamRepository } from './useCreateVeeamRepository';
  * Custom hook for refetching accounts/locations/endpoints configuration
  */
 const useRefetchConfig = () => {
-  const adapter = useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter: adapter,
+  const adapter = useLocationsEndpointsAdapter();
+  const { refetchLocationsEndpointsMutation } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter: adapter,
   });
-  return refetchAccountsLocationsEndpointsMutation;
+  return refetchLocationsEndpointsMutation;
 };
 
 /**

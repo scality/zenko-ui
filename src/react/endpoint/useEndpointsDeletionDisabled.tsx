@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { Endpoint } from '../../types/config';
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useArtescaPlusVeeamMode } from './hooks';
 
 // Helper function to check if endpoint deletion should be disabled
@@ -25,9 +25,9 @@ const useEndpointsDeletionDisabled = (): {
   endpointsDeletionDisabledMap: Record<string, boolean>;
   status: 'idle' | 'loading' | 'error' | 'success';
 } => {
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status: accountsLocationsEndpointsStatus } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints, status: locationsEndpointsStatus } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
 
   const {
@@ -38,33 +38,33 @@ const useEndpointsDeletionDisabled = (): {
 
   // Calculate if deletion is disabled for open mode
   const isDisabledForOpenMode = useMemo(() => {
-    if (accountsLocationsEndpointsStatus !== 'success' || !accountsLocationsAndEndpoints.endpoints) {
+    if (locationsEndpointsStatus !== 'success' || !locationsAndEndpoints.endpoints) {
       return false;
     }
 
     // Disable endpoint deletion when there is only one non-Veeam, non-builtin endpoint remaining
     // to avoid going back to default mode
-    const nonVeeamNonBuiltinCount = accountsLocationsAndEndpoints.endpoints.filter(
+    const nonVeeamNonBuiltinCount = locationsAndEndpoints.endpoints.filter(
       (endpoint) => endpoint.hostname !== ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME && endpoint.isBuiltin === false,
     ).length;
 
     return artescaPlusVeeamDefaultOrOpenMode === 'open' && nonVeeamNonBuiltinCount === 1;
   }, [
-    accountsLocationsEndpointsStatus,
-    accountsLocationsAndEndpoints.endpoints,
+    locationsEndpointsStatus,
+    locationsAndEndpoints.endpoints,
     artescaPlusVeeamDefaultOrOpenMode,
     ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME,
   ]);
 
   const endpointsDeletionDisabledMap = useMemo(() => {
     // Early return for non-success states
-    if (accountsLocationsEndpointsStatus !== 'success' || !accountsLocationsAndEndpoints.endpoints) {
+    if (locationsEndpointsStatus !== 'success' || !locationsAndEndpoints.endpoints) {
       return {};
     }
 
     const record: Record<string, boolean> = {};
 
-    accountsLocationsAndEndpoints.endpoints.forEach((endpoint) => {
+    locationsAndEndpoints.endpoints.forEach((endpoint) => {
       record[endpoint.hostname] = isEndpointDeletionDisabled(
         endpoint,
         ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME,
@@ -74,18 +74,18 @@ const useEndpointsDeletionDisabled = (): {
 
     return record;
   }, [
-    accountsLocationsAndEndpoints.endpoints,
+    locationsAndEndpoints.endpoints,
     ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME,
     isDisabledForOpenMode,
-    accountsLocationsEndpointsStatus,
+    locationsEndpointsStatus,
   ]);
 
   const status =
-    artescaPlusVeeamDefaultOrOpenModeStatus === 'loading' || accountsLocationsEndpointsStatus === 'loading'
+    artescaPlusVeeamDefaultOrOpenModeStatus === 'loading' || locationsEndpointsStatus === 'loading'
       ? 'loading'
-      : artescaPlusVeeamDefaultOrOpenModeStatus === 'error' || accountsLocationsEndpointsStatus === 'error'
+      : artescaPlusVeeamDefaultOrOpenModeStatus === 'error' || locationsEndpointsStatus === 'error'
         ? 'error'
-        : accountsLocationsEndpointsStatus === 'success' && artescaPlusVeeamDefaultOrOpenModeStatus === 'success'
+        : locationsEndpointsStatus === 'success' && artescaPlusVeeamDefaultOrOpenModeStatus === 'success'
           ? 'success'
           : 'idle';
 

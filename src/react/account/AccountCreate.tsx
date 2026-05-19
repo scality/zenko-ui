@@ -9,8 +9,8 @@ import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router';
 import { useCreateAccountMutation } from '../../js/mutations';
 import { useSetAssumedRole } from '../DataServiceRoleProvider';
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
@@ -48,19 +48,19 @@ function AccountCreate() {
 
   const setRole = useSetAssumedRole();
   const instanceId = useInstanceId();
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { refetchLocationsEndpointsMutation } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
   const createAccountMutation = useCreateAccountMutation();
 
-  const loading = createAccountMutation.isLoading || refetchAccountsLocationsEndpointsMutation.isLoading;
-  const hasError = createAccountMutation.isError || refetchAccountsLocationsEndpointsMutation.isError;
+  const loading = createAccountMutation.isLoading || refetchLocationsEndpointsMutation.isLoading;
+  const hasError = createAccountMutation.isError || refetchLocationsEndpointsMutation.isError;
   const errorMessage =
     //@ts-expect-error fix this when you are working on it
     createAccountMutation.error?.message ??
     //@ts-expect-error fix this when you are working on it
-    refetchAccountsLocationsEndpointsMutation.error?.message ??
+    refetchLocationsEndpointsMutation.error?.message ??
     '';
   const queryClient = useQueryClient();
   const onSubmit = ({ name, email }: AccountFormField) => {
@@ -71,7 +71,7 @@ function AccountCreate() {
       },
       {
         onSuccess: (data) => {
-          refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
+          refetchLocationsEndpointsMutation.mutate(undefined, {
             onSuccess: () => {
               setRole({
                 roleArn: `arn:aws:iam::${data.id}:role/scality-internal/storage-manager-role`,

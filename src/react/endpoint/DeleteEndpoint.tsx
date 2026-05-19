@@ -5,8 +5,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import * as T from '../ui-elements/Table';
@@ -14,9 +14,9 @@ import * as T from '../ui-elements/Table';
 export const DeleteEndpoint = ({ hostname, disabled }: { hostname: string; disabled: boolean }) => {
   const queryClient = useQueryClient();
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { refetchLocationsEndpointsMutation } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
@@ -41,7 +41,7 @@ export const DeleteEndpoint = ({ hostname, disabled }: { hostname: string; disab
         deleteEndpointMutation.mutate(undefined, {
           onSuccess: () => {
             waitForRunningConfigurationVersionToBeUpdated();
-            queryClient.invalidateQueries({ queryKey: ['configOverlay'] });
+            queryClient.invalidateQueries({ queryKey: ['locationsEndpoints'] });
           },
         });
       },
@@ -51,9 +51,9 @@ export const DeleteEndpoint = ({ hostname, disabled }: { hostname: string; disab
   useEffect(() => {
     if (waiterStatus === 'success') {
       setIsConfirmDeleteOpen(false);
-      refetchAccountsLocationsEndpointsMutation.mutate(undefined);
+      refetchLocationsEndpointsMutation.mutate(undefined);
     }
-  }, [waiterStatus, refetchAccountsLocationsEndpointsMutation]);
+  }, [waiterStatus, refetchLocationsEndpointsMutation]);
 
   const tooltipMessage = disabled ? 'This Data Service can not be deleted' : 'Delete Data Service';
 

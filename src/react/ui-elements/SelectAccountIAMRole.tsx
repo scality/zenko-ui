@@ -17,7 +17,7 @@ import {
   AccessibleAccountsAdapterProvider,
   useAccessibleAccountsAdapter,
 } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { LocationsEndpointsAdapterProvider } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
 import { regexArn, SCALITY_IAM_ROLES } from '../utils/hooks';
 
@@ -91,14 +91,14 @@ const InternalProvider = ({
 }: PropsWithChildren<Pick<SelectAccountIAMRoleWithAccountProps, 'defaultValue'>>) => {
   return (
     <DataServiceRoleProvider inlineLoader>
-      <AccountsLocationsEndpointsAdapterProvider>
+      <LocationsEndpointsAdapterProvider>
         <AccessibleAccountsAdapterProvider DoNotChangePropsWithEventDispatcher={false}>
           <>
             <AssumeDefaultIAMRole defaultValue={defaultValue} />
             {children}
           </>
         </AccessibleAccountsAdapterProvider>
-      </AccountsLocationsEndpointsAdapterProvider>
+      </LocationsEndpointsAdapterProvider>
     </DataServiceRoleProvider>
   );
 };

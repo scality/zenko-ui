@@ -1,8 +1,8 @@
 import { FormGroup } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import { useFormContext } from 'react-hook-form';
-import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 
 function isCRRLocationType(type: string): boolean {
   return type === 'location-scality-crr-v1';
@@ -25,12 +25,12 @@ export function ReplicationCRRDestinationFields() {
   } = useFormContext<{ storageClass: string; targetBucket: string }>();
   const storageClass = watch('storageClass');
 
-  const adapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter: adapter,
+  const adapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter: adapter,
   });
 
-  const locations = accountsLocationsAndEndpoints?.locations ?? [];
+  const locations = locationsAndEndpoints?.locations ?? [];
   const selectedLocation = locations.find((l) => l.name === storageClass);
   const isCRR = !!selectedLocation && isCRRLocationType(selectedLocation.type as unknown as string);
 

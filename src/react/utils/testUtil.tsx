@@ -18,7 +18,7 @@ import ErrorProvider from '../ErrorProvider';
 import { IAMProvider } from '../IAMProvider';
 import { _ManagementContext } from '../ManagementProvider';
 import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { LocationsEndpointsAdapterProvider } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
 import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
@@ -247,11 +247,11 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
                   >
                     <LocationAdapterProvider>
                       <MetricsAdapterProvider>
-                        <AccountsLocationsEndpointsAdapterProvider>
+                        <LocationsEndpointsAdapterProvider>
                           <AccessibleAccountsAdapterProvider>
                             <TestProvidersWrapper>{children}</TestProvidersWrapper>
                           </AccessibleAccountsAdapterProvider>
-                        </AccountsLocationsEndpointsAdapterProvider>
+                        </LocationsEndpointsAdapterProvider>
                       </MetricsAdapterProvider>
                     </LocationAdapterProvider>
                   </_ManagementContext.Provider>
@@ -364,7 +364,7 @@ export const testRender = (component: JSX.Element) => {
                       >
                         <LocationAdapterProvider>
                           <MetricsAdapterProvider>
-                            <AccountsLocationsEndpointsAdapterProvider>
+                            <LocationsEndpointsAdapterProvider>
                               <AccessibleAccountsAdapterProvider>
                                 <TestProvidersWrapper>
                                   {component}
@@ -373,7 +373,7 @@ export const testRender = (component: JSX.Element) => {
                                   <ReauthDialog />
                                 </TestProvidersWrapper>
                               </AccessibleAccountsAdapterProvider>
-                            </AccountsLocationsEndpointsAdapterProvider>
+                            </LocationsEndpointsAdapterProvider>
                           </MetricsAdapterProvider>
                         </LocationAdapterProvider>
                       </_ManagementContext.Provider>
@@ -482,7 +482,7 @@ export function renderWithRouterMatch(component: React.ReactNode, { path = '/', 
                   >
                     <LocationAdapterProvider>
                       <MetricsAdapterProvider>
-                        <AccountsLocationsEndpointsAdapterProvider>
+                        <LocationsEndpointsAdapterProvider>
                           <AccessibleAccountsAdapterProvider>
                             <ErrorProvider>
                               <TestProvidersWrapper>
@@ -493,7 +493,7 @@ export function renderWithRouterMatch(component: React.ReactNode, { path = '/', 
                               </TestProvidersWrapper>
                             </ErrorProvider>
                           </AccessibleAccountsAdapterProvider>
-                        </AccountsLocationsEndpointsAdapterProvider>
+                        </LocationsEndpointsAdapterProvider>
                       </MetricsAdapterProvider>
                     </LocationAdapterProvider>
                   </_ManagementContext.Provider>
@@ -530,7 +530,7 @@ export const renderWithCustomRoute = (component: React.ReactNode, route: string)
                   >
                     <LocationAdapterProvider>
                       <MetricsAdapterProvider>
-                        <AccountsLocationsEndpointsAdapterProvider>
+                        <LocationsEndpointsAdapterProvider>
                           <AccessibleAccountsAdapterProvider>
                             <ErrorProvider>
                               <ToastProvider>
@@ -541,7 +541,7 @@ export const renderWithCustomRoute = (component: React.ReactNode, route: string)
                               </ToastProvider>
                             </ErrorProvider>
                           </AccessibleAccountsAdapterProvider>
-                        </AccountsLocationsEndpointsAdapterProvider>
+                        </LocationsEndpointsAdapterProvider>
                       </MetricsAdapterProvider>
                     </LocationAdapterProvider>
                   </_ManagementContext.Provider>
@@ -586,7 +586,7 @@ export const NewWrapper =
                   >
                     <LocationAdapterProvider>
                       <MetricsAdapterProvider>
-                        <AccountsLocationsEndpointsAdapterProvider>
+                        <LocationsEndpointsAdapterProvider>
                           <AccessibleAccountsAdapterProvider>
                             <ErrorProvider>
                               <TestProvidersWrapper>
@@ -595,7 +595,7 @@ export const NewWrapper =
                               </TestProvidersWrapper>
                             </ErrorProvider>
                           </AccessibleAccountsAdapterProvider>
-                        </AccountsLocationsEndpointsAdapterProvider>
+                        </LocationsEndpointsAdapterProvider>
                       </MetricsAdapterProvider>
                     </LocationAdapterProvider>
                   </_ManagementContext.Provider>

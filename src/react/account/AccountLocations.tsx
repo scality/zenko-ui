@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import type { CellProps, CoreUIColumn } from 'react-table';
 import { useListLocationsForCurrentAccount } from '../next-architecture/domain/business/locations';
 import type { Location } from '../next-architecture/domain/entities/location';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
@@ -14,10 +14,10 @@ import { getLocationType } from '../utils/storageOptions';
 
 export function AccountLocations() {
   const metricsAdapter = useMetricsAdapter();
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
   const { locations } = useListLocationsForCurrentAccount({
     metricsAdapter,
-    accountsLocationsEndpointsAdapter,
+    locationsEndpointsAdapter,
   });
 
   const data = useMemo(() => {

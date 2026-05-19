@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import AuthLoadingProvider from './AuthLoadingProvider';
 import ErrorProvider from './ErrorProvider';
 import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { AccountsLocationsEndpointsAdapterProvider } from './next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { LocationsEndpointsAdapterProvider } from './next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { ArtescaLibraryProvider } from './next-architecture/ui/ArtescaLibraryProvider';
 import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
 import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
@@ -48,7 +48,7 @@ const FederableApp = (props) => {
         <ArtescaLibraryProvider>
           <HistoryPushEventListener />
           <ZenkoUIGuard>
-            <AccountsLocationsEndpointsAdapterProvider>
+            <LocationsEndpointsAdapterProvider>
               <LocationAdapterProvider>
                 <AccessibleAccountsAdapterProvider>
                   <MetricsAdapterProvider>
@@ -63,7 +63,7 @@ const FederableApp = (props) => {
                   </MetricsAdapterProvider>
                 </AccessibleAccountsAdapterProvider>
               </LocationAdapterProvider>
-            </AccountsLocationsEndpointsAdapterProvider>
+            </LocationsEndpointsAdapterProvider>
           </ZenkoUIGuard>
         </ArtescaLibraryProvider>
       </XCoreLibraryProvider>

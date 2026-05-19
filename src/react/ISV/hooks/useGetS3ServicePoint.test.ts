@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 import * as accountsModule from '../../next-architecture/domain/business/accounts';
-import * as adapterModule from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import * as adapterModule from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 
 const MOCK_ACCOUNTS_LOCATIONS_ENDPOINTS = {
@@ -21,16 +21,16 @@ const MOCK_ACCOUNTS_LOCATIONS_ENDPOINTS = {
 };
 
 describe('useGetS3ServicePoint', () => {
-  let mockUseAccountsLocationsEndpointsAdapter: jest.SpyInstance;
-  let mockUseAccountsLocationsAndEndpoints: jest.SpyInstance;
+  let mockUseLocationsEndpointsAdapter: jest.SpyInstance;
+  let mockUseLocationsAndEndpoints: jest.SpyInstance;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAccountsLocationsEndpointsAdapter = jest.spyOn(adapterModule, 'useAccountsLocationsEndpointsAdapter');
-    mockUseAccountsLocationsAndEndpoints = jest.spyOn(accountsModule, 'useAccountsLocationsAndEndpoints');
+    mockUseLocationsEndpointsAdapter = jest.spyOn(adapterModule, 'useLocationsEndpointsAdapter');
+    mockUseLocationsAndEndpoints = jest.spyOn(accountsModule, 'useLocationsAndEndpoints');
 
-    mockUseAccountsLocationsEndpointsAdapter.mockReturnValue({
-      listAccountsLocationsAndEndpoints: jest.fn(),
+    mockUseLocationsEndpointsAdapter.mockReturnValue({
+      listLocationsAndEndpoints: jest.fn(),
     });
   });
 
@@ -39,8 +39,8 @@ describe('useGetS3ServicePoint', () => {
   });
 
   it('should return s3 endpoint if there is one', () => {
-    mockUseAccountsLocationsAndEndpoints.mockReturnValue({
-      accountsLocationsAndEndpoints: MOCK_ACCOUNTS_LOCATIONS_ENDPOINTS,
+    mockUseLocationsAndEndpoints.mockReturnValue({
+      locationsAndEndpoints: MOCK_ACCOUNTS_LOCATIONS_ENDPOINTS,
       status: 'success',
     });
 
@@ -49,8 +49,8 @@ describe('useGetS3ServicePoint', () => {
   });
 
   it('should return empty string if there is no s3 endpoint', () => {
-    mockUseAccountsLocationsAndEndpoints.mockReturnValue({
-      accountsLocationsAndEndpoints: {
+    mockUseLocationsAndEndpoints.mockReturnValue({
+      locationsAndEndpoints: {
         accounts: [],
         locations: [],
         endpoints: [],
@@ -63,8 +63,8 @@ describe('useGetS3ServicePoint', () => {
   });
 
   it('should return empty string if there is no non-builtin endpoint', () => {
-    mockUseAccountsLocationsAndEndpoints.mockReturnValue({
-      accountsLocationsAndEndpoints: {
+    mockUseLocationsAndEndpoints.mockReturnValue({
+      locationsAndEndpoints: {
         accounts: [],
         locations: [],
         endpoints: [

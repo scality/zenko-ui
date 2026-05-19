@@ -8,10 +8,10 @@ import styled from 'styled-components';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
-import { queries, useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { queries, useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useListLocations } from '../next-architecture/domain/business/locations';
 import type { Location } from '../next-architecture/domain/entities/location';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
@@ -40,9 +40,9 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
   const navigate = useBasenameRelativeNavigate();
   const { bucketList: buckets, status: bucketListStatus } = useBucketList();
   const [showModal, setShowModal] = useState(false);
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints(
-    { accountsLocationsEndpointsAdapter },
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints, refetchLocationsEndpointsMutation } = useLocationsAndEndpoints(
+    { locationsEndpointsAdapter },
   );
 
   const managementClient = useManagementClient();
@@ -67,14 +67,14 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
       onRefTaken: () => {
         deleteMutation.mutate(locationName, {
           onSuccess: () => {
-            const newAccountsLocationsEndpoints = {
-              ...accountsLocationsAndEndpoints,
-              locations: accountsLocationsAndEndpoints?.locations.filter((location) => location.name !== locationName),
+            const newLocationsEndpoints = {
+              ...locationsAndEndpoints,
+              locations: locationsAndEndpoints?.locations.filter((location) => location.name !== locationName),
             };
 
             queryClient.setQueryData(
-              queries.listAccountsLocationAndEndpoints(accountsLocationsEndpointsAdapter).queryKey,
-              newAccountsLocationsEndpoints,
+              queries.listLocationsAndEndpoints(locationsEndpointsAdapter).queryKey,
+              newLocationsEndpoints,
             );
             waitForRunningConfigurationVersionToBeUpdated();
           },
@@ -85,14 +85,14 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
 
   useEffect(() => {
     if (waiterStatus === 'success') {
-      refetchAccountsLocationsEndpointsMutation.mutate();
+      refetchLocationsEndpointsMutation.mutate();
     }
   }, [waiterStatus]);
 
   const { isBuiltin, hasBucket, hasEndpoint } = getLocationDeletionBlocker(
     rowValues,
     buckets,
-    accountsLocationsAndEndpoints?.endpoints || [],
+    locationsAndEndpoints?.endpoints || [],
   );
   // Disable deletion while bucket list is still loading to prevent incorrect state
   const isDataLoading = bucketListStatus === 'loading' || bucketListStatus === 'idle';
@@ -183,14 +183,14 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
 
 export function LocationsList() {
   const navigate = useBasenameRelativeNavigate();
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
   const metricsAdapter = useMetricsAdapter();
   const { locations } = useListLocations({
-    accountsLocationsEndpointsAdapter,
+    locationsEndpointsAdapter,
     metricsAdapter,
   });
-  const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const { locationsAndEndpoints } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
 
   const data = useMemo(() => {

@@ -1,16 +1,16 @@
 import { useMemo } from 'react';
-import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 
 export const useGetS3ServicePoint = () => {
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
 
-  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const { locationsAndEndpoints, status } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
   const s3ServicePoint = useMemo(
-    () => accountsLocationsAndEndpoints?.endpoints?.find((endpoint) => !endpoint.isBuiltin)?.hostname || '',
-    [accountsLocationsAndEndpoints, status],
+    () => locationsAndEndpoints?.endpoints?.find((endpoint) => !endpoint.isBuiltin)?.hostname || '',
+    [locationsAndEndpoints, status],
   );
 
   return { s3ServicePoint };

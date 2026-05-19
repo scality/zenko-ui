@@ -8,7 +8,7 @@ const instanceId = 'test-instance-id';
 const server = setupServer(getConfigOverlay(baseUrl, instanceId));
 const mockGettoken = () => Promise.resolve('test-token');
 
-describe('PensieveAccountsAdapter - listAccountsLocationsAndEndpoints', () => {
+describe('PensieveAccountsAdapter - listLocationsAndEndpoints', () => {
   beforeEach(() => {
     server.listen({ onUnhandledRequest: 'error' });
   });
@@ -22,7 +22,7 @@ describe('PensieveAccountsAdapter - listAccountsLocationsAndEndpoints', () => {
     const SUT = new PensieveAccountsLocationsAdapter(baseUrl, instanceId, mockGettoken);
 
     //E
-    const result = await SUT.listAccountsLocationsAndEndpoints();
+    const result = await SUT.listLocationsAndEndpoints();
 
     //V
     expect(result).toHaveProperty('locations');
@@ -40,7 +40,7 @@ describe('PensieveAccountsAdapter - listAccountsLocationsAndEndpoints', () => {
     );
 
     //E+V
-    await expect(SUT.listAccountsLocationsAndEndpoints()).rejects.toBeDefined();
+    await expect(SUT.listLocationsAndEndpoints()).rejects.toBeDefined();
   });
 });
 

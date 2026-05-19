@@ -9,8 +9,8 @@ import styled from 'styled-components';
 import type { Account } from '../../../../types/account';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { useManagementClient } from '../../../ManagementProvider';
-import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
@@ -33,9 +33,9 @@ function DeleteAccountButtonAndModal({ account }: Props) {
   const queryClient = useQueryClient();
   const rolePathName = useRolePathName();
 
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { refetchLocationsEndpointsMutation } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
@@ -63,7 +63,7 @@ function DeleteAccountButtonAndModal({ account }: Props) {
       setIsModalOpened(false);
     },
     onSuccess: () => {
-      refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
+      refetchLocationsEndpointsMutation.mutate(undefined, {
         onSuccess: () => {
           removeRoleArnStored();
           queryClient.invalidateQueries(['WebIdentityRoles']);
@@ -106,7 +106,7 @@ function DeleteAccountButtonAndModal({ account }: Props) {
         show={isModalOpened}
         cancel={() => setIsModalOpened(false)}
         approve={() => deleteMutation.mutate()}
-        isLoading={deleteMutation.isLoading || refetchAccountsLocationsEndpointsMutation.isLoading}
+        isLoading={deleteMutation.isLoading || refetchLocationsEndpointsMutation.isLoading}
         titleText={`Are you sure you want to delete account: ${account.Name} ?`}
       />
       <Button

@@ -10,8 +10,8 @@ import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutat
 import type { LocationTypeKey } from '../../types/config';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useCapabilities } from '../queries/instanceStatusQuery';
 import Loader from '../ui-elements/Loader';
@@ -64,12 +64,12 @@ const makeLabel = (locationType: LocationTypeKey) => {
 function LocationEditor() {
   const navigate = useNavigate();
   const { locationName } = useParams<{ locationName: string }>();
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, refetchAccountsLocationsEndpointsMutation, status } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter,
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints, refetchLocationsEndpointsMutation, status } =
+    useLocationsAndEndpoints({
+      locationsEndpointsAdapter,
     });
-  const locations = accountsLocationsAndEndpoints?.locations;
+  const locations = locationsAndEndpoints?.locations;
   const locationEditing = locations?.find((location) => location.name === locationName);
   const { capabilities } = useCapabilities();
   const editingExisting = !!(locationEditing && locationEditing.id);
@@ -160,7 +160,7 @@ function LocationEditor() {
 
   useMemo(() => {
     if (waiterStatus === 'success') {
-      refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
+      refetchLocationsEndpointsMutation.mutate(undefined, {
         onSuccess: () => {
           navigate(-1);
         },

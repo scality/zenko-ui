@@ -1,10 +1,10 @@
 import makeMgtClient, { type UiFacingApiWrapper } from '../../../../js/managementClient';
 import type { Endpoint } from '../../../../types/config';
-import type { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
+import type { ILocationsEndpointsAdapter } from './ILocationsEndpointsBundledAdapter';
 import type { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
 
 export class PensieveAccountsLocationsAdapter
-  implements ILocationsAdapter, IAccountsLocationsEndpointsAdapter
+  implements ILocationsAdapter, ILocationsEndpointsAdapter
 {
   managementClient: UiFacingApiWrapper;
   constructor(
@@ -14,7 +14,7 @@ export class PensieveAccountsLocationsAdapter
   ) {
     this.managementClient = makeMgtClient(baseUrl, 'NOT_YET_AUTHENTICATED');
   }
-  async listAccountsLocationsAndEndpoints(): Promise<{
+  async listLocationsAndEndpoints(): Promise<{
     locations: LocationInfo[];
     endpoints: Endpoint[];
   }> {

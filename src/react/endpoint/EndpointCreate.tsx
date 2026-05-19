@@ -8,8 +8,8 @@ import { Controller, useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import { useCreateEndpointMutation, useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { renderLocation } from '../locations/utils';
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE } from '../next-architecture/ui/ArtescaLibraryProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useArtescaPlusVeeamMode } from './hooks';
@@ -42,10 +42,10 @@ function EndpointCreate() {
     },
   });
   const navigate = useBasenameRelativeNavigate();
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status, refetchAccountsLocationsEndpointsMutation } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter,
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints, status, refetchLocationsEndpointsMutation } =
+    useLocationsAndEndpoints({
+      locationsEndpointsAdapter,
     });
   const createEndpointMutation = useCreateEndpointMutation();
   const instanceId = useInstanceId();
@@ -79,7 +79,7 @@ function EndpointCreate() {
 
   useMemo(() => {
     if (waiterStatus === 'success') {
-      refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
+      refetchLocationsEndpointsMutation.mutate(undefined, {
         onSuccess: () => {
           navigate('/dataservices');
         },
@@ -194,7 +194,7 @@ function EndpointCreate() {
                       placeholder="Location Name"
                       value={locationName}
                     >
-                      {accountsLocationsAndEndpoints?.locations.map((location, i) => (
+                      {locationsAndEndpoints?.locations.map((location, i) => (
                         <Select.Option key={i} value={location.name} disabled={location?.isCold}>
                           {renderLocation(location)}
                         </Select.Option>

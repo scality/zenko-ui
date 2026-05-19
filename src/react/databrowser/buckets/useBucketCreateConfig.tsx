@@ -1,18 +1,18 @@
 import { useCallback } from 'react';
-import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useCapabilities } from '../../queries/instanceStatusQuery';
 import { isIngestLocation } from '../../utils/storageOptions';
 import { BucketCreateLocationEffects } from './BucketCreateLocationEffects';
 
 export function useBucketCreateConfig() {
-  const adapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter: adapter,
+  const adapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter: adapter,
   });
   const { capabilities } = useCapabilities();
 
-  const locations = accountsLocationsAndEndpoints?.locations ?? [];
+  const locations = locationsAndEndpoints?.locations ?? [];
 
   const transformBucketCreateData = useCallback(
     <T extends Record<string, unknown>>(data: T): T => {

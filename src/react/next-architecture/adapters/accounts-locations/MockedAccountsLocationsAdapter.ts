@@ -1,9 +1,9 @@
-import type { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
+import type { ILocationsEndpointsAdapter } from './ILocationsEndpointsBundledAdapter';
 import type { ILocationsAdapter } from './ILocationsAdapter';
 export class MockedAccountsLocationsAdapter
-  implements ILocationsAdapter, IAccountsLocationsEndpointsAdapter
+  implements ILocationsAdapter, ILocationsEndpointsAdapter
 {
-  listAccountsLocationsAndEndpoints = jest.fn().mockImplementation(async () => {
+  listLocationsAndEndpoints = jest.fn().mockImplementation(async () => {
     return {
       locations: await this.listLocations(),
       endpoints: [

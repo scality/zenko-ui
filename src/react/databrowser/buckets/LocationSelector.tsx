@@ -2,19 +2,19 @@ import { Loader } from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
 import type { LocationSelectorProps } from '@scality/data-browser-library';
 import { useEffect } from 'react';
-import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { getLocationTypeShort } from '../../utils/storageOptions';
 
 const DEFAULT_LOCATION = 'us-east-1';
 
 export function LocationSelector({ value, onChange }: LocationSelectorProps) {
-  const adapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter: adapter,
+  const adapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints, status } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter: adapter,
   });
 
-  const locations = accountsLocationsAndEndpoints?.locations ?? [];
+  const locations = locationsAndEndpoints?.locations ?? [];
 
   useEffect(() => {
     if (status === 'success' && !value) {

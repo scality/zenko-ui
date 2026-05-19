@@ -1,14 +1,14 @@
 import { AppContainer, EmptyState, Icon, Loader, Stack, Text } from '@scality/core-ui';
 
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import EndpointList from './EndpointList';
 
 const Endpoints = () => {
-  const accountsLocationsEndpointsAdapter = useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints, status } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
   });
 
   const { basePath } = useConfig();
@@ -22,7 +22,7 @@ const Endpoints = () => {
   }
 
   // empty state.
-  if (accountsLocationsAndEndpoints?.endpoints.length === 0) {
+  if (locationsAndEndpoints?.endpoints.length === 0) {
     return (
       <EmptyState
         icon="Account"
@@ -45,8 +45,8 @@ const Endpoints = () => {
       </AppContainer.OverallSummary>
       <AppContainer.MainContent background="backgroundLevel3">
         <EndpointList
-          endpoints={accountsLocationsAndEndpoints?.endpoints || []}
-          locations={accountsLocationsAndEndpoints?.locations || []}
+          endpoints={locationsAndEndpoints?.endpoints || []}
+          locations={locationsAndEndpoints?.locations || []}
         />
       </AppContainer.MainContent>
     </>

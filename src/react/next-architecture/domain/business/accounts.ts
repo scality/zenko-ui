@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { STORAGE_ACCOUNT_OWNER_ROLE, STORAGE_MANAGER_ROLE, useAuthGroups } from '../../../utils/hooks';
 import type { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
-import type { IAccountsLocationsEndpointsAdapter } from '../../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import type { ILocationsEndpointsAdapter } from '../../adapters/accounts-locations/ILocationsEndpointsBundledAdapter';
 import type { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import type {
   Account,
@@ -19,9 +19,9 @@ const noRefetchOptions = {
 };
 
 export const queries = {
-  listAccountsLocationAndEndpoints: (accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter) => ({
-    queryKey: ['configOverlay'],
-    queryFn: () => accountsLocationsEndpointsAdapter.listAccountsLocationsAndEndpoints(),
+  listLocationsAndEndpoints: (locationsEndpointsAdapter: ILocationsEndpointsAdapter) => ({
+    queryKey: ['locationsEndpoints'],
+    queryFn: () => locationsEndpointsAdapter.listLocationsAndEndpoints(),
     ...noRefetchOptions,
   }),
   listAccountsMetrics: (metricsAdapter: IMetricsAdapter, accountsCanonicalIds: string[]) => ({
@@ -36,20 +36,20 @@ export const queries = {
   }),
 };
 
-export const useAccountsLocationsAndEndpoints = ({
-  accountsLocationsEndpointsAdapter,
+export const useLocationsAndEndpoints = ({
+  locationsEndpointsAdapter,
 }: {
-  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
+  locationsEndpointsAdapter: ILocationsEndpointsAdapter;
 }) => {
   const {
-    data: accountsLocationsAndEndpoints,
-    refetch: refetchAccountsLocationsEndpoints,
+    data: locationsAndEndpoints,
+    refetch: refetchLocationsEndpoints,
     ...result
-  } = useQuery(queries.listAccountsLocationAndEndpoints(accountsLocationsEndpointsAdapter));
+  } = useQuery(queries.listLocationsAndEndpoints(locationsEndpointsAdapter));
 
-  const refetchAccountsLocationsEndpointsMutation = useMutation({
+  const refetchLocationsEndpointsMutation = useMutation({
     mutationFn: async () => {
-      return refetchAccountsLocationsEndpoints().then(({ data, status, error }) => {
+      return refetchLocationsEndpoints().then(({ data, status, error }) => {
         if (status === 'error') {
           throw error;
         }
@@ -59,9 +59,9 @@ export const useAccountsLocationsAndEndpoints = ({
   });
 
   return {
-    accountsLocationsAndEndpoints,
-    refetchAccountsLocationsEndpoints,
-    refetchAccountsLocationsEndpointsMutation,
+    locationsAndEndpoints,
+    refetchLocationsEndpoints,
+    refetchLocationsEndpointsMutation,
     ...result,
   };
 };
