@@ -1,8 +1,7 @@
 import makeMgtClient, { type UiFacingApiWrapper } from '../../../../js/managementClient';
-import type { LocationV1, UserV1 } from '../../../../js/managementClient/api';
+import type { LocationV1 } from '../../../../js/managementClient/api';
 import type { Endpoint } from '../../../../types/config';
 import type { WebIdentityRoles } from '../../../../types/iam';
-import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import type { AccountInfo } from '../../domain/entities/account';
 import type { IAccountsAdapter } from './IAccountsAdapter';
 import type { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
@@ -17,13 +16,6 @@ const mapLocation = (location: LocationV1): LocationInfo => ({
   details: location.details || {},
   isTransient: location.isTransient,
   isCold: location.isCold,
-});
-
-const mapUser = (user: UserV1): AccountInfo => ({
-  id: notFalsyTypeGuard(user.id),
-  name: user.userName,
-  canonicalId: notFalsyTypeGuard(user.canonicalId),
-  creationDate: new Date(notFalsyTypeGuard(user.createDate)),
 });
 
 const mapEndpoint = (endpoint: { hostname: string; locationName: string; isBuiltin?: boolean }): Endpoint => ({
@@ -101,7 +93,7 @@ export class VaultAccountsLocationsAdapter
     this.managementClient.setToken(await this.getToken());
     const overlay = await this.managementClient.getConfigurationOverlayView(this.instanceId);
     return {
-      accounts: notFalsyTypeGuard(overlay.users).map(mapUser),
+      accounts: [],
       locations: Object.values(overlay.locations || {}).map(mapLocation),
       endpoints: (overlay.endpoints || []).map(mapEndpoint),
     };
