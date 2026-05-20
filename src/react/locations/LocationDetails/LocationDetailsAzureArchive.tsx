@@ -360,7 +360,7 @@ const LocationDetailsAzureArchive = ({ details, onChange }: LocationDetailsFormP
               label="Queue Endpoint"
               id="queue.endpoint"
               helpErrorPosition="bottom"
-              labelHelpTooltip="https://<<StorageaccountName>>.queue.core.windows.net is usually used as the Storage queue endpoint."
+              labelHelpTooltip="https://<<StorageAccountName>>.queue.core.windows.net is usually used as the Storage queue endpoint."
               required
               content={
                 <Input

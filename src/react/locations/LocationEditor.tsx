@@ -1,7 +1,7 @@
 import { Banner, Form, FormGroup, FormSection, Icon, Loader as LoaderCoreUI, Stack } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import { useShellHooks } from '@scality/module-federation';
-import { type ChangeEvent, useMemo, useState } from 'react';
+import { type ChangeEvent, type ReactNode, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
@@ -15,7 +15,7 @@ import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsE
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useCapabilities } from '../queries/instanceStatusQuery';
 import Loader from '../ui-elements/Loader';
-import { getLocationTypeKey, selectStorageOptionsGrouped } from '../utils/storageOptions';
+import { type GroupedStorageOption, getLocationTypeKey, selectStorageOptionsGrouped } from '../utils/storageOptions';
 import { LocationDetails, storageOptions } from './LocationDetails';
 import LocationOptions from './LocationOptions';
 import locationFormCheck from './locationFormCheck';
@@ -55,6 +55,25 @@ const StyledSelect = styled(Select)`
     padding-left: 4px !important;
   }
 `;
+
+/**
+ * Build the Option children for the location-type Select from grouped
+ * storage options. Each group emits a disabled header Option followed by
+ * one Option per real entry. The per-option `disabled` flag (driven by
+ * capability checks in selectStorageOptions) is forwarded to the rendered
+ * Option so capability-disabled types are unselectable in the dropdown.
+ */
+export const buildLocationTypeOptions = (groups: GroupedStorageOption[]): ReactNode[] =>
+  groups.flatMap((group) => [
+    <StyledSelect.Option key={`group-${group.label}`} value={`__group_${group.label}__`} disabled={true}>
+      {group.label}
+    </StyledSelect.Option>,
+    ...group.options.map((opt) => (
+      <StyledSelect.Option key={opt.value} value={opt.value} disabled={opt.disabled}>
+        {opt.label}
+      </StyledSelect.Option>
+    )),
+  ]);
 
 const makeLabel = (locationType: LocationTypeKey) => {
   const details = storageOptions[locationType];
@@ -341,16 +360,7 @@ function LocationEditor() {
               //@ts-expect-error fix this when you are working on it
               value={locationTypeKey}
             >
-              {selectOptionsGrouped.flatMap((group, groupIndex) => [
-                <StyledSelect.Option key={`group-${groupIndex}`} value={`__group_${groupIndex}__`} disabled={true}>
-                  {group.label}
-                </StyledSelect.Option>,
-                ...group.options.map((opt, i) => (
-                  <StyledSelect.Option key={`${groupIndex}-${i}`} value={opt.value} disabled={opt.disabled}>
-                    {opt.label}
-                  </StyledSelect.Option>
-                )),
-              ])}
+              {buildLocationTypeOptions(selectOptionsGrouped)}
             </StyledSelect>
           }
         />

@@ -12,8 +12,10 @@ import { type ColdLocationType, isColdLocationType } from './coldLocations';
  * share the same backend schema (validateGlacierLocation) and only differ
  * in provider-specific defaults / placeholders.
  *
- * Today: AWS Glacier and Scaleway Glacier.
- * Extensible: OVH Cold Archive, Versity Tape Archive (added in a follow-up PR).
+ * Supported providers: AWS Glacier, Scaleway Glacier, OVH Cold Archive,
+ * Versity Tape Archive. Adding a new cold S3-like provider is a matter of
+ * appending a key to COLD_LOCATION_TYPES (in ./coldLocations) and adding
+ * matching entries here in COLD_LOCATION_PLACEHOLDERS / COLD_LOCATION_LABELS.
  *
  * The COLD_LOCATION_TYPES registry lives in ./coldLocations so utils.tsx
  * (convertToLocation -> isCold) reads from the same single source.
@@ -34,6 +36,16 @@ const COLD_LOCATION_PLACEHOLDERS: Record<
     region: 'fr-par',
     storageClass: 'GLACIER',
   },
+  'location-ovh-cold-archive-v1': {
+    endpoint: 'https://s3.eu-west-par.io.cloud.ovh.net',
+    region: 'eu-west-par',
+    storageClass: 'DEEP_ARCHIVE',
+  },
+  'location-versity-tape-archive-v1': {
+    endpoint: 'https://versity-gw.my-company.com',
+    region: 'your-region',
+    storageClass: 'your-storage-class',
+  },
 };
 
 /** Provider-specific labels */
@@ -49,6 +61,16 @@ const COLD_LOCATION_LABELS: Record<
   'location-scaleway-glacier-v1': {
     accessKey: 'Scaleway Access Key',
     secretKey: 'Scaleway Secret Key',
+    bucketName: 'Target Bucket Name',
+  },
+  'location-ovh-cold-archive-v1': {
+    accessKey: 'OVH Access Key',
+    secretKey: 'OVH Secret Key',
+    bucketName: 'Target Bucket Name',
+  },
+  'location-versity-tape-archive-v1': {
+    accessKey: 'Versity Access Key',
+    secretKey: 'Versity Secret Key',
     bucketName: 'Target Bucket Name',
   },
 };
@@ -288,7 +310,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
                 name="queue.interval"
                 id="queue.interval"
                 type="text"
-                placeholder="e.g. 5m"
+                placeholder="5m"
                 value={formState.queue.interval ?? ''}
                 onChange={onFormItemChange}
                 autoComplete="off"
@@ -307,10 +329,11 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
                 name="queue.queueUrl"
                 id="queue.queueUrl"
                 type="text"
-                placeholder="https://sqs.region.amazonaws.com/account-id/queue-name"
+                placeholder="https://sqs.region.amazonaws.com/id/name"
                 value={formState.queue.queueUrl}
                 onChange={onFormItemChange}
                 autoComplete="off"
+                noPlaceholderPrefix
               />
             }
           />

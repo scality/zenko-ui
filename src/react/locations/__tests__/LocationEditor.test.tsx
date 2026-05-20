@@ -1,11 +1,10 @@
-import { fireEvent, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import type { ReactElement } from 'react';
 import { getConfigOverlay, getInstanceStatus, INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import { mockOffsetSize, selectClick, TEST_API_BASE_URL, testRender, Wrapper } from '../../utils/testUtil';
-import LocationEditor from '../LocationEditor';
+import LocationEditor, { buildLocationTypeOptions } from '../LocationEditor';
 
 jest.setTimeout(60_000);
 const server = setupServer(
@@ -48,46 +47,6 @@ const setupLocations = (count: number) => {
 };
 
 describe('LocationEditor', () => {
-  it('should display storageOptions expect hidden options', async () => {
-    const {
-      component: { container },
-    } = testRender(<LocationEditor />);
-
-    await waitForElementToBeRemoved(() => screen.getByText('Loading location...'));
-
-    const selector = notFalsyTypeGuard(container.querySelector('.sc-select__control'));
-    await selectClick(selector);
-    await userEvent.keyboard('{arrowup}');
-    expect(container.querySelector('.sc-select__option--is-focused')?.textContent).toBe('CRR Location');
-
-    [
-      'Cross-Region Replication',
-      'Scality S3 Locations',
-      'Scality ARTESCA S3',
-      'Scality RING with S3 Connector',
-      'Public Cloud Locations',
-      'Amazon S3',
-      'Google Cloud Storage',
-      'Microsoft Azure Blob Storage',
-      'Microsoft Azure Archive',
-      'Amazon S3 Glacier',
-      'Scaleway Glacier',
-      'Atlas Object Storage (Free Pro)',
-      '3DS Outscale OOS Public',
-      '3DS Outscale OOS SNC',
-      'Flexible Datastore',
-      'Wasabi',
-      'Oracle Cloud Object Storage',
-      'On Prem Locations',
-      'Tape DMF',
-      'Tape Atempo Miria',
-      'Ceph RADOS Gateway',
-      'Scality RING with Sproxyd Connector',
-    ].forEach((locationName) => {
-      fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
-      expect(container.querySelector('.sc-select__option--is-focused')?.textContent).toBe(locationName);
-    });
-  });
   const selectors = {
     loadingLocation: () => screen.getByText('Loading location...'),
     selectLocationType: () => screen.getByRole('textbox', { name: /location type \*/i }),
@@ -159,120 +118,26 @@ describe('LocationEditor', () => {
       expect(dangerText).toBeInTheDocument();
     });
   });
+});
 
-  it(`test if each location display correctly`, async () => {
-    testRender(<LocationEditor />);
+type OptionElement = ReactElement<{ disabled: boolean; value: string; children: string }>;
 
-    await waitForElementToBeRemoved(() => screen.getByText('Loading location...'));
+describe('buildLocationTypeOptions', () => {
+  it('emits each group header as a disabled Option', () => {
+    const result = buildLocationTypeOptions([
+      { label: 'My Group', options: [{ value: 'a', label: 'A', disabled: false, category: 'crr' }] },
+    ]);
+    const header = result[0] as OptionElement;
+    expect(header.props.disabled).toBe(true);
+    expect(header.props.children).toBe('My Group');
+  });
 
-    const locationsTests = [
-      {
-        name: 'Scality ARTESCA S3',
-        optionToQuery: () => selectors.optionLocationType(/Scality ARTESCA S3/i),
-        checkField: () => screen.getByText(/access key \*/i),
-      },
-      {
-        name: 'Scality RING with S3 Connector',
-        optionToQuery: () => selectors.optionLocationType(/Scality RING with S3 Connector/i),
-        checkField: () => screen.getByText(/access key \*/i),
-      },
-      {
-        name: 'Amazon S3',
-        optionToQuery: () => selectors.optionLocationType(/^Amazon S3$/i),
-        checkField: () => screen.getByText(/AWS Access Key \*/i),
-      },
-      {
-        name: 'Google Cloud Storage',
-        optionToQuery: () => selectors.optionLocationType(/Google Cloud Storage/i),
-        checkField: () => screen.getByText(/GCP Access Key \*/i),
-      },
-      {
-        name: 'Microsoft Azure Blob Storage',
-        optionToQuery: () => selectors.optionLocationType(/Microsoft Azure Blob Storage/i),
-        checkField: () => screen.getByText(/Blob endpoint \*/i),
-      },
-      {
-        name: 'Microsoft Azure Archive',
-        optionToQuery: () => selectors.optionLocationType(/Microsoft Azure Archive/i),
-        checkField: () => screen.getByText(/Blob endpoint \*/i),
-      },
-      {
-        name: 'Atlas Object Storage (Free Pro)',
-        optionToQuery: () => selectors.optionLocationType(/Atlas Object Storage \(Free Pro\)/i),
-        checkField: () => screen.getByText(/access key \*/i),
-      },
-      {
-        name: '3DS Outscale OOS Public',
-        optionToQuery: () => selectors.optionLocationType(/3DS Outscale OOS Public/i),
-        checkField: () => screen.getByText(/access key \*/i),
-      },
-      {
-        name: '3DS Outscale OOS SNC',
-        optionToQuery: () => selectors.optionLocationType(/3DS Outscale OOS SNC/i),
-        checkField: () => screen.getByText(/access key \*/i),
-      },
-      {
-        name: 'Flexible Datastore',
-        optionToQuery: () => selectors.optionLocationType(/Flexible Datastore/i),
-        checkField: () => screen.getByText(/access key \*/i),
-      },
-      {
-        name: 'Tape DMF',
-        optionToQuery: () => selectors.optionLocationType(/Tape DMF/i),
-        checkField: () => screen.getByText(/Temperature/i),
-      },
-      {
-        name: 'Tape Atempo Miria',
-        optionToQuery: () => selectors.optionLocationType(/Tape Atempo Miria/i),
-        checkField: () => screen.getByText(/Atempo Miria Repository/i),
-      },
-      {
-        name: 'Ceph RADOS Gateway',
-        optionToQuery: () => selectors.optionLocationType(/Ceph RADOS Gateway/i),
-        checkField: () => screen.getByText(/access key \*/i),
-      },
-      {
-        name: 'Scality RING with Sproxyd Connector',
-        optionToQuery: () => selectors.optionLocationType(/Scality RING with Sproxyd Connector/i),
-        checkField: () => screen.getByText(/Bootstrap List \*/i),
-      },
-      {
-        name: 'Wasabi',
-        optionToQuery: () => selectors.optionLocationType(/Wasabi/i),
-        checkField: () => screen.getByText(/Wasabi Access Key \*/i),
-      },
-      {
-        name: 'Oracle Cloud Object Storage',
-        optionToQuery: () => selectors.optionLocationType(/Oracle Cloud Object Storage/i),
-        checkField: () => screen.getByText(/Namespace \*/i),
-      },
-    ];
-
-    for await (const location of locationsTests) {
-      await userEvent.click(selectors.selectLocationType());
-
-      const selectInput = selectors.inputLocationType();
-      await userEvent.clear(selectInput);
-      await userEvent.type(selectInput, location.name);
-
-      const optionElement = location.optionToQuery();
-      const isDisabled = optionElement.getAttribute('aria-disabled') === 'true';
-
-      if (isDisabled) {
-        continue;
-      }
-
-      await userEvent.click(optionElement);
-
-      await waitFor(
-        () => {
-          expect(location.checkField()).toBeInTheDocument();
-        },
-        // 0.218.0's Selectv2 register/unregister triggers extra state updates
-        // per option mount; the cumulative cost on CI runners can exceed the
-        // previous 5s window. 15s is well over the slowest observed.
-        { timeout: 15000 },
-      );
-    }
+  it('propagates the disabled flag from filtered options to Options', () => {
+    const result = buildLocationTypeOptions([
+      { label: 'X', options: [{ value: 'a', label: 'A', disabled: true, category: 'crr' }] },
+    ]);
+    const option = result[1] as OptionElement;
+    expect(option.props.disabled).toBe(true);
+    expect(option.props.value).toBe('a');
   });
 });

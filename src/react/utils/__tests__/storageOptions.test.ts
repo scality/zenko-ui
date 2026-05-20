@@ -1,5 +1,7 @@
+import { LocationType } from '../../../js/managementClient/api';
+import { storageOptions } from '../../locations/LocationDetails';
 import { JAGUAR_S3_LOCATION_KEY, type Locations, ORANGE_S3_LOCATION_KEY } from '../../../types/config';
-import { getLocationTypeKey } from '../storageOptions';
+import { getLocationTypeKey, selectStorageOptions, selectStorageOptionsGrouped } from '../storageOptions';
 
 const location: Locations = {
   //@ts-expect-error fix this when you are working on it
@@ -70,5 +72,63 @@ describe('test getLocationTypeKey', () => {
   });
   it('should return empty string', () => {
     expect(getLocationTypeKey(location['wrong'])).toBe('');
+  });
+});
+
+describe('selectStorageOptions', () => {
+  it('excludes options marked hidden by default', () => {
+    const hiddenKey = Object.keys(storageOptions).find((k) => storageOptions[k].hidden);
+    if (!hiddenKey) throw new Error('Test fixtures lost their hidden option');
+    const result = selectStorageOptions({} as never, []);
+    expect(result.find((o) => o.value === hiddenKey)).toBeUndefined();
+  });
+
+  it('includes hidden options when exceptHidden=false', () => {
+    const hiddenKey = Object.keys(storageOptions).find((k) => storageOptions[k].hidden);
+    if (!hiddenKey) throw new Error('Test fixtures lost their hidden option');
+    const result = selectStorageOptions({} as never, [], undefined, false);
+    expect(result.find((o) => o.value === hiddenKey)).toBeDefined();
+  });
+
+  it('hides the HDClient option when one is already created', () => {
+    const result = selectStorageOptions({} as never, [
+      // biome-ignore lint/suspicious/noExplicitAny: minimal stub
+      { type: LocationType.ScalityHdclientV2 } as any,
+    ]);
+    expect(result.find((o) => o.value === 'location-scality-hdclient-v2')).toBeUndefined();
+  });
+
+  it('marks an option disabled when its required capability is missing', () => {
+    const key = Object.keys(storageOptions).find((k) => storageOptions[k].checkCapability);
+    if (!key) throw new Error('Test fixtures lost the checkCapability option');
+    const result = selectStorageOptions({} as never, []);
+    expect(result.find((o) => o.value === key)?.disabled).toBe(true);
+  });
+
+  it('marks an option enabled when its required capability is present', () => {
+    const key = Object.keys(storageOptions).find((k) => storageOptions[k].checkCapability);
+    if (!key) throw new Error('Test fixtures lost the checkCapability option');
+    const cap = storageOptions[key].checkCapability as string;
+    // biome-ignore lint/suspicious/noExplicitAny: minimal stub for the capability map
+    const result = selectStorageOptions({ [cap]: true } as any, []);
+    expect(result.find((o) => o.value === key)?.disabled).toBe(false);
+  });
+});
+
+describe('selectStorageOptionsGrouped', () => {
+  it('groups options into categories following categoryOrder', () => {
+    const result = selectStorageOptionsGrouped({} as never, []);
+    expect(result.map((g) => g.label)).toEqual([
+      'CRR Location',
+      'Scality S3 Locations',
+      'Public Cloud Locations',
+      'Cold Storage Locations',
+      'On Prem Locations',
+    ]);
+  });
+
+  it('never produces an empty category group', () => {
+    const result = selectStorageOptionsGrouped({} as never, []);
+    result.forEach((g) => expect(g.options.length).toBeGreaterThan(0));
   });
 });
