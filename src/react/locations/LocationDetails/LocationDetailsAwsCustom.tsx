@@ -163,7 +163,7 @@ export default function LocationDetailsAwsCustom({
                   value={formState.endpoint}
                   onChange={onFormItemChange}
                   autoComplete="off"
-                  placeholder="https://hosted-s3-server.internal.example.com:4443"
+                  placeholder="https://s3.example.com"
                 />
               }
               label="Endpoint"

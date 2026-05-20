@@ -40,7 +40,7 @@ export const LOCATION_EDITOR_FORCED_LABEL_WIDTH = 280;
 
 /** Endpoint field tooltip for S3 / Amazon Glacier S3 (path-style access). */
 export const S3_ENDPOINT_PATH_STYLE_TOOLTIP =
-  'Endpoint to reach the S3 server, including scheme and optional port. The buckets will have a path-style access.';
+  'Endpoint to reach the S3 server, including scheme. The buckets will have a path-style access.';
 
 /** Checkbox label for writing objects without source-bucket prefix. */
 export const WRITE_OBJECTS_WITHOUT_PREFIX_LABEL = 'Write objects without prefix';
