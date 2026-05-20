@@ -119,7 +119,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 name="bucketName"
                 id="bucketName"
                 type="text"
-                placeholder="Wasabi Target Bucket Name"
+                placeholder="Bucket Name"
                 value={this.state.bucketName}
                 onChange={this.onChange}
                 autoComplete="off"

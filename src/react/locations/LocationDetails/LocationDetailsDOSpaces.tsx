@@ -125,7 +125,7 @@ export default class LocationDetailsDOSpaces extends React.Component<LocationDet
               id="endpoint"
               name="endpoint"
               type="text"
-              placeholder="nyc3.digitaloceanspaces.com"
+              placeholder="https://nyc3.digitaloceanspaces.com"
               value={this.state.endpoint}
               onChange={this.onChange}
               autoComplete="off"
