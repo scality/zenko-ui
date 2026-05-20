@@ -42,9 +42,9 @@ const COLD_LOCATION_PLACEHOLDERS: Record<
     storageClass: 'DEEP_ARCHIVE',
   },
   'location-versity-tape-archive-v1': {
-    endpoint: 'https://your-versity-instance:443',
+    endpoint: 'https://versity-gw.my-company.com',
     region: 'your-region',
-    storageClass: '',
+    storageClass: 'your-storage-class',
   },
 };
 
@@ -310,7 +310,7 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
                 name="queue.interval"
                 id="queue.interval"
                 type="text"
-                placeholder="e.g. 5m"
+                placeholder="5m"
                 value={formState.queue.interval ?? ''}
                 onChange={onFormItemChange}
                 autoComplete="off"
@@ -329,10 +329,11 @@ const LocationDetailsColdLocation = ({ details, onChange, locationType }: Locati
                 name="queue.queueUrl"
                 id="queue.queueUrl"
                 type="text"
-                placeholder="https://sqs.region.amazonaws.com/account-id/queue-name"
+                placeholder="https://sqs.region.amazonaws.com/id/name"
                 value={formState.queue.queueUrl}
                 onChange={onFormItemChange}
                 autoComplete="off"
+                noPlaceholderPrefix
               />
             }
           />
