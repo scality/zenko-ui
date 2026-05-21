@@ -1,24 +1,28 @@
+import { joiResolver } from '@hookform/resolvers/joi';
 import { Banner, Form, FormGroup, FormSection, Icon, Loader as LoaderCoreUI, Stack } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import { useShellHooks } from '@scality/module-federation';
-import { type ChangeEvent, type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import type { LocationV1 } from '../../js/managementClient/api';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import type { LocationTypeKey } from '../../types/config';
+import type { LocationForm } from '../../types/location';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
+import type { Location as NextLocation } from '../next-architecture/domain/entities/location';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useCapabilities } from '../queries/instanceStatusQuery';
 import Loader from '../ui-elements/Loader';
 import { type GroupedStorageOption, getLocationTypeKey, selectStorageOptionsGrouped } from '../utils/storageOptions';
 import { LocationDetails, storageOptions } from './LocationDetails';
 import LocationOptions from './LocationOptions';
-import locationFormCheck from './locationFormCheck';
+import { buildLocationSchema } from './schemas';
 import {
   checkIsRingS3Reseller,
   convertToForm,
@@ -80,33 +84,39 @@ const makeLabel = (locationType: LocationTypeKey) => {
   return details.name;
 };
 
-function LocationEditor() {
+type LocationEditorFormProps = {
+  locationEditing: NextLocation | undefined;
+  locations: NextLocation[];
+  refetchLocations: (onSuccess: () => void) => void;
+};
+
+function LocationEditorForm({ locationEditing, locations, refetchLocations }: LocationEditorFormProps) {
   const navigate = useNavigate();
-  const { locationName } = useParams<{ locationName: string }>();
-  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
-  const { locationsAndEndpoints, refetchLocationsEndpointsMutation, status } =
-    useLocationsAndEndpoints({
-      locationsEndpointsAdapter,
-    });
-  const locations = locationsAndEndpoints?.locations;
-  const locationEditing = locations?.find((location) => location.name === locationName);
   const { capabilities } = useCapabilities();
   const editingExisting = !!(locationEditing && locationEditing.id);
-  const [location, setLocation] = useState(convertToForm({ ...newLocationDetails(), ...locationEditing }));
+
+  const methods = useForm<LocationForm>({
+    mode: 'onChange',
+    resolver: joiResolver(buildLocationSchema(editingExisting)),
+    //@ts-expect-error fix this when you are working on it
+    defaultValues: convertToForm(locationEditing ?? newLocationDetails()),
+  });
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isValid },
+  } = methods;
+
+  const location = watch();
+
   const selectOptionsGrouped = useMemo(() => {
+    //@ts-expect-error fix this when you are working on it
     return selectStorageOptionsGrouped(capabilities, locations, makeLabel, !editingExisting);
   }, [capabilities, editingExisting, locations]);
-  useMemo(() => {
-    if (locationEditing) {
-      setLocation(convertToForm(locationEditing));
-    }
-  }, [locationEditing]);
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    const l = { ...location, [e.target.name]: value };
-    setLocation(l);
-  };
 
   const managementClient = useManagementClient();
   const { useAuth } = useShellHooks();
@@ -140,12 +150,8 @@ function LocationEditor() {
     status: waiterStatus,
   } = useWaitForRunningConfigurationVersionToBeUpdated();
 
-  const save = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (e) {
-      e.preventDefault();
-    }
-
-    let submitLocation = { ...location };
+  const save = (values: LocationForm) => {
+    let submitLocation = { ...values };
 
     const isRingS3Reseller = checkIsRingS3Reseller(submitLocation.locationType);
 
@@ -177,15 +183,11 @@ function LocationEditor() {
     });
   };
 
-  useMemo(() => {
+  useEffect(() => {
     if (waiterStatus === 'success') {
-      refetchLocationsEndpointsMutation.mutate(undefined, {
-        onSuccess: () => {
-          navigate(-1);
-        },
-      });
+      refetchLocations(() => navigate(-1));
     }
-  }, [waiterStatus]);
+  }, [waiterStatus, refetchLocations, navigate]);
 
   const loading = createLocationMutation.isLoading || updateLocationMutation.isLoading || waiterStatus === 'waiting';
 
@@ -199,30 +201,28 @@ function LocationEditor() {
 
   const onTypeChange = (locationType: string) => {
     if (location.locationType !== locationType) {
-      const l = {
-        ...newLocationForm(),
+      const fresh = newLocationForm();
+      reset({
+        ...fresh,
         name: location.name || '',
-        locationType,
+        //@ts-expect-error fix this when you are working on it
+        locationType: locationType as LocationTypeKey,
         details: {},
-      };
-      //@ts-expect-error fix this when you are working on it
-      setLocation(l);
+      });
     }
   };
 
   const onDetailsChange = (details: unknown) => {
-    const l = { ...location, details };
-    //@ts-expect-error fix this when you are working on it
-    setLocation(l);
+    //@ts-expect-error details shape varies per locationType
+    setValue('details', details, { shouldValidate: true, shouldDirty: true });
   };
 
-  const onOptionsChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const onOptionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    const l = {
-      ...location,
-      options: { ...location.options, [e.target.name]: value },
-    };
-    setLocation(l);
+    setValue(`options.${e.target.name}` as `options.${keyof LocationForm['options']}`, value as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   const maybeShowDetails = () => {
@@ -243,7 +243,6 @@ function LocationEditor() {
     );
   };
 
-  const { disable, errorMessage: errorMessageFront } = locationFormCheck(location);
   let displayErrorMessage: string | undefined;
 
   const hasError = createLocationMutation.isError || updateLocationMutation.isError || waiterStatus === 'error';
@@ -255,13 +254,139 @@ function LocationEditor() {
     updateLocationMutation.error?.message ||
     (waiterStatus === 'error' ? 'Error while saving location' : undefined);
 
-  if (errorMessageFront) {
-    displayErrorMessage = errorMessageFront;
-  } else if (hasError && errorMessage) {
+  if (hasError && errorMessage) {
     displayErrorMessage = `Could not save: ${errorMessage}`;
   }
 
   const locationTypeKey = getLocationTypeKey(location);
+
+  return (
+    <FormProvider {...methods}>
+      <StyledForm
+        layout={{
+          kind: 'page',
+          title: `${locationEditing ? 'Edit' : 'Add New'} Storage Location`,
+        }}
+        requireMode="partial"
+        banner={
+          displayErrorMessage && (
+            <Banner icon={<Icon name="Exclamation-circle" />} title="Error" variant="danger">
+              {displayErrorMessage}
+            </Banner>
+          )
+        }
+        rightActions={
+          <Stack gap="r16">
+            <Button type="button" variant="outline" disabled={loading} onClick={cancel} label="Cancel" />
+
+            <Button
+              type="button"
+              variant="primary"
+              icon={loading ? <LoaderCoreUI size="small" /> : locationEditing && <Icon name="Save" />}
+              disabled={!isValid || loading || !isLocationExists(location.locationType)}
+              onClick={handleSubmit(save)}
+              label={loading ? 'Saving...' : locationEditing ? 'Save Changes' : 'Create'}
+            />
+          </Stack>
+        }
+      >
+        {locations && locations.length >= 6 && (
+          <Banner
+            icon={
+              <Icon
+                color={locations.length >= 10 ? 'statusCritical' : 'statusWarning'}
+                name={locations.length >= 10 ? 'Times-circle' : 'Exclamation-circle'}
+              />
+            }
+            variant={locations.length >= 10 ? 'danger' : 'warning'}
+          >
+            {locations.length >= 10
+              ? `This instance has already ${locations.length} storage locations. It is strongly recommended not to exceed 10 per platform.`
+              : `${locations.length} of 10 locations have been created on this instance. You are approaching the platform limit.`}
+          </Banner>
+        )}
+        <FormSection title={{ name: 'General' }} forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
+          <FormGroup
+            id="name"
+            content={
+              <Input
+                id="name"
+                type="text"
+                placeholder="us-west-2"
+                disabled={editingExisting}
+                autoComplete="off"
+                {...register('name')}
+              />
+            }
+            required
+            error={errors.name?.message ?? ''}
+            helpErrorPosition="bottom"
+            labelHelpTooltip={
+              <>
+                Location name that will be used in ARTESCA Data Services. It is not known to the storage provider.{' '}
+                <br /> <br />
+                Use only lowercase letters, numbers, and dashes.
+              </>
+            }
+            label="Location Name"
+          />
+
+          <FormGroup
+            id="locationType"
+            labelHelpTooltip={
+              <>
+                Each Storage location type has its own requirements.
+                <br /> <br />
+                Unlike ARTESCA local storage, all public clouds require authentication information.
+              </>
+            }
+            required
+            helpErrorPosition="bottom"
+            label="Location Type"
+            content={
+              <Controller
+                control={control}
+                name="locationType"
+                render={({ field: { value } }) => (
+                  <StyledSelect
+                    id="locationType"
+                    placeholder="Select a location type..."
+                    onChange={onTypeChange}
+                    disabled={editingExisting}
+                    //@ts-expect-error fix this when you are working on it
+                    value={getLocationTypeKey({ ...location, locationType: value }) ?? value}
+                  >
+                    {buildLocationTypeOptions(selectOptionsGrouped)}
+                  </StyledSelect>
+                )}
+              />
+            }
+          />
+        </FormSection>
+
+        {locationTypeKey && (
+          <>
+            {maybeShowDetails()}
+            <LocationOptions
+              locationType={location.locationType}
+              locationOptions={location.options}
+              onChange={onOptionsChange}
+            />
+          </>
+        )}
+      </StyledForm>
+    </FormProvider>
+  );
+}
+
+function LocationEditor() {
+  const { locationName } = useParams<{ locationName: string }>();
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { locationsAndEndpoints, refetchLocationsEndpointsMutation, status } = useLocationsAndEndpoints({
+    locationsEndpointsAdapter,
+  });
+  const locations = locationsAndEndpoints?.locations;
+  const locationEditing = locations?.find((location) => location.name === locationName);
 
   if (status === 'loading' || status === 'idle') {
     //@ts-expect-error fix this when you are working on it
@@ -269,114 +394,13 @@ function LocationEditor() {
   }
 
   return (
-    <StyledForm
-      layout={{
-        kind: 'page',
-        title: `${locationEditing ? 'Edit' : 'Add New'} Storage Location`,
-      }}
-      requireMode="partial"
-      banner={
-        displayErrorMessage && (
-          <Banner icon={<Icon name="Exclamation-circle" />} title="Error" variant="danger">
-            {displayErrorMessage}
-          </Banner>
-        )
-      }
-      rightActions={
-        <Stack gap="r16">
-          <Button type="button" variant="outline" disabled={loading} onClick={cancel} label="Cancel" />
-
-          <Button
-            type="button"
-            variant="primary"
-            icon={loading ? <LoaderCoreUI size="small" /> : locationEditing && <Icon name="Save" />}
-            disabled={disable || loading || !isLocationExists(location.locationType)}
-            onClick={save}
-            label={loading ? 'Saving...' : locationEditing ? 'Save Changes' : 'Create'}
-          />
-        </Stack>
-      }
-    >
-      {locations && locations.length >= 6 && (
-        <Banner
-          icon={
-            <Icon
-              color={locations.length >= 10 ? 'statusCritical' : 'statusWarning'}
-              name={locations.length >= 10 ? 'Times-circle' : 'Exclamation-circle'}
-            />
-          }
-          variant={locations.length >= 10 ? 'danger' : 'warning'}
-        >
-          {locations.length >= 10
-            ? `This instance has already ${locations.length} storage locations. It is strongly recommended not to exceed 10 per platform.`
-            : `${locations.length} of 10 locations have been created on this instance. You are approaching the platform limit.`}
-        </Banner>
-      )}
-      <FormSection title={{ name: 'General' }} forceLabelWidth={LOCATION_EDITOR_FORCED_LABEL_WIDTH}>
-        <FormGroup
-          id="name"
-          content={
-            <Input
-              id="name"
-              type="text"
-              name="name"
-              onChange={onChange}
-              value={location.name}
-              placeholder="us-west-2"
-              disabled={editingExisting}
-              autoComplete="off"
-            />
-          }
-          required
-          helpErrorPosition="bottom"
-          labelHelpTooltip={
-            <>
-              Location name that will be used in ARTESCA Data Services. It is not known to the storage provider. <br />{' '}
-              <br />
-              Use only lowercase letters, numbers, and dashes.
-            </>
-          }
-          label="Location Name"
-        />
-
-        <FormGroup
-          id="locationType"
-          labelHelpTooltip={
-            <>
-              Each Storage location type has its own requirements.
-              <br /> <br />
-              Unlike ARTESCA local storage, all public clouds require authentication information.
-            </>
-          }
-          required
-          helpErrorPosition="bottom"
-          label="Location Type"
-          content={
-            <StyledSelect
-              id="locationType"
-              placeholder="Select a location type..."
-              onChange={onTypeChange}
-              disabled={editingExisting}
-              //@ts-expect-error fix this when you are working on it
-              value={locationTypeKey}
-            >
-              {buildLocationTypeOptions(selectOptionsGrouped)}
-            </StyledSelect>
-          }
-        />
-      </FormSection>
-
-      {locationTypeKey && (
-        <>
-          {maybeShowDetails()}
-          <LocationOptions
-            locationType={location.locationType}
-            locationOptions={location.options}
-            onChange={onOptionsChange}
-          />
-        </>
-      )}
-    </StyledForm>
+    <LocationEditorForm
+      //@ts-expect-error locationEditing type from useLocationsAndEndpoints
+      locationEditing={locationEditing}
+      //@ts-expect-error locations type from useLocationsAndEndpoints
+      locations={locations ?? []}
+      refetchLocations={(onSuccess) => refetchLocationsEndpointsMutation.mutate(undefined, { onSuccess })}
+    />
   );
 }
 
