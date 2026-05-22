@@ -19,85 +19,6 @@ const PANEL_REGION = 'us-east-1';
 const NO_ROLE_TOOLS = new Set(['getApplicationRoutes', 'getCurrentRoute', 'navigateToRoute']);
 
 /**
- * Resolve a JSON Schema property entry to its concrete `type`, following any
- * `$ref` to the schema's local `definitions` block. AWS-generated tool
- * schemas express most complex inputs as `{ "$ref": "#/definitions/X" }`
- * (e.g. `VersioningConfiguration`, `LifecycleConfiguration`,
- * `CORSConfiguration`); without resolving the ref we'd fail to identify
- * those as object-typed and the string-coercion below would skip them.
- */
-function resolveSchemaType(
-  rootSchema: Record<string, unknown> | undefined,
-  propSchema: { type?: string | string[]; $ref?: string } | undefined,
-  depth = 0,
-): string | undefined {
-  if (!propSchema || depth > 5) return undefined;
-  if (propSchema.type) {
-    return Array.isArray(propSchema.type) ? propSchema.type[0] : propSchema.type;
-  }
-  const ref = propSchema.$ref;
-  if (typeof ref === 'string' && ref.startsWith('#/') && rootSchema) {
-    const path = ref.slice(2).split('/');
-    let target: unknown = rootSchema;
-    for (const part of path) {
-      if (target && typeof target === 'object') {
-        target = (target as Record<string, unknown>)[part];
-      } else {
-        return undefined;
-      }
-    }
-    return resolveSchemaType(rootSchema, target as never, depth + 1);
-  }
-  return undefined;
-}
-
-/**
- * Coerce values back into the type their schema declares when the LLM has
- * stringified an object/array. Gemini-class models with `dict[str, Any]`
- * structured-output frequently emit nested object/array params as JSON
- * strings (we observed `Metadata: '{"X-Amz-Meta-Test":"test"}'` instead of
- * `Metadata: {"X-Amz-Meta-Test":"test"}` across many retries — every
- * putObject silently dropped the metadata because the SDK forwarded the
- * string verbatim). We walk the tool's declared inputSchema and JSON-parse
- * any string supplied for an object/array property.
- *
- * Returns the (possibly mutated) args object plus a list of fields we had
- * to repair so the next debug session can see whether the LLM is still
- * shipping stringified payloads.
- */
-function normalizeStringifiedSchemaArgs(
-  args: Record<string, unknown>,
-  inputSchema: Record<string, unknown> | undefined,
-): { args: Record<string, unknown>; repaired: string[] } {
-  const properties = (inputSchema as { properties?: Record<string, { type?: string | string[]; $ref?: string }> } | undefined)
-    ?.properties;
-  if (!properties) return { args, repaired: [] };
-
-  const repaired: string[] = [];
-  const out: Record<string, unknown> = { ...args };
-  for (const [key, value] of Object.entries(args)) {
-    const resolvedType = resolveSchemaType(inputSchema, properties[key]);
-    const wantsStructured = resolvedType === 'object' || resolvedType === 'array';
-    if (!wantsStructured || typeof value !== 'string') continue;
-
-    const trimmed = value.trim();
-    const looksLikeJson =
-      (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
-      (trimmed.startsWith('[') && trimmed.endsWith(']'));
-    if (!looksLikeJson) continue;
-
-    try {
-      out[key] = JSON.parse(trimmed);
-      repaired.push(key);
-    } catch {
-      // Leave the original string in place — the SDK will surface a clearer
-      // error than a malformed parse here would.
-    }
-  }
-  return { args: out, repaired };
-}
-
-/**
  * Resolve the basePath the data-browser library must prepend before calling
  * shell-ui's navigate function. Shell-ui hands `createTools` its top-level
  * `useNavigate()` (no app basename), so a bare `navigate('/buckets/test')`
@@ -258,25 +179,15 @@ export function createZenkoS3Tools(
         args: Record<string, unknown> & { context: unknown },
         client: unknown,
       ) => {
-        const { roleArn, context: _injected, ...rawS3Params } = args as {
+        // Stringified object/array params (Gemini `dict[str, Any]` lapses)
+        // are repaired inside @scality/data-browser-library's createS3Tools
+        // wrapper before this execute runs, so `args` already has structured
+        // values where the schema says it should.
+        const { roleArn, context: _injected, ...s3Params } = args as {
           roleArn: string;
           context: unknown;
           [key: string]: unknown;
         };
-
-        // LLM lapses sometimes ship object/array params as JSON strings (most
-        // commonly `Metadata` on putObject). Repair them before forwarding to
-        // the SDK so the request actually carries the metadata headers.
-        const { args: s3Params, repaired } = normalizeStringifiedSchemaArgs(
-          rawS3Params,
-          tool.inputSchema as Record<string, unknown>,
-        );
-        if (repaired.length > 0) {
-          console.debug(
-            '[createZenkoS3Tools] %s: parsed stringified args back into objects: %o',
-            tool.name, repaired,
-          );
-        }
 
         const token = await ctx.getToken();
         if (!token) throw new Error('No auth token available — user may not be logged in.');
