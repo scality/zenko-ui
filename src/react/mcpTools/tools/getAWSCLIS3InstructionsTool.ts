@@ -3,7 +3,7 @@ import { buildZenkoContext, ToolContext } from '../types';
 export const getAWSCLIS3InstructionsTool = {
   name: 'getAWSCLIS3Instructions',
   description:
-    'Returns ready-to-run AWS CLI commands to interact with ARTESCA S3-compatible object storage. ' +
+    'Returns ready-to-run AWS CLI commands to interact with S3-compatible object storage. ' +
     'Requires credentials — call getCredentialsInstructions with a roleArn first.',
   inputSchema: {
     type: 'object',

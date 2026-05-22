@@ -4,7 +4,7 @@ import { buildZenkoContext, extractInstanceId, ToolContext } from '../types';
 export const createAccountTool = {
   name: 'createAccount',
   description:
-    'Creates a new ARTESCA account with a unique name and a root email address. Returns the created account ID.',
+    'Creates a new account with a unique name and a root email address. Returns the created account ID.',
   inputSchema: {
     type: 'object',
     properties: {

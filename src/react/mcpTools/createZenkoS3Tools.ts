@@ -155,7 +155,7 @@ function deriveHostBasePath(
 }
 
 /**
- * Builds the full set of data-browser S3 tools adapted for the Zenko/ARTESCA context:
+ * Builds the full set of data-browser S3 tools adapted for the Zenkocontext:
  *
  * - Every S3 operation tool gets `roleArn` added as a required input parameter.
  *   The execute wrapper resolves temporary STS credentials for that role before

@@ -3,7 +3,7 @@ import { buildZenkoContext, ToolContext } from '../types';
 export const getAWSCLIIamInstructionsTool = {
   name: 'getAWSCLIIamInstructions',
   description:
-    'Returns ready-to-run AWS CLI commands to manage IAM users, access keys, and policies on ARTESCA. ' +
+    'Returns ready-to-run AWS CLI commands to manage IAM users, access keys, and policies. ' +
     'Requires credentials — call getCredentialsInstructions with a roleArn first.',
   inputSchema: {
     type: 'object',
