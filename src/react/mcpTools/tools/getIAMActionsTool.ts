@@ -39,6 +39,9 @@ export const getIAMActionsTool = {
     properties: {},
     required: [],
   },
+  annotations: {
+    readOnlyHint: true,
+  },
   execute: async (_params: { context: ToolContext }, _client: unknown) => {
     return IAM_ACTIONS;
   },
