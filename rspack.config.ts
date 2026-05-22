@@ -139,6 +139,7 @@ const config: Configuration = {
         './WelcomeModal': './src/react/ISV/components/Modal/WelcomeModal.tsx',
         './ISVConnectorModal': './src/react/ISV/components/Modal/ISVConnectorModal.tsx',
         './SelectAccountIAMRole': './src/react/ui-elements/SelectAccountIAMRole.tsx',
+        './MCPTools': './src/react/mcpTools/index.ts',
       },
       remotes: !isProduction
         ? {
