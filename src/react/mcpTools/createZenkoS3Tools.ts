@@ -19,45 +19,6 @@ const PANEL_REGION = 'us-east-1';
 const NO_ROLE_TOOLS = new Set(['getApplicationRoutes', 'getCurrentRoute', 'navigateToRoute']);
 
 /**
- * Resolve the basePath the data-browser library must prepend before calling
- * shell-ui's navigate function. Shell-ui hands `createTools` its top-level
- * `useNavigate()` (no app basename), so a bare `navigate('/buckets/test')`
- * lands on the shell root and falls back to `/`.
- *
- * Mirrors the formula zenko-ui uses internally for DataBrowserUI's basename
- * (see `src/react/databrowser/DataBrowser.tsx`):
- *
- *     `${selfConfiguration.basePath}/accounts/${accountName}`
- *
- * `selfConfiguration.basePath` is the host's mount prefix in deployed
- * ARTESCA (zenko-ui-operator templates `BasePath = /data`); locally in
- * standalone dev it's empty, in which case the prefix collapses to just
- * `/accounts/<name>` which is correct for that environment. We do NOT also
- * consult `/shell/deployed-ui-apps.json` (`appHistoryBasePath`) — that
- * registry advertises the same value and combining the two double-prefixes
- * the URL (a bug we shipped in a previous iteration: `/data/data/...`).
- *
- * Account name is runtime user state, not config, so we accept it from
- * either an explicit `accountName` arg on the tool call (preferred — the
- * agent already has it from `getAssumableRoles`) or fall back to the
- * `/accounts/<name>/` segment of the current URL when the user is already
- * browsing inside an account.
- */
-/**
- * Coerce values back into the type their schema declares when the LLM has
- * stringified an object/array. Gemini-class models with `dict[str, Any]`
- * structured-output frequently emit nested object/array params as JSON
- * strings (we observed `Metadata: '{"X-Amz-Meta-Test":"test"}'` instead of
- * `Metadata: {"X-Amz-Meta-Test":"test"}` across many retries — every
- * putObject silently dropped the metadata because the SDK forwarded the
- * string verbatim). We walk the tool's declared inputSchema and JSON-parse
- * any string supplied for an object/array property.
- *
- * Returns the (possibly mutated) args object plus a list of fields we had
- * to repair so the next debug session can see whether the LLM is still
- * shipping stringified payloads.
- */
-/**
  * Resolve a JSON Schema property entry to its concrete `type`, following any
  * `$ref` to the schema's local `definitions` block. AWS-generated tool
  * schemas express most complex inputs as `{ "$ref": "#/definitions/X" }`
@@ -90,6 +51,20 @@ function resolveSchemaType(
   return undefined;
 }
 
+/**
+ * Coerce values back into the type their schema declares when the LLM has
+ * stringified an object/array. Gemini-class models with `dict[str, Any]`
+ * structured-output frequently emit nested object/array params as JSON
+ * strings (we observed `Metadata: '{"X-Amz-Meta-Test":"test"}'` instead of
+ * `Metadata: {"X-Amz-Meta-Test":"test"}` across many retries — every
+ * putObject silently dropped the metadata because the SDK forwarded the
+ * string verbatim). We walk the tool's declared inputSchema and JSON-parse
+ * any string supplied for an object/array property.
+ *
+ * Returns the (possibly mutated) args object plus a list of fields we had
+ * to repair so the next debug session can see whether the LLM is still
+ * shipping stringified payloads.
+ */
 function normalizeStringifiedSchemaArgs(
   args: Record<string, unknown>,
   inputSchema: Record<string, unknown> | undefined,
@@ -122,6 +97,31 @@ function normalizeStringifiedSchemaArgs(
   return { args: out, repaired };
 }
 
+/**
+ * Resolve the basePath the data-browser library must prepend before calling
+ * shell-ui's navigate function. Shell-ui hands `createTools` its top-level
+ * `useNavigate()` (no app basename), so a bare `navigate('/buckets/test')`
+ * lands on the shell root and falls back to `/`.
+ *
+ * Mirrors the formula zenko-ui uses internally for DataBrowserUI's basename
+ * (see `src/react/databrowser/DataBrowser.tsx`):
+ *
+ *     `${selfConfiguration.basePath}/accounts/${accountName}`
+ *
+ * `selfConfiguration.basePath` is the host's mount prefix in deployed
+ * ARTESCA (zenko-ui-operator templates `BasePath = /data`); locally in
+ * standalone dev it's empty, in which case the prefix collapses to just
+ * `/accounts/<name>` which is correct for that environment. We do NOT also
+ * consult `/shell/deployed-ui-apps.json` (`appHistoryBasePath`) — that
+ * registry advertises the same value and combining the two double-prefixes
+ * the URL (a bug we shipped in a previous iteration: `/data/data/...`).
+ *
+ * Account name is runtime user state, not config, so we accept it from
+ * either an explicit `accountName` arg on the tool call (preferred — the
+ * agent already has it from `getAssumableRoles`) or fall back to the
+ * `/accounts/<name>/` segment of the current URL when the user is already
+ * browsing inside an account.
+ */
 function deriveHostBasePath(
   zenkoBasePath: string,
   options: {
