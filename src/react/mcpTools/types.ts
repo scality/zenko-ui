@@ -30,7 +30,7 @@ export type ZenkoSelfConfiguration = {
   iamEndpoint: string;
   stsEndpoint: string;
   zenkoEndpoint: string;
-  // Internal cluster-local hostname the ARTESCA ingress rewrites Host to before
+  // Internal cluster-local hostname the ingress rewrites Host to before
   // forwarding /zenko/s3/* to cloudserver. Required for SigV4 to validate at
   // the backend — see createZenkoS3Tools and the v2 monkey-patch in
   // src/react/utils/index.ts (initializeAWSSigner).
