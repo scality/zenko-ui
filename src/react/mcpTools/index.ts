@@ -1,11 +1,9 @@
 import { createZenkoS3Tools } from './createZenkoS3Tools';
 import { createAccountTool } from './tools/createAccountTool';
-import { executeIAMActionTool } from './tools/executeIAMActionTool';
 import { getAssumableRolesTool } from './tools/getAssumableRolesTool';
 import { getAWSCLIIamInstructionsTool } from './tools/getAWSCLIIamInstructionsTool';
 import { getAWSCLIS3InstructionsTool } from './tools/getAWSCLIS3InstructionsTool';
 import { getCredentialsInstructionsTool } from './tools/getCredentialsInstructionsTool';
-import { getIAMActionsTool } from './tools/getIAMActionsTool';
 import { buildZenkoContext, type ToolContext } from './types';
 
 /**
@@ -49,8 +47,6 @@ export function createTools(
     bake(getCredentialsInstructionsTool),
     bake(getAWSCLIS3InstructionsTool),
     bake(getAWSCLIIamInstructionsTool),
-    bake(getIAMActionsTool),
-    bake(executeIAMActionTool),
     // data-browser S3 tools adapted for Zenko: each gains a roleArn param
     // and resolves STS credentials at call time via createZenkoS3Tools.
     // Per-tool cache invalidation is emitted by the data-browser codegen
