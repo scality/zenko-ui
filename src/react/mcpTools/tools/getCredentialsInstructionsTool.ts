@@ -3,8 +3,9 @@ import { buildZenkoContext, ToolContext } from '../types';
 export const getCredentialsInstructionsTool = {
   name: 'getCredentialsInstructions',
   description:
-    'Returns a ready-to-run AWS CLI command to obtain temporary S3/IAM credentials via STS AssumeRoleWithWebIdentity. ' +
-    'Call getAssumableRoles first to get a valid roleArn.',
+    'Returns a shell snippet to obtain temporary S3/IAM credentials via STS AssumeRoleWithWebIdentity. ' +
+    "The snippet fetches an OIDC token locally via curl so the user's live bearer token never leaves " +
+    'their shell or enters the chat context. Call getAssumableRoles first to get a valid roleArn.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -23,19 +24,42 @@ export const getCredentialsInstructionsTool = {
     _client: unknown,
   ) => {
     const ctx = buildZenkoContext(params.context);
-    const token = await ctx.getToken();
+
+    const fetchTokenSnippet = [
+      '# Fill in your OIDC credentials below. The token stays in your shell —',
+      '# do not paste $TOKEN or the assume-role JSON output back into chat.',
+      `OIDC_URL='${window.location.origin}'`,
+      "OIDC_REALM='artesca'",
+      "OIDC_CLIENT_ID='zenko-ui'",
+      "OIDC_USER='<username>'",
+      'read -rs -p "OIDC password: " OIDC_USER_PASSWORD; echo',
+      '',
+      'TOKEN=$(',
+      '    curl -s -k "${OIDC_URL}/auth/realms/${OIDC_REALM}/protocol/openid-connect/token" \\',
+      '        -d "client_id=${OIDC_CLIENT_ID}" \\',
+      '        -d "username=${OIDC_USER}" \\',
+      '        -d "password=${OIDC_USER_PASSWORD}" \\',
+      '        -d "scope=openid" \\',
+      '        -d "grant_type=password" | \\',
+      "        jq -cr '.access_token'",
+      ')',
+    ].join('\n');
+
+    const assumeRoleSnippet = [
+      'aws sts assume-role-with-web-identity',
+      `  --endpoint-url ${ctx.stsEndpoint}`,
+      `  --role-arn "${params.roleArn}"`,
+      '  --web-identity-token "$TOKEN"',
+      '  --role-session-name mcp-session',
+      '  --no-verify-ssl',
+    ].join(' \\\n');
 
     return {
       description:
-        'Run the following AWS CLI command to obtain temporary credentials, then export them as shown.',
-      assumeRoleCommand: [
-        'aws sts assume-role-with-web-identity',
-        `  --endpoint-url ${ctx.stsEndpoint}`,
-        `  --role-arn "${params.roleArn}"`,
-        `  --web-identity-token "${token}"`,
-        '  --role-session-name mcp-session',
-        '  --no-verify-ssl',
-      ].join(' \\\n'),
+        'Run the snippet below in your terminal to obtain temporary credentials. ' +
+        'The OIDC bearer token is fetched locally via curl and never sent back to the chat. ' +
+        'Then export the credentials from the JSON output as shown.',
+      assumeRoleCommand: `${fetchTokenSnippet}\n\n${assumeRoleSnippet}`,
       exportCredentials: [
         '# From the JSON output of the command above:',
         'export AWS_ACCESS_KEY_ID=<Credentials.AccessKeyId>',
