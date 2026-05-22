@@ -117,7 +117,7 @@ export function createZenkoS3Tools(
               accountName: {
                 type: 'string',
                 description:
-                  'ARTESCA account whose data-browser the navigation targets ' +
+                  'Account whose data-browser the navigation targets ' +
                   '(use the `Name` from `getAssumableRoles`). Optional only when ' +
                   'the user is already on an /accounts/<name>/ page.',
               },
