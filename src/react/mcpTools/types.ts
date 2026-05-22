@@ -57,7 +57,10 @@ export function buildZenkoContext(context: ToolContext): ZenkoToolContext {
  */
 export function extractInstanceId(token: string): string {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    // JWT payloads are base64url-encoded (RFC 7515): `-`/`_` instead of `+`/`/`,
+    // and no padding. atob() only accepts standard base64, so normalize first.
+    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(b64));
     const instanceIds = payload.instanceIds;
     if (Array.isArray(instanceIds) && instanceIds.length > 0) {
       return instanceIds[0];

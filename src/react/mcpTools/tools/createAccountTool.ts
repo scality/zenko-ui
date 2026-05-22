@@ -1,4 +1,5 @@
 import { createAccountCore } from '../../../js/accountActions';
+import makeMgtClient from '../../../js/managementClient';
 import { buildZenkoContext, extractInstanceId, ToolContext } from '../types';
 
 export const createAccountTool = {
@@ -28,7 +29,8 @@ export const createAccountTool = {
     if (!token)
       throw new Error('No auth token available — user may not be logged in.');
     const instanceId = extractInstanceId(token);
-    const result = await createAccountCore(ctx.managementEndpoint, token, {
+    const client = makeMgtClient(ctx.managementEndpoint, token);
+    const result = await createAccountCore(client, {
       userName: params.name,
       email: params.email,
       instanceId,

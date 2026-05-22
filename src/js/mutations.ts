@@ -9,6 +9,7 @@ import { useDeployedMetalk8sInstances } from '../react/next-architecture/ui/Conf
 import { getPolicyInfoQuery } from '../react/queries';
 import type { ApiError } from '../types/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
+import { createAccountCore } from './accountActions';
 import type { EndpointV1 } from './managementClient/api';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
@@ -105,33 +106,13 @@ const useCreateAccountMutation = () => {
   const { getToken } = useAuth();
   return useMutation({
     mutationFn: async ({ user, instanceId }: { user: { userName: string; email: string }; instanceId: string }) => {
-      user.email = user.email.replace(/ /g, '-');
       const client = notFalsyTypeGuard(managementClient);
       client.setToken(await getToken());
-      const params = {
-        uuid: instanceId,
-        user,
-      };
-      return notFalsyTypeGuard(client)
-        .createConfigurationOverlayUser(params.user, params.uuid)
-        .then((res) => {
-          const key = 'createAccount';
-          const responseWithKey = {
-            ...res,
-            key,
-          };
-          return responseWithKey;
-        })
-        .catch(async (error: Response) => {
-          if (error.status === 409) {
-            throw {
-              message: 'An account with the same name or email already exists',
-            };
-          }
-          throw {
-            message: 'An error occurred while creating the account',
-          };
-        });
+      return createAccountCore(client, {
+        userName: user.userName,
+        email: user.email,
+        instanceId,
+      });
     },
   });
 };

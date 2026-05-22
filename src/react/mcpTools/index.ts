@@ -31,9 +31,12 @@ export function createTools(
   // shell-ui's createTools API does NOT inject ToolContext into params at call
   // time, so we bake zenkoContext (which carries the shared queryClient) into
   // each tool's execute closure here.
-  function bake<T extends { name: string; execute: (args: any, client: unknown) => Promise<unknown> }>(
-    tool: T,
-  ): T {
+  function bake<
+    T extends {
+      name: string;
+      execute: (args: Record<string, unknown>, client: unknown) => Promise<unknown>;
+    },
+  >(tool: T): T {
     return {
       ...tool,
       execute: (args: Record<string, unknown>, client: unknown) =>

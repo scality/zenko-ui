@@ -32,6 +32,14 @@ export async function getCredentials(
     RoleSessionName: sessionName,
   });
 
+  // Drop entries that are already past the freshness window so the Map
+  // stays bounded by the number of *live* roles, not the lifetime tally.
+  // O(n) but only runs on a cache miss, which is rare.
+  const now = Date.now();
+  for (const [arn, c] of cache) {
+    if (c.Expiration.getTime() - now <= EXPIRY_BUFFER_MS) cache.delete(arn);
+  }
+
   const entry: CachedCredentials = {
     AccessKeyId: Credentials.AccessKeyId,
     SecretAccessKey: Credentials.SecretAccessKey,

@@ -1,15 +1,14 @@
-import makeMgtClient from './managementClient';
+import type { UiFacingApiWrapper } from './managementClient';
 
 /**
- * Pure async function extracted from useCreateAccountMutation.
- * Can be called from both React Query mutation hooks and MCP tools.
+ * Pure async function shared by useCreateAccountMutation and the MCP
+ * createAccount tool. Caller is responsible for building (and, where
+ * relevant, re-tokenizing) the management client before invoking.
  */
 export async function createAccountCore(
-  managementEndpoint: string,
-  token: string,
+  client: UiFacingApiWrapper,
   params: { userName: string; email: string; instanceId: string },
 ) {
-  const client = makeMgtClient(managementEndpoint, token);
   const email = params.email.replace(/ /g, '-');
 
   return client

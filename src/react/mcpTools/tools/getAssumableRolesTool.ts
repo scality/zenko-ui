@@ -34,8 +34,9 @@ export const getAssumableRolesTool = {
     const result = await getRolesForWebIdentity(ctx.iamEndpoint, token, params.marker);
     // Cache the account list so other MCP tool wrappers can resolve
     // `roleArn → account Name` for navigation post-S3 operations and for
-    // navigateToRoute fallbacks (see ../accountsCache.ts).
-    setAssumableAccounts(result);
+    // navigateToRoute fallbacks (see ../accountsCache.ts). First page
+    // (no marker) resets the cache; subsequent pages merge in.
+    setAssumableAccounts(result, { reset: !params.marker });
     return result;
   },
 };
