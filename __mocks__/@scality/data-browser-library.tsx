@@ -17,6 +17,14 @@ export const DataBrowserProvider = ({
   return <>{children}</>;
 };
 
+export const DataBrowserUI = ({
+  children,
+}: {
+  children?: React.ReactNode;
+}) => {
+  return <>{children}</>;
+};
+
 export const useCreateBucket = jest.fn(() => ({
   mutate: jest.fn(),
   mutateAsync: jest.fn(),
@@ -77,6 +85,30 @@ export const useGetBucketLocation = jest.fn(() => ({
 }));
 
 export const useGetObject = jest.fn(() => ({
+  data: undefined,
+  status: 'idle',
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+  error: null,
+  refetch: jest.fn(),
+}));
+
+export const useBuckets = jest.fn(() => ({
+  data: [],
+  status: 'success',
+  isLoading: false,
+  isSuccess: true,
+  isError: false,
+  error: null,
+  refetch: jest.fn(),
+}));
+
+export const useBucketOverviewContext = jest.fn(() => ({
+  bucketName: '',
+}));
+
+export const useListObjects = jest.fn(() => ({
   data: undefined,
   status: 'idle',
   isLoading: false,
