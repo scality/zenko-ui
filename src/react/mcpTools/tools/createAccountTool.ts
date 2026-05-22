@@ -25,6 +25,8 @@ export const createAccountTool = {
   ) => {
     const ctx = buildZenkoContext(params.context);
     const token = await ctx.getToken();
+    if (!token)
+      throw new Error('No auth token available — user may not be logged in.');
     const instanceId = extractInstanceId(token);
     const result = await createAccountCore(ctx.managementEndpoint, token, {
       userName: params.name,

@@ -29,6 +29,8 @@ export const getAssumableRolesTool = {
   ) => {
     const ctx = buildZenkoContext(params.context);
     const token = await ctx.getToken();
+    if (!token)
+      throw new Error('No auth token available — user may not be logged in.');
     const result = await getRolesForWebIdentity(ctx.iamEndpoint, token, params.marker);
     // Cache the account list so other MCP tool wrappers can resolve
     // `roleArn → account Name` for navigation post-S3 operations and for

@@ -33,7 +33,7 @@ export const getAWSCLIS3InstructionsTool = {
           `aws s3 cp <local-file> s3://<bucket-name>/<key> ${flags}`,
         downloadFile:
           `aws s3 cp s3://<bucket-name>/<key> <local-path> ${flags}`,
-        deletObject:
+        deleteObject:
           `aws s3 rm s3://<bucket-name>/<key> ${flags}`,
         createBucket:
           `aws s3 mb s3://<bucket-name> ${flags}`,
