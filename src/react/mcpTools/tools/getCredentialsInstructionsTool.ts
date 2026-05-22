@@ -1,5 +1,24 @@
 import { buildZenkoContext, ToolContext } from '../types';
 
+// oidc-client-js stores the active session under a key shaped like
+// `oidc.user:<authority>:<client_id>`, where `<authority>` ends in
+// `/auth/realms/<REALM>`. Parse the key to recover both at runtime so
+// the snippet matches whatever realm/client the UI was configured with.
+const discoverOidcConfig = (): { realm: string; clientId: string } => {
+  const fallback = { realm: 'artesca', clientId: 'zenko-ui' };
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key?.startsWith('oidc.user:')) continue;
+      const match = key.match(/\/auth\/realms\/([^/:]+):([^:]+)$/);
+      if (match) return { realm: match[1], clientId: match[2] };
+    }
+  } catch {
+    // localStorage unavailable (e.g. SSR) — fall through
+  }
+  return fallback;
+};
+
 export const getCredentialsInstructionsTool = {
   name: 'getCredentialsInstructions',
   description:
@@ -24,13 +43,14 @@ export const getCredentialsInstructionsTool = {
     _client: unknown,
   ) => {
     const ctx = buildZenkoContext(params.context);
+    const { realm, clientId } = discoverOidcConfig();
 
     const fetchTokenSnippet = [
       '# Fill in your OIDC credentials below. The token stays in your shell —',
       '# do not paste $TOKEN or the assume-role JSON output back into chat.',
       `OIDC_URL='${window.location.origin}'`,
-      "OIDC_REALM='artesca'",
-      "OIDC_CLIENT_ID='zenko-ui'",
+      `OIDC_REALM='${realm}'`,
+      `OIDC_CLIENT_ID='${clientId}'`,
       "OIDC_USER='<username>'",
       'read -rs -p "OIDC password: " OIDC_USER_PASSWORD; echo',
       '',
