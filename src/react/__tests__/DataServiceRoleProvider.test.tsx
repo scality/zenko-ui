@@ -1,7 +1,7 @@
 import { render, screen, waitFor, renderHook } from '@testing-library/react';
 import { QueryClient } from 'react-query';
 import { QueryClientProvider } from '../../QueryClientProvider';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
 import * as hooks from '../utils/hooks';
@@ -324,5 +324,39 @@ describe('DataServiceRoleProvider', () => {
       enabled: true,
     });
     expect(queryConfig.refetchInterval).toBeGreaterThan(0);
+  });
+
+  it('shows Loader and not children when accountName URL param is set but roleArn is still empty', async () => {
+    // When accountName is present in the URL but accounts haven't loaded yet,
+    // role.roleArn stays empty and the provider should render Loader instead of children.
+    jest.spyOn(hooks, 'useAccounts').mockReturnValue({
+      accounts: [],
+    } as any);
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <MemoryRouter initialEntries={['/accounts/my-account/details']}>
+            <Routes>
+              <Route
+                path="/accounts/:accountName/details"
+                element={
+                  <DataServiceRoleProvider>
+                    <div data-testid="child-content">Children</div>
+                  </DataServiceRoleProvider>
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </ThemeProvider>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 });

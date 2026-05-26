@@ -2,7 +2,15 @@ import { Stepper } from '@scality/core-ui';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes, useParams } from 'react-router';
+import { MemoryRouter } from 'react-router';
+import { QueryClient } from 'react-query';
+import { ThemeProvider } from 'styled-components';
 import { mockComponent, mockShellHooks, renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
+import { theme, TEST_ROLE_ARN } from '../../../utils/testUtil';
+import * as hooks from '../../../utils/hooks';
+import * as DSRProvider from '../../../DataServiceRoleProvider';
+import { QueryClientProvider } from '../../../QueryClientProvider';
+import * as useGetS3ServicePointModule from '../../hooks/useGetS3ServicePoint';
 import {
   VEEAM_BACKUP_REPLICATION,
   VEEAM_DEFAULT_ACCOUNT_NAME,
@@ -18,8 +26,6 @@ import { DEFAULT_REGION, ISVSummary, type ISVSummaryProps } from '../ISVSummary'
 const useAuth = mockShellHooks.useAuth;
 const useDeployedApps = mockShellHooks.useDeployedApps;
 const useConfigRetriever = mockShellHooks.useConfigRetriever;
-
-import * as useGetS3ServicePointModule from '../../hooks/useGetS3ServicePoint';
 
 jest.spyOn(useGetS3ServicePointModule, 'useGetS3ServicePoint').mockReturnValue({
   s3ServicePoint: 's3.test.local',
@@ -96,6 +102,8 @@ const SUMMARY_TITLE = (platformName) => /preparation summary/;
 
 jest.setTimeout(10000);
 const platformName = 'Veeam';
+
+const VEEAM_ROLE_ARN = 'arn:aws:iam::111111111111:role/scality-internal/storage-manager-role';
 
 describe('ISVSummary', () => {
   let writeTextSpy: jest.SpyInstance;
@@ -355,6 +363,154 @@ describe('ISVSummary', () => {
     });
     expect(screen.getByText(/Bucket Name: bucket-name/i)).toBeInTheDocument();
     //V
+  });
+
+  describe('pre-warm role on Finish', () => {
+    const mockSetRolePromise = jest.fn();
+
+    function createWrapperWithSetRolePromise(setRolePromiseFn: jest.Mock) {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+      });
+
+      return function WrapperWithSetRolePromise({ children }: { children: React.ReactNode }) {
+        return (
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider theme={theme}>
+              <MemoryRouter>
+                <DSRProvider._DataServiceRoleContext.Provider
+                  //@ts-expect-error providing only the fields needed for this test
+                  value={{ role: { roleArn: TEST_ROLE_ARN }, setRole: jest.fn(), setRolePromise: setRolePromiseFn }}
+                >
+                  {children}
+                </DSRProvider._DataServiceRoleContext.Provider>
+              </MemoryRouter>
+            </ThemeProvider>
+          </QueryClientProvider>
+        );
+      };
+    }
+
+    beforeEach(() => {
+      mockSetRolePromise.mockReset();
+      jest.spyOn(hooks, 'useAccounts').mockReturnValue({
+        accounts: [
+          {
+            Name: VEEAM_DEFAULT_ACCOUNT_NAME,
+            id: '111111111111',
+            Roles: [{ Name: 'storage-manager-role', Arn: VEEAM_ROLE_ARN }],
+          },
+        ],
+      } as any);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('calls setRolePromise with the correct roleArn before navigating on Finish', async () => {
+      mockSetRolePromise.mockResolvedValue({});
+
+      const ExpectedComponent = () => {
+        const { accountName, bucketName } = useParams();
+        return (
+          <>
+            <div>Account Name: {accountName}</div>
+            <div>Bucket Name: {bucketName}</div>
+          </>
+        );
+      };
+
+      const WrapperWithSetRolePromise = createWrapperWithSetRolePromise(mockSetRolePromise);
+
+      render(
+        <WrapperWithSetRolePromise>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ISVStepperContext.Provider value={mockStepperContext}>
+                  <Stepper
+                    steps={[
+                      {
+                        label: 'Summary',
+                        Component: ({ children }: { children: React.ReactNode }) => {
+                          return <ISVSummary {...mockSummaryProps} />;
+                        },
+                      },
+                    ]}
+                  />
+                </ISVStepperContext.Provider>
+              }
+            />
+            <Route path="/accounts/:accountName/buckets/:bucketName" element={<ExpectedComponent />} />
+          </Routes>
+        </WrapperWithSetRolePromise>,
+      );
+
+      const finishButton = screen.getByRole('button', { name: /Finish/i });
+      await userEvent.click(finishButton);
+
+      await waitFor(() => {
+        expect(mockSetRolePromise).toHaveBeenCalledWith({ roleArn: VEEAM_ROLE_ARN });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/Account Name: Veeam/i)).toBeInTheDocument();
+      });
+    });
+
+    it('navigates even when setRolePromise rejects', async () => {
+      mockSetRolePromise.mockRejectedValue(new Error('STS failure'));
+
+      const ExpectedComponent = () => {
+        const { accountName, bucketName } = useParams();
+        return (
+          <>
+            <div>Account Name: {accountName}</div>
+            <div>Bucket Name: {bucketName}</div>
+          </>
+        );
+      };
+
+      const WrapperWithSetRolePromise = createWrapperWithSetRolePromise(mockSetRolePromise);
+
+      render(
+        <WrapperWithSetRolePromise>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ISVStepperContext.Provider value={mockStepperContext}>
+                  <Stepper
+                    steps={[
+                      {
+                        label: 'Summary',
+                        Component: ({ children }: { children: React.ReactNode }) => {
+                          return <ISVSummary {...mockSummaryProps} />;
+                        },
+                      },
+                    ]}
+                  />
+                </ISVStepperContext.Provider>
+              }
+            />
+            <Route path="/accounts/:accountName/buckets/:bucketName" element={<ExpectedComponent />} />
+          </Routes>
+        </WrapperWithSetRolePromise>,
+      );
+
+      const finishButton = screen.getByRole('button', { name: /Finish/i });
+      await userEvent.click(finishButton);
+
+      await waitFor(() => {
+        expect(mockSetRolePromise).toHaveBeenCalledWith({ roleArn: VEEAM_ROLE_ARN });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/Account Name: Veeam/i)).toBeInTheDocument();
+      });
+    });
   });
 
   describe('Certificate button', () => {
