@@ -6,7 +6,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import { useCurrentAccount, useDataServiceRole, useSetAssumedRolePromise } from '../DataServiceRoleProvider';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { AccountSelectorButton } from '../ui-elements/Table';
-import { regexArn, SCALITY_INTERNAL_ROLES, STORAGE_MANAGER_ROLE, useAccounts } from '../utils/hooks';
+import { regexArn, SCALITY_INTERNAL_ROLES, STORAGE_MANAGER_ROLE, STORAGE_USAGE_CONSUMER_ROLE, useAccounts } from '../utils/hooks';
 
 function AccountRoleList({ accountsWithRoles, onRowSelected }) {
   const { roleArn } = useDataServiceRole();
@@ -28,7 +28,21 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
         marginRight: '10rem',
       },
       Cell({ value: roleName }: { value: string }) {
-        if (SCALITY_INTERNAL_ROLES.includes(roleName)) {
+        if (roleName === STORAGE_USAGE_CONSUMER_ROLE) {
+          return (
+            <Stack gap="r8">
+              {roleName}
+              <Tooltip
+                overlay={'This role has limited access to some UI sections'}
+                overlayStyle={{
+                  width: '14rem',
+                }}
+              >
+                <Icon name="Exclamation-circle" color="statusWarning" ariaLabel="Exclamation-circle" />
+              </Tooltip>
+            </Stack>
+          );
+        } else if (SCALITY_INTERNAL_ROLES.includes(roleName)) {
           return (
             <Stack gap="r8">
               {roleName}
@@ -38,12 +52,24 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
                   width: '12rem',
                 }}
               >
-                <Icon name="Info" color="buttonSecondary" />
+                <Icon name="Info" color="buttonSecondary" ariaLabel="Info" />
               </Tooltip>
             </Stack>
           );
         } else {
-          return <>{roleName}</>;
+          return (
+            <Stack gap="r8">
+              {roleName}
+              <Tooltip
+                overlay={"Some UI sections may not be available depending on this role's permissions"}
+                overlayStyle={{
+                  width: '14rem',
+                }}
+              >
+                <Icon name="Info" color="buttonSecondary" ariaLabel="Info" />
+              </Tooltip>
+            </Stack>
+          );
         }
       },
     },
