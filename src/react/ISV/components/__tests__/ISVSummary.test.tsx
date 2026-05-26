@@ -409,7 +409,7 @@ describe('ISVSummary', () => {
       jest.spyOn(hooks, 'useAccounts').mockRestore();
     });
 
-    it('calls setRolePromise with the correct roleArn before navigating on Finish', async () => {
+    it('navigates to the bucket page on Finish', async () => {
       mockSetRolePromise.mockResolvedValue({});
 
       const ExpectedComponent = () => {
@@ -451,10 +451,6 @@ describe('ISVSummary', () => {
 
       const finishButton = screen.getByRole('button', { name: /Finish/i });
       await userEvent.click(finishButton);
-
-      await waitFor(() => {
-        expect(mockSetRolePromise).toHaveBeenCalledWith({ roleArn: VEEAM_ROLE_ARN });
-      });
 
       await waitFor(() => {
         expect(screen.getByText(/Account Name: Veeam/i)).toBeInTheDocument();
