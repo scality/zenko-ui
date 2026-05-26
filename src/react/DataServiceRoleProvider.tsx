@@ -350,6 +350,10 @@ const DataServiceRoleProvider = ({
     return getS3Config(data, newRole.roleArn);
   };
 
+  if (accountName && !role.roleArn) {
+    return <Loader>Loading...</Loader>;
+  }
+
   if (role.roleArn && assumeRoleQuery.isLoading) {
     //@ts-expect-error fix this when you are working on it
     return inlineLoader ? <div>loading...</div> : <Loader>Loading...</Loader>;
