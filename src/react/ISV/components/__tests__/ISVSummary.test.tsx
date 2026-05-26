@@ -1,15 +1,14 @@
 import { Stepper } from '@scality/core-ui';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Route, Routes, useParams } from 'react-router';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes, useParams } from 'react-router';
 import { QueryClient } from 'react-query';
 import { ThemeProvider } from 'styled-components';
 import { mockComponent, mockShellHooks, renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
 import { theme, TEST_ROLE_ARN } from '../../../utils/testUtil';
 import * as hooks from '../../../utils/hooks';
 import * as DSRProvider from '../../../DataServiceRoleProvider';
-import { QueryClientProvider } from '../../../QueryClientProvider';
+import { QueryClientProvider } from '../../../../QueryClientProvider';
 import * as useGetS3ServicePointModule from '../../hooks/useGetS3ServicePoint';
 import {
   VEEAM_BACKUP_REPLICATION,
@@ -405,7 +404,7 @@ describe('ISVSummary', () => {
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      jest.spyOn(hooks, 'useAccounts').mockRestore();
     });
 
     it('calls setRolePromise with the correct roleArn before navigating on Finish', async () => {

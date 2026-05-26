@@ -2,8 +2,9 @@ import { screen, waitFor } from '@testing-library/react';
 import { useAuthLoading } from './AuthLoadingProvider';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import InternalRoutes, { PrivateRoutes } from './Routes';
-import { FAKE_TOKEN, mockShellHooks, renderWithRouterMatch } from './utils/testUtil';
+import { FAKE_TOKEN, mockShellHooks, renderWithRouterMatch, TEST_ROLE_ARN } from './utils/testUtil';
 import { setRoleArnStored, removeRoleArnStored } from './utils/localStorage';
+import * as hooks from './utils/hooks';
 
 jest.mock('./next-architecture/ui/ConfigProvider', () => ({
   useConfig: jest.fn(),
@@ -294,6 +295,10 @@ describe('Routes component', () => {
     });
 
     it('should hide sidebar and breadcrumb on complex form route (update-user)', async () => {
+      jest.spyOn(hooks, 'useAccounts').mockReturnValue({
+        accounts: [{ Name: 'my-account', id: '000000000000', Roles: [{ Arn: TEST_ROLE_ARN, Name: 'storage-manager-role' }] }],
+      } as any);
+
       renderWithRouterMatch(<InternalRoutes />, {
         path: '/*',
         route: '/accounts/my-account/users/john/update-user',

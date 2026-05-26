@@ -351,7 +351,7 @@ const DataServiceRoleProvider = ({
   };
 
   if (accountName && !role.roleArn) {
-    return <Loader>Loading...</Loader>;
+    return inlineLoader ? <div>loading...</div> : <Loader><div>Loading...</div></Loader>;
   }
 
   if (role.roleArn && assumeRoleQuery.isLoading) {
