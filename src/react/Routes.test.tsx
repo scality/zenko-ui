@@ -314,7 +314,9 @@ describe('Routes component', () => {
 
   describe('truststore routes', () => {
     afterEach(() => {
-      (mockShellHooks.useDeployedApps as jest.Mock).mockReturnValue([]);
+      (mockShellHooks.useDeployedApps as jest.Mock).mockImplementation(() => [
+        { kind: 'zenko-ui', name: 'zenko-ui.eu-west-1', version: 'local-dev', url: 'http://127.0.0.1:8383/zenko', appHistoryBasePath: '/data' },
+      ]);
     });
 
     it('should render Truststore route when Platform Admin and MetalK8s is enabled', async () => {

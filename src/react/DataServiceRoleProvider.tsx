@@ -355,8 +355,7 @@ const DataServiceRoleProvider = ({
   }
 
   if (role.roleArn && assumeRoleQuery.isLoading) {
-    //@ts-expect-error fix this when you are working on it
-    return inlineLoader ? <div>loading...</div> : <Loader>Loading...</Loader>;
+    return inlineLoader ? <div>loading...</div> : <Loader><div>Loading...</div></Loader>;
   }
 
   return (
