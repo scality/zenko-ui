@@ -234,30 +234,32 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
       <ErrorProvider>
         <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
           <ThemeProvider theme={theme}>
-            <MemoryRouter>
-              <_ConfigContext.Provider value={zenkoUITestConfig}>
-                <_DataServiceRoleContext.Provider
-                  //@ts-expect-error fix this when you are working on it
-                  value={{ role, setRole: jest.fn() }}
-                >
-                  <_ManagementContext.Provider
-                    value={{
-                      managementClient: TEST_MANAGEMENT_CLIENT,
-                    }}
+            <ToastProvider>
+              <MemoryRouter>
+                <_ConfigContext.Provider value={zenkoUITestConfig}>
+                  <_DataServiceRoleContext.Provider
+                    //@ts-expect-error fix this when you are working on it
+                    value={{ role, setRole: jest.fn() }}
                   >
-                    <LocationAdapterProvider>
-                      <MetricsAdapterProvider>
-                        <LocationsEndpointsAdapterProvider>
-                          <AccessibleAccountsAdapterProvider>
-                            <TestProvidersWrapper>{children}</TestProvidersWrapper>
-                          </AccessibleAccountsAdapterProvider>
-                        </LocationsEndpointsAdapterProvider>
-                      </MetricsAdapterProvider>
-                    </LocationAdapterProvider>
-                  </_ManagementContext.Provider>
-                </_DataServiceRoleContext.Provider>
-              </_ConfigContext.Provider>
-            </MemoryRouter>
+                    <_ManagementContext.Provider
+                      value={{
+                        managementClient: TEST_MANAGEMENT_CLIENT,
+                      }}
+                    >
+                      <LocationAdapterProvider>
+                        <MetricsAdapterProvider>
+                          <LocationsEndpointsAdapterProvider>
+                            <AccessibleAccountsAdapterProvider>
+                              <TestProvidersWrapper>{children}</TestProvidersWrapper>
+                            </AccessibleAccountsAdapterProvider>
+                          </LocationsEndpointsAdapterProvider>
+                        </MetricsAdapterProvider>
+                      </LocationAdapterProvider>
+                    </_ManagementContext.Provider>
+                  </_DataServiceRoleContext.Provider>
+                </_ConfigContext.Provider>
+              </MemoryRouter>
+            </ToastProvider>
           </ThemeProvider>
         </ShellHooksProvider>
       </ErrorProvider>

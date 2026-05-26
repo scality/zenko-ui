@@ -1,4 +1,4 @@
-import { Stepper } from '@scality/core-ui';
+import { Stepper, ToastProvider } from '@scality/core-ui';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useParams } from 'react-router';
@@ -377,12 +377,14 @@ describe('ISVSummary', () => {
           <QueryClientProvider client={queryClient}>
             <ThemeProvider theme={theme}>
               <MemoryRouter>
-                <DSRProvider._DataServiceRoleContext.Provider
-                  //@ts-expect-error providing only the fields needed for this test
-                  value={{ role: { roleArn: TEST_ROLE_ARN }, setRole: jest.fn(), setRolePromise: setRolePromiseFn }}
-                >
-                  {children}
-                </DSRProvider._DataServiceRoleContext.Provider>
+                <ToastProvider>
+                  <DSRProvider._DataServiceRoleContext.Provider
+                    //@ts-expect-error providing only the fields needed for this test
+                    value={{ role: { roleArn: TEST_ROLE_ARN }, setRole: jest.fn(), setRolePromise: setRolePromiseFn }}
+                  >
+                    {children}
+                  </DSRProvider._DataServiceRoleContext.Provider>
+                </ToastProvider>
               </MemoryRouter>
             </ThemeProvider>
           </QueryClientProvider>
@@ -459,7 +461,7 @@ describe('ISVSummary', () => {
       });
     });
 
-    it('navigates even when setRolePromise rejects', async () => {
+    it('shows error toast and does not navigate when setRolePromise rejects', async () => {
       mockSetRolePromise.mockRejectedValue(new Error('STS failure'));
 
       const ExpectedComponent = () => {
@@ -507,8 +509,10 @@ describe('ISVSummary', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/Account Name: Veeam/i)).toBeInTheDocument();
+        expect(screen.getByText(/Failed to assume role: STS failure/i)).toBeInTheDocument();
       });
+
+      expect(screen.queryByText(/Account Name: Veeam/i)).not.toBeInTheDocument();
     });
   });
 

@@ -1,4 +1,4 @@
-import { Banner, Form, FormGroup, FormSection, Icon, InfoMessage, Text } from '@scality/core-ui';
+import { Banner, Form, FormGroup, FormSection, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -369,6 +369,7 @@ export const ISVSummary = ({
   const { platform } = useISVStepper();
   const setRolePromise = useSetAssumedRolePromise();
   const { accounts } = useAccounts(noopBasedEventDispatcher);
+  const { showToast } = useToast();
 
   const formData: FormData = {
     accountName,
@@ -396,13 +397,18 @@ export const ISVSummary = ({
     if (roleArn) {
       try {
         await setRolePromise({ roleArn });
-      } catch (_) {
-        // navigate even on rejection to avoid blocking the user
+      } catch (err) {
+        showToast({
+          open: true,
+          status: 'error',
+          message: `Failed to assume role: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        });
+        return;
       }
     }
 
     navigate(destinationPath);
-  }, [accountName, buckets, navigate, setRolePromise, accounts]);
+  }, [accountName, buckets, navigate, setRolePromise, accounts, showToast]);
 
   const renderDefault = () => (
     <DefaultISVSummary
