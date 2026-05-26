@@ -4,9 +4,10 @@ import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
+import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { HideCredential } from '../../ui-elements/Hide';
-import { useAuthGroups } from '../../utils/hooks';
+import { noopBasedEventDispatcher, useAccounts, useAuthGroups } from '../../utils/hooks';
 import { VEEAM_OFFICE_365 } from '../constants';
 import type {
   BucketItem,
@@ -366,6 +367,8 @@ export const ISVSummary = ({
 }: ISVSummaryProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { platform } = useISVStepper();
+  const setRolePromise = useSetAssumedRolePromise();
+  const { accounts } = useAccounts(noopBasedEventDispatcher);
 
   const formData: FormData = {
     accountName,
@@ -380,15 +383,26 @@ export const ISVSummary = ({
     immutablePeriodDays,
   };
 
-  const onFinish = useCallback(() => {
+  const onFinish = useCallback(async (): Promise<void> => {
     const bucketItems = buckets as BucketItem[];
     const firstBucket = bucketItems[0];
-    if (firstBucket) {
-      navigate(`/accounts/${accountName}/buckets/${firstBucket.name}`);
-    } else {
-      navigate(`/accounts/${accountName}`);
+    const destinationPath = firstBucket
+      ? `/accounts/${accountName}/buckets/${firstBucket.name}`
+      : `/accounts/${accountName}`;
+
+    const account = accounts.find((acc) => acc.Name === accountName);
+    const roleArn = account?.Roles[0]?.Arn;
+
+    if (roleArn) {
+      try {
+        await setRolePromise({ roleArn });
+      } catch (_) {
+        // navigate even on rejection to avoid blocking the user
+      }
     }
-  }, [accountName, buckets, navigate]);
+
+    navigate(destinationPath);
+  }, [accountName, buckets, navigate, setRolePromise, accounts]);
 
   const renderDefault = () => (
     <DefaultISVSummary
