@@ -313,6 +313,10 @@ describe('Routes component', () => {
   });
 
   describe('truststore routes', () => {
+    afterEach(() => {
+      (mockShellHooks.useDeployedApps as jest.Mock).mockReturnValue([]);
+    });
+
     it('should render Truststore route when Platform Admin and MetalK8s is enabled', async () => {
       // Mock the hook to return PlatformAdmin user
       mockShellHooks.useAuth.mockReturnValue({
