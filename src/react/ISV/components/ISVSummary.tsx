@@ -384,30 +384,32 @@ export const ISVSummary = ({
     immutablePeriodDays,
   };
 
-  const onFinish = useCallback(async (): Promise<void> => {
-    const bucketItems = buckets as BucketItem[];
-    const firstBucket = bucketItems[0];
-    const destinationPath = firstBucket
-      ? `/accounts/${accountName}/buckets/${firstBucket.name}`
-      : `/accounts/${accountName}`;
+  const onFinish = useCallback((): void => {
+    (async () => {
+      const bucketItems = buckets as BucketItem[];
+      const firstBucket = bucketItems[0];
+      const destinationPath = firstBucket
+        ? `/accounts/${accountName}/buckets/${firstBucket.name}`
+        : `/accounts/${accountName}`;
 
-    const account = accounts.find((acc) => acc.Name === accountName);
-    const roleArn = account?.Roles[0]?.Arn;
+      const account = accounts.find((acc) => acc.Name === accountName);
+      const roleArn = account?.Roles[0]?.Arn;
 
-    if (roleArn) {
-      try {
-        await setRolePromise({ roleArn });
-      } catch (err) {
-        showToast({
-          open: true,
-          status: 'error',
-          message: `Failed to assume role: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        });
-        return;
+      if (roleArn) {
+        try {
+          await setRolePromise({ roleArn });
+        } catch (err) {
+          showToast({
+            open: true,
+            status: 'error',
+            message: `Failed to assume role: ${err instanceof Error ? err.message : 'Unknown error'}`,
+          });
+          return;
+        }
       }
-    }
 
-    navigate(destinationPath);
+      navigate(destinationPath);
+    })();
   }, [accountName, buckets, navigate, setRolePromise, accounts, showToast]);
 
   const renderDefault = () => (
