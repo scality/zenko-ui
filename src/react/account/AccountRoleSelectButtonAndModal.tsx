@@ -1,4 +1,4 @@
-import { Banner, Icon, Stack, Tooltip, Wrap, spacing } from '@scality/core-ui';
+import { Banner, Icon, Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
