@@ -1,4 +1,4 @@
-import { Icon, Stack, Tooltip, Wrap } from '@scality/core-ui';
+import { Banner, Icon, Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
@@ -6,7 +6,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import { useCurrentAccount, useDataServiceRole, useSetAssumedRolePromise } from '../DataServiceRoleProvider';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { AccountSelectorButton } from '../ui-elements/Table';
-import { regexArn, SCALITY_INTERNAL_ROLES, STORAGE_MANAGER_ROLE, useAccounts } from '../utils/hooks';
+import { regexArn, SCALITY_INTERNAL_ROLES, STORAGE_MANAGER_ROLE, STORAGE_USAGE_CONSUMER_ROLE, useAccounts } from '../utils/hooks';
 
 function AccountRoleList({ accountsWithRoles, onRowSelected }) {
   const { roleArn } = useDataServiceRole();
@@ -24,11 +24,24 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
       Header: 'Role Name',
       accessor: 'roleName',
       cellStyle: {
-        minWidth: '12rem',
-        marginRight: '10rem',
+        minWidth: '16rem',
       },
       Cell({ value: roleName }: { value: string }) {
-        if (SCALITY_INTERNAL_ROLES.includes(roleName)) {
+        if (roleName === STORAGE_USAGE_CONSUMER_ROLE) {
+          return (
+            <Stack gap="r8">
+              {roleName}
+              <Tooltip
+                overlay={'This role has limited access to some UI sections'}
+                overlayStyle={{
+                  width: '14rem',
+                }}
+              >
+                <Icon name="Info" color="buttonSecondary" ariaLabel="Info: limited access role" />
+              </Tooltip>
+            </Stack>
+          );
+        } else if (SCALITY_INTERNAL_ROLES.includes(roleName)) {
           return (
             <Stack gap="r8">
               {roleName}
@@ -38,12 +51,24 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
                   width: '12rem',
                 }}
               >
-                <Icon name="Info" color="buttonSecondary" />
+                <Icon name="Info" color="buttonSecondary" ariaLabel="Info: Scality predefined role" />
               </Tooltip>
             </Stack>
           );
         } else {
-          return <>{roleName}</>;
+          return (
+            <Stack gap="r8">
+              {roleName}
+              <Tooltip
+                overlay={"Some UI sections may not be available depending on this role's permissions"}
+                overlayStyle={{
+                  width: '14rem',
+                }}
+              >
+                <Icon name="Info" color="buttonSecondary" ariaLabel="Info: role may have limited access" />
+              </Tooltip>
+            </Stack>
+          );
         }
       },
     },
@@ -104,8 +129,7 @@ export function AccountRoleSelectButtonAndModal({
     rolePath: string;
     roleArn: string;
   }[] = useMemo(() => {
-    return (
-      accounts?.flatMap((account) => {
+    const rows = accounts?.flatMap((account) => {
         const accountName = account.Name;
         const parsedRoles = account.Roles.map((role) => {
           const parsedArn = regexArn.exec(role.Arn);
@@ -120,8 +144,8 @@ export function AccountRoleSelectButtonAndModal({
           (role) => role.roleName === STORAGE_MANAGER_ROLE,
         );
         return storageManagerRoles.length > 0 ? storageManagerRoles : parsedRoles;
-      }) || []
-    );
+      }) || [];
+    return rows;
   }, [accountRolesHash]);
 
   const handleClose = () => {
@@ -164,6 +188,13 @@ export function AccountRoleSelectButtonAndModal({
         title="Select Account and Role to assume"
       >
         <ModalBody>
+          {regexArn.exec(assumedRoleArn)?.groups?.name === STORAGE_USAGE_CONSUMER_ROLE && (
+            <Box mb={24}>
+              <Banner variant="warning" withDefaultIcon>
+                Data Browser unavailable for this role
+              </Banner>
+            </Box>
+          )}
           <AccountRoleList
             accountsWithRoles={accountsWithRoles}
             onRowSelected={(rowData) => {
