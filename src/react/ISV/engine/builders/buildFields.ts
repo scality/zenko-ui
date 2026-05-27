@@ -99,6 +99,9 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
     name: 'IAMUserName',
     type: 'iamUserSelector',
     ...applyOverrides({ label: 'IAM User' }, config.fieldOverrides?.IAMUserName),
+    ...(config.fieldOverrides?.IAMUserName?.disabledExistingReason !== undefined && {
+      disabledExistingReason: config.fieldOverrides.IAMUserName.disabledExistingReason,
+    }),
   } as FieldDef);
 
   // 3. Additional fields after account (and after Advanced Settings)

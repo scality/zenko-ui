@@ -159,6 +159,7 @@ export type AccountSelectorFieldDef = BaseFieldDef & {
 
 export type IAMUserSelectorFieldDef = BaseFieldDef & {
   type: 'iamUserSelector';
+  disabledExistingReason?: ReactNode;
 };
 
 export type BucketArrayFieldDef = BaseFieldDef & {
@@ -188,6 +189,7 @@ export type FieldDef =
 export type FieldOverrideConfig = {
   label?: string;
   tooltip?: ReactNode;
+  disabledExistingReason?: ReactNode;
   placeholder?: string;
   helpText?: string;
   hideWhen?: (form: FormData) => boolean;

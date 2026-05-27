@@ -23,6 +23,7 @@ interface CreateOrSelectNameFieldProps {
   fieldName: string;
   label: string;
   tooltip?: JSX.Element;
+  disabledExistingReason?: React.ReactNode;
   onFieldNameChange?: (fieldValue: string) => void;
   onOptionChange?: (value: string) => void;
   children?: React.ReactNode;
@@ -36,7 +37,12 @@ const FORM_FIELDS = {
   GENERATE_KEY: 'generateKey',
 };
 
-const getRadioOptions = (isAccount: boolean, disableCreate: boolean, disableExisting: boolean) => {
+const getRadioOptions = (
+  isAccount: boolean,
+  disableCreate: boolean,
+  disableExisting: boolean,
+  disabledExistingReason?: React.ReactNode,
+) => {
   return [
     {
       value: 'create',
@@ -47,6 +53,7 @@ const getRadioOptions = (isAccount: boolean, disableCreate: boolean, disableExis
       value: 'existing',
       label: `Use an existing ${isAccount ? 'Account' : 'IAM User'}`,
       disabled: disableExisting,
+      disabledReason: disabledExistingReason,
     },
   ];
 };
@@ -60,6 +67,7 @@ export const CreateOrSelectNameField = ({
   fieldName,
   label,
   tooltip = null,
+  disabledExistingReason,
   onFieldNameChange = null,
   onOptionChange = null,
   selectRef,
@@ -79,7 +87,7 @@ export const CreateOrSelectNameField = ({
   const isCreateDisabled = isAccount && isExist && isParamsAccountNameInOptions;
   const isSelectAccountDisabled = isAccount && isParamsAccountNameInOptions && isExist;
 
-  const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled);
+  const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled, disabledExistingReason);
 
   return (
     <Stack gap="r8" direction="vertical">
