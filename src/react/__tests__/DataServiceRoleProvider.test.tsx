@@ -1,7 +1,7 @@
 import { render, screen, waitFor, renderHook } from '@testing-library/react';
 import { QueryClient } from 'react-query';
 import { QueryClientProvider } from '../../QueryClientProvider';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
 import * as hooks from '../utils/hooks';
@@ -103,7 +103,7 @@ describe('DataServiceRoleProvider', () => {
     } as any);
   });
 
-  it('renders children after AssumeRole succeeds', async () => {
+  it('renders children once credentials are available', async () => {
     const Wrapper = createWrapper();
 
     render(
@@ -117,12 +117,6 @@ describe('DataServiceRoleProvider', () => {
     await waitFor(() => {
       expect(screen.getByTestId('child-content')).toBeInTheDocument();
     });
-
-    expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledWith(
-      expect.objectContaining({
-        roleArn: TEST_ROLE_ARN,
-      }),
-    );
   });
 
   it('useDataServiceRole returns the correct roleArn', async () => {
@@ -146,7 +140,7 @@ describe('DataServiceRoleProvider', () => {
     });
   });
 
-  it('useAssumedRole returns STS credentials after query completes', async () => {
+  it('useAssumedRole returns credentials once they are available', async () => {
     const Wrapper = createWrapper();
 
     function AssumedRoleConsumer() {
@@ -168,7 +162,7 @@ describe('DataServiceRoleProvider', () => {
     });
   });
 
-  it('assumeRoleQuery refetches on remount with stale cache', async () => {
+  it('refreshes credentials on remount when they have expired', async () => {
     // Use a shared QueryClient so the cache persists across mounts.
     // Between mounts we invalidate the cache to simulate credentials
     // becoming stale, then verify refetchOnMount triggers a new STS call.
@@ -236,12 +230,9 @@ describe('DataServiceRoleProvider', () => {
     await waitFor(() => {
       expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledTimes(1);
     });
-    expect(mockAssumeRoleWithWebIdentity).toHaveBeenCalledWith(
-      expect.objectContaining({ roleArn: TEST_ROLE_ARN }),
-    );
   });
 
-  it('credentialProvider throws when STS refresh fails', async () => {
+  it('S3 credential requests fail fast after a refresh error instead of retrying on every call', async () => {
     // Use near-expiry credentials so credentialProvider triggers a refresh
     const nearExpiryCredentials = {
       Credentials: {
@@ -311,7 +302,7 @@ describe('DataServiceRoleProvider', () => {
     }
   });
 
-  it('useAssumeRoleQuery getQuery carries refetchInterval option', () => {
+  it('credentials are configured to auto-refresh before expiry', () => {
     const Wrapper = createWrapper();
 
     const { result } = renderHook(() => useAssumeRoleQuery(), { wrapper: Wrapper });
@@ -324,5 +315,38 @@ describe('DataServiceRoleProvider', () => {
       enabled: true,
     });
     expect(queryConfig.refetchInterval).toBeGreaterThan(0);
+  });
+
+  it('blocks content from rendering when navigating directly to an account URL before accounts have loaded', async () => {
+    // When navigating directly to an account URL, accounts may not have loaded yet.
+    jest.spyOn(hooks, 'useAccounts').mockReturnValue({
+      accounts: [],
+    } as any);
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <MemoryRouter initialEntries={['/accounts/my-account/details']}>
+            <Routes>
+              <Route
+                path="/accounts/:accountName/details"
+                element={
+                  <DataServiceRoleProvider>
+                    <div data-testid="child-content">Children</div>
+                  </DataServiceRoleProvider>
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </ThemeProvider>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 });

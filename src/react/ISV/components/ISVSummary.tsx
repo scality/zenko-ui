@@ -1,12 +1,13 @@
-import { Banner, Form, FormGroup, FormSection, Icon, InfoMessage, Text } from '@scality/core-ui';
+import { Banner, Form, FormGroup, FormSection, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
+import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { HideCredential } from '../../ui-elements/Hide';
-import { useAuthGroups } from '../../utils/hooks';
+import { noopBasedEventDispatcher, useAccounts, useAuthGroups } from '../../utils/hooks';
 import { VEEAM_OFFICE_365 } from '../constants';
 import type {
   BucketItem,
@@ -366,6 +367,9 @@ export const ISVSummary = ({
 }: ISVSummaryProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { platform } = useISVStepper();
+  const setRolePromise = useSetAssumedRolePromise();
+  const { accounts } = useAccounts(noopBasedEventDispatcher);
+  const { showToast } = useToast();
 
   const formData: FormData = {
     accountName,
@@ -380,15 +384,33 @@ export const ISVSummary = ({
     immutablePeriodDays,
   };
 
-  const onFinish = useCallback(() => {
-    const bucketItems = buckets as BucketItem[];
-    const firstBucket = bucketItems[0];
-    if (firstBucket) {
-      navigate(`/accounts/${accountName}/buckets/${firstBucket.name}`);
-    } else {
-      navigate(`/accounts/${accountName}`);
-    }
-  }, [accountName, buckets, navigate]);
+  const onFinish = useCallback((): void => {
+    (async () => {
+      const bucketItems = buckets as BucketItem[];
+      const firstBucket = bucketItems[0];
+      const destinationPath = firstBucket
+        ? `/accounts/${accountName}/buckets/${firstBucket.name}`
+        : `/accounts/${accountName}`;
+
+      const account = accounts.find((acc) => acc.Name === accountName);
+      const roleArn = account?.Roles[0]?.Arn;
+
+      if (roleArn) {
+        try {
+          await setRolePromise({ roleArn });
+        } catch (err) {
+          showToast({
+            open: true,
+            status: 'error',
+            message: `Failed to assume role: ${err instanceof Error ? err.message : 'Unknown error'}`,
+          });
+          return;
+        }
+      }
+
+      navigate(destinationPath);
+    })();
+  }, [accountName, buckets, navigate, setRolePromise, accounts, showToast]);
 
   const renderDefault = () => (
     <DefaultISVSummary
