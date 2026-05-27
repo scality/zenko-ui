@@ -1,4 +1,4 @@
-import { Icon, Stack, Tooltip, Wrap } from '@scality/core-ui';
+import { Banner, Icon, Stack, Tooltip, Wrap, spacing } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
@@ -24,8 +24,7 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
       Header: 'Role Name',
       accessor: 'roleName',
       cellStyle: {
-        minWidth: '12rem',
-        marginRight: '10rem',
+        minWidth: '16rem',
       },
       Cell({ value: roleName }: { value: string }) {
         if (roleName === STORAGE_USAGE_CONSUMER_ROLE) {
@@ -38,7 +37,7 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
                   width: '14rem',
                 }}
               >
-                <Icon name="Exclamation-circle" color="statusWarning" ariaLabel="Exclamation-circle" />
+                <Icon name="Info" color="buttonSecondary" ariaLabel="Info: limited access role" />
               </Tooltip>
             </Stack>
           );
@@ -52,7 +51,7 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
                   width: '12rem',
                 }}
               >
-                <Icon name="Info" color="buttonSecondary" ariaLabel="Info" />
+                <Icon name="Info" color="buttonSecondary" ariaLabel="Info: Scality predefined role" />
               </Tooltip>
             </Stack>
           );
@@ -66,7 +65,7 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
                   width: '14rem',
                 }}
               >
-                <Icon name="Info" color="buttonSecondary" ariaLabel="Info" />
+                <Icon name="Info" color="buttonSecondary" ariaLabel="Info: role may have limited access" />
               </Tooltip>
             </Stack>
           );
@@ -130,8 +129,7 @@ export function AccountRoleSelectButtonAndModal({
     rolePath: string;
     roleArn: string;
   }[] = useMemo(() => {
-    return (
-      accounts?.flatMap((account) => {
+    const rows = accounts?.flatMap((account) => {
         const accountName = account.Name;
         const parsedRoles = account.Roles.map((role) => {
           const parsedArn = regexArn.exec(role.Arn);
@@ -146,8 +144,8 @@ export function AccountRoleSelectButtonAndModal({
           (role) => role.roleName === STORAGE_MANAGER_ROLE,
         );
         return storageManagerRoles.length > 0 ? storageManagerRoles : parsedRoles;
-      }) || []
-    );
+      }) || [];
+    return rows;
   }, [accountRolesHash]);
 
   const handleClose = () => {
@@ -190,6 +188,13 @@ export function AccountRoleSelectButtonAndModal({
         title="Select Account and Role to assume"
       >
         <ModalBody>
+          {regexArn.exec(assumedRoleArn)?.groups?.name === STORAGE_USAGE_CONSUMER_ROLE && (
+            <Box mb={24}>
+              <Banner variant="warning" withDefaultIcon>
+                Data Browser unavailable for this role
+              </Banner>
+            </Box>
+          )}
           <AccountRoleList
             accountsWithRoles={accountsWithRoles}
             onRowSelected={(rowData) => {
