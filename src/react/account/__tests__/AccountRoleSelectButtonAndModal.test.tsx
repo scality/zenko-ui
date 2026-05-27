@@ -1,6 +1,6 @@
 jest.unmock('../AccountRoleSelectButtonAndModal');
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mockOffsetSize, Wrapper } from '../../utils/testUtil';
 import AccountRoleSelectButtonAndModal from '../AccountRoleSelectButtonAndModal';
@@ -24,9 +24,7 @@ async function renderOpenModal(roles: { Name: string; Arn: string }[]) {
   );
 
   await userEvent.click(screen.getByRole('button'));
-  await waitFor(() => {
-    expect(screen.getByText('Select Account and Role to assume')).toBeInTheDocument();
-  });
+  await screen.findByText('Select Account and Role to assume');
 }
 
 describe('AccountRoleSelectButtonAndModal - role name cell', () => {
@@ -41,32 +39,24 @@ describe('AccountRoleSelectButtonAndModal - role name cell', () => {
   it('shows info tooltip for storage-usage-consumer-role cell', async () => {
     await renderOpenModal([{ Name: 'storage-usage-consumer-role', Arn: STORAGE_USAGE_CONSUMER_ARN }]);
 
-    await waitFor(() => {
-      expect(screen.getAllByText('storage-usage-consumer-role').length).toBeGreaterThan(0);
-    });
+    await screen.findByText('storage-usage-consumer-role');
 
-    const infoIcons = await screen.findAllByRole('img', { name: /Info: limited access role/i });
-    await userEvent.hover(infoIcons[0]);
+    const infoIcon = await screen.findByRole('img', { name: /Info: limited access role/i });
+    await userEvent.hover(infoIcon);
     expect(screen.getByText(/This role has limited access to some UI sections/i)).toBeInTheDocument();
   });
 
   it('shows warning banner when storage-usage-consumer-role row is selected', async () => {
     await renderOpenModal([{ Name: 'storage-usage-consumer-role', Arn: STORAGE_USAGE_CONSUMER_ARN }]);
 
-    await waitFor(() => {
-      expect(screen.getAllByText('storage-usage-consumer-role').length).toBeGreaterThan(0);
-    });
-
-    await userEvent.click(screen.getAllByText('storage-usage-consumer-role')[0]);
+    await userEvent.click(await screen.findByText('storage-usage-consumer-role'));
     expect(screen.getByText('Data Browser unavailable for this role')).toBeInTheDocument();
   });
 
   it('shows a generic info tooltip for other Scality predefined roles', async () => {
     await renderOpenModal([{ Name: 'storage-manager-role', Arn: STORAGE_MANAGER_ARN }]);
 
-    await waitFor(() => {
-      expect(screen.getByText('storage-manager-role')).toBeInTheDocument();
-    });
+    await screen.findByText('storage-manager-role');
 
     const infoIcon = await screen.findByRole('img', { name: /Info: Scality predefined role/i });
     await userEvent.hover(infoIcon);
@@ -76,11 +66,9 @@ describe('AccountRoleSelectButtonAndModal - role name cell', () => {
   it('shows an info tooltip warning about limited access for custom IAM roles', async () => {
     await renderOpenModal([{ Name: 'my-custom-role', Arn: CUSTOM_ROLE_ARN }]);
 
-    await waitFor(() => {
-      expect(screen.getAllByText('my-custom-role').length).toBeGreaterThan(0);
-    });
+    await screen.findByText('my-custom-role');
 
-    const infoIcon = await screen.findAllByRole('img', { name: /Info: role may have limited access/i }).then(icons => icons[0]);
+    const infoIcon = await screen.findByRole('img', { name: /Info: role may have limited access/i });
     await userEvent.hover(infoIcon);
     expect(
       screen.getByText(/Some UI sections may not be available depending on this role's permissions/i),
