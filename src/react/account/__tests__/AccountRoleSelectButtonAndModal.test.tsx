@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event';
 import { mockOffsetSize, renderWithCustomRoute, Wrapper } from '../../utils/testUtil';
 import AccountRoleSelectButtonAndModal from '../AccountRoleSelectButtonAndModal';
 import * as hooks from '../../utils/hooks';
-import * as moduleFederation from '@scality/module-federation';
 
 const STORAGE_MANAGER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
 const STORAGE_USAGE_CONSUMER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-usage-consumer-role';
@@ -114,7 +113,9 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
   ];
 
   beforeAll(() => {
-    jest.spyOn(moduleFederation, 'useBasenameRelativeNavigate').mockReturnValue(mockNavigate);
+    jest
+      .spyOn(jest.requireMock('@scality/module-federation'), 'useBasenameRelativeNavigate')
+      .mockReturnValue(mockNavigate);
   });
 
   beforeEach(() => {
