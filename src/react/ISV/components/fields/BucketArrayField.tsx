@@ -19,6 +19,7 @@ export const BucketArrayField: React.FC<BucketArrayFieldProps> = ({ field, platf
     <BucketField
       platform={platform}
       bucketNameTooltip={field.tooltip as React.ReactElement}
+      bucketNameHelpText={field.helpText}
       showCapacity={hasCapacityField}
     />
   );

@@ -139,7 +139,10 @@ export const CommvaultValidator = Joi.object({
 // Rubrik CDM requires buckets to follow the {prefix}-rubrik-{N} naming convention
 const rubrikBucketNameSchema = bucketNameValidationSchema
   .pattern(/^[a-z0-9.-]+-rubrik-\d+$/, { name: 'rubrikSuffix' })
-  .messages({ 'string.pattern.name': 'Bucket name must end with -rubrik-{N} (e.g. my-archive-rubrik-0)' });
+  .messages({
+    'string.min': 'Bucket name must end with -rubrik-<number> (e.g. my-archive-rubrik-0)',
+    'string.pattern.name': 'Bucket name must end with -rubrik-<number> (e.g. my-archive-rubrik-0)',
+  });
 
 const rubrikBucketItemSchema = Joi.object({ name: rubrikBucketNameSchema }).unknown(true);
 

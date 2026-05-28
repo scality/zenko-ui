@@ -111,6 +111,7 @@ export const RubrikPlatform = definePlatform({
       label: 'Bucket name',
       placeholder: 'Enter bucket name (e.g. my-archive-rubrik-0)',
       tooltip: <BucketNameTooltip platform="Rubrik" />,
+      helpText: 'Must end with -rubrik-<number> (e.g. my-archive-rubrik-0)',
     },
     IAMUserName: {
       label: 'IAM User Name',
