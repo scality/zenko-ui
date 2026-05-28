@@ -409,7 +409,7 @@ describe('useCurrentAccount', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
   });
 
   it('returns the roleArn-derived account when both roleArn and URL accountName are present', () => {
