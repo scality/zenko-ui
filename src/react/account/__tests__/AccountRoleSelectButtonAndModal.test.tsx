@@ -117,10 +117,6 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
     },
   ];
 
-  beforeAll(() => {
-    mockOffsetSize(200, 800);
-  });
-
   beforeEach(() => {
     mockNavigate.mockReset();
   });
