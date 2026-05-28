@@ -2,7 +2,6 @@ import { Banner, Icon, Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router';
 import { useCurrentAccount, useDataServiceRole, useSetAssumedRolePromise } from '../DataServiceRoleProvider';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { AccountSelectorButton } from '../ui-elements/Table';
@@ -211,18 +210,9 @@ export function AccountRoleSelectButtonAndModal({
 const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount }) => {
   const setRole = useSetAssumedRolePromise();
   const navigateWithBasename = useBasenameRelativeNavigate();
-  const navigate = useNavigate();
-  const { accountName } = useParams();
-  const location = useLocation();
 
   const handleAccountClick = () => {
-    const replacePath = location.pathname.replace(accountName, assumedAccount);
-
-    if (replacePath.includes('/buckets')) {
-      navigateWithBasename(`/accounts/${assumedAccount}/buckets`);
-    } else {
-      navigate(replacePath);
-    }
+    navigateWithBasename(`/accounts/${assumedAccount}/buckets`);
   };
 
   return (
