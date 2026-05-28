@@ -33,7 +33,6 @@ async function renderOpenModal(roles: { Name: string; Arn: string }[]) {
 }
 
 async function renderOpenModalOnRoute(
-  roles: { Name: string; Arn: string }[],
   accounts: { Name: string; id: string; Roles: { Name: string; Arn: string }[] }[],
   route: string,
 ) {
@@ -128,7 +127,6 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
 
   it('navigates to /accounts/{assumedAccount}/buckets on a param-less route like /workflows', async () => {
     await renderOpenModalOnRoute(
-      [{ Name: 'storage-manager-role', Arn: ANOTHER_ACCOUNT_STORAGE_MANAGER_ARN }],
       accounts,
       '/workflows',
     );
@@ -143,7 +141,6 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
 
   it('navigates to /accounts/{assumedAccount}/buckets on a route with :accountName param', async () => {
     await renderOpenModalOnRoute(
-      [{ Name: 'storage-manager-role', Arn: ANOTHER_ACCOUNT_STORAGE_MANAGER_ARN }],
       accounts,
       '/accounts/current-account/buckets',
     );
