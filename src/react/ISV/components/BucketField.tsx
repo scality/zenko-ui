@@ -64,6 +64,7 @@ const useBucketCountManager = ({
 
 interface BucketFieldProps {
   bucketNameTooltip?: React.ReactElement;
+  bucketNameHelpText?: string;
   platform?: string;
   showCapacity?: boolean;
 }
@@ -80,7 +81,7 @@ interface FormValues {
   bucketNumber?: number;
 }
 
-const defaultBucketNameTooltip = <Text>Choose an unique name for your bucket</Text>;
+const defaultBucketNameTooltip = <Text>Choose a unique name for your bucket</Text>;
 
 const BucketContainer = styled.div`
   background-color: ${({ theme }) => theme.backgroundLevel2};
@@ -98,7 +99,8 @@ const BucketNameFormGroup: React.FC<{
   bucketNamePlaceholder: string;
   bucketNumber: number;
   bucketNameTooltip: React.ReactElement;
-}> = ({ index, errors, bucketNamePlaceholder, bucketNumber, bucketNameTooltip }) => {
+  bucketNameHelpText?: string;
+}> = ({ index, errors, bucketNamePlaceholder, bucketNumber, bucketNameTooltip, bucketNameHelpText }) => {
   const { register } = useFormContext<FormValues>();
 
   return (
@@ -107,6 +109,7 @@ const BucketNameFormGroup: React.FC<{
       label={bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name'}
       required
       labelHelpTooltip={bucketNameTooltip}
+      help={bucketNameHelpText}
       error={(errors?.buckets?.[index]?.name?.message as string) ?? ''}
       helpErrorPosition="bottom"
       content={
@@ -124,6 +127,7 @@ const BucketNameFormGroup: React.FC<{
 
 const BucketField: React.FC<BucketFieldProps> = ({
   bucketNameTooltip = defaultBucketNameTooltip,
+  bucketNameHelpText,
   platform,
   showCapacity,
 }) => {
@@ -213,6 +217,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
             bucketNamePlaceholder={bucketNamePlaceholder}
             bucketNumber={fields.length}
             bucketNameTooltip={bucketNameTooltip}
+            bucketNameHelpText={bucketNameHelpText}
           />
           {renderCapacitySection(0)}
         </FormSection>
@@ -227,6 +232,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
               bucketNamePlaceholder={bucketNamePlaceholder}
               bucketNumber={fields.length}
               bucketNameTooltip={bucketNameTooltip}
+              bucketNameHelpText={bucketNameHelpText}
             />
             <div
               style={{
@@ -240,7 +246,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
       ));
     }
     return null;
-  }, [fields, errors, bucketNamePlaceholder, bucketNameTooltip, renderCapacitySection]);
+  }, [fields, errors, bucketNamePlaceholder, bucketNameTooltip, bucketNameHelpText, renderCapacitySection]);
 
   return (
     <>

@@ -114,6 +114,8 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
     name: 'buckets',
     type: 'bucketArray',
     label: 'Buckets',
+    tooltip: config.fieldOverrides?.bucketName?.tooltip,
+    helpText: config.fieldOverrides?.bucketName?.helpText,
     itemFields: buildBucketItemFields(config),
   } as FieldDef);
 
@@ -122,7 +124,7 @@ export function buildFields(config: PlatformConfig): FieldDef[] {
   const immutableBase = applyOverrides(
     {
       label: 'Immutable Backup',
-      helpText: 'It enables object-lock on the bucket which means backups will be permanent and unchangeable.',
+      helpText: 'Enables object lock on the bucket, making backups permanent and unchangeable.',
     },
     immutableOverride,
   );
