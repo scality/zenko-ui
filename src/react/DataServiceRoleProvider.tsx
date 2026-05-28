@@ -171,8 +171,8 @@ export const useCurrentAccount = () => {
 
   const account = useMemo(() => {
     return accounts.find((account) => {
-      if (accountName) return account.Name === accountName;
-      else if (accountId) return account.id === accountId;
+      if (accountId) return account.id === accountId;
+      else if (accountName) return account.Name === accountName;
       else return true;
     });
   }, [accountId, accounts, accountName]);
