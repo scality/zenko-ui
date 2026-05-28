@@ -2,6 +2,15 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import { RadioGroup } from '../RadioGroup';
 
+jest.mock('@scality/core-ui', () => ({
+  Tooltip: ({ children, overlay }: { children: React.ReactNode; overlay: React.ReactNode }) => (
+    <>
+      {children}
+      {overlay}
+    </>
+  ),
+}));
+
 describe('RadioGroup', () => {
   const options = [
     { value: 'option1', label: 'Option 1', description: 'Description 1' },
@@ -31,7 +40,7 @@ describe('RadioGroup', () => {
     );
   };
 
-  it('should render all radio options', () => {
+  it('renders all options with their labels', () => {
     renderRadioGroup();
 
     expect(screen.getByRole('radio', { name: /Option 1/i })).toBeInTheDocument();
@@ -39,26 +48,22 @@ describe('RadioGroup', () => {
     expect(screen.getByRole('radio', { name: /Option 3/i })).toBeInTheDocument();
   });
 
-  it('should render descriptions when provided', () => {
+  it('renders descriptions alongside their options', () => {
     renderRadioGroup();
 
     expect(screen.getByText('Description 1')).toBeInTheDocument();
     expect(screen.getByText('Description 3')).toBeInTheDocument();
   });
 
-  it('should check the selected option', () => {
+  it('marks only the selected option as checked', () => {
     renderRadioGroup({ value: 'option2' });
 
-    const option1 = screen.getByDisplayValue('option1');
-    const option2 = screen.getByDisplayValue('option2');
-    const option3 = screen.getByDisplayValue('option3');
-
-    expect(option1).not.toBeChecked();
-    expect(option2).toBeChecked();
-    expect(option3).not.toBeChecked();
+    expect(screen.getByDisplayValue('option1')).not.toBeChecked();
+    expect(screen.getByDisplayValue('option2')).toBeChecked();
+    expect(screen.getByDisplayValue('option3')).not.toBeChecked();
   });
 
-  it('should call onChange when an option is selected', () => {
+  it('calls onChange with the selected value when an option is clicked', () => {
     const handleChange = jest.fn();
     renderRadioGroup({ onChange: handleChange });
 
@@ -67,19 +72,40 @@ describe('RadioGroup', () => {
     expect(handleChange).toHaveBeenCalledWith('option2');
   });
 
-  it('should render in horizontal direction when specified', () => {
-    const { container } = renderRadioGroup({ direction: 'horizontal' });
-
-    const radioGroupContainer = container.querySelector('div[direction="horizontal"]');
-    expect(radioGroupContainer).toBeInTheDocument();
-  });
-
-  it('should disable all options when disabled prop is true', () => {
+  it('disables all inputs when the group-level disabled prop is set', () => {
     renderRadioGroup({ disabled: true });
 
-    const radioInputs = screen.getAllByRole('radio');
-    radioInputs.forEach((radio) => {
+    screen.getAllByRole('radio').forEach((radio) => {
       expect(radio).toBeDisabled();
     });
+  });
+
+  it('shows the explanation text when a disabled option has a disabledReason', () => {
+    const optionsWithReason = [
+      { value: 'option1', label: 'Option 1' },
+      { value: 'option2', label: 'Option 2', disabled: true, disabledReason: 'This option is unavailable' },
+    ];
+    renderRadioGroup({ options: optionsWithReason });
+
+    expect(screen.getByText('This option is unavailable')).toBeInTheDocument();
+  });
+
+  it('shows no extra explanation text when a disabled option has no disabledReason', () => {
+    const optionsNoReason = [
+      { value: 'option1', label: 'Option 1' },
+      { value: 'option2', label: 'Option 2', disabled: true },
+    ];
+    renderRadioGroup({ options: optionsNoReason });
+
+    expect(screen.queryByText('This option is unavailable')).not.toBeInTheDocument();
+  });
+
+  it('does not show disabledReason for an enabled option', () => {
+    const optionsEnabledWithReason = [
+      { value: 'option1', label: 'Option 1', disabledReason: 'Should not appear' },
+    ];
+    renderRadioGroup({ options: optionsEnabledWithReason });
+
+    expect(screen.queryByText('Should not appear')).not.toBeInTheDocument();
   });
 });

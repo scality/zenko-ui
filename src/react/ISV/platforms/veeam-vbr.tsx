@@ -114,6 +114,7 @@ export const VeeamVBRPlatform = definePlatform({
     IAMUserName: {
       label: 'IAM User Name',
       tooltip: <IAMUSerTooltip platform="Veeam" />,
+      disabledExistingReason: 'No IAM users found in this account. Create a new one to continue.',
     },
   },
 

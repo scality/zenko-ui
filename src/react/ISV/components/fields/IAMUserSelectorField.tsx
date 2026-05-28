@@ -47,6 +47,7 @@ export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFiel
             type={IAMUserNameType}
             platform={platform.id}
             tooltip={field.tooltip as React.ReactElement}
+            disabledExistingReason={field.disabledExistingReason}
             fieldName="IAMUserName"
             label="IAM User Management"
             onOptionChange={(mode: string) => {

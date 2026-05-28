@@ -1,5 +1,7 @@
+import { Tooltip } from '@scality/core-ui';
 import { spacing } from '@scality/core-ui/dist/spacing';
 import { useId } from 'react';
+import type { ReactNode } from 'react';
 import styled from 'styled-components';
 
 type RadioOption = {
@@ -7,6 +9,7 @@ type RadioOption = {
   label: string;
   description?: string;
   disabled?: boolean;
+  disabledReason?: ReactNode;
 };
 
 type RadioGroupProps = {
@@ -128,8 +131,9 @@ export const RadioGroup = ({
     <RadioContainer direction={direction}>
       {options.map((option) => {
         const optionId = `${groupName}-${option.value}`;
-        return (
-          <RadioWrapper key={option.value} data-disabled={disabled || option.disabled}>
+
+        const radioInputAndContent = (
+          <>
             <RadioInput
               type="radio"
               id={optionId}
@@ -143,6 +147,16 @@ export const RadioGroup = ({
               <RadioLabel htmlFor={optionId}>{option.label}</RadioLabel>
               {option.description && <RadioDescription>{option.description}</RadioDescription>}
             </RadioContent>
+          </>
+        );
+
+        return option.disabled && option.disabledReason ? (
+          <Tooltip key={option.value} overlay={option.disabledReason}>
+            <RadioWrapper data-disabled={disabled || option.disabled}>{radioInputAndContent}</RadioWrapper>
+          </Tooltip>
+        ) : (
+          <RadioWrapper key={option.value} data-disabled={disabled || option.disabled}>
+            {radioInputAndContent}
           </RadioWrapper>
         );
       })}
