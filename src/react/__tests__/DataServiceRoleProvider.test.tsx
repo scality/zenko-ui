@@ -59,7 +59,7 @@ jest.spyOn(hooks, 'useAccounts').mockReturnValue({
   ],
 } as any);
 
-import DataServiceRoleProvider, { useDataServiceRole, useAssumedRole, useAssumeRoleQuery } from '../DataServiceRoleProvider';
+import DataServiceRoleProvider, { useDataServiceRole, useAssumedRole, useAssumeRoleQuery, useCurrentAccount, _DataServiceRoleContext } from '../DataServiceRoleProvider';
 import * as dataBrowserLibrary from '@scality/data-browser-library';
 
 const theme = coreUIAvailableThemes.darkRebrand;
@@ -348,5 +348,107 @@ describe('DataServiceRoleProvider', () => {
 
     expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
+  });
+});
+
+describe('useCurrentAccount', () => {
+  const TEST_ACCOUNT = {
+    Name: 'test-account',
+    id: '000000000000',
+    Roles: [{ Name: 'storage-manager-role', Arn: TEST_ROLE_ARN }],
+  };
+
+  const OTHER_ACCOUNT = {
+    Name: 'other-account',
+    id: '111111111111',
+    Roles: [{ Name: 'storage-manager-role', Arn: 'arn:aws:iam::111111111111:role/scality-internal/storage-manager-role' }],
+  };
+
+  function createCurrentAccountWrapper({
+    roleArn,
+    accountNameInUrl,
+  }: {
+    roleArn: string;
+    accountNameInUrl?: string;
+  }) {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+
+    const initialEntry = accountNameInUrl ? `/accounts/${accountNameInUrl}/details` : '/';
+    const routePath = accountNameInUrl ? '/accounts/:accountName/details' : '/';
+
+    return function Wrapper({ children }: { children: React.ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <MemoryRouter initialEntries={[initialEntry]}>
+              <_DataServiceRoleContext.Provider
+                value={{
+                  role: { roleArn },
+                  setRole: jest.fn(),
+                  setRolePromise: jest.fn() as any,
+                  assumedRole: undefined,
+                }}
+              >
+                <Routes>
+                  <Route path={routePath} element={<>{children}</>} />
+                </Routes>
+              </_DataServiceRoleContext.Provider>
+            </MemoryRouter>
+          </ThemeProvider>
+        </QueryClientProvider>
+      );
+    };
+  }
+
+  beforeEach(() => {
+    jest.spyOn(hooks, 'useAccounts').mockReturnValue({
+      accounts: [TEST_ACCOUNT, OTHER_ACCOUNT],
+    } as any);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('returns the roleArn-derived account when both roleArn and URL accountName are present', () => {
+    const Wrapper = createCurrentAccountWrapper({
+      roleArn: TEST_ROLE_ARN,
+      accountNameInUrl: 'other-account',
+    });
+
+    const { result } = renderHook(() => useCurrentAccount(), { wrapper: Wrapper });
+
+    expect(result.current.account).toBeDefined();
+    expect(result.current.account?.id).toBe('000000000000');
+    expect(result.current.account?.Name).toBe('test-account');
+  });
+
+  it('falls back to URL accountName when roleArn is absent', () => {
+    const Wrapper = createCurrentAccountWrapper({
+      roleArn: '',
+      accountNameInUrl: 'other-account',
+    });
+
+    const { result } = renderHook(() => useCurrentAccount(), { wrapper: Wrapper });
+
+    expect(result.current.account).toBeDefined();
+    expect(result.current.account?.id).toBe('111111111111');
+    expect(result.current.account?.Name).toBe('other-account');
+  });
+
+  it('returns undefined when neither roleArn nor URL accountName is present', () => {
+    jest.spyOn(hooks, 'useAccounts').mockReturnValue({
+      accounts: [],
+    } as any);
+
+    const Wrapper = createCurrentAccountWrapper({
+      roleArn: '',
+    });
+
+    const { result } = renderHook(() => useCurrentAccount(), { wrapper: Wrapper });
+
+    expect(result.current.account).toBeUndefined();
   });
 });
