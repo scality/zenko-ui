@@ -150,9 +150,6 @@ export const SCALITY_INTERNAL_ROLES = [
 ];
 export const SCALITY_IAM_ROLES = [STORAGE_ACCOUNT_OWNER_ROLE, DATA_CONSUMER_ROLE, DATA_ACCESSOR_ROLE];
 
-export function getIsStorageUsageConsumerRole(): boolean {
-  return regexArn.exec(getRoleArnStored())?.groups?.name === STORAGE_USAGE_CONSUMER_ROLE;
-}
 
 export const defaultEventDispatcher = () => {
   const { handleClientError, showModalError } = useErrorHandler();
