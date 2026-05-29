@@ -25,7 +25,7 @@ import STSProvider from './STSProvider';
 import ImportCertificate from './truststore/ImportCertificate';
 import Truststore from './truststore/Truststore';
 import ReauthDialog from './ui-elements/ReauthDialog';
-import { getIsStorageUsageConsumerRole, useAuthGroups } from './utils/hooks';
+import { useAuthGroups } from './utils/hooks';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -69,8 +69,6 @@ const RedirectToAccount = () => {
   }
 };
 
-const DataBrowserGuard = ({ children }: { children: JSX.Element }): JSX.Element =>
-  getIsStorageUsageConsumerRole() ? <ErrorPage401 /> : children;
 
 export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }): JSX.Element {
   const { isClientsLoaded } = useAuthLoading();
@@ -220,21 +218,17 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
       <Route
         path="accounts/:accountName/data/buckets/*"
         element={
-          <DataBrowserGuard>
-            <DataServiceRoleProvider>
-              <DataBrowser hideHeader={hideSideBar} />
-            </DataServiceRoleProvider>
-          </DataBrowserGuard>
+          <DataServiceRoleProvider>
+            <DataBrowser hideHeader={hideSideBar} />
+          </DataServiceRoleProvider>
         }
       />
       <Route
         path="accounts/:accountName/buckets/*"
         element={
-          <DataBrowserGuard>
-            <DataServiceRoleProvider>
-              <DataBrowser hideHeader={hideSideBar} />
-            </DataServiceRoleProvider>
-          </DataBrowserGuard>
+          <DataServiceRoleProvider>
+            <DataBrowser hideHeader={hideSideBar} />
+          </DataServiceRoleProvider>
         }
       />
       <Route
@@ -256,11 +250,9 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
       <Route
         path="buckets/*"
         element={
-          <DataBrowserGuard>
-            <DataServiceRoleProvider>
-              <RedirectToAccount />
-            </DataServiceRoleProvider>
-          </DataBrowserGuard>
+          <DataServiceRoleProvider>
+            <RedirectToAccount />
+          </DataServiceRoleProvider>
         }
       />
       <Route path="/" element={<Navigate to="accounts" replace />} />
@@ -276,8 +268,6 @@ function InternalRoutes(): JSX.Element {
   const location = useLocation();
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const config = useConfig();
-
-  const isStorageUsageConsumerRole = getIsStorageUsageConsumerRole();
 
   const metalK8sInstances = useDeployedMetalk8sInstances();
   const isMetalK8sEnabled = metalK8sInstances.length > 0;
@@ -339,7 +329,7 @@ function InternalRoutes(): JSX.Element {
           doesRouteMatch('/accounts/:accountName/users') ||
           doesRouteMatch('/accounts/:accountName/policies'),
       },
-      !isStorageUsageConsumerRole && {
+      {
         label: 'Data Browser',
         icon: <Icon name="Bucket" />,
         onClick: () => {

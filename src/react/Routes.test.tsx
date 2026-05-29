@@ -454,7 +454,7 @@ describe('Routes component', () => {
     });
   });
 
-  describe('Data Browser route guards', () => {
+  describe('Data Browser sidebar', () => {
     const STORAGE_USAGE_CONSUMER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-usage-consumer-role';
     const STORAGE_MANAGER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
     const STORAGE_ACCOUNT_OWNER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-account-owner-role';
@@ -463,128 +463,42 @@ describe('Routes component', () => {
       removeRoleArnStored();
     });
 
-    describe('accounts/:accountName/data/buckets route', () => {
-      it('should render ErrorPage401 for storage-usage-consumer-role ARN', async () => {
-        setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
+    it('should show Data Browser sidebar entry for storage-usage-consumer-role ARN', async () => {
+      setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
 
-        renderWithRouterMatch(<PrivateRoutes />, {
-          path: '/*',
-          route: '/accounts/test/data/buckets',
-        });
-
-        await waitFor(() => {
-          expect(screen.getByText(/Not authorized/i)).toBeInTheDocument();
-        });
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/accounts',
       });
 
-      it('should render Data Browser for storage-manager-role ARN', async () => {
-        setRoleArnStored(STORAGE_MANAGER_ARN);
-
-        renderWithRouterMatch(<PrivateRoutes />, {
-          path: '/*',
-          route: '/accounts/test/data/buckets',
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByText(/Not authorized/i)).not.toBeInTheDocument();
-        });
+      await waitFor(() => {
+        expect(screen.queryByText('Data Browser')).toBeInTheDocument();
       });
     });
 
-    describe('accounts/:accountName/buckets route', () => {
-      it('should render ErrorPage401 for storage-usage-consumer-role ARN', async () => {
-        setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
+    it('should show Data Browser sidebar entry for storage-manager-role ARN', async () => {
+      setRoleArnStored(STORAGE_MANAGER_ARN);
 
-        renderWithRouterMatch(<PrivateRoutes />, {
-          path: '/*',
-          route: '/accounts/test/buckets',
-        });
-
-        await waitFor(() => {
-          expect(screen.getByText(/Not authorized/i)).toBeInTheDocument();
-        });
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/accounts',
       });
 
-      it('should render Data Browser for storage-manager-role ARN', async () => {
-        setRoleArnStored(STORAGE_MANAGER_ARN);
-
-        renderWithRouterMatch(<PrivateRoutes />, {
-          path: '/*',
-          route: '/accounts/test/buckets',
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByText(/Not authorized/i)).not.toBeInTheDocument();
-        });
+      await waitFor(() => {
+        expect(screen.queryByText('Data Browser')).toBeInTheDocument();
       });
     });
 
-    describe('buckets route', () => {
-      it('should render ErrorPage401 for storage-usage-consumer-role ARN', async () => {
-        setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
+    it('should show Data Browser sidebar entry for storage-account-owner-role ARN', async () => {
+      setRoleArnStored(STORAGE_ACCOUNT_OWNER_ARN);
 
-        renderWithRouterMatch(<PrivateRoutes />, {
-          path: '/*',
-          route: '/buckets',
-        });
-
-        await waitFor(() => {
-          expect(screen.getByText(/Not authorized/i)).toBeInTheDocument();
-        });
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/accounts',
       });
 
-      it('should render redirect or empty state for storage-manager-role ARN', async () => {
-        setRoleArnStored(STORAGE_MANAGER_ARN);
-
-        renderWithRouterMatch(<PrivateRoutes />, {
-          path: '/*',
-          route: '/buckets',
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByText(/Not authorized/i)).not.toBeInTheDocument();
-        });
-      });
-    });
-
-    describe('sidebar Data Browser entry gating', () => {
-      it('should hide Data Browser sidebar entry for storage-usage-consumer-role ARN', async () => {
-        setRoleArnStored(STORAGE_USAGE_CONSUMER_ARN);
-
-        renderWithRouterMatch(<InternalRoutes />, {
-          path: '/*',
-          route: '/accounts',
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByText('Data Browser')).not.toBeInTheDocument();
-        });
-      });
-
-      it('should show Data Browser sidebar entry for storage-manager-role ARN', async () => {
-        setRoleArnStored(STORAGE_MANAGER_ARN);
-
-        renderWithRouterMatch(<InternalRoutes />, {
-          path: '/*',
-          route: '/accounts',
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByText('Data Browser')).toBeInTheDocument();
-        });
-      });
-
-      it('should show Data Browser sidebar entry for storage-account-owner-role ARN', async () => {
-        setRoleArnStored(STORAGE_ACCOUNT_OWNER_ARN);
-
-        renderWithRouterMatch(<InternalRoutes />, {
-          path: '/*',
-          route: '/accounts',
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByText('Data Browser')).toBeInTheDocument();
-        });
+      await waitFor(() => {
+        expect(screen.queryByText('Data Browser')).toBeInTheDocument();
       });
     });
   });
