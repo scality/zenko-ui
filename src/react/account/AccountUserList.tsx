@@ -248,7 +248,8 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     return iamUsers;
   };
 
-  const columns = [
+  const columns = useMemo(
+    () => [
     {
       Header: 'User Name',
       accessor: 'userName',
@@ -295,7 +296,9 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         <ActionButtons rowValues={value.row.original} accountName={accountName} />
       ),
     },
-  ];
+    ],
+    [accountName],
+  );
   return (
     <AwsPaginatedResourceTable
       key={`users-${roleArn}-${accountName}`}

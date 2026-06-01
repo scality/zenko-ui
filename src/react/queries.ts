@@ -28,6 +28,7 @@ export const getUserAccessKeysQuery = (
 ): AWS_PAGINATED_QUERY<ListAccessKeysResponse, AccessKeyMetadata, AWSError> => ({
   queryKey: ['listIAMUserAccessKey', userName],
   queryFn: (_ctx, marker) => IAMClient.listAccessKeys(userName, marker?.Marker),
+  staleTime: Infinity,
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
