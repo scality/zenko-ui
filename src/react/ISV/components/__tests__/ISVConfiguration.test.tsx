@@ -422,6 +422,56 @@ describe('ISVConfiguration', () => {
       expect(screen.getByText('IAM User name already exists')).toBeInTheDocument();
     });
 
+    it('should keep Continue button disabled when account name is a duplicate in create mode', async () => {
+      renderComponent();
+
+      await userEvent.type(screen.getByLabelText(/Account Name/i), 'test-account');
+
+      expect(screen.getByText('Account name already exists')).toBeInTheDocument();
+      expect(selectors.continueButton()).toBeDisabled();
+    });
+
+    it('should re-enable Continue button when account name is changed from duplicate to non-duplicate', async () => {
+      renderComponent(CommvaultPlatform);
+
+      const accountNameInput = screen.getByRole('textbox', { name: /Account \* Account Name \*/i });
+
+      // Type a duplicate name first
+      await userEvent.type(accountNameInput, 'test-account');
+
+      await waitFor(() => {
+        expect(screen.getByText('Account name already exists')).toBeInTheDocument();
+      });
+      expect(selectors.continueButton()).toBeDisabled();
+
+      // Clear and type a non-duplicate name
+      await userEvent.clear(accountNameInput);
+      await userEvent.type(accountNameInput, 'unique-account');
+
+      // Also fill the required bucket field
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+
+      await waitFor(() => {
+        expect(screen.queryByText('Account name already exists')).not.toBeInTheDocument();
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
+
+    it('should keep Continue button disabled when IAM user name is a duplicate', async () => {
+      renderComponent();
+
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.click(selectors.useExistingAccountSelect());
+      await userEvent.click(screen.getByRole('option', { name: 'test-account' }));
+      await userEvent.click(screen.getByText('Advanced settings'));
+
+      await userEvent.click(selectors.createUserRadio());
+      await userEvent.type(screen.getByLabelText(/IAM User Name/i), 'test-user');
+
+      expect(screen.getByText('IAM User name already exists')).toBeInTheDocument();
+      expect(selectors.continueButton()).toBeDisabled();
+    });
+
     it('should show error for duplicate bucket names', async () => {
       renderComponent();
 
