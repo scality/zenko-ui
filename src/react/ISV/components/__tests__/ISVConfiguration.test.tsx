@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useListAccounts } from '../../../next-architecture/domain/business/accounts';
 import { renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
@@ -439,6 +439,30 @@ describe('ISVConfiguration', () => {
 
       expect(screen.getByText('Account name already exists')).toBeInTheDocument();
       expect(selectors.continueButton()).toBeDisabled();
+    });
+
+    it('should not submit when account name is a duplicate even if the form is otherwise valid', async () => {
+      const { container } = renderComponent(CommvaultPlatform);
+
+      await userEvent.type(screen.getByRole('textbox', { name: /Account \* Account Name \*/i }), 'test-account');
+      // Fill the required bucket field so Joi validation (mode: 'all') passes —
+      // Joi does not know about duplicates, so handleSubmit would otherwise run.
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+
+      await waitFor(() => {
+        expect(screen.getByText('Account name already exists')).toBeInTheDocument();
+      });
+
+      // A disabled Continue button does not stop Enter-key / implicit form
+      // submission, which fires a native submit event on the form. The onSubmit
+      // guard must block navigation for the duplicate name.
+      const form = container.querySelector('form') as HTMLFormElement;
+      await act(async () => {
+        fireEvent.submit(form);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      expect(mockNext).not.toHaveBeenCalled();
     });
 
     it('should re-enable Continue button when account name is changed from duplicate to non-duplicate', async () => {

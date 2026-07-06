@@ -35,6 +35,11 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
   const hasDuplicateError = isDuplicateAccountName || isDuplicateIAMUserName;
 
   const onSubmit = async (data: FormData) => {
+    // A disabled Continue button does not block Enter-key submission, and Joi
+    // (mode: 'all') does not know about duplicate names, so guard explicitly.
+    if (hasDuplicateError) {
+      return;
+    }
     if (data.application === VEEAM_OFFICE_365) {
       data.enableImmutableBackup = false;
     }
