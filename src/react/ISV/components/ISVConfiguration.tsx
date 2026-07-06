@@ -9,7 +9,6 @@ import { useSearchParams } from 'react-router';
 import { DEFAULT_IMMUTABLE_PERIOD_DAYS, VEEAM_OFFICE_365 } from '../constants';
 import { FormData, ISVPlatform } from '../engine/types';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
-import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 import { FormRenderer } from './FormRenderer';
 import { ISVFormProvider, useISVFormContext } from './ISVFormContext';
 import { ISVSkipModal } from './ISVSkipModal';
@@ -107,7 +106,6 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
 const getDefaultFormValues = (
   platform: ISVPlatform,
   paramsAccountName: string | null,
-  isVeeamVBROnly: boolean,
 ): Partial<FormData> => {
   const hasImmutableField = platform.fields.some((f) => f.name === 'enableImmutableBackup');
   const baseDefaults: Partial<FormData> = {
@@ -132,7 +130,7 @@ const getDefaultFormValues = (
 
   const defaults = { ...fieldDefaults, ...baseDefaults };
 
-  if (isVeeamVBROnly) {
+  if (platform.id === 'veeam-vbr') {
     return {
       ...defaults,
       autoCreateRepository: true,
@@ -147,11 +145,10 @@ export const ISVConfiguration = () => {
   const { platform } = useISVStepper();
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
-  const isVeeamVBROnly = useIsVeeamVBROnly();
 
   const formMethods = useForm<FormData>({
     mode: 'all',
-    defaultValues: getDefaultFormValues(platform, paramsAccountName, isVeeamVBROnly),
+    defaultValues: getDefaultFormValues(platform, paramsAccountName),
     resolver: joiResolver(platform.validator),
     shouldUnregister: false,
   });
