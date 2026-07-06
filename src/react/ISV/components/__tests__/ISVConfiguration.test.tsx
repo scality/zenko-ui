@@ -1,9 +1,12 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useShellHooks } from '@scality/module-federation';
 import { useListAccounts } from '../../../next-architecture/domain/business/accounts';
 import { renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
 import { VEEAM_OFFICE_365 } from '../../constants';
 import { CommvaultPlatform } from '../../platforms/commvault';
+import { KastenPlatform } from '../../platforms/kasten';
+import { RubrikPlatform } from '../../platforms/rubrik';
 import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
 import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
 import { ISVConfiguration } from '../ISVConfiguration';
@@ -985,6 +988,125 @@ describe('ISVConfiguration', () => {
         expect(selectors.createUserRadio()).toBeChecked();
         expect(selectors.existingUserRadio()).not.toBeChecked();
         expect(selectors.createUserInput()).toHaveValue('test-account');
+      });
+    });
+  });
+
+  describe('Continue button enabled on non-VBR platforms with artesca_plus_veeam flag', () => {
+    const setupArtescaPlusVeeam = () => {
+      const mockUseShellHooks = useShellHooks as jest.Mock;
+      mockUseShellHooks.mockImplementation((selector: (hooks: Record<string, unknown>) => unknown) => {
+        return selector({
+          useDeployedApps: () => [
+            {
+              kind: 'artesca-base-ui',
+              name: 'artesca-base-ui',
+              url: 'https://artesca-base-ui',
+              version: '1.0.0',
+              appHistoryBasePath: '/app-history',
+            },
+          ],
+          useConfigRetriever: () => ({
+            retrieveConfiguration: jest.fn().mockReturnValue({
+              spec: {
+                selfConfiguration: {
+                  flags: ['artesca_plus_veeam'],
+                },
+              },
+            }),
+          }),
+        });
+      });
+    };
+
+    beforeEach(() => {
+      setupArtescaPlusVeeam();
+    });
+
+    it('should enable Continue button for CommvaultPlatform with artesca_plus_veeam flag', async () => {
+      render(
+        <Wrapper>
+          <ISVStepperContext.Provider value={{ platform: CommvaultPlatform }}>
+            <ISVConfiguration />
+          </ISVStepperContext.Provider>
+        </Wrapper>,
+      );
+
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
+        'commvault-artesca-account',
+      );
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'commvault-bucket');
+
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
+
+    it('should enable Continue button for VeeamVBOPlatform with artesca_plus_veeam flag', async () => {
+      render(
+        <Wrapper>
+          <ISVStepperContext.Provider value={{ platform: VeeamVBOPlatform }}>
+            <ISVConfiguration />
+          </ISVStepperContext.Provider>
+        </Wrapper>,
+      );
+
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
+        'vbo-artesca-account',
+      );
+
+      // Select a Veeam application (required for VBO)
+      const applicationInput = screen.getByRole('textbox', { name: 'Veeam application' });
+      await userEvent.click(applicationInput);
+      await userEvent.click(screen.getByRole('option', { name: VEEAM_OFFICE_365 }));
+
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'vbo-bucket');
+
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
+
+    it('should enable Continue button for KastenPlatform with artesca_plus_veeam flag', async () => {
+      render(
+        <Wrapper>
+          <ISVStepperContext.Provider value={{ platform: KastenPlatform }}>
+            <ISVConfiguration />
+          </ISVStepperContext.Provider>
+        </Wrapper>,
+      );
+
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
+        'kasten-artesca-account',
+      );
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'kasten-bucket');
+
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+    });
+
+    it('should enable Continue button for RubrikPlatform with artesca_plus_veeam flag', async () => {
+      render(
+        <Wrapper>
+          <ISVStepperContext.Provider value={{ platform: RubrikPlatform }}>
+            <ISVConfiguration />
+          </ISVStepperContext.Provider>
+        </Wrapper>,
+      );
+
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
+        'rubrik-artesca-account',
+      );
+      // Rubrik requires bucket name matching /^[a-z0-9.-]+-rubrik-\d+$/
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-archive-rubrik-0');
+
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
       });
     });
   });
