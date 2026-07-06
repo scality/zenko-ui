@@ -71,7 +71,6 @@ describe('CreateOrSelectNameField', () => {
   };
 
   const defaultProps = {
-    isExist: false,
     status: 'success',
     options: [{ name: 'option1' }, { name: 'option2' }],
     platform: 'veeam',
@@ -139,18 +138,15 @@ describe('CreateOrSelectNameField', () => {
     expect(screen.getByText('This field is required')).toBeInTheDocument();
   });
 
-  it('shows an "already exists" error when trying to create a duplicate', () => {
-    render(<CreateOrSelectNameField {...defaultProps} isExist={true} />);
+  it('shows an "already exists" error injected via form errors', () => {
+    (useFormContext as jest.Mock).mockReturnValue({
+      ...mockFormContext,
+      formState: { errors: { testField: { message: 'Account name already exists' } } },
+    });
+
+    render(<CreateOrSelectNameField {...defaultProps} />);
 
     expect(screen.getByText('Account name already exists')).toBeInTheDocument();
-  });
-
-  it('disables the "Create" radio when the account from the URL already exists', () => {
-    (useSearchParams as jest.Mock).mockReturnValue([{ get: () => 'option1' }, jest.fn()]);
-
-    render(<CreateOrSelectNameField {...defaultProps} isExist={true} />);
-
-    expect(screen.getByRole('radio', { name: 'Create a new Account' })).toBeDisabled();
   });
 
   it('uses the platform name as placeholder when status is success and options exist', () => {

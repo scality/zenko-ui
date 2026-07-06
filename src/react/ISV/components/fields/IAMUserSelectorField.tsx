@@ -14,7 +14,7 @@ type IAMUserSelectorFieldProps = {
 };
 
 export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFieldProps) => {
-  const { platform, iamUsers, iamUsersStatus, isIAMUserExist, accessKeysStatus, isAccordionExpanded } =
+  const { platform, iamUsers, iamUsersStatus, accessKeysStatus, isAccordionExpanded } =
     useISVFormContext();
 
   const selectRef = useRef<SelectRef<Option, false, null>>(null);
@@ -40,7 +40,6 @@ export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFiel
       <Accordion title="Advanced settings" id="advanced-settings" open={isAccordionExpanded} isEmphazed={false}>
         <FormSection forceLabelWidth={264}>
           <CreateOrSelectNameField
-            isExist={isIAMUserExist}
             status={iamUsersStatus}
             options={iamUsers}
             selectRef={selectRef}

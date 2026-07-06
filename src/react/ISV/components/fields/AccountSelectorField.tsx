@@ -9,14 +9,13 @@ type AccountSelectorFieldProps = {
 };
 
 export const AccountSelectorField = ({ field, formMethods }: AccountSelectorFieldProps) => {
-  const { platform, accounts, accountsStatus, isAccountExist, onAccountSelected, resetIAMFields } = useISVFormContext();
+  const { platform, accounts, accountsStatus, onAccountSelected, resetIAMFields } = useISVFormContext();
 
   const { watch } = formMethods;
   const accountNameType = watch('accountNameType');
 
   return (
     <CreateOrSelectNameField
-      isExist={isAccountExist}
       status={accountsStatus}
       options={accounts}
       platform={platform.id}

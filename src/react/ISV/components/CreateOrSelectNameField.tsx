@@ -15,7 +15,6 @@ export interface Option {
 type OptionValue = 'create' | 'existing';
 
 interface CreateOrSelectNameFieldProps {
-  isExist: boolean;
   status: 'loading' | 'success' | string;
   options: Option[];
   platform: string;
@@ -59,7 +58,6 @@ const getRadioOptions = (
 };
 
 export const CreateOrSelectNameField = ({
-  isExist,
   status,
   options,
   platform,
@@ -83,11 +81,9 @@ export const CreateOrSelectNameField = ({
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
   const isParamsAccountNameInOptions = options.some((option) => option.name === paramsAccountName);
-  const isExistingDisabled = (isAccount && isParamsAccountNameInOptions && isExist) || options.length === 0;
-  const isCreateDisabled = isAccount && isExist && isParamsAccountNameInOptions;
-  const isSelectAccountDisabled = isAccount && isParamsAccountNameInOptions && isExist;
+  const isExistingDisabled = options.length === 0;
 
-  const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled, disabledExistingReason);
+  const radioOptions = getRadioOptions(isAccount, false, isExistingDisabled, disabledExistingReason);
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -123,11 +119,7 @@ export const CreateOrSelectNameField = ({
         label={isAccount ? 'Account Name' : 'IAM User Name'}
         required
         helpErrorPosition="bottom"
-        error={
-          isExist && type === 'create'
-            ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
-            : ((errors[fieldName]?.message as string) ?? '')
-        }
+        error={(errors[fieldName]?.message as string) ?? ''}
         content={
           <Stack gap="r8" direction="vertical">
             {type === 'create' || options.length === 0 ? (
@@ -156,7 +148,7 @@ export const CreateOrSelectNameField = ({
                         onChange(value);
                       }}
                       value={value}
-                      disabled={isSelectAccountDisabled && isAccount}
+                      disabled={isAccount && isParamsAccountNameInOptions}
                       placeholder={`Select existing ${isAccount ? 'account' : 'user'}`}
                     >
                       {status === 'loading' && (
