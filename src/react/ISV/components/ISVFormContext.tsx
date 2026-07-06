@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, type ReactElement, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
@@ -55,7 +55,7 @@ type ISVFormProviderProps = {
   children: ReactNode;
 };
 
-export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProviderProps): JSX.Element => {
+export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProviderProps): ReactElement => {
   const { setValue, watch, setError, clearErrors } = formMethods;
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
