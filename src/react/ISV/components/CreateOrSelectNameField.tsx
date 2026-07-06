@@ -76,7 +76,7 @@ export const CreateOrSelectNameField = ({
     control,
     formState: { errors },
   } = useFormContext();
-  const isAccount = onFieldNameChange ? true : false;
+  const isAccount = !!onFieldNameChange;
   const typeFieldName = isAccount ? FORM_FIELDS.ACCOUNT_NAME_TYPE : FORM_FIELDS.IAM_USER_NAME_TYPE;
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
@@ -84,6 +84,7 @@ export const CreateOrSelectNameField = ({
   const isExistingDisabled = options.length === 0;
 
   const radioOptions = getRadioOptions(isAccount, false, isExistingDisabled, disabledExistingReason);
+  const showTextInput = type === 'create' || options.length === 0;
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -122,7 +123,7 @@ export const CreateOrSelectNameField = ({
         error={(errors[fieldName]?.message as string) ?? ''}
         content={
           <Stack gap="r8" direction="vertical">
-            {type === 'create' || options.length === 0 ? (
+            {showTextInput ? (
               <Input
                 id={fieldName}
                 type="text"

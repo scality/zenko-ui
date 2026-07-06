@@ -137,35 +137,39 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
     [setValue],
   );
 
+  const applyIAMUsersToForm = useCallback(
+    (users: { UserName: string }[], accountName: string) => {
+      if (users.length === 0) {
+        setValue('IAMUserNameType', 'create');
+        setValue('IAMUserName', accountName);
+        return;
+      }
+
+      setValue('IAMUserNameType', 'existing');
+      const matchingUser = users.find((user) => user.UserName === accountName);
+      if (matchingUser) {
+        setValue('IAMUserName', matchingUser.UserName);
+      } else {
+        setValue('IAMUserName', users[0].UserName);
+        setIsAccordionExpanded(true);
+      }
+    },
+    [setValue],
+  );
+
   // Handle account selection - fetch IAM users
   const onAccountSelected = useCallback(
-    (value: string) => {
+    (accountName: string) => {
       setIsAccordionExpanded(false);
 
-      const roleArn = accounts.find((option) => option.name === value)?.preferredAssumableRoleArn;
-
-      getIAMUsersMutation.mutate(roleArn, {
-        onSuccess: (data) => {
-          if (data.Users.length > 0) {
-            setValue('IAMUserNameType', 'existing');
-            const user = data.Users.find((user) => user.UserName === value);
-            if (user) {
-              setValue('IAMUserName', user.UserName);
-            } else {
-              setValue('IAMUserName', data.Users[0].UserName);
-              setIsAccordionExpanded(true);
-            }
-          } else {
-            setValue('IAMUserNameType', 'create');
-            setValue('IAMUserName', value);
-          }
-        },
-      });
-
-      const account = accounts.find((option) => option.name === value);
+      const account = accounts.find((option) => option.name === accountName);
       setSelectedAccount(account ?? null);
+
+      getIAMUsersMutation.mutate(account?.preferredAssumableRoleArn, {
+        onSuccess: (data) => applyIAMUsersToForm(data.Users, accountName),
+      });
     },
-    [accounts, getIAMUsersMutation, setValue],
+    [accounts, applyIAMUsersToForm, getIAMUsersMutation],
   );
 
   // Auto-fetch IAM users if account from URL params
