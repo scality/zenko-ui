@@ -29,13 +29,11 @@ type ISVFormContextValue = {
   accountsStatus: AccountsStatus;
   selectedAccount: Account | null;
   setSelectedAccount: (account: Account | null) => void;
-  isAccountExist: boolean;
   paramsAccountName: string | null;
 
   // IAM state
   iamUsers: IAMUser[];
   iamUsersStatus: 'idle' | 'loading' | 'success' | 'error';
-  isIAMUserExist: boolean;
   fetchIAMUsers: (roleArn: string | undefined) => void;
   accessKeys: string[];
   accessKeysStatus: 'idle' | 'loading' | 'success' | 'error';
@@ -211,11 +209,9 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
     accountsStatus,
     selectedAccount,
     setSelectedAccount,
-    isAccountExist,
     paramsAccountName,
     iamUsers: IAMUsers,
     iamUsersStatus,
-    isIAMUserExist,
     fetchIAMUsers,
     accessKeys,
     accessKeysStatus,
