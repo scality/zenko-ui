@@ -1,4 +1,14 @@
-import { createContext, type ReactElement, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  createContext,
+  type ReactElement,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
@@ -60,7 +70,7 @@ type ISVFormProviderProps = {
 };
 
 export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProviderProps): ReactElement => {
-  const { setValue, watch, setError, clearErrors, formState } = formMethods;
+  const { setValue, watch, formState } = formMethods;
   const dirtyFields = formState.dirtyFields;
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
@@ -107,27 +117,14 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
   // Compute duplicate flags — only fire when the user has actually interacted
   // with the field (dirtyFields) to avoid false positives on initial mount or
   // when values come from query params / programmatic setValue calls.
-  const isDuplicateAccountName = !!(dirtyFields.accountName) && accountNameType === 'create' && isAccountExist;
+  // These drive the Continue button (via hasDuplicateError in ISVConfiguration)
+  // and the inline error (via errorOverride on CreateOrSelectNameField). We
+  // deliberately do NOT push them into react-hook-form via setError: the Joi
+  // resolver (mode: 'all') overwrites the errors object on every revalidation
+  // and would silently drop a manually-set duplicate error.
+  const isDuplicateAccountName = !!dirtyFields.accountName && accountNameType === 'create' && isAccountExist;
   const isDuplicateIAMUserName =
-    !!(dirtyFields.IAMUserName) && accountNameType === 'existing' && IAMUserNameType === 'create' && isIAMUserExist;
-
-  // Wire duplicate account name check into react-hook-form
-  useEffect(() => {
-    if (isDuplicateAccountName) {
-      setError('accountName', { type: 'duplicate', message: 'Account name already exists' });
-    } else {
-      clearErrors('accountName');
-    }
-  }, [isDuplicateAccountName, setError, clearErrors]);
-
-  // Wire duplicate IAM user name check into react-hook-form
-  useEffect(() => {
-    if (isDuplicateIAMUserName) {
-      setError('IAMUserName', { type: 'duplicate', message: 'IAM User name already exists' });
-    } else {
-      clearErrors('IAMUserName');
-    }
-  }, [isDuplicateIAMUserName, setError, clearErrors]);
+    !!dirtyFields.IAMUserName && accountNameType === 'existing' && IAMUserNameType === 'create' && isIAMUserExist;
 
   // Reset IAM fields
   const resetIAMFields = useCallback(
