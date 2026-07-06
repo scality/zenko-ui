@@ -55,8 +55,8 @@ type ISVFormProviderProps = {
   children: ReactNode;
 };
 
-export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProviderProps) => {
-  const { setValue, watch } = formMethods;
+export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProviderProps): JSX.Element => {
+  const { setValue, watch, setError, clearErrors } = formMethods;
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
 
@@ -66,6 +66,7 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
   const accountName = watch('accountName');
   const accountNameType = watch('accountNameType');
   const IAMUserName = watch('IAMUserName');
+  const IAMUserNameType = watch('IAMUserNameType');
 
   // Fetch accounts
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
@@ -97,6 +98,24 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
   });
 
   const iamUsersStatus = getIAMUsersMutation.status as 'idle' | 'loading' | 'success' | 'error';
+
+  // Wire duplicate account name check into react-hook-form
+  useEffect(() => {
+    if (accountNameType === 'create' && isAccountExist) {
+      setError('accountName', { type: 'duplicate', message: 'Account name already exists' });
+    } else {
+      clearErrors('accountName');
+    }
+  }, [accountNameType, isAccountExist, setError, clearErrors]);
+
+  // Wire duplicate IAM user name check into react-hook-form
+  useEffect(() => {
+    if (IAMUserNameType === 'create' && isIAMUserExist) {
+      setError('IAMUserName', { type: 'duplicate', message: 'IAM User name already exists' });
+    } else {
+      clearErrors('IAMUserName');
+    }
+  }, [IAMUserNameType, isIAMUserExist, setError, clearErrors]);
 
   // Reset IAM fields
   const resetIAMFields = useCallback(
