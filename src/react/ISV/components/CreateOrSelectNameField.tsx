@@ -27,6 +27,7 @@ interface CreateOrSelectNameFieldProps {
   onOptionChange?: (value: string) => void;
   children?: React.ReactNode;
   selectRef?: Ref<SelectRef<Option, false, null>>;
+  errorOverride?: string;
 }
 
 const FORM_FIELDS = {
@@ -70,6 +71,7 @@ export const CreateOrSelectNameField = ({
   onOptionChange = null,
   selectRef,
   children = null,
+  errorOverride,
 }: CreateOrSelectNameFieldProps) => {
   const {
     register,
@@ -82,9 +84,12 @@ export const CreateOrSelectNameField = ({
   const paramsAccountName = searchParams.get('account');
   const isParamsAccountNameInOptions = options.some((option) => option.name === paramsAccountName);
   const isExistingDisabled = options.length === 0;
+  const isCreateDisabled = isAccount && isParamsAccountNameInOptions;
 
-  const radioOptions = getRadioOptions(isAccount, false, isExistingDisabled, disabledExistingReason);
+  const radioOptions = getRadioOptions(isAccount, isCreateDisabled, isExistingDisabled, disabledExistingReason);
   const showTextInput = type === 'create' || options.length === 0;
+
+  const fieldError = errorOverride ?? (errors[fieldName]?.message as string) ?? '';
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -120,7 +125,7 @@ export const CreateOrSelectNameField = ({
         label={isAccount ? 'Account Name' : 'IAM User Name'}
         required
         helpErrorPosition="bottom"
-        error={(errors[fieldName]?.message as string) ?? ''}
+        error={fieldError}
         content={
           <Stack gap="r8" direction="vertical">
             {showTextInput ? (

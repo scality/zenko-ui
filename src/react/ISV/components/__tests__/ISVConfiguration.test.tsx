@@ -114,7 +114,7 @@ describe('ISVConfiguration', () => {
     (useListAccounts as jest.Mock).mockReturnValue({ accounts: mockAccounts });
     const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
     useIAMUserMock.mockReturnValue({
-      isIAMUserExist: true,
+      isIAMUserExist: false,
       IAMUsersStatus: 'success',
       IAMUsers: [{ id: '1', name: 'test-user' }],
       getIAMUsersMutation: { mutate: jest.fn() },
@@ -410,6 +410,16 @@ describe('ISVConfiguration', () => {
     });
 
     it('should show error for duplicate IAM User Names', async () => {
+      const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
+      useIAMUserMock.mockReturnValue({
+        isIAMUserExist: true,
+        IAMUsersStatus: 'success',
+        IAMUsers: [{ id: '1', name: 'test-user' }],
+        getIAMUsersMutation: { mutate: jest.fn() },
+        accessKeys: null,
+        hasActiveKeys: false,
+      });
+
       renderComponent();
 
       await userEvent.click(selectors.existingAccountRadio());
@@ -458,6 +468,16 @@ describe('ISVConfiguration', () => {
     });
 
     it('should keep Continue button disabled when IAM user name is a duplicate', async () => {
+      const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
+      useIAMUserMock.mockReturnValue({
+        isIAMUserExist: true,
+        IAMUsersStatus: 'success',
+        IAMUsers: [{ id: '1', name: 'test-user' }],
+        getIAMUsersMutation: { mutate: jest.fn() },
+        accessKeys: null,
+        hasActiveKeys: false,
+      });
+
       renderComponent();
 
       await userEvent.click(selectors.existingAccountRadio());

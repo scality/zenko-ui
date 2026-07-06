@@ -9,7 +9,7 @@ type AccountSelectorFieldProps = {
 };
 
 export const AccountSelectorField = ({ field, formMethods }: AccountSelectorFieldProps) => {
-  const { platform, accounts, accountsStatus, onAccountSelected, resetIAMFields } = useISVFormContext();
+  const { platform, accounts, accountsStatus, onAccountSelected, resetIAMFields, isDuplicateAccountName } = useISVFormContext();
 
   const { watch } = formMethods;
   const accountNameType = watch('accountNameType');
@@ -23,6 +23,7 @@ export const AccountSelectorField = ({ field, formMethods }: AccountSelectorFiel
       fieldName="accountName"
       label={field.label || 'Account'}
       tooltip={field.tooltip as React.ReactElement}
+      errorOverride={isDuplicateAccountName ? 'Account name already exists' : undefined}
       onOptionChange={(mode: string) => {
         const firstAccountName = accounts[0]?.name;
         resetIAMFields(mode as 'create' | 'existing', firstAccountName);

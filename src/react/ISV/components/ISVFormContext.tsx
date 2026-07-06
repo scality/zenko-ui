@@ -34,6 +34,10 @@ type ISVFormContextValue = {
   isAccordionExpanded: boolean;
   setIsAccordionExpanded: (expanded: boolean) => void;
 
+  // Duplicate validation flags
+  isDuplicateAccountName: boolean;
+  isDuplicateIAMUserName: boolean;
+
   // Actions
   onAccountSelected: (accountName: string) => void;
   resetIAMFields: (mode: 'create' | 'existing', firstAccountName?: string) => void;
@@ -56,7 +60,8 @@ type ISVFormProviderProps = {
 };
 
 export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProviderProps): ReactElement => {
-  const { setValue, watch, setError, clearErrors } = formMethods;
+  const { setValue, watch, setError, clearErrors, formState } = formMethods;
+  const dirtyFields = formState.dirtyFields;
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
 
@@ -99,23 +104,30 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
 
   const iamUsersStatus = getIAMUsersMutation.status as 'idle' | 'loading' | 'success' | 'error';
 
+  // Compute duplicate flags — only fire when the user has actually interacted
+  // with the field (dirtyFields) to avoid false positives on initial mount or
+  // when values come from query params / programmatic setValue calls.
+  const isDuplicateAccountName = !!(dirtyFields.accountName) && accountNameType === 'create' && isAccountExist;
+  const isDuplicateIAMUserName =
+    !!(dirtyFields.IAMUserName) && accountNameType === 'existing' && IAMUserNameType === 'create' && isIAMUserExist;
+
   // Wire duplicate account name check into react-hook-form
   useEffect(() => {
-    if (accountNameType === 'create' && isAccountExist) {
+    if (isDuplicateAccountName) {
       setError('accountName', { type: 'duplicate', message: 'Account name already exists' });
     } else {
       clearErrors('accountName');
     }
-  }, [accountNameType, isAccountExist, setError, clearErrors]);
+  }, [isDuplicateAccountName, setError, clearErrors]);
 
   // Wire duplicate IAM user name check into react-hook-form
   useEffect(() => {
-    if (IAMUserNameType === 'create' && isIAMUserExist) {
+    if (isDuplicateIAMUserName) {
       setError('IAMUserName', { type: 'duplicate', message: 'IAM User name already exists' });
     } else {
       clearErrors('IAMUserName');
     }
-  }, [IAMUserNameType, isIAMUserExist, setError, clearErrors]);
+  }, [isDuplicateIAMUserName, setError, clearErrors]);
 
   // Reset IAM fields
   const resetIAMFields = useCallback(
@@ -212,6 +224,8 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
     accessKeysStatus,
     isAccordionExpanded,
     setIsAccordionExpanded,
+    isDuplicateAccountName,
+    isDuplicateIAMUserName,
     onAccountSelected,
     resetIAMFields,
   };

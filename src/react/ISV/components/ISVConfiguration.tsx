@@ -25,12 +25,14 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
   const { next } = useStepper(ISVStepsIndexes.Configuration);
   const navigate = useBasenameRelativeNavigate();
 
-  const { selectedAccount, paramsAccountName, accessKeys } = useISVFormContext();
+  const { selectedAccount, paramsAccountName, accessKeys, isDuplicateAccountName, isDuplicateIAMUserName } = useISVFormContext();
 
   const {
     handleSubmit,
     formState: { isValid },
   } = formMethods;
+
+  const hasDuplicateError = isDuplicateAccountName || isDuplicateIAMUserName;
 
   const onSubmit = async (data: FormData) => {
     if (data.application === VEEAM_OFFICE_365) {
@@ -81,7 +83,7 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
               type="submit"
               variant="primary"
               label="Continue"
-              disabled={!isValid}
+              disabled={!isValid || hasDuplicateError}
               icon={<Icon name="Arrow-right" />}
             />
           </Stack>

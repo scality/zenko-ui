@@ -14,7 +14,7 @@ type IAMUserSelectorFieldProps = {
 };
 
 export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFieldProps) => {
-  const { platform, iamUsers, iamUsersStatus, accessKeysStatus, isAccordionExpanded } =
+  const { platform, iamUsers, iamUsersStatus, accessKeysStatus, isAccordionExpanded, isDuplicateIAMUserName } =
     useISVFormContext();
 
   const selectRef = useRef<SelectRef<Option, false, null>>(null);
@@ -49,6 +49,7 @@ export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFiel
             disabledExistingReason={field.disabledExistingReason}
             fieldName="IAMUserName"
             label="IAM User Management"
+            errorOverride={isDuplicateIAMUserName ? 'IAM User name already exists' : undefined}
             onOptionChange={(mode: string) => {
               const firstIAMUserName = iamUsers[0]?.name;
               if (mode === 'existing' && firstIAMUserName) {
