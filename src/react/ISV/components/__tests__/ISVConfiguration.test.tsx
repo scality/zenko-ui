@@ -1,8 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useShellHooks } from '@scality/module-federation';
 import { useListAccounts } from '../../../next-architecture/domain/business/accounts';
-import { renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
+import { mockShellHooks, renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
 import { VEEAM_OFFICE_365 } from '../../constants';
 import { CommvaultPlatform } from '../../platforms/commvault';
 import { KastenPlatform } from '../../platforms/kasten';
@@ -14,7 +13,7 @@ import { ISVStepperContext } from '../ISVStepperContext';
 
 const mockNavigate = jest.fn();
 jest.mock('@scality/module-federation', () => ({
-  useShellHooks: jest.fn(),
+  ...jest.requireActual('@scality/module-federation'),
   useBasenameRelativeNavigate: jest.fn().mockImplementation(() => mockNavigate),
 }));
 
@@ -994,29 +993,24 @@ describe('ISVConfiguration', () => {
 
   describe('Continue button enabled on non-VBR platforms with artesca_plus_veeam flag', () => {
     const setupArtescaPlusVeeam = () => {
-      const mockUseShellHooks = useShellHooks as jest.Mock;
-      mockUseShellHooks.mockImplementation((selector: (hooks: Record<string, unknown>) => unknown) => {
-        return selector({
-          useDeployedApps: () => [
-            {
-              kind: 'artesca-base-ui',
-              name: 'artesca-base-ui',
-              url: 'https://artesca-base-ui',
-              version: '1.0.0',
-              appHistoryBasePath: '/app-history',
+      (mockShellHooks.useDeployedApps as jest.Mock).mockImplementation(() => [
+        {
+          kind: 'artesca-base-ui',
+          name: 'artesca-base-ui',
+          url: 'https://artesca-base-ui',
+          version: '1.0.0',
+          appHistoryBasePath: '/app-history',
+        },
+      ]);
+      (mockShellHooks.useConfigRetriever as jest.Mock).mockImplementation(() => ({
+        retrieveConfiguration: jest.fn().mockReturnValue({
+          spec: {
+            selfConfiguration: {
+              flags: ['artesca_plus_veeam'],
             },
-          ],
-          useConfigRetriever: () => ({
-            retrieveConfiguration: jest.fn().mockReturnValue({
-              spec: {
-                selfConfiguration: {
-                  flags: ['artesca_plus_veeam'],
-                },
-              },
-            }),
-          }),
-        });
-      });
+          },
+        }),
+      }));
     };
 
     beforeEach(() => {
