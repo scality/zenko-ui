@@ -6,7 +6,7 @@ import { QueryClient } from 'react-query';
 import { QueryClientProvider } from '../../../../../QueryClientProvider';
 import { ServiceError } from '../crrFetch';
 import type { VerifyRequestBody } from '../types';
-import { useVerifyMutation } from '../useVerifyMutation';
+import { useCRRConfigurationVerifyMutation } from '../useCRRConfigurationVerifyMutation';
 
 const VERIFY_URL = '/crr-configurator/api/v1/verify';
 const server = setupServer();
@@ -34,14 +34,14 @@ const VERIFY_BODY: VerifyRequestBody = {
   destinationCertificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
 };
 
-describe('useVerifyMutation', () => {
+describe('useCRRConfigurationVerifyMutation', () => {
   it('exposes the VerifyResponse when the configurator accepts the destination', async () => {
     server.use(
       rest.post(VERIFY_URL, (_req, res, ctx) =>
         res(ctx.json({ ok: true, mode: 'management-network', instanceName: 'ageless-valley' })),
       ),
     );
-    const { result } = renderHook(() => useVerifyMutation(), { wrapper: buildWrapper() });
+    const { result } = renderHook(() => useCRRConfigurationVerifyMutation(), { wrapper: buildWrapper() });
     result.current.mutate(VERIFY_BODY);
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual({
@@ -68,7 +68,7 @@ describe('useVerifyMutation', () => {
         ),
       ),
     );
-    const { result } = renderHook(() => useVerifyMutation(), { wrapper: buildWrapper() });
+    const { result } = renderHook(() => useCRRConfigurationVerifyMutation(), { wrapper: buildWrapper() });
     result.current.mutate(VERIFY_BODY);
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBeInstanceOf(ServiceError);
@@ -95,7 +95,7 @@ describe('useVerifyMutation', () => {
         ),
       ),
     );
-    const { result } = renderHook(() => useVerifyMutation(), { wrapper: buildWrapper() });
+    const { result } = renderHook(() => useCRRConfigurationVerifyMutation(), { wrapper: buildWrapper() });
     result.current.mutate(VERIFY_BODY);
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toMatchObject({
@@ -108,7 +108,7 @@ describe('useVerifyMutation', () => {
 
   it('does not synthesise a ServiceError when the configurator replies with a bare error', async () => {
     server.use(rest.post(VERIFY_URL, (_req, res, ctx) => res(ctx.status(503), ctx.text('backend down'))));
-    const { result } = renderHook(() => useVerifyMutation(), { wrapper: buildWrapper() });
+    const { result } = renderHook(() => useCRRConfigurationVerifyMutation(), { wrapper: buildWrapper() });
     result.current.mutate(VERIFY_BODY);
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).not.toBeInstanceOf(ServiceError);

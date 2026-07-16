@@ -6,7 +6,7 @@ import type { VerifyRequestBody, VerifyResponse } from './types';
 // `/crr-configurator/api/v1/verify` and yields the mode-specific
 // response. Errors surface as `Error` — cast to `ServiceError` at
 // the caller to read `.problem.code`.
-export const useVerifyMutation = () =>
+export const useCRRConfigurationVerifyMutation = () =>
   useMutation<VerifyResponse, Error, VerifyRequestBody>({
     mutationFn: (body) => postJSON<VerifyRequestBody, VerifyResponse>('/verify', body),
   });
