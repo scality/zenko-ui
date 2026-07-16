@@ -57,12 +57,14 @@ describe('useVerifyMutation', () => {
         res(
           ctx.status(400),
           ctx.set('Content-Type', 'application/problem+json'),
-          ctx.json({
-            type: 'about:blank',
-            title: 'Invalid destination certificate',
-            status: 400,
-            code: 'DestinationCertificateInvalid',
-          }),
+          ctx.body(
+            JSON.stringify({
+              type: 'about:blank',
+              title: 'Invalid destination certificate',
+              status: 400,
+              code: 'DestinationCertificateInvalid',
+            }),
+          ),
         ),
       ),
     );
@@ -81,13 +83,15 @@ describe('useVerifyMutation', () => {
         res(
           ctx.status(502),
           ctx.set('Content-Type', 'application/problem+json'),
-          ctx.json({
-            type: 'about:blank',
-            title: 'DNS resolution failed',
-            status: 502,
-            code: 'DestinationDnsResolutionFailed',
-            unresolvedHosts: ['cluster-b.internal', 's3.cluster-b.internal'],
-          }),
+          ctx.body(
+            JSON.stringify({
+              type: 'about:blank',
+              title: 'DNS resolution failed',
+              status: 502,
+              code: 'DestinationDnsResolutionFailed',
+              unresolvedHosts: ['cluster-b.internal', 's3.cluster-b.internal'],
+            }),
+          ),
         ),
       ),
     );
