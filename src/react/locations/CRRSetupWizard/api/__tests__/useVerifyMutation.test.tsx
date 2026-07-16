@@ -35,7 +35,7 @@ const VERIFY_BODY: VerifyRequestBody = {
 };
 
 describe('useVerifyMutation', () => {
-  it('yields the VerifyResponse on success', async () => {
+  it('exposes the VerifyResponse when the configurator accepts the destination', async () => {
     server.use(
       rest.post(VERIFY_URL, (_req, res, ctx) =>
         res(ctx.json({ ok: true, mode: 'management-network', instanceName: 'ageless-valley' })),
@@ -51,7 +51,7 @@ describe('useVerifyMutation', () => {
     });
   });
 
-  it('surfaces a ServiceError when the configurator returns problem+json', async () => {
+  it('surfaces the ARTESCA problem code when the destination is rejected', async () => {
     server.use(
       rest.post(VERIFY_URL, (_req, res, ctx) =>
         res(
@@ -71,7 +71,42 @@ describe('useVerifyMutation', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBeInstanceOf(ServiceError);
     expect(result.current.error).toMatchObject({
-      problem: { code: 'DestinationCertificateInvalid', status: 400 },
+      problem: { code: 'DestinationCertificateInvalid' },
     });
+  });
+
+  it('carries unresolvedHosts so the DNS-fallback modal can prompt for overrides', async () => {
+    server.use(
+      rest.post(VERIFY_URL, (_req, res, ctx) =>
+        res(
+          ctx.status(502),
+          ctx.set('Content-Type', 'application/problem+json'),
+          ctx.json({
+            type: 'about:blank',
+            title: 'DNS resolution failed',
+            status: 502,
+            code: 'DestinationDnsResolutionFailed',
+            unresolvedHosts: ['cluster-b.internal', 's3.cluster-b.internal'],
+          }),
+        ),
+      ),
+    );
+    const { result } = renderHook(() => useVerifyMutation(), { wrapper: buildWrapper() });
+    result.current.mutate(VERIFY_BODY);
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toMatchObject({
+      problem: {
+        code: 'DestinationDnsResolutionFailed',
+        unresolvedHosts: ['cluster-b.internal', 's3.cluster-b.internal'],
+      },
+    });
+  });
+
+  it('does not synthesise a ServiceError when the configurator replies with a bare error', async () => {
+    server.use(rest.post(VERIFY_URL, (_req, res, ctx) => res(ctx.status(503), ctx.text('backend down'))));
+    const { result } = renderHook(() => useVerifyMutation(), { wrapper: buildWrapper() });
+    result.current.mutate(VERIFY_BODY);
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).not.toBeInstanceOf(ServiceError);
   });
 });
