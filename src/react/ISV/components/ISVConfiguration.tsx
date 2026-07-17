@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router';
 import { DEFAULT_IMMUTABLE_PERIOD_DAYS, VEEAM_OFFICE_365 } from '../constants';
 import { FormData, ISVPlatform } from '../engine/types';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
+import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 import { FormRenderer } from './FormRenderer';
 import { ISVFormProvider, useISVFormContext } from './ISVFormContext';
 import { ISVSkipModal } from './ISVSkipModal';
@@ -103,9 +104,10 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
   );
 };
 
-const getDefaultFormValues = (
+export const getDefaultFormValues = (
   platform: ISVPlatform,
   paramsAccountName: string | null,
+  isVeeamVBROnly: boolean,
 ): Partial<FormData> => {
   const hasImmutableField = platform.fields.some((f) => f.name === 'enableImmutableBackup');
   const baseDefaults: Partial<FormData> = {
@@ -130,7 +132,12 @@ const getDefaultFormValues = (
 
   const defaults = { ...fieldDefaults, ...baseDefaults };
 
-  if (platform.id === 'veeam-vbr') {
+  // Auto-create repository is only offered for the Veeam VBR assistant AND only on
+  // ARTESCA+ Veeam deployments (artesca_plus_veeam flag). Its toggle in
+  // VeeamRepositoryFields is gated on isVeeamVBROnly, so the default must match:
+  // gating on platform.id alone leaks the default onto classical deployments where
+  // the toggle is hidden, silently triggering repository creation (ARTESCA-17881).
+  if (platform.id === 'veeam-vbr' && isVeeamVBROnly) {
     return {
       ...defaults,
       autoCreateRepository: true,
@@ -145,10 +152,11 @@ export const ISVConfiguration = () => {
   const { platform } = useISVStepper();
   const [searchParams] = useSearchParams();
   const paramsAccountName = searchParams.get('account');
+  const isVeeamVBROnly = useIsVeeamVBROnly();
 
   const formMethods = useForm<FormData>({
     mode: 'all',
-    defaultValues: getDefaultFormValues(platform, paramsAccountName),
+    defaultValues: getDefaultFormValues(platform, paramsAccountName, isVeeamVBROnly),
     resolver: joiResolver(platform.validator),
     shouldUnregister: false,
   });

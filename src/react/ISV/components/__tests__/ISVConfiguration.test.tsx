@@ -2,13 +2,13 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { useListAccounts } from '../../../next-architecture/domain/business/accounts';
 import { mockShellHooks, renderWithCustomRoute, Wrapper } from '../../../utils/testUtil';
-import { VEEAM_OFFICE_365 } from '../../constants';
+import { DEFAULT_IMMUTABLE_PERIOD_DAYS, VEEAM_OFFICE_365 } from '../../constants';
 import { CommvaultPlatform } from '../../platforms/commvault';
 import { KastenPlatform } from '../../platforms/kasten';
 import { RubrikPlatform } from '../../platforms/rubrik';
 import { VeeamVBOPlatform } from '../../platforms/veeam-vbo';
 import { VeeamVBRPlatform } from '../../platforms/veeam-vbr';
-import { ISVConfiguration } from '../ISVConfiguration';
+import { getDefaultFormValues, ISVConfiguration } from '../ISVConfiguration';
 import { ISVStepperContext } from '../ISVStepperContext';
 
 const mockNavigate = jest.fn();
@@ -1103,5 +1103,26 @@ describe('ISVConfiguration', () => {
         expect(selectors.continueButton()).not.toBeDisabled();
       });
     });
+  });
+});
+
+describe('getDefaultFormValues auto-create repository gating', () => {
+  it('defaults autoCreateRepository to true for VBR on an ARTESCA+ Veeam deployment', () => {
+    const defaults = getDefaultFormValues(VeeamVBRPlatform, null, true);
+
+    expect(defaults.autoCreateRepository).toBe(true);
+    expect(defaults.immutablePeriodDays).toBe(DEFAULT_IMMUTABLE_PERIOD_DAYS);
+  });
+
+  it('does not enable autoCreateRepository for VBR on a non ARTESCA+ (classical) deployment', () => {
+    const defaults = getDefaultFormValues(VeeamVBRPlatform, null, false);
+
+    expect(defaults.autoCreateRepository).toBeUndefined();
+  });
+
+  it('does not enable autoCreateRepository for a non-VBR platform even on an ARTESCA+ Veeam deployment', () => {
+    const defaults = getDefaultFormValues(CommvaultPlatform, null, true);
+
+    expect(defaults.autoCreateRepository).toBeUndefined();
   });
 });
