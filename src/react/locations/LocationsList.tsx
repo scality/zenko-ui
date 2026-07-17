@@ -22,6 +22,7 @@ import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { getLocationType } from '../utils/storageOptions';
+import { useCRRFeature } from './CRRSetupWizard/hooks/useCRRFeature';
 import { PauseAndResume } from './PauseAndResume';
 import { getLocationDeletionBlocker } from './utils';
 
@@ -183,6 +184,7 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
 
 export function LocationsList() {
   const navigate = useBasenameRelativeNavigate();
+  const isCRRWizardEnabled = useCRRFeature();
   const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
   const metricsAdapter = useMetricsAdapter();
   const { locations } = useListLocations({
@@ -341,13 +343,22 @@ export function LocationsList() {
         <TableHeaderWrapper
           search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />}
           actions={
-            <Button
-              icon={<Icon name="Create-add" />}
-              label="Create Location"
-              variant="primary"
-              onClick={() => navigate('/create-location')}
-              type="submit"
-            />
+            <Stack gap="r16">
+              {isCRRWizardEnabled && (
+                <Button
+                  label="Start CRR Configuration"
+                  variant="secondary"
+                  onClick={() => navigate('/create-crr-configuration')}
+                />
+              )}
+              <Button
+                icon={<Icon name="Create-add" />}
+                label="Create Location"
+                variant="primary"
+                onClick={() => navigate('/create-location')}
+                type="submit"
+              />
+            </Stack>
           }
         />
 

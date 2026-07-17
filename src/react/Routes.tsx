@@ -17,6 +17,8 @@ import DataBrowser from './databrowser/DataBrowser';
 import EndpointCreate from './endpoint/EndpointCreate';
 import Endpoints from './endpoint/Endpoints';
 import { ISVSteps } from './ISV/components/ISVSteps';
+import { CRRSetupWizard } from './locations/CRRSetupWizard/CRRSetupWizard';
+import { useCRRFeature } from './locations/CRRSetupWizard/hooks/useCRRFeature';
 import LocationEditor from './locations/LocationEditor';
 import { Locations } from './locations/Locations';
 import ManagementProvider from './ManagementProvider';
@@ -69,7 +71,6 @@ const RedirectToAccount = () => {
   }
 };
 
-
 export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }): JSX.Element {
   const { isClientsLoaded } = useAuthLoading();
   const config = useConfig();
@@ -77,6 +78,7 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
   const { isPlatformAdmin } = useAuthGroups();
   const metalK8sInstances = useDeployedMetalk8sInstances();
   const isMetalK8sEnabled = metalK8sInstances.length > 0;
+  const isCRRWizardEnabled = useCRRFeature();
   if (!isClientsLoaded) {
     return (
       <Loader centered>
@@ -175,6 +177,16 @@ export function PrivateRoutes({ hideSideBar = false }: { hideSideBar?: boolean }
           </DataServiceRoleProvider>
         }
       />
+      {isCRRWizardEnabled && (
+        <Route
+          path="create-crr-configuration/*"
+          element={
+            <DataServiceRoleProvider>
+              <CRRSetupWizard />
+            </DataServiceRoleProvider>
+          }
+        />
+      )}
       <Route
         path={`accounts/:accountName/policies/:policyArn/attachments/*`}
         element={
@@ -293,6 +305,7 @@ function InternalRoutes(): JSX.Element {
     '/accounts/:accountName/users/:user/update-user',
     '/accounts/:accountName/create-policy',
     '/isv/configuration',
+    '/create-crr-configuration',
     '/truststore/import-certificate',
     '/accounts/:accountName/buckets/-/create',
     '/accounts/:accountName/buckets/:bucketName/lifecycle/create',
