@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import type { FieldErrors, Resolver } from 'react-hook-form';
+import { accountNameValidationSchema } from '../../../../account/AccountCreate';
 import type { VerifyRequestBody } from '../../api/types';
 
 export type AccountNameType = 'create' | 'existing';
@@ -81,7 +82,7 @@ export const configureSchema = Joi.object<ConfigureFormValues>({
     .required()
     .messages({ 'string.pattern.base': 'Paste a PEM-encoded certificate' }),
 
-  destinationAccountName: Joi.string().min(1).required(),
+  destinationAccountName: accountNameValidationSchema,
 
   createReplicationRule: Joi.boolean().required(),
   sourceBucketName: Joi.when('createReplicationRule', {

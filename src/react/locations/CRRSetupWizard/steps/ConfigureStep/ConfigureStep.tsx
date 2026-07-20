@@ -68,7 +68,14 @@ export const ConfigureStep = () => {
       'password',
       'certificate',
     ]);
-    if (!valid) return;
+    if (!valid) {
+      showToast({
+        open: true,
+        status: 'error',
+        message: 'Complete the destination fields before checking the connection',
+      });
+      return;
+    }
     const body = toVerifyBody(getValues());
     try {
       await runVerify(body);
