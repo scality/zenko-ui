@@ -80,12 +80,13 @@ export const CertificateSection = ({ name, isEdit }: Props) => {
           rows={10}
           {...registered}
           value={value}
+          aria-describedby={errorMessage ? `${name}-error` : undefined}
           onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
             registered.onChange(event);
           }}
         />
       </Stack>
-      {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
+      {errorMessage && <ErrorText id={`${name}-error`}>{errorMessage}</ErrorText>}
     </CertificateContainer>
   );
 };
