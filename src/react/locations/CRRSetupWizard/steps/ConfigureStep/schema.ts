@@ -54,7 +54,11 @@ const managementUrlPattern = new RegExp(`^https://(?:${ipv4Octet}\\.){3}${ipv4Oc
 // biome-ignore-start lint/suspicious/noThenProperty: `then` is Joi's conditional schema branch, not a promise-like method
 export const configureSchema = Joi.object<ConfigureFormValues>({
   accountNameType: Joi.string().valid('create', 'existing').required(),
-  accountName: Joi.string().min(1).required(),
+  accountName: Joi.when('accountNameType', {
+    is: 'create',
+    then: accountNameValidationSchema,
+    otherwise: Joi.string().min(1).required(),
+  }),
 
   connectionMode: Joi.string().valid('management-network', 'data-network').required(),
   url: Joi.when('connectionMode', {
