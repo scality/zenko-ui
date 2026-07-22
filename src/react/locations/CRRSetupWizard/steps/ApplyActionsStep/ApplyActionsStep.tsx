@@ -83,12 +83,13 @@ export const ApplyActionsStep = (props: Props) => {
           createReplicationRule: createReplicationRule === true,
           sourceAccountName: accountName ?? '',
           sourceBucketName: sourceBucketName ?? '',
+          targetBucketName: props.targetBucketName ?? '',
           destinationAccountName: destinationAccountName ?? '',
         },
         setup.events,
         { globalErrorMessage },
       ),
-    [accountNameType, createReplicationRule, accountName, sourceBucketName, destinationAccountName, setup.events, globalErrorMessage],
+    [accountNameType, createReplicationRule, accountName, sourceBucketName, props.targetBucketName, destinationAccountName, setup.events, globalErrorMessage],
   );
 
   const hasStartedRef = useRef(false);

@@ -4,11 +4,13 @@ export type StepId =
   | 'import-destination-certificate'
   | 'create-source-account'
   | 'create-source-bucket'
-  | 'create-destination-account'
+  | 'create-account'
   | 'create-user'
   | 'create-access-key'
   | 'create-policy'
-  | 'attach-policy'
+  | 'create-role'
+  | 'attach-role-policy'
+  | 'create-bucket'
   | 'create-location'
   | 'create-replication-rule';
 
@@ -27,6 +29,7 @@ export type StepListInput = {
   createReplicationRule: boolean;
   sourceAccountName: string;
   sourceBucketName: string;
+  targetBucketName: string;
   destinationAccountName: string;
 };
 
@@ -57,14 +60,20 @@ const STEPS: StepDef[] = [
     label: (i) => `Create Bucket on Source: ${i.sourceBucketName}`,
   },
   {
-    id: 'create-destination-account',
+    id: 'create-account',
     when: () => true,
     label: (i) => `Create Account on Destination: ${i.destinationAccountName}`,
   },
   { id: 'create-user', when: () => true, label: () => 'Create IAM User' },
   { id: 'create-access-key', when: () => true, label: () => 'Generate Access Key' },
   { id: 'create-policy', when: () => true, label: () => 'Create Policy' },
-  { id: 'attach-policy', when: () => true, label: () => 'Attach Policy to User' },
+  { id: 'create-role', when: () => true, label: () => 'Create IAM Role' },
+  { id: 'attach-role-policy', when: () => true, label: () => 'Attach Policy to Role' },
+  {
+    id: 'create-bucket',
+    when: (i) => i.createReplicationRule,
+    label: (i) => `Create Target Bucket: ${i.targetBucketName}`,
+  },
   { id: 'create-location', when: () => true, label: () => 'Create Location' },
   {
     id: 'create-replication-rule',

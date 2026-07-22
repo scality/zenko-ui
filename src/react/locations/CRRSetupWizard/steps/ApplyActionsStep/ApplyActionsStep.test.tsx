@@ -56,17 +56,19 @@ const ALL_STEPS_WHEN_NEW_ACCOUNT_AND_RULE = [
   'import-destination-certificate',
   'create-source-account',
   'create-source-bucket',
-  'create-destination-account',
+  'create-account',
   'create-user',
   'create-access-key',
   'create-policy',
-  'attach-policy',
+  'create-role',
+  'attach-role-policy',
+  'create-bucket',
   'create-location',
   'create-replication-rule',
 ] as const;
 
 describe('ApplyActionsStep', () => {
-  it('renders every ISV-worded action label and marks each step Pending... before any event lands', () => {
+  it('lists every provisioning action to run, all pending, before the setup starts', () => {
     server.use(
       rest.post(STREAM_URL, (_req, res, ctx) =>
         res(ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(ndjson())),
@@ -81,10 +83,12 @@ describe('ApplyActionsStep', () => {
     expect(screen.getByText('Create IAM User')).toBeInTheDocument();
     expect(screen.getByText('Generate Access Key')).toBeInTheDocument();
     expect(screen.getByText('Create Policy')).toBeInTheDocument();
-    expect(screen.getByText('Attach Policy to User')).toBeInTheDocument();
+    expect(screen.getByText('Create IAM Role')).toBeInTheDocument();
+    expect(screen.getByText('Attach Policy to Role')).toBeInTheDocument();
+    expect(screen.getByText('Create Target Bucket: target-bucket')).toBeInTheDocument();
     expect(screen.getByText('Create Location')).toBeInTheDocument();
     expect(screen.getByText('Create Replication Rule')).toBeInTheDocument();
-    expect(screen.getAllByText('Pending...').length).toBe(10);
+    expect(screen.getAllByText('Pending...').length).toBe(12);
   });
 
   it('uses the destination instance name in the title when one was returned by Verify', () => {
@@ -117,7 +121,7 @@ describe('ApplyActionsStep', () => {
     expect(screen.queryByText(/Authenticate/i)).not.toBeInTheDocument();
   });
 
-  it('shows Success cells as events land and enables Continue once every step has succeeded', async () => {
+  it('marks each action Success as it completes and only lets the user continue once all have succeeded', async () => {
     server.use(
       rest.post(STREAM_URL, (_req, res, ctx) =>
         res(
@@ -136,7 +140,7 @@ describe('ApplyActionsStep', () => {
     );
     render(<ApplyActionsStep {...VALUES} />, { wrapper: Wrapper });
 
-    await waitFor(() => expect(screen.getAllByText('Success').length).toBe(10));
+    await waitFor(() => expect(screen.getAllByText('Success').length).toBe(12));
     const continueButton = screen.getByRole('button', { name: /Continue/i });
     await waitFor(() => expect(continueButton).toBeEnabled());
     await userEvent.click(continueButton);
@@ -214,7 +218,7 @@ describe('ApplyActionsStep', () => {
     await waitFor(() => expect(requestCount).toBe(2));
   });
 
-  it('drops create-source-account when the source account already exists', () => {
+  it('skips creating a source account when the user reuses an existing one', () => {
     server.use(
       rest.post(STREAM_URL, (_req, res, ctx) =>
         res(ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(ndjson())),
@@ -222,10 +226,10 @@ describe('ApplyActionsStep', () => {
     );
     render(<ApplyActionsStep {...VALUES} accountNameType="existing" />, { wrapper: Wrapper });
     expect(screen.queryByText(/Create Account on Source/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText('Pending...').length).toBe(9);
+    expect(screen.getAllByText('Pending...').length).toBe(11);
   });
 
-  it('drops create-source-bucket and create-replication-rule when the wizard did not opt into replication rule creation', () => {
+  it('skips the source bucket, target bucket and replication rule when the user opts out of creating a rule', () => {
     server.use(
       rest.post(STREAM_URL, (_req, res, ctx) =>
         res(ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(ndjson())),
@@ -235,7 +239,8 @@ describe('ApplyActionsStep', () => {
       wrapper: Wrapper,
     });
     expect(screen.queryByText(/Create Bucket on Source/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Create Target Bucket/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Replication Rule/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText('Pending...').length).toBe(8);
+    expect(screen.getAllByText('Pending...').length).toBe(9);
   });
 });

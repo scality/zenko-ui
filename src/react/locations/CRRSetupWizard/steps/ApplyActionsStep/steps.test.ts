@@ -6,27 +6,30 @@ const baseInput: StepListInput = {
   createReplicationRule: true,
   sourceAccountName: 'src-account',
   sourceBucketName: 'src-bucket',
+  targetBucketName: 'target-bucket',
   destinationAccountName: 'dest-account',
 };
 
 describe('buildStepViews', () => {
-  it('lists the 10 canonical steps in order when both create-source-account and create-replication-rule apply', () => {
+  it('lists the full provisioning sequence in order when the user creates a new source account and a replication rule', () => {
     const views = buildStepViews(baseInput, []);
     expect(views.map((v) => v.id)).toEqual([
       'import-destination-certificate',
       'create-source-account',
       'create-source-bucket',
-      'create-destination-account',
+      'create-account',
       'create-user',
       'create-access-key',
       'create-policy',
-      'attach-policy',
+      'create-role',
+      'attach-role-policy',
+      'create-bucket',
       'create-location',
       'create-replication-rule',
     ]);
   });
 
-  it('numbers steps starting at 1 and interpolates source/destination names', () => {
+  it('numbers the steps and shows the chosen source and destination account names', () => {
     const [first, sourceAcc, sourceBkt, destAcc] = buildStepViews(baseInput, []);
     expect(first).toMatchObject({ step: 1, label: 'Import Destination Certificate' });
     expect(sourceAcc).toMatchObject({ step: 2, label: 'Create Account on Source: src-account' });
@@ -34,12 +37,14 @@ describe('buildStepViews', () => {
     expect(destAcc).toMatchObject({ step: 4, label: 'Create Account on Destination: dest-account' });
   });
 
-  it('uses ISV wording verbatim for the reused actions', () => {
+  it('labels the destination IAM chain and the target bucket per the ARTESCA CRR procedure', () => {
     const labels = buildStepViews(baseInput, []).map((v) => v.label);
     expect(labels).toContain('Create IAM User');
     expect(labels).toContain('Generate Access Key');
     expect(labels).toContain('Create Policy');
-    expect(labels).toContain('Attach Policy to User');
+    expect(labels).toContain('Create IAM Role');
+    expect(labels).toContain('Attach Policy to Role');
+    expect(labels).toContain('Create Target Bucket: target-bucket');
     expect(labels).toContain('Create Location');
     expect(labels).toContain('Create Replication Rule');
   });
@@ -49,28 +54,33 @@ describe('buildStepViews', () => {
     expect(views.find((v) => v.id === 'create-source-account')).toBeUndefined();
   });
 
-  it('drops the two replication-only steps when the wizard did not opt into replication rule creation', () => {
+  it('drops the replication-only steps when the wizard did not opt into replication rule creation', () => {
     const views = buildStepViews({ ...baseInput, createReplicationRule: false }, []);
     expect(views.find((v) => v.id === 'create-source-bucket')).toBeUndefined();
+    expect(views.find((v) => v.id === 'create-bucket')).toBeUndefined();
     expect(views.find((v) => v.id === 'create-replication-rule')).toBeUndefined();
   });
 
-  it('never surfaces authenticate, create-role, attach-role-policy or create-bucket-on-destination', () => {
+  it('never surfaces the backend authenticate step (it is covered by the Verify wizard step)', () => {
     const ids = buildStepViews(baseInput, []).map((v) => v.id) as string[];
-    for (const id of ['authenticate', 'create-role', 'attach-role-policy', 'create-bucket']) {
-      expect(ids).not.toContain(id);
+    expect(ids).not.toContain('authenticate');
+  });
+
+  it('surfaces the destination role, policy attachment and target bucket steps the CRR procedure requires', () => {
+    const ids = buildStepViews(baseInput, []).map((v) => v.id) as string[];
+    for (const id of ['create-role', 'attach-role-policy', 'create-bucket']) {
+      expect(ids).toContain(id);
     }
   });
 
-  it('leaves every step pending until a matching event lands', () => {
+  it('shows every step as pending before the setup runs', () => {
     const views = buildStepViews(baseInput, []);
     expect(views.every((v) => v.state === 'pending')).toBe(true);
   });
 
-  it('marks a step succeeded on step.completed and failed on step.failed with its error message', () => {
+  it('marks a step done once it completes and shows the reason when one fails', () => {
     const events: SetupEvent[] = [
-      { event: 'step.completed', step: 'import-destination-certificate', at: 't' },
-      { event: 'step.completed', step: 'create-source-account', at: 't' },
+      { event: 'step.completed', step: 'create-account', at: 't' },
       {
         event: 'step.failed',
         step: 'create-user',
@@ -79,15 +89,15 @@ describe('buildStepViews', () => {
       },
     ];
     const views = buildStepViews(baseInput, events);
-    expect(views.find((v) => v.id === 'import-destination-certificate')?.state).toBe('succeeded');
+    expect(views.find((v) => v.id === 'create-account')?.state).toBe('succeeded');
     const failed = views.find((v) => v.id === 'create-user');
     expect(failed?.state).toBe('failed');
     expect(failed?.errorMessage).toBe('IAM refused CreateUser: entity already exists');
   });
 });
 
-describe('buildStepViews with a globalErrorMessage', () => {
-  it('marks the first pending step as failed with the global error message when no step-level failure landed', () => {
+describe('when the whole setup fails without pinpointing a step', () => {
+  it('blames the first step still waiting to run and shows why', () => {
     const views = buildStepViews(baseInput, [], { globalErrorMessage: 'network exploded' });
     const firstPending = views[0];
     expect(firstPending.state).toBe('failed');
@@ -95,7 +105,7 @@ describe('buildStepViews with a globalErrorMessage', () => {
     for (const v of views.slice(1)) expect(v.state).toBe('pending');
   });
 
-  it('marks the first still-pending step as failed after some steps already succeeded', () => {
+  it('blames the first unfinished step once earlier ones have already succeeded', () => {
     const events: SetupEvent[] = [
       { event: 'step.completed', step: 'import-destination-certificate', at: 't' },
       { event: 'step.completed', step: 'create-source-account', at: 't' },
@@ -107,7 +117,7 @@ describe('buildStepViews with a globalErrorMessage', () => {
     expect(views[2].errorMessage).toBe('stream ended without a terminal event');
   });
 
-  it('leaves the step-level failure in place when both a step.failed and a global error are present', () => {
+  it('keeps a specific step failure visible rather than replacing it with the generic error', () => {
     const events: SetupEvent[] = [
       {
         event: 'step.failed',
