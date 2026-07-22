@@ -23,6 +23,7 @@ export const useCreateLocationMutation = () => {
         if (error.status === 422) {
           throw await error.json();
         }
+        throw error;
       });
     },
   });

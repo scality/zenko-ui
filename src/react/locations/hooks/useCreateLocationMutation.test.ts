@@ -42,4 +42,14 @@ describe('useCreateLocationMutation', () => {
     await waitFor(() => expect(result.current?.isError).toBe(true));
     expect(result.current?.error).toEqual(problem);
   });
+
+  it('fails rather than silently succeeding when the overlay errors with a non-validation status', async () => {
+    server.use(rest.post(LOCATION_URL, (_req, res, ctx) => res(ctx.status(500))));
+    const { result, waitFor } = renderHook(() => useCreateLocationMutation(), { wrapper: NewWrapper() });
+
+    // biome-ignore lint/suspicious/noExplicitAny: minimal location payload for the mutation under test
+    result.current?.mutate(location as any);
+
+    await waitFor(() => expect(result.current?.isError).toBe(true));
+  });
 });
