@@ -1,4 +1,5 @@
 import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import type { ReactElement } from 'react';
@@ -116,6 +117,49 @@ describe('LocationEditor', () => {
     await waitFor(() => {
       const dangerText = screen.getByText(/This instance has already 12 storage locations/i);
       expect(dangerText).toBeInTheDocument();
+    });
+  });
+
+  describe('form validation', () => {
+    it('should keep the Create button disabled until name and an AWS S3 location type with required details are valid', async () => {
+      testRender(<LocationEditor />);
+      await waitForElementToBeRemoved(() => selectors.loadingLocation());
+
+      const createButton = screen.getByRole('button', { name: /create/i });
+      expect(createButton).toBeDisabled();
+
+      // Fill a valid location name.
+      const nameInput = screen.getByRole('textbox', { name: /location name \*/i });
+      await userEvent.type(nameInput, 'my-location');
+      expect(createButton).toBeDisabled();
+
+      // Pick AWS S3.
+      selectClick(selectors.selectLocationType());
+      await userEvent.click(await screen.findByRole('option', { name: /Amazon S3/i }));
+      expect(createButton).toBeDisabled();
+
+      // Fill required S3 fields.
+      await userEvent.type(screen.getByRole('textbox', { name: /aws access key \*/i }), 'ak-test-1');
+      await userEvent.type(document.querySelector('input[name="secretKey"]')!, 'sk-test-secret-1');
+      await userEvent.type(document.querySelector('input[name="bucketName"]')!, 'target-bucket');
+
+      await waitFor(() => expect(createButton).not.toBeDisabled());
+    });
+
+    it('should show an inline error and keep Create disabled when the location name contains uppercase letters', async () => {
+      testRender(<LocationEditor />);
+      await waitForElementToBeRemoved(() => selectors.loadingLocation());
+
+      const createButton = screen.getByRole('button', { name: /create/i });
+      const nameInput = screen.getByRole('textbox', { name: /location name \*/i });
+      await userEvent.type(nameInput, 'BAD NAME');
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Use only lowercase letters, numbers, and dashes/i),
+        ).toBeInTheDocument();
+      });
+      expect(createButton).toBeDisabled();
     });
   });
 });
