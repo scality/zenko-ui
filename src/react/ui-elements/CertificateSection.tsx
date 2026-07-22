@@ -2,11 +2,7 @@ import { Dropzone, Stack, Text, TextArea } from '@scality/core-ui';
 import type { ChangeEvent } from 'react';
 import { useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
-
-const ErrorText = styled.span`
-  color: ${(props) => props.theme.statusCritical};
-  font-size: 0.75rem;
-`;
+import { ErrorText } from './status';
 
 const CertificateContainer = styled.div`
   background-color: ${(props) => props.theme.backgroundLevel2};

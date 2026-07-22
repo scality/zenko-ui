@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import type { FieldErrors, Resolver } from 'react-hook-form';
 import { accountNameValidationSchema } from '../../../../account/AccountCreate';
-import type { VerifyRequestBody } from '../../api/types';
+import type { StartSetupBody, VerifyRequestBody } from '../../api/types';
 
 export type AccountNameType = 'create' | 'existing';
 export type ConnectionMode = 'management-network' | 'data-network';
@@ -146,3 +146,15 @@ export const toVerifyBody = (values: ConfigureFormValues): VerifyRequestBody => 
         },
   destinationCertificate: values.certificate,
 });
+
+export const toStartSetupBody = (values: ConfigureFormValues): StartSetupBody => {
+  const verifyBody = toVerifyBody(values);
+  const body: StartSetupBody = {
+    ...verifyBody,
+    destinationAccount: { mode: 'create', name: values.destinationAccountName },
+  };
+  if (values.createReplicationRule && values.targetBucketName) {
+    body.targetBucket = values.targetBucketName;
+  }
+  return body;
+};

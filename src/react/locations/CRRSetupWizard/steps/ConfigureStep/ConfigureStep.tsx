@@ -5,7 +5,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useRef } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ServiceError } from '../../api/crrConfiguratorClient';
-import type { ProblemCode, VerifyRequestBody } from '../../api/types';
+import type { ProblemCode, VerifyRequestBody, VerifyResponse } from '../../api/types';
 import { useCRRConfigurationVerifyMutation } from '../../hooks/useCRRConfigurationVerifyMutation';
 import { DestinationAccountSection } from './DestinationAccountSection';
 import { DestinationConnectionSection } from './DestinationConnectionSection';
@@ -53,10 +53,14 @@ export const ConfigureStep = () => {
     formState: { isValid },
   } = formMethods;
 
-  const runVerify = async (body: VerifyRequestBody) => {
-    await verify.mutateAsync(body);
+  const runVerify = async (body: VerifyRequestBody): Promise<VerifyResponse> => {
+    const response = await verify.mutateAsync(body);
     lastVerifiedRef.current = JSON.stringify(body);
+    return response;
   };
+
+  const destinationInstanceNameFrom = (response: VerifyResponse | undefined): string | undefined =>
+    response?.ok && response.mode === 'management-network' ? response.instanceName : undefined;
 
   const onCheckConnection = async () => {
     const valid = await trigger([
@@ -89,12 +93,12 @@ export const ConfigureStep = () => {
     const body = toVerifyBody(values);
     const snapshot = JSON.stringify(body);
     if (lastVerifiedRef.current === snapshot) {
-      next({ ...values });
+      next({ ...values, destinationInstanceName: destinationInstanceNameFrom(verify.data) });
       return;
     }
     try {
-      await runVerify(body);
-      next({ ...values });
+      const response = await runVerify(body);
+      next({ ...values, destinationInstanceName: destinationInstanceNameFrom(response) });
     } catch (error) {
       showToast({ open: true, status: 'error', message: errorMessage(error) });
     }

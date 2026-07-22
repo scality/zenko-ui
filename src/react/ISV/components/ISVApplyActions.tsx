@@ -1,10 +1,11 @@
 import { Banner, Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import Table, * as T from '../../ui-elements/Table';
-import { Box, Button } from '@scality/core-ui/dist/next';
+import { StatusBox } from '../../ui-elements/status';
+import { Button } from '@scality/core-ui/dist/next';
 import { useCallback, memo, useMemo, useState } from 'react';
 import { useQueryClient } from 'react-query';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
 import { ISVSkipModal } from './ISVSkipModal';
@@ -17,12 +18,6 @@ import { useMutationExecutor, buildRuntimeContext } from '../hooks/useMutationEx
 import { ISVPlatform, FormData, BucketItem, OptionalFailure } from '../engine/types';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useAutoScrollOnce } from '../hooks/useAutoScrollOnce';
-
-const StatusBox = styled(Box)`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`;
 
 type ISVApplyActionsProps = FormData & {
   platform: ISVPlatform;
