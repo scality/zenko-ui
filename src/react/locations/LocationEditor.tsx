@@ -119,6 +119,7 @@ function LocationEditor() {
           if (error.status === 422) {
             throw await error.json();
           }
+          throw error;
         });
     },
   });
