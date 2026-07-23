@@ -1,14 +1,38 @@
 import { Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
+import { useCreateBucket, useSetBucketReplication, useSetBucketVersioning } from '@scality/data-browser-library';
+import {
+  type MutationConfig,
+  type PreviousResults,
+  useChainedMutations,
+  type VariablesResolvers,
+} from '@scality/react-chained-query';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTheme } from 'styled-components';
-import Table, * as T from '../../../../ui-elements/Table';
+import { useCreateAccountMutation } from '../../../../../js/mutations';
+import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
+import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { useInstanceId } from '../../../../next-architecture/ui/AuthProvider';
+import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import { ErrorText, StatusBox } from '../../../../ui-elements/status';
-import type { StartSetupBody } from '../../api/types';
+import Table, * as T from '../../../../ui-elements/Table';
+import type { SetupResult, StartSetupBody } from '../../api/types';
+import { sourceStorageManagerRoleArn, useAssumeSourceRoleMutation } from '../../hooks/useAssumeSourceRoleMutation';
 import { useCRRConfigurationSetupMutation } from '../../hooks/useCRRConfigurationSetupMutation';
+import { useCreateCRRLocationMutation } from '../../hooks/useCreateCRRLocationMutation';
+import { useImportDestinationCertificateMutation } from '../../hooks/useImportDestinationCertificateMutation';
 import { type ConfigureFormValues, toStartSetupBody } from '../ConfigureStep/schema';
-import { allSucceeded, buildStepViews, type StepView } from './steps';
+import { buildCRRLocation, buildCRRLocationName } from './crrLocation';
+import { buildCRRReplicationConfiguration } from './replicationConfiguration';
+import {
+  allSucceeded,
+  buildStepViews,
+  type ChainStatus,
+  CONFIGURATOR_CHAIN_LINK_ID,
+  retryLinkIdForRow,
+  type StepView,
+} from './steps';
 
 export const APPLY_ACTIONS_STEP_INDEX = 1;
 
@@ -42,7 +66,7 @@ const StatusCell = ({ view, onRetry }: { view: StepView; onRetry: () => void }) 
 
 export const ApplyActionsStep = (props: Props) => {
   const { next, prev } = useStepper(APPLY_ACTIONS_STEP_INDEX);
-  const setup = useCRRConfigurationSetupMutation();
+  const instanceId = useInstanceId();
 
   const {
     accountNameType,
@@ -52,10 +76,30 @@ export const ApplyActionsStep = (props: Props) => {
     createReplicationRule,
     destinationInstanceName,
   } = props;
+  const isNewSourceAccount = accountNameType === 'create';
+  const withReplicationRule = createReplicationRule === true;
 
+  // Pre-create every mutation so per-row error messages stay accessible.
+  const importCertificate = useImportDestinationCertificateMutation();
+  const createSourceAccount = useCreateAccountMutation();
+  const assumeSourceRole = useAssumeSourceRoleMutation();
+  const createSourceBucket = useCreateBucket();
+  const enableSourceVersioning = useSetBucketVersioning();
+  const setup = useCRRConfigurationSetupMutation();
+  const createLocation = useCreateCRRLocationMutation();
+  const createReplicationRuleMutation = useSetBucketReplication();
+
+  const accountsAdapter = useAccessibleAccountsAdapter();
+  const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
+  const { accounts: accountsResult } = useListAccounts({ accessibleAccountsAdapter: accountsAdapter, metricsAdapter });
+  const existingSourceRoleArn =
+    accountsResult.status === 'success'
+      ? (accountsResult.value.find((account) => account.name === accountName)?.preferredAssumableRoleArn ?? '')
+      : '';
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: depend on the individual form fields, not the props object identity
   const body: StartSetupBody | null = useMemo(
     () => (isCompleteFormValues(props) ? toStartSetupBody(props) : null),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       props.connectionMode,
       props.certificate,
@@ -73,57 +117,173 @@ export const ApplyActionsStep = (props: Props) => {
     ],
   );
 
-  const globalErrorMessage = setup.isError ? setup.error?.message ?? 'The replication setup could not be completed.' : undefined;
+  const locationName = buildCRRLocationName({
+    destinationAccountName: destinationAccountName ?? '',
+    url: props.url || undefined,
+    baseDomain: props.baseDomain || undefined,
+  });
+
+  const sourceRoleArn = (prev: PreviousResults): string => {
+    if (isNewSourceAccount) {
+      const account = prev['create-source-account']?.data as { id?: string } | undefined;
+      return account?.id ? sourceStorageManagerRoleArn(account.id) : '';
+    }
+    return existingSourceRoleArn;
+  };
+
+  const configuratorResult = (prev: PreviousResults) =>
+    prev[CONFIGURATOR_CHAIN_LINK_ID]?.data as SetupResult | undefined;
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: rebuild only when the chain's shape or resolved inputs change, not on every mutation-instance render
+  const { mutations, variables } = useMemo(() => {
+    const configs: MutationConfig[] = [
+      { id: 'import-destination-certificate', label: 'Import Destination Certificate', mutation: importCertificate },
+    ];
+    const resolvers: VariablesResolvers = {
+      'import-destination-certificate': () => ({ certificate: props.certificate }),
+    };
+
+    if (isNewSourceAccount) {
+      configs.push({ id: 'create-source-account', label: 'Create Source Account', mutation: createSourceAccount });
+      resolvers['create-source-account'] = () => ({
+        user: { userName: accountName ?? '', email: `${accountName}@artesca.local` },
+        instanceId,
+      });
+    }
+
+    if (withReplicationRule) {
+      configs.push({ id: 'assume-source-role', label: 'Assume Source Role', mutation: assumeSourceRole });
+      resolvers['assume-source-role'] = (prev) => ({ roleArn: sourceRoleArn(prev) });
+
+      configs.push({ id: 'create-source-bucket', label: 'Create Source Bucket', mutation: createSourceBucket });
+      resolvers['create-source-bucket'] = () => ({ Bucket: sourceBucketName });
+
+      configs.push({
+        id: 'create-source-bucket-versioning',
+        label: 'Enable Source Versioning',
+        mutation: enableSourceVersioning,
+      });
+      resolvers['create-source-bucket-versioning'] = () => ({
+        Bucket: sourceBucketName,
+        VersioningConfiguration: { Status: 'Enabled' },
+      });
+    }
+
+    configs.push({ id: CONFIGURATOR_CHAIN_LINK_ID, label: 'Configure Destination', mutation: setup });
+    resolvers[CONFIGURATOR_CHAIN_LINK_ID] = () => body;
+
+    configs.push({ id: 'create-location', label: 'Create Location', mutation: createLocation });
+    resolvers['create-location'] = (prev) => {
+      const result = configuratorResult(prev);
+      if (!result) throw new Error('Cannot create the CRR location: the destination setup result is missing.');
+      return buildCRRLocation(locationName, result);
+    };
+
+    if (withReplicationRule) {
+      configs.push({
+        id: 'create-replication-rule',
+        label: 'Create Replication Rule',
+        mutation: createReplicationRuleMutation,
+      });
+      resolvers['create-replication-rule'] = (prev) => {
+        const result = configuratorResult(prev);
+        if (!result) throw new Error('Cannot create the replication rule: the destination setup result is missing.');
+        return buildCRRReplicationConfiguration({
+          sourceBucketName: sourceBucketName ?? '',
+          targetBucketName: props.targetBucketName ?? '',
+          locationName,
+          destinationRoleArn: result.roleArn,
+        });
+      };
+    }
+
+    return { mutations: configs, variables: resolvers };
+  }, [isNewSourceAccount, withReplicationRule, body, locationName, existingSourceRoleArn]);
+
+  const { Slots, steps, start, getResult, allRequiredStepsComplete } = useChainedMutations({ mutations, variables });
+
+  const errorMessage = (error: unknown): string | undefined => (error as Error | undefined)?.message;
+  const linkErrors: Record<string, string | undefined> = {
+    'import-destination-certificate': errorMessage(importCertificate.error),
+    'create-source-account': errorMessage(createSourceAccount.error),
+    'assume-source-role': errorMessage(assumeSourceRole.error),
+    'create-source-bucket': errorMessage(createSourceBucket.error),
+    'create-source-bucket-versioning': errorMessage(enableSourceVersioning.error),
+    'create-location': errorMessage(createLocation.error),
+    'create-replication-rule': errorMessage(createReplicationRuleMutation.error),
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-read the current link errors whenever the chain steps change
+  const chainStatusById: Record<string, ChainStatus> = useMemo(() => {
+    const byId: Record<string, ChainStatus> = {};
+    for (const step of steps) {
+      byId[step.id] = { status: step.status, errorMessage: linkErrors[step.id] };
+    }
+    return byId;
+  }, [steps]);
+
+  const configuratorStatus = steps.find((step) => step.id === CONFIGURATOR_CHAIN_LINK_ID)?.status;
+  const configuratorError =
+    configuratorStatus === 'error'
+      ? ((setup.error as Error | undefined)?.message ?? 'The destination setup failed.')
+      : undefined;
 
   const stepViews = useMemo(
     () =>
       buildStepViews(
         {
-          isNewSourceAccount: accountNameType === 'create',
-          createReplicationRule: createReplicationRule === true,
+          isNewSourceAccount,
+          createReplicationRule: withReplicationRule,
           sourceAccountName: accountName ?? '',
           sourceBucketName: sourceBucketName ?? '',
           targetBucketName: props.targetBucketName ?? '',
           destinationAccountName: destinationAccountName ?? '',
         },
-        setup.events,
-        { globalErrorMessage },
+        { configuratorEvents: setup.events, chainStatusById, configuratorError },
       ),
-    [accountNameType, createReplicationRule, accountName, sourceBucketName, props.targetBucketName, destinationAccountName, setup.events, globalErrorMessage],
+    [
+      isNewSourceAccount,
+      withReplicationRule,
+      accountName,
+      sourceBucketName,
+      props.targetBucketName,
+      destinationAccountName,
+      setup.events,
+      chainStatusById,
+      configuratorError,
+    ],
   );
 
   const hasStartedRef = useRef(false);
-  const startMutation = setup.mutate;
   useEffect(() => {
     if (body && !hasStartedRef.current) {
       hasStartedRef.current = true;
-      startMutation(body);
+      start();
     }
-  }, [body, startMutation]);
+  }, [body, start]);
 
-  const allDone = allSucceeded(stepViews);
+  const allDone = allSucceeded(stepViews) && allRequiredStepsComplete;
+  // While the chain runs, Exit is disabled so the user can't navigate away mid-provisioning; it re-enables on completion or failure.
+  const isRunning = steps.some((step) => step.status === 'pending');
+  const setupResult = getResult<SetupResult>(CONFIGURATOR_CHAIN_LINK_ID);
 
   const advancedRef = useRef(false);
-  const setupData = setup.data;
   useEffect(() => {
-    if (setupData && !advancedRef.current) {
+    if (allDone && !advancedRef.current) {
       advancedRef.current = true;
-      next({ result: setupData, ...props });
+      next({ result: setupResult, ...props });
     }
-  }, [setupData, next, props]);
+  }, [allDone, setupResult, next, props]);
 
-  const onRetry = () => {
-    if (!body) return;
-    setup.reset();
-    advancedRef.current = false;
-    hasStartedRef.current = true;
-    setup.mutate(body);
+  const onRetry = (view: StepView) => {
+    const linkId = retryLinkIdForRow(view.id, chainStatusById);
+    steps.find((step) => step.id === linkId)?.retry();
   };
 
   const onContinue = () => {
-    if (advancedRef.current || !setupData) return;
+    if (advancedRef.current || !allDone) return;
     advancedRef.current = true;
-    next({ result: setupData, ...props });
+    next({ result: setupResult, ...props });
   };
 
   const title = `Configure ${destinationInstanceName || 'ARTESCA'} for Cross-Region Replication`;
@@ -142,29 +302,22 @@ export const ApplyActionsStep = (props: Props) => {
       requireMode="all"
       rightActions={
         <Stack gap="r16">
-          <Button
-            type="button"
-            variant="outline"
-            label="Exit"
-            disabled={setup.isLoading}
-            onClick={() => prev(props)}
-          />
-          {setup.isLoading && (
-            <Button type="button" variant="outline" label="Cancel" onClick={setup.cancel} />
-          )}
+          <Button type="button" variant="outline" label="Exit" disabled={isRunning} onClick={() => prev(props)} />
+          {setup.isLoading && <Button type="button" variant="outline" label="Cancel" onClick={setup.cancel} />}
           <Button
             type="button"
             variant="primary"
             label="Continue"
             icon={<Icon name="Arrow-right" />}
             isLoading={setup.isLoading}
-            disabled={!allDone || !setup.data}
+            disabled={!allDone}
             onClick={onContinue}
           />
         </Stack>
       }
       style={{ width: '50rem' }}
     >
+      {Slots}
       <div style={{ height: '32rem', overflow: 'auto' }}>
         <Table>
           <T.Head>
@@ -182,7 +335,7 @@ export const ApplyActionsStep = (props: Props) => {
                   <Text>{view.label}</Text>
                 </T.Cell>
                 <T.Cell style={{ width: '12.5%' }}>
-                  <StatusCell view={view} onRetry={onRetry} />
+                  <StatusCell view={view} onRetry={() => onRetry(view)} />
                 </T.Cell>
               </T.Row>
             ))}

@@ -1,5 +1,13 @@
 import type { SetupEvent } from '../../api/types';
-import { allSucceeded, buildStepViews, hasFailure, type StepListInput } from './steps';
+import {
+  allSucceeded,
+  buildStepViews,
+  type ChainStatus,
+  hasFailure,
+  retryLinkIdForRow,
+  type StepListInput,
+  type StepStateSources,
+} from './steps';
 
 const baseInput: StepListInput = {
   isNewSourceAccount: true,
@@ -10,9 +18,21 @@ const baseInput: StepListInput = {
   destinationAccountName: 'dest-account',
 };
 
+const noProgress: StepStateSources = { configuratorEvents: [], chainStatusById: {} };
+
+const withChain = (chainStatusById: Record<string, ChainStatus>): StepStateSources => ({
+  configuratorEvents: [],
+  chainStatusById,
+});
+
+const withEvents = (configuratorEvents: SetupEvent[]): StepStateSources => ({
+  configuratorEvents,
+  chainStatusById: {},
+});
+
 describe('buildStepViews', () => {
   it('lists the full provisioning sequence in order when the user creates a new source account and a replication rule', () => {
-    const views = buildStepViews(baseInput, []);
+    const views = buildStepViews(baseInput, noProgress);
     expect(views.map((v) => v.id)).toEqual([
       'import-destination-certificate',
       'create-source-account',
@@ -30,7 +50,7 @@ describe('buildStepViews', () => {
   });
 
   it('numbers the steps and shows the chosen source and destination account names', () => {
-    const [first, sourceAcc, sourceBkt, destAcc] = buildStepViews(baseInput, []);
+    const [first, sourceAcc, sourceBkt, destAcc] = buildStepViews(baseInput, noProgress);
     expect(first).toMatchObject({ step: 1, label: 'Import Destination Certificate' });
     expect(sourceAcc).toMatchObject({ step: 2, label: 'Create Account on Source: src-account' });
     expect(sourceBkt).toMatchObject({ step: 3, label: 'Create Bucket on Source: src-bucket' });
@@ -38,7 +58,7 @@ describe('buildStepViews', () => {
   });
 
   it('labels the destination IAM chain and the target bucket per the ARTESCA CRR procedure', () => {
-    const labels = buildStepViews(baseInput, []).map((v) => v.label);
+    const labels = buildStepViews(baseInput, noProgress).map((v) => v.label);
     expect(labels).toContain('Create IAM User');
     expect(labels).toContain('Generate Access Key');
     expect(labels).toContain('Create Policy');
@@ -49,36 +69,88 @@ describe('buildStepViews', () => {
     expect(labels).toContain('Create Replication Rule');
   });
 
-  it('drops create-source-account when the wizard picked an existing source account', () => {
-    const views = buildStepViews({ ...baseInput, isNewSourceAccount: false }, []);
+  it('drops create-source-account when the user reuses an existing source account', () => {
+    const views = buildStepViews({ ...baseInput, isNewSourceAccount: false }, noProgress);
     expect(views.find((v) => v.id === 'create-source-account')).toBeUndefined();
   });
 
-  it('drops the replication-only steps when the wizard did not opt into replication rule creation', () => {
-    const views = buildStepViews({ ...baseInput, createReplicationRule: false }, []);
+  it('drops the replication-only steps when the user does not opt into creating a rule', () => {
+    const views = buildStepViews({ ...baseInput, createReplicationRule: false }, noProgress);
     expect(views.find((v) => v.id === 'create-source-bucket')).toBeUndefined();
     expect(views.find((v) => v.id === 'create-bucket')).toBeUndefined();
     expect(views.find((v) => v.id === 'create-replication-rule')).toBeUndefined();
   });
 
-  it('never surfaces the backend authenticate step (it is covered by the Verify wizard step)', () => {
-    const ids = buildStepViews(baseInput, []).map((v) => v.id) as string[];
-    expect(ids).not.toContain('authenticate');
+  it('shows every step as pending before anything runs', () => {
+    expect(buildStepViews(baseInput, noProgress).every((v) => v.state === 'pending')).toBe(true);
+  });
+});
+
+describe('buildStepViews — wizard-run rows', () => {
+  it('reflects each wizard chain link status on its row', () => {
+    const views = buildStepViews(baseInput, withChain({ 'import-destination-certificate': { status: 'success' } }));
+    expect(views.find((v) => v.id === 'import-destination-certificate')?.state).toBe('succeeded');
   });
 
-  it('surfaces the destination role, policy attachment and target bucket steps the CRR procedure requires', () => {
-    const ids = buildStepViews(baseInput, []).map((v) => v.id) as string[];
-    for (const id of ['create-role', 'attach-role-policy', 'create-bucket']) {
-      expect(ids).toContain(id);
-    }
+  it('surfaces a wizard link error message on its row', () => {
+    const views = buildStepViews(
+      baseInput,
+      withChain({ 'create-location': { status: 'error', errorMessage: 'overlay rejected the location' } }),
+    );
+    const location = views.find((v) => v.id === 'create-location');
+    expect(location?.state).toBe('failed');
+    expect(location?.errorMessage).toBe('overlay rejected the location');
   });
 
-  it('shows every step as pending before the setup runs', () => {
-    const views = buildStepViews(baseInput, []);
-    expect(views.every((v) => v.state === 'pending')).toBe(true);
+  it('keeps the source-bucket row pending until assuming the role, creating the bucket and versioning all succeed', () => {
+    const versioningPending = buildStepViews(
+      baseInput,
+      withChain({
+        'assume-source-role': { status: 'success' },
+        'create-source-bucket': { status: 'success' },
+        'create-source-bucket-versioning': { status: 'pending' },
+      }),
+    );
+    expect(versioningPending.find((v) => v.id === 'create-source-bucket')?.state).toBe('pending');
+
+    const allThree = buildStepViews(
+      baseInput,
+      withChain({
+        'assume-source-role': { status: 'success' },
+        'create-source-bucket': { status: 'success' },
+        'create-source-bucket-versioning': { status: 'success' },
+      }),
+    );
+    expect(allThree.find((v) => v.id === 'create-source-bucket')?.state).toBe('succeeded');
   });
 
-  it('marks a step done once it completes and shows the reason when one fails', () => {
+  it('fails the source-bucket row when enabling versioning fails', () => {
+    const views = buildStepViews(
+      baseInput,
+      withChain({
+        'assume-source-role': { status: 'success' },
+        'create-source-bucket': { status: 'success' },
+        'create-source-bucket-versioning': { status: 'error', errorMessage: 'versioning refused' },
+      }),
+    );
+    const row = views.find((v) => v.id === 'create-source-bucket');
+    expect(row?.state).toBe('failed');
+    expect(row?.errorMessage).toBe('versioning refused');
+  });
+
+  it('surfaces an assume-source-role failure on the source-bucket row instead of stalling silently', () => {
+    const views = buildStepViews(
+      baseInput,
+      withChain({ 'assume-source-role': { status: 'error', errorMessage: 'could not assume the source role' } }),
+    );
+    const row = views.find((v) => v.id === 'create-source-bucket');
+    expect(row?.state).toBe('failed');
+    expect(row?.errorMessage).toBe('could not assume the source role');
+  });
+});
+
+describe('buildStepViews — crr-configurator rows', () => {
+  it('marks a configurator step done once it completes and shows the reason when one fails', () => {
     const events: SetupEvent[] = [
       { event: 'step.completed', step: 'create-account', at: 't' },
       {
@@ -88,66 +160,103 @@ describe('buildStepViews', () => {
         error: { code: 'InternalError', message: 'IAM refused CreateUser: entity already exists' },
       },
     ];
-    const views = buildStepViews(baseInput, events);
+    const views = buildStepViews(baseInput, withEvents(events));
     expect(views.find((v) => v.id === 'create-account')?.state).toBe('succeeded');
     const failed = views.find((v) => v.id === 'create-user');
     expect(failed?.state).toBe('failed');
     expect(failed?.errorMessage).toBe('IAM refused CreateUser: entity already exists');
   });
-});
 
-describe('when the whole setup fails without pinpointing a step', () => {
-  it('blames the first step still waiting to run and shows why', () => {
-    const views = buildStepViews(baseInput, [], { globalErrorMessage: 'network exploded' });
-    const firstPending = views[0];
-    expect(firstPending.state).toBe('failed');
-    expect(firstPending.errorMessage).toBe('network exploded');
-    for (const v of views.slice(1)) expect(v.state).toBe('pending');
+  it('blames the first pending configurator row when the stream fails without pinning a step', () => {
+    const views = buildStepViews(baseInput, {
+      configuratorEvents: [],
+      chainStatusById: {},
+      configuratorError: 'the destination stream dropped',
+    });
+    const firstConfiguratorRow = views.find((v) => v.id === 'create-account');
+    expect(firstConfiguratorRow?.state).toBe('failed');
+    expect(firstConfiguratorRow?.errorMessage).toBe('the destination stream dropped');
   });
 
-  it('blames the first unfinished step once earlier ones have already succeeded', () => {
-    const events: SetupEvent[] = [
-      { event: 'step.completed', step: 'import-destination-certificate', at: 't' },
-      { event: 'step.completed', step: 'create-source-account', at: 't' },
-    ];
-    const views = buildStepViews(baseInput, events, { globalErrorMessage: 'stream ended without a terminal event' });
-    expect(views[0].state).toBe('succeeded');
-    expect(views[1].state).toBe('succeeded');
-    expect(views[2].state).toBe('failed');
-    expect(views[2].errorMessage).toBe('stream ended without a terminal event');
-  });
-
-  it('keeps a specific step failure visible rather than replacing it with the generic error', () => {
-    const events: SetupEvent[] = [
-      {
-        event: 'step.failed',
-        step: 'create-user',
-        at: 't',
-        error: { code: 'InternalError', message: 'IAM refused CreateUser' },
-      },
-    ];
-    const views = buildStepViews(baseInput, events, { globalErrorMessage: 'irrelevant' });
-    const stepFailure = views.find((v) => v.id === 'create-user');
-    expect(stepFailure?.state).toBe('failed');
-    expect(stepFailure?.errorMessage).toBe('IAM refused CreateUser');
+  it('keeps a specific step failure visible rather than replacing it with the stream error', () => {
+    const views = buildStepViews(baseInput, {
+      configuratorEvents: [
+        {
+          event: 'step.failed',
+          step: 'create-policy',
+          at: 't',
+          error: { code: 'InternalError', message: 'policy boom' },
+        },
+      ],
+      chainStatusById: {},
+      configuratorError: 'irrelevant',
+    });
+    expect(views.find((v) => v.id === 'create-policy')?.errorMessage).toBe('policy boom');
     expect(views.filter((v) => v.state === 'failed').length).toBe(1);
   });
 });
 
-describe('allSucceeded / hasFailure', () => {
-  const allIds = buildStepViews(baseInput, []).map((v) => v.id);
-
-  it('allSucceeded requires every listed step to be succeeded', () => {
-    const events: SetupEvent[] = allIds.map((step) => ({ event: 'step.completed', step, at: 't' }));
-    expect(allSucceeded(buildStepViews(baseInput, events))).toBe(true);
-    expect(allSucceeded(buildStepViews(baseInput, []))).toBe(false);
+describe('retryLinkIdForRow', () => {
+  it('retries a configurator row by re-running the single configurator link', () => {
+    expect(retryLinkIdForRow('create-role', {})).toBe('configurator-setup');
+    expect(retryLinkIdForRow('create-account', {})).toBe('configurator-setup');
   });
 
-  it('hasFailure is true when any step is failed', () => {
-    const events: SetupEvent[] = [
-      { event: 'step.failed', step: 'create-policy', at: 't', error: { code: 'InternalError', message: 'boom' } },
-    ];
-    expect(hasFailure(buildStepViews(baseInput, events))).toBe(true);
-    expect(hasFailure(buildStepViews(baseInput, []))).toBe(false);
+  it('retries a single-link wizard row by re-running its own link', () => {
+    expect(retryLinkIdForRow('import-destination-certificate', {})).toBe('import-destination-certificate');
+    expect(retryLinkIdForRow('create-location', {})).toBe('create-location');
+  });
+
+  it('retries the failed link of the folded source-bucket row, not the one that already succeeded', () => {
+    const status = {
+      'assume-source-role': { status: 'success' as const },
+      'create-source-bucket': { status: 'success' as const },
+      'create-source-bucket-versioning': { status: 'error' as const },
+    };
+    expect(retryLinkIdForRow('create-source-bucket', status)).toBe('create-source-bucket-versioning');
+  });
+
+  it('retries the assume-source-role link when that is the folded step that failed', () => {
+    expect(retryLinkIdForRow('create-source-bucket', { 'assume-source-role': { status: 'error' } })).toBe(
+      'assume-source-role',
+    );
+  });
+});
+
+describe('allSucceeded / hasFailure', () => {
+  it('allSucceeded is true only once every listed row has succeeded', () => {
+    const allDone: StepStateSources = {
+      configuratorEvents: [
+        'create-account',
+        'create-user',
+        'create-access-key',
+        'create-policy',
+        'create-role',
+        'attach-role-policy',
+        'create-bucket',
+      ].map((step) => ({ event: 'step.completed', step, at: 't' }) as SetupEvent),
+      chainStatusById: {
+        'import-destination-certificate': { status: 'success' },
+        'create-source-account': { status: 'success' },
+        'assume-source-role': { status: 'success' },
+        'create-source-bucket': { status: 'success' },
+        'create-source-bucket-versioning': { status: 'success' },
+        'create-location': { status: 'success' },
+        'create-replication-rule': { status: 'success' },
+      },
+    };
+    expect(allSucceeded(buildStepViews(baseInput, allDone))).toBe(true);
+    expect(allSucceeded(buildStepViews(baseInput, noProgress))).toBe(false);
+  });
+
+  it('hasFailure is true when any row failed', () => {
+    const views = buildStepViews(
+      baseInput,
+      withEvents([
+        { event: 'step.failed', step: 'create-policy', at: 't', error: { code: 'InternalError', message: 'boom' } },
+      ]),
+    );
+    expect(hasFailure(views)).toBe(true);
+    expect(hasFailure(buildStepViews(baseInput, noProgress))).toBe(false);
   });
 });

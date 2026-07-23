@@ -30,6 +30,32 @@ export const useCreateBucket = jest.fn(() => ({
   reset: jest.fn(),
 }));
 
+export const useSetBucketVersioning = jest.fn(() => ({
+  mutate: jest.fn(),
+  mutateAsync: jest.fn(),
+  status: 'idle',
+  isIdle: true,
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+  data: undefined,
+  error: null,
+  reset: jest.fn(),
+}));
+
+export const useSetBucketReplication = jest.fn(() => ({
+  mutate: jest.fn(),
+  mutateAsync: jest.fn(),
+  status: 'idle',
+  isIdle: true,
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+  data: undefined,
+  error: null,
+  reset: jest.fn(),
+}));
+
 export const useSetBucketTagging = jest.fn(() => ({
   mutate: jest.fn(),
   mutateAsync: jest.fn(),
