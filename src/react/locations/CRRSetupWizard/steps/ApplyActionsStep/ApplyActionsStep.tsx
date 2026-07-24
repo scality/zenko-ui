@@ -134,7 +134,7 @@ export const ApplyActionsStep = (props: Props) => {
   const configuratorResult = (prev: PreviousResults) =>
     prev[CONFIGURATOR_CHAIN_LINK_ID]?.data as SetupResult | undefined;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: rebuild only when the chain's shape or resolved inputs change, not on every mutation-instance render
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed on the mutation instances so a status change rebuilds the config and rows show live status
   const { mutations, variables } = useMemo(() => {
     const configs: MutationConfig[] = [
       { id: 'import-destination-certificate', label: 'Import Destination Certificate', mutation: importCertificate },
@@ -198,7 +198,21 @@ export const ApplyActionsStep = (props: Props) => {
     }
 
     return { mutations: configs, variables: resolvers };
-  }, [isNewSourceAccount, withReplicationRule, body, locationName, existingSourceRoleArn]);
+  }, [
+    isNewSourceAccount,
+    withReplicationRule,
+    body,
+    locationName,
+    existingSourceRoleArn,
+    importCertificate,
+    createSourceAccount,
+    assumeSourceRole,
+    createSourceBucket,
+    enableSourceVersioning,
+    setup,
+    createLocation,
+    createReplicationRuleMutation,
+  ]);
 
   const { Slots, steps, start, getResult, allRequiredStepsComplete } = useChainedMutations({ mutations, variables });
 
