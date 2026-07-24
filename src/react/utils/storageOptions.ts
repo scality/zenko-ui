@@ -36,6 +36,10 @@ export function isReplicationTarget(location: LocationInfo): boolean {
 export function isHdclientV2(location: LocationInfo): boolean {
   return (location.type as unknown as string) === 'location-scality-hdclient-v2';
 }
+
+export function isCRRLocation(location: LocationInfo): boolean {
+  return (location.type as unknown as string) === 'location-scality-crr-v1';
+}
 export function checkIfExternalLocation(locations: LocationInfo[]): boolean {
   return locations.some((l) => l.type !== LocationType.FileV1);
 }
