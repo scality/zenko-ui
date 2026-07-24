@@ -4,11 +4,13 @@ import type { StorageClassSelectorProps } from '@scality/data-browser-library';
 import type { LocationInfo } from '../../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { useLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useLocationsEndpointsAdapter } from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
-import { getLocationTypeShort, isHdclientV2, isReplicationTarget } from '../../utils/storageOptions';
+import { getLocationTypeShort, isCRRLocation, isHdclientV2, isReplicationTarget } from '../../utils/storageOptions';
 
 const locationFilter: Record<string, (l: LocationInfo) => boolean> = {
   replication: isReplicationTarget,
-  lifecycle: (l) => !isHdclientV2(l),
+  // CRR locations are replication-only targets: transitions towards them are
+  // rejected by the backend, so they must not be offered for lifecycle rules.
+  lifecycle: (l) => !isHdclientV2(l) && !isCRRLocation(l),
 };
 
 export function StorageClassSelector({ value, onChange, context }: StorageClassSelectorProps) {
