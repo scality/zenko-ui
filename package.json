@@ -70,7 +70,7 @@
     "aws-sdk": "^2.616.0",
     "core-js": "^3.6.5",
     "downshift": "^6.1.7",
-    "immutable": "^4.0.0-rc.12",
+    "immutable": "^4.3.9",
     "joi": "^18.0.1",
     "lodash.isequal": "^4.5.0",
     "lodash.set": "^4.3.2",
