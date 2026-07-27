@@ -199,18 +199,6 @@ export function createZenkoS3Tools(
           'mcp-s3',
         );
 
-        // basePath is needed by `autoNavigateAfterOperation` (in the lib's
-        // generated S3 tools) to land the post-success navigation on the
-        // host's mounted route — without this it pushes `/buckets/...` raw
-        // and shell-ui's catch-all redirects to `/data/accounts`. We resolve
-        // accountName from the cached getAssumableRoles result keyed by the
-        // roleArn the LLM passed, so this works even when the user is on
-        // `/` or `/data/accounts` (no account in URL).
-        const basePath = deriveHostBasePath(
-          (ctx.selfConfiguration.basePath as string | undefined) ?? '',
-          { roleArn },
-        );
-
         // queryKeyPrefix mirrors what zenko-ui's chat-side DataBrowserProvider
         // computes via `computeS3ConfigIdentifier` — the same `cacheKey=roleArn`
         // + external zenkoEndpoint + DEFAULT_REGION the panel queries are
@@ -251,7 +239,6 @@ export function createZenkoS3Tools(
               },
             }),
             navigate,
-            basePath,
             // Intentionally omit queryClient: the chat-side data-browser
             // panels mount their `useQuery` observers against the library's
             // own @tanstack/react-query v5 QueryClient (defaultQueryClient),
