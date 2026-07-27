@@ -94,4 +94,49 @@ describe('CRRSetupWizard — Configure step', () => {
 
     expect(await screen.findByText(/destination cluster did not respond/i)).toBeInTheDocument();
   });
+
+  it('opens the DNS fallback modal on unresolved hosts and retries with one IP applied to all of them', async () => {
+    let verifyCalls = 0;
+    let retryBody: { hostAliases?: { hostname: string; ip: string }[] } | undefined;
+    server.use(
+      rest.post(VERIFY_URL, (req, res, ctx) => {
+        verifyCalls += 1;
+        if (verifyCalls === 1) {
+          return res(
+            ctx.status(502),
+            ctx.set('Content-Type', 'application/problem+json'),
+            ctx.body(
+              JSON.stringify({
+                type: 'about:blank',
+                title: 'DNS resolution failed',
+                status: 502,
+                code: 'DestinationDnsResolutionFailed',
+                unresolvedHosts: ['s3.dest.local', 'iam.dest.local'],
+              }),
+            ),
+          );
+        }
+        retryBody = req.body as { hostAliases?: { hostname: string; ip: string }[] };
+        return res(ctx.json({ ok: true, mode: 'management-network', instanceName: 'ageless-valley' }));
+      }),
+    );
+    render(<CRRSetupWizard />, { wrapper: Wrapper });
+
+    await fillValidForm();
+    await userEvent.click(screen.getByRole('button', { name: /Check Connection/i }));
+
+    // The DNS failure surfaces the fallback modal listing every host that could not be resolved.
+    expect(await screen.findByText('• s3.dest.local')).toBeInTheDocument();
+    expect(screen.getByText('• iam.dest.local')).toBeInTheDocument();
+
+    await userEvent.type(screen.getByRole('textbox', { name: /Destination cluster IP/i }), '10.0.0.9');
+    await userEvent.click(screen.getByRole('button', { name: /Retry Connection/i }));
+
+    expect(await screen.findByText(/Destination reachable/i)).toBeInTheDocument();
+    // The single IP fans out to an alias for each unresolved host.
+    expect(retryBody?.hostAliases).toEqual([
+      { hostname: 's3.dest.local', ip: '10.0.0.9' },
+      { hostname: 'iam.dest.local', ip: '10.0.0.9' },
+    ]);
+  });
 });

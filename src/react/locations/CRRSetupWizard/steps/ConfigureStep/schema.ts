@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import type { FieldErrors, Resolver } from 'react-hook-form';
 import { accountNameValidationSchema } from '../../../../account/AccountCreate';
-import type { StartSetupBody, VerifyRequestBody } from '../../api/types';
+import type { HostAlias, StartSetupBody, VerifyRequestBody } from '../../api/types';
 
 export type AccountNameType = 'create' | 'existing';
 export type ConnectionMode = 'management-network' | 'data-network';
@@ -21,6 +21,8 @@ export type ConfigureFormValues = {
 
   destinationAccountName: string;
 
+  hostAliases: HostAlias[];
+
   createReplicationRule: boolean;
   sourceBucketName: string;
   targetBucketName: string;
@@ -38,6 +40,7 @@ export const defaultConfigureValues: ConfigureFormValues = {
   password: '',
   certificate: '',
   destinationAccountName: '',
+  hostAliases: [],
   createReplicationRule: false,
   sourceBucketName: '',
   targetBucketName: '',
@@ -87,6 +90,8 @@ export const configureSchema = Joi.object<ConfigureFormValues>({
     .messages({ 'string.pattern.base': 'Paste a PEM-encoded certificate' }),
 
   destinationAccountName: accountNameValidationSchema,
+
+  hostAliases: Joi.array().default([]),
 
   createReplicationRule: Joi.boolean().required(),
   sourceBucketName: Joi.when('createReplicationRule', {
@@ -145,6 +150,7 @@ export const toVerifyBody = (values: ConfigureFormValues): VerifyRequestBody => 
           adminPassword: values.password,
         },
   destinationCertificate: values.certificate,
+  ...(values.hostAliases?.length ? { hostAliases: values.hostAliases } : {}),
 });
 
 export const toStartSetupBody = (values: ConfigureFormValues): StartSetupBody => {

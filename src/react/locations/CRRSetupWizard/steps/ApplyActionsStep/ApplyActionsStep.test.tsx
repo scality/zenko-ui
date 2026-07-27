@@ -40,6 +40,7 @@ const VALUES: ConfigureFormValues = {
   password: 'super-secret',
   certificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
   destinationAccountName: 'crr-dest',
+  hostAliases: [],
   createReplicationRule: true,
   sourceBucketName: 'crr-src-bucket',
   targetBucketName: 'crr-target-bucket',

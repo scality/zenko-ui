@@ -2,10 +2,11 @@ import { Form, Icon, Stack, useToast } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ServiceError } from '../../api/crrConfiguratorClient';
-import type { ProblemCode, VerifyRequestBody, VerifyResponse } from '../../api/types';
+import type { HostAlias, ProblemCode, VerifyRequestBody, VerifyResponse } from '../../api/types';
+import { DnsFallbackModal } from '../../DnsFallbackModal';
 import { useCRRConfigurationVerifyMutation } from '../../hooks/useCRRConfigurationVerifyMutation';
 import { DestinationAccountSection } from './DestinationAccountSection';
 import { DestinationConnectionSection } from './DestinationConnectionSection';
@@ -34,12 +35,27 @@ const errorMessage = (error: unknown): string => {
   return (error as Error)?.message ?? 'Connection to the destination failed.';
 };
 
+const unresolvedHostsFrom = (error: unknown): string[] | null => {
+  if (error instanceof ServiceError && error.code === 'DestinationDnsResolutionFailed') {
+    const hosts = error.problem.unresolvedHosts;
+    if (hosts && hosts.length > 0) return hosts;
+  }
+  return null;
+};
+
+const mergeAliases = (existing: HostAlias[], added: HostAlias[]): HostAlias[] => {
+  const byHost = new Map(existing.map((alias) => [alias.hostname, alias]));
+  for (const alias of added) byHost.set(alias.hostname, alias);
+  return [...byHost.values()];
+};
+
 export const ConfigureStep = () => {
   const { next } = useStepper(CONFIGURE_STEP_INDEX);
   const navigate = useBasenameRelativeNavigate();
   const { showToast } = useToast();
   const verify = useCRRConfigurationVerifyMutation();
   const lastVerifiedRef = useRef<string | null>(null);
+  const [dnsFallbackHosts, setDnsFallbackHosts] = useState<string[] | null>(null);
 
   const formMethods = useForm<ConfigureFormValues>({
     mode: 'all',
@@ -49,9 +65,19 @@ export const ConfigureStep = () => {
   const {
     handleSubmit,
     getValues,
+    setValue,
     trigger,
     formState: { isValid },
   } = formMethods;
+
+  const handleVerifyError = (error: unknown) => {
+    const hosts = unresolvedHostsFrom(error);
+    if (hosts) {
+      setDnsFallbackHosts(hosts);
+      return;
+    }
+    showToast({ open: true, status: 'error', message: errorMessage(error) });
+  };
 
   const runVerify = async (body: VerifyRequestBody): Promise<VerifyResponse> => {
     const response = await verify.mutateAsync(body);
@@ -85,7 +111,7 @@ export const ConfigureStep = () => {
       await runVerify(body);
       showToast({ open: true, status: 'success', message: 'Destination reachable' });
     } catch (error) {
-      showToast({ open: true, status: 'error', message: errorMessage(error) });
+      handleVerifyError(error);
     }
   };
 
@@ -100,12 +126,23 @@ export const ConfigureStep = () => {
       const response = await runVerify(body);
       next({ ...values, destinationInstanceName: destinationInstanceNameFrom(response) });
     } catch (error) {
-      showToast({ open: true, status: 'error', message: errorMessage(error) });
+      handleVerifyError(error);
     }
   });
 
   return (
     <FormProvider {...formMethods}>
+      <DnsFallbackModal
+        isOpen={dnsFallbackHosts !== null}
+        unresolvedHosts={dnsFallbackHosts ?? []}
+        initialAliases={getValues('hostAliases')}
+        onCancel={() => setDnsFallbackHosts(null)}
+        onSubmit={(aliases) => {
+          setValue('hostAliases', mergeAliases(getValues('hostAliases'), aliases));
+          setDnsFallbackHosts(null);
+          onCheckConnection();
+        }}
+      />
       <Form
         onSubmit={onContinue}
         requireMode="partial"
