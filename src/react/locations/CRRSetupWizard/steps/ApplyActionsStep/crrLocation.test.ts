@@ -1,17 +1,23 @@
 import type { SetupResult } from '../../api/types';
-import { buildCRRLocation, buildCRRLocationName } from './crrLocation';
+import { buildCRRLocation, buildCRRLocationName, buildCRRReplicationRuleId } from './crrLocation';
 
 describe('buildCRRLocationName', () => {
   it('uses the destination host from the connection URL, without scheme or port (management-network)', () => {
     expect(buildCRRLocationName({ destinationAccountName: 'dest-acct', url: 'https://10.0.0.42:8443' })).toBe(
-      'dest-acct-10-0-0-42',
+      'location-dest-acct-10-0-0-42',
     );
   });
 
   it('uses the base domain host (data-network)', () => {
     expect(buildCRRLocationName({ destinationAccountName: 'dest-acct', baseDomain: 's3.example.com' })).toBe(
-      'dest-acct-s3-example-com',
+      'location-dest-acct-s3-example-com',
     );
+  });
+});
+
+describe('buildCRRReplicationRuleId', () => {
+  it('names the rule after the destination account', () => {
+    expect(buildCRRReplicationRuleId('dest-acct')).toBe('replication-dest-acct');
   });
 });
 

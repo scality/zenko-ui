@@ -4,7 +4,8 @@ describe('buildCRRReplicationConfiguration', () => {
   const config = buildCRRReplicationConfiguration({
     sourceBucketName: 'source-bucket',
     targetBucketName: 'target-bucket',
-    locationName: 'crr-paris',
+    locationName: 'location-paris-dest-10-0-0-42',
+    destinationAccountName: 'paris-dest',
     destinationRoleArn: 'arn:aws:iam::123456789012:role/crr-role',
   });
 
@@ -20,8 +21,9 @@ describe('buildCRRReplicationConfiguration', () => {
 
   it('routes replication to the target bucket via the CRR location name', () => {
     const [rule] = config.ReplicationConfiguration?.Rules ?? [];
+    expect(rule.ID).toBe('replication-paris-dest');
     expect(rule.Status).toBe('Enabled');
     expect(rule.Destination.Bucket).toBe('arn:aws:s3:::target-bucket');
-    expect(rule.Destination.StorageClass).toBe('crr-paris');
+    expect(rule.Destination.StorageClass).toBe('location-paris-dest-10-0-0-42');
   });
 });

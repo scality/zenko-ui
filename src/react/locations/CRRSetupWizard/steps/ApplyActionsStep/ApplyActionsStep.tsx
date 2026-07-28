@@ -192,6 +192,7 @@ export const ApplyActionsStep = (props: Props) => {
           sourceBucketName: sourceBucketName ?? '',
           targetBucketName: props.targetBucketName ?? '',
           locationName,
+          destinationAccountName: destinationAccountName ?? '',
           destinationRoleArn: result.roleArn,
         });
       };

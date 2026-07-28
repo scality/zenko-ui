@@ -1,4 +1,5 @@
 import type { PutBucketReplicationCommandInput, StorageClass } from '@aws-sdk/client-s3';
+import { buildCRRReplicationRuleId } from './crrLocation';
 
 /**
  * Source-side placeholder replication role. Per the ARTESCA CRR procedure the
@@ -11,6 +12,7 @@ type BuildReplicationConfigurationInput = {
   sourceBucketName: string;
   targetBucketName: string;
   locationName: string;
+  destinationAccountName: string;
   destinationRoleArn: string;
 };
 
@@ -23,6 +25,7 @@ export const buildCRRReplicationConfiguration = ({
   sourceBucketName,
   targetBucketName,
   locationName,
+  destinationAccountName,
   destinationRoleArn,
 }: BuildReplicationConfigurationInput): PutBucketReplicationCommandInput => ({
   Bucket: sourceBucketName,
@@ -30,7 +33,7 @@ export const buildCRRReplicationConfiguration = ({
     Role: `${SOURCE_REPLICATION_ROLE_ARN},${destinationRoleArn}`,
     Rules: [
       {
-        ID: `crr-${locationName}`,
+        ID: buildCRRReplicationRuleId(destinationAccountName),
         Status: 'Enabled',
         Prefix: '',
         Destination: {
