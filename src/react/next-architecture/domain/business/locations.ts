@@ -227,11 +227,23 @@ export const useListLocationsForCurrentAccount = ({
     const locationDefinition = allLocationsValue.find((l) => l.id === locationId);
 
     if (locationDefinition) {
+      const usedCapacityValue: LatestUsedCapacity =
+        locationId in accountLocationData
+          ? accountLocationData[locationId]
+          : {
+              type: 'hasMetrics',
+              usedCapacity: {
+                current: 0,
+                nonCurrent: 0,
+              },
+              measuredOn: new Date(),
+            };
+
       locations[locationId] = {
         ...locationDefinition,
         usedCapacity: {
           status: 'success',
-          value: accountLocationData[locationId],
+          value: usedCapacityValue,
         },
       };
     }
