@@ -139,6 +139,15 @@ export const useListLocations = ({
   };
 };
 
+const ZERO_USED_CAPACITY: LatestUsedCapacity = {
+  type: 'hasMetrics',
+  usedCapacity: {
+    current: 0,
+    nonCurrent: 0,
+  },
+  measuredOn: new Date(),
+};
+
 export const useListLocationsForCurrentAccount = ({
   metricsAdapter,
   locationsEndpointsAdapter,
@@ -221,7 +230,9 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  const accountLocationsKey = Array.from(new Set([...Object.keys(accountLocationData), ...bucketLocationIds]));
+  const accountLocationsKey = Array.from(
+    new Set([...Object.keys(accountLocationData), ...bucketLocationIds]),
+  );
 
   if (allLocations.locations.status !== 'success') {
     return allLocations;
@@ -230,20 +241,13 @@ export const useListLocationsForCurrentAccount = ({
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
   accountLocationsKey.forEach((locationId) => {
-    const locationDefinition = allLocationsValue.find((l) => l.id === locationId);
+    const locationDefinition = allLocationsValue.find(
+      (l) => l.id === locationId,
+    );
 
     if (locationDefinition) {
       const usedCapacityValue: LatestUsedCapacity =
-        locationId in accountLocationData
-          ? accountLocationData[locationId]
-          : {
-              type: 'hasMetrics',
-              usedCapacity: {
-                current: 0,
-                nonCurrent: 0,
-              },
-              measuredOn: new Date(),
-            };
+        locationId in accountLocationData ? accountLocationData[locationId] : ZERO_USED_CAPACITY;
 
       locations[locationId] = {
         ...locationDefinition,
