@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
+import { useBucketList } from '../../../queries/instanceStatusQuery';
 import { useAuthGroups } from '../../../utils/hooks';
 import type { ILocationsEndpointsAdapter } from '../../adapters/accounts-locations/ILocationsEndpointsBundledAdapter';
 import type { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
@@ -157,6 +159,24 @@ export const useListLocationsForCurrentAccount = ({
     queryFn: () => metricsAdapter.listAccountLocationsLatestUsedCapacity(accountCannonicalId),
     enabled: !!accountCannonicalId,
   });
+
+  const {
+    bucketList,
+    status: bucketListStatus,
+    isFetching: bucketListIsFetching,
+    error: bucketListError,
+  } = useBucketList();
+
+  const bucketLocationIds = useMemo(() => {
+    return Array.from(
+      new Set(
+        bucketList
+          .filter((bucket) => bucket.ownerCanonicalId === accountCannonicalId)
+          .map((bucket) => bucket.location)
+          .filter((location): location is string => !!location),
+      ),
+    );
+  }, [bucketList, accountCannonicalId]);
 
   if (account === undefined) {
     return {
