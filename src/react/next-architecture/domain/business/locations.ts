@@ -215,16 +215,7 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  const accountLocationsKey = Object.keys(accountLocationData);
-  // The account has 0 locations
-  if (accountLocationsKey.length === 0) {
-    return {
-      locations: {
-        status: 'success',
-        value: {},
-      },
-    };
-  }
+  const accountLocationsKey = Array.from(new Set([...Object.keys(accountLocationData), ...bucketLocationIds]));
 
   if (allLocations.locations.status !== 'success') {
     return allLocations;
