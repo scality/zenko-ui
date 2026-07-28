@@ -160,14 +160,12 @@ export const useListLocationsForCurrentAccount = ({
     enabled: !!accountCannonicalId,
   });
 
-  const {
-    bucketList,
-    status: bucketListStatus,
-    isFetching: bucketListIsFetching,
-    error: bucketListError,
-  } = useBucketList();
+  const { bucketList, status: bucketListStatus } = useBucketList();
 
   const bucketLocationIds = useMemo(() => {
+    if (bucketListStatus === 'error') {
+      return [];
+    }
     return Array.from(
       new Set(
         bucketList
@@ -176,7 +174,7 @@ export const useListLocationsForCurrentAccount = ({
           .filter((location): location is string => !!location),
       ),
     );
-  }, [bucketList, accountCannonicalId]);
+  }, [bucketList, accountCannonicalId, bucketListStatus]);
 
   if (account === undefined) {
     return {
@@ -211,6 +209,14 @@ export const useListLocationsForCurrentAccount = ({
         status: 'error',
         title: 'Account Location Metrics Error',
         reason: `Unexpected error while fetching account location's metrics`,
+      },
+    };
+  }
+
+  if (bucketListStatus === 'idle' || bucketListStatus === 'loading') {
+    return {
+      locations: {
+        status: 'loading',
       },
     };
   }
