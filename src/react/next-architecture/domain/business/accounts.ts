@@ -130,7 +130,7 @@ export const useListAccounts = ({
         !!accountInfo.assumableRoles.find((role) => role.Name === STORAGE_MANAGER_ROLE),
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountInfos.status, accountInfos.value]);
+  }, [accountInfos.status, accountInfos.status === 'success' ? accountInfos.value : undefined]);
 
   if (accountInfos.status === 'error') {
     return {
