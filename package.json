@@ -50,7 +50,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.5.1",
     "jest-preview": "^0.3.1",
-    "msw": "0.36.8",
+    "msw": "2.14.4",
     "node-fetch": "^2.6.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.2",
