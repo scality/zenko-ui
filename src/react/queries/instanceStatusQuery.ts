@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import type { InlineResponse200 } from '../../js/managementClient/api';
 import type { ApiError } from '../../types/actions';
-import type { Capabilities } from '../../types/stats';
+import type { BucketList, Capabilities } from '../../types/stats';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useErrorHandler } from '../ErrorProvider';
 import { useManagementClient } from '../ManagementProvider';
@@ -52,9 +52,9 @@ export const useInstanceStatusQuery = (options?: InstanceStatusQueryOptions) => 
  */
 export const useBucketList = () => {
   const { data, status, isFetching, error } = useInstanceStatusQuery();
-  const rawBucketList = data?.metrics?.['item-counts']?.bucketList;
+  const rawBucketList = data?.metrics?.['item-counts']?.bucketList as BucketList | undefined;
 
-  const bucketList = useMemo(() => {
+  const bucketList = useMemo((): BucketList => {
     return rawBucketList || [];
   }, [JSON.stringify(rawBucketList)]);
 

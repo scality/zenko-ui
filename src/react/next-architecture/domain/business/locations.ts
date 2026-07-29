@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
+import { useBucketList } from '../../../queries/instanceStatusQuery';
 import { useAuthGroups } from '../../../utils/hooks';
 import type { ILocationsEndpointsAdapter } from '../../adapters/accounts-locations/ILocationsEndpointsBundledAdapter';
 import type { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
@@ -137,6 +139,15 @@ export const useListLocations = ({
   };
 };
 
+const ZERO_USED_CAPACITY: LatestUsedCapacity = {
+  type: 'hasMetrics',
+  usedCapacity: {
+    current: 0,
+    nonCurrent: 0,
+  },
+  measuredOn: new Date(0),
+};
+
 export const useListLocationsForCurrentAccount = ({
   metricsAdapter,
   locationsEndpointsAdapter,
@@ -157,6 +168,22 @@ export const useListLocationsForCurrentAccount = ({
     queryFn: () => metricsAdapter.listAccountLocationsLatestUsedCapacity(accountCannonicalId),
     enabled: !!accountCannonicalId,
   });
+
+  const { bucketList, status: bucketListStatus } = useBucketList();
+
+  const bucketLocationNames = useMemo(() => {
+    if (bucketListStatus === 'error') {
+      return [];
+    }
+    return Array.from(
+      new Set(
+        bucketList
+          .filter((bucket) => bucket.ownerCanonicalId === accountCannonicalId)
+          .map((bucket) => bucket.location)
+          .filter((location): location is string => !!location),
+      ),
+    );
+  }, [bucketList, accountCannonicalId, bucketListStatus]);
 
   if (account === undefined) {
     return {
@@ -195,13 +222,10 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  const accountLocationsKey = Object.keys(accountLocationData);
-  // The account has 0 locations
-  if (accountLocationsKey.length === 0) {
+  if (bucketListStatus === 'idle' || bucketListStatus === 'loading') {
     return {
       locations: {
-        status: 'success',
-        value: {},
+        status: 'loading',
       },
     };
   }
@@ -210,20 +234,30 @@ export const useListLocationsForCurrentAccount = ({
     return allLocations;
   }
 
+  const metricsByLocationId = accountLocationData ?? {};
+  const bucketLocationNameSet = new Set(bucketLocationNames);
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
-  accountLocationsKey.forEach((locationId) => {
-    const locationDefinition = allLocationsValue.find((l) => l.id === locationId);
 
-    if (locationDefinition) {
-      locations[locationId] = {
-        ...locationDefinition,
-        usedCapacity: {
-          status: 'success',
-          value: accountLocationData[locationId],
-        },
-      };
+  allLocationsValue.forEach((locationDefinition) => {
+    const hasMetrics = locationDefinition.id in metricsByLocationId;
+    const isBackedByBucket = bucketLocationNameSet.has(locationDefinition.name);
+
+    if (!hasMetrics && !isBackedByBucket) {
+      return;
     }
+
+    const usedCapacityValue: LatestUsedCapacity = hasMetrics
+      ? metricsByLocationId[locationDefinition.id]
+      : ZERO_USED_CAPACITY;
+
+    locations[locationDefinition.id] = {
+      ...locationDefinition,
+      usedCapacity: {
+        status: 'success',
+        value: usedCapacityValue,
+      },
+    };
   });
 
   return {
