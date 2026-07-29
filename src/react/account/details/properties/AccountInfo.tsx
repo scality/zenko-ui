@@ -64,9 +64,9 @@ function DeleteAccountButtonAndModal({ account }: Props) {
     },
     onSuccess: () => {
       refetchLocationsEndpointsMutation.mutate(undefined, {
-        onSuccess: () => {
+        onSuccess: async () => {
           removeRoleArnStored();
-          queryClient.invalidateQueries(['WebIdentityRoles']);
+          await queryClient.refetchQueries(['WebIdentityRoles']);
           navigate('/accounts');
           setIsModalOpened(false);
         },
