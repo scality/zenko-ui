@@ -275,6 +275,79 @@ describe('useListAccounts', () => {
       ],
     });
   });
+
+  it('should reflect the latest accountInfos.value when an account is removed while status stays success', async () => {
+    //S
+    const accessibleAccountsAdapter = new MockedAccessibleAccounts();
+    const metricsAdapter = new MockedMetricsAdapter();
+    accessibleAccountsAdapter.useListAccessibleAccounts = jest.fn().mockImplementation(
+      (): {
+        accountInfos: PromiseResult<AccountInfo[]>;
+      } => {
+        return {
+          accountInfos: {
+            status: 'success',
+            value: ACCESSIBLE_ACCOUNTS_EXAMPLE,
+          },
+        };
+      },
+    );
+    //E
+    const { result, waitFor, rerender } = renderHook(
+      () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
+      {
+        wrapper: NewWrapper(),
+      },
+    );
+    await waitFor(
+      () =>
+        result.current.accounts.status === 'success' &&
+        result.current.accounts.value[0].usedCapacity.status === 'success',
+    );
+    expect(result.current.accounts).toStrictEqual({
+      status: 'success',
+      value: [
+        {
+          ...MOCK_ACCESSIBLE_ACCOUNTS[0],
+          usedCapacity: { status: 'success', value: ACCOUNT_METRICS },
+        },
+        {
+          ...MOCK_ACCESSIBLE_ACCOUNTS[1],
+          usedCapacity: {
+            status: 'success',
+            value: NEWLY_CREATED_ACCOUNT_METRICS,
+          },
+        },
+      ],
+    });
+
+    //S
+    accessibleAccountsAdapter.useListAccessibleAccounts = jest.fn().mockImplementation(
+      (): {
+        accountInfos: PromiseResult<AccountInfo[]>;
+      } => {
+        return {
+          accountInfos: {
+            status: 'success',
+            value: [ACCESSIBLE_ACCOUNTS_EXAMPLE[0]],
+          },
+        };
+      },
+    );
+    //E
+    rerender();
+    //V
+    await waitFor(() => result.current.accounts.status === 'success' && result.current.accounts.value.length === 1);
+    expect(result.current.accounts).toStrictEqual({
+      status: 'success',
+      value: [
+        {
+          ...MOCK_ACCESSIBLE_ACCOUNTS[0],
+          usedCapacity: { status: 'success', value: ACCOUNT_METRICS },
+        },
+      ],
+    });
+  });
 });
 
 // In order to retrieve metrics, the listAccounts should be success
