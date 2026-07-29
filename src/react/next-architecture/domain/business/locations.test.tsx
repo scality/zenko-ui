@@ -1,11 +1,20 @@
 import { ShellHooksProvider } from '@scality/module-federation';
 import { act, renderHook } from '@testing-library/react-hooks';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import type { PropsWithChildren } from 'react';
 import { QueryClient } from 'react-query';
 import { QueryClientProvider } from '../../../../QueryClientProvider';
 import type { LocationTypeKey } from '../../../../types/config';
 import * as DSRProvider from '../../../DataServiceRoleProvider';
-import { mockShellAlerts, mockShellHooks, WrapperAsStorageManager } from '../../../utils/testUtil';
+import { _ManagementContext } from '../../../ManagementProvider';
+import {
+  mockShellAlerts,
+  mockShellHooks,
+  TEST_API_BASE_URL,
+  TEST_MANAGEMENT_CLIENT,
+  WrapperAsStorageManager,
+} from '../../../utils/testUtil';
 import { MockedAccountsLocationsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
 import {
   ACCOUNT_OWN_METRICS,
@@ -45,11 +54,23 @@ const queryClient = new QueryClient({
     },
   },
 });
+const server = setupServer(
+  rest.get(`${TEST_API_BASE_URL}/api/v1/instance/:instanceId/status`, (_req, res, ctx) => res(ctx.json({}))),
+);
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
   return (
     <WrapperAsStorageManager isStorageManager={true}>
       <ShellHooksProvider shellHooks={mockShellHooks} shellAlerts={mockShellAlerts}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <_ManagementContext.Provider value={{ managementClient: TEST_MANAGEMENT_CLIENT }}>
+            {children}
+          </_ManagementContext.Provider>
+        </QueryClientProvider>
       </ShellHooksProvider>
     </WrapperAsStorageManager>
   );
@@ -430,5 +451,62 @@ describe('useListLocationsForCurrentAccount', () => {
       },
     };
     expect(result.current).toStrictEqual(expectedRes);
+  });
+
+  it('shows a location backed only by a freshly created bucket, resolving the bucket location name to its id', async () => {
+    // S
+    jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
+      account: {
+        id: 'account-id-bucket-only',
+        Name: 'BucketOnly',
+        Roles: [],
+        CreationDate: DEFAULT_METRICS_MESURED_ON,
+        CanonicalId: 'canonical-id-bucket-only',
+      },
+    });
+    // The account has no location metrics yet, but owns a bucket on `us-east-1`
+    // whose location id (95dbedf5-...) differs from its name.
+    server.use(
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/:instanceId/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'item-counts': {
+                bucketList: [
+                  {
+                    name: 'freshly-created-bucket',
+                    location: 'us-east-1',
+                    ownerCanonicalId: 'canonical-id-bucket-only',
+                  },
+                ],
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    const { result, waitFor } = setupAndRenderHook();
+
+    // E
+    await waitFor(() => {
+      return result.current.locations.status === 'success';
+    });
+
+    // V
+    if (result.current.locations.status !== 'success') {
+      throw new Error('expected locations to be successfully loaded');
+    }
+    const value = result.current.locations.value;
+    // Keyed by the location id (objectId), not by the bucket location name.
+    expect(Object.keys(value)).toEqual(['95dbedf5-9888-11ec-8565-1ac2af7d1e53']);
+    const usEast1 = value['95dbedf5-9888-11ec-8565-1ac2af7d1e53'];
+    expect(usEast1.name).toBe('us-east-1');
+    expect(usEast1.usedCapacity.status).toBe('success');
+    // A bucket-only location gets synthesized zero-usage capacity.
+    expect(usEast1.usedCapacity).toMatchObject({
+      status: 'success',
+      value: { type: 'hasMetrics', usedCapacity: { current: 0, nonCurrent: 0 } },
+    });
   });
 });

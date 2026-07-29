@@ -145,7 +145,7 @@ const ZERO_USED_CAPACITY: LatestUsedCapacity = {
     current: 0,
     nonCurrent: 0,
   },
-  measuredOn: new Date(),
+  measuredOn: new Date(0),
 };
 
 export const useListLocationsForCurrentAccount = ({
@@ -171,7 +171,7 @@ export const useListLocationsForCurrentAccount = ({
 
   const { bucketList, status: bucketListStatus } = useBucketList();
 
-  const bucketLocationIds = useMemo(() => {
+  const bucketLocationNames = useMemo(() => {
     if (bucketListStatus === 'error') {
       return [];
     }
@@ -230,33 +230,34 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  const accountLocationsKey = Array.from(
-    new Set([...Object.keys(accountLocationData), ...bucketLocationIds]),
-  );
-
   if (allLocations.locations.status !== 'success') {
     return allLocations;
   }
 
+  const metricsByLocationId = accountLocationData ?? {};
+  const bucketLocationNameSet = new Set(bucketLocationNames);
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
-  accountLocationsKey.forEach((locationId) => {
-    const locationDefinition = allLocationsValue.find(
-      (l) => l.id === locationId,
-    );
 
-    if (locationDefinition) {
-      const usedCapacityValue: LatestUsedCapacity =
-        locationId in accountLocationData ? accountLocationData[locationId] : ZERO_USED_CAPACITY;
+  allLocationsValue.forEach((locationDefinition) => {
+    const hasMetrics = locationDefinition.id in metricsByLocationId;
+    const isBackedByBucket = bucketLocationNameSet.has(locationDefinition.name);
 
-      locations[locationId] = {
-        ...locationDefinition,
-        usedCapacity: {
-          status: 'success',
-          value: usedCapacityValue,
-        },
-      };
+    if (!hasMetrics && !isBackedByBucket) {
+      return;
     }
+
+    const usedCapacityValue: LatestUsedCapacity = hasMetrics
+      ? metricsByLocationId[locationDefinition.id]
+      : ZERO_USED_CAPACITY;
+
+    locations[locationDefinition.id] = {
+      ...locationDefinition,
+      usedCapacity: {
+        status: 'success',
+        value: usedCapacityValue,
+      },
+    };
   });
 
   return {
