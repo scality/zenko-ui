@@ -18,21 +18,21 @@ import { type ConfigureFormValues, configureResolver, defaultConfigureValues, to
 export const CONFIGURE_STEP_INDEX = 0;
 
 const errorCopy: Partial<Record<ProblemCode, string>> = {
-  DestinationUnreachable: 'The destination cluster did not respond.',
-  DestinationDnsResolutionFailed: 'One or more destination hostnames could not be resolved.',
-  DestinationCertificateInvalid: 'The pasted certificate is not a valid PEM bundle.',
-  DestinationAuthFailed: 'The destination refused these admin credentials.',
-  AssumeRoleFailed: 'The destination rejected the storage-manager role assumption.',
-  Unauthorized: 'Your session was rejected by the source cluster. Sign in again.',
-  Forbidden: 'You need the Storage Manager role to run this wizard.',
+  DestinationUnreachable: 'Failed to reach the destination. Check the URL and your network connection.',
+  DestinationDnsResolutionFailed: 'Failed to resolve the destination hostnames.',
+  DestinationCertificateInvalid: 'The destination certificate is invalid.',
+  DestinationAuthFailed: 'Failed to authenticate with the destination. Check your credentials.',
+  AssumeRoleFailed: 'Failed to assume the replication role on the destination.',
+  Unauthorized: 'Your session has expired. Sign in again.',
+  Forbidden: 'You are not authorized to configure replication.',
 };
 
 const errorMessage = (error: unknown): string => {
   if (error instanceof ServiceError) {
     const code = error.problem.code as ProblemCode | undefined;
-    return (code && errorCopy[code]) ?? error.problem.title ?? 'Connection to the destination failed.';
+    return (code && errorCopy[code]) ?? error.problem.title ?? 'Failed to reach the destination.';
   }
-  return (error as Error)?.message ?? 'Connection to the destination failed.';
+  return (error as Error)?.message ?? 'Failed to reach the destination.';
 };
 
 const unresolvedHostsFrom = (error: unknown): string[] | null => {
@@ -66,7 +66,7 @@ export const ConfigureStep = () => {
     handleSubmit,
     getValues,
     setValue,
-    trigger,
+    watch,
     formState: { isValid },
   } = formMethods;
 
@@ -89,27 +89,9 @@ export const ConfigureStep = () => {
     response?.ok && response.mode === 'management-network' ? response.instanceName : undefined;
 
   const onCheckConnection = async () => {
-    const valid = await trigger([
-      'connectionMode',
-      'url',
-      'baseDomain',
-      's3Endpoint',
-      'username',
-      'password',
-      'certificate',
-    ]);
-    if (!valid) {
-      showToast({
-        open: true,
-        status: 'error',
-        message: 'Complete the destination fields before checking the connection',
-      });
-      return;
-    }
-    const body = toVerifyBody(getValues());
     try {
-      await runVerify(body);
-      showToast({ open: true, status: 'success', message: 'Destination reachable' });
+      await runVerify(toVerifyBody(getValues()));
+      showToast({ open: true, status: 'success', message: 'Connection established' });
     } catch (error) {
       handleVerifyError(error);
     }
@@ -129,6 +111,10 @@ export const ConfigureStep = () => {
       handleVerifyError(error);
     }
   });
+
+  const watchedValues = watch();
+  const isConnected = verify.isSuccess && lastVerifiedRef.current === JSON.stringify(toVerifyBody(watchedValues));
+  const connectedInstanceName = isConnected ? destinationInstanceNameFrom(verify.data) : undefined;
 
   return (
     <FormProvider {...formMethods}>
@@ -162,7 +148,12 @@ export const ConfigureStep = () => {
         }
       >
         <SourceSection />
-        <DestinationConnectionSection isCheckingConnection={verify.isLoading} onCheckConnection={onCheckConnection} />
+        <DestinationConnectionSection
+          isCheckingConnection={verify.isLoading}
+          onCheckConnection={onCheckConnection}
+          isConnected={isConnected}
+          connectedInstanceName={connectedInstanceName}
+        />
         <DestinationAccountSection />
         <ReplicationSection />
       </Form>

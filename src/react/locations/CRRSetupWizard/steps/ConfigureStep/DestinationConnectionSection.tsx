@@ -1,4 +1,4 @@
-import { FormGroup, FormSection, Radio, Stack, Wrap } from '@scality/core-ui';
+import { FormGroup, FormSection, Icon, Radio, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
 import { CertificateSection } from '../../../../ui-elements/CertificateSection';
@@ -7,18 +7,32 @@ import type { ConfigureFormValues } from './schema';
 type Props = {
   isCheckingConnection: boolean;
   onCheckConnection: () => void;
+  isConnected: boolean;
+  connectedInstanceName?: string;
 };
 
-export const DestinationConnectionSection = ({ isCheckingConnection, onCheckConnection }: Props) => {
+export const DestinationConnectionSection = ({
+  isCheckingConnection,
+  onCheckConnection,
+  isConnected,
+  connectedInstanceName,
+}: Props) => {
   const {
     control,
     register,
     watch,
     formState: { errors, touchedFields },
   } = useFormContext<ConfigureFormValues>();
-  const connectionMode = watch('connectionMode');
+  const values = watch();
+  const connectionMode = values.connectionMode;
   const errorIfTouched = (field: keyof ConfigureFormValues) =>
     touchedFields[field] ? errors[field]?.message : undefined;
+
+  const connectionFields: (keyof ConfigureFormValues)[] =
+    connectionMode === 'data-network'
+      ? ['baseDomain', 's3Endpoint', 'username', 'password', 'certificate']
+      : ['url', 'username', 'password', 'certificate'];
+  const connectionValid = connectionFields.every((field) => Boolean(values[field]) && !errors[field]);
 
   return (
     <FormSection forceLabelWidth={280} title={{ name: 'Destination Connection' }}>
@@ -113,12 +127,24 @@ export const DestinationConnectionSection = ({ isCheckingConnection, onCheckConn
       />
       <CertificateSection name="certificate" />
       <Wrap width="100%">
-        <div />
+        {isConnected ? (
+          <Stack gap="r8">
+            <Icon name="Check-circle" color="statusHealthy" />
+            <Text>
+              <Text isEmphazed>Connected</Text>
+              {connectedInstanceName ? `: ${connectedInstanceName}` : ''}
+            </Text>
+          </Stack>
+        ) : (
+          <div />
+        )}
         <Button
           type="button"
           variant="secondary"
           label="Check Connection"
           isLoading={isCheckingConnection}
+          disabled={!connectionValid}
+          tooltip={connectionValid ? undefined : { overlay: 'Fill in the destination fields to check the connection' }}
           onClick={onCheckConnection}
         />
       </Wrap>

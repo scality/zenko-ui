@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -30,6 +30,12 @@ const fillValidForm = async () => {
   await userEvent.type(destinationAccountName, 'dest-account');
 };
 
+const clickWhenEnabled = async (name: RegExp) => {
+  const button = screen.getByRole('button', { name });
+  await waitFor(() => expect(button).toBeEnabled());
+  await userEvent.click(button);
+};
+
 describe('CRRSetupWizard — Configure step', () => {
   it('confirms the destination is reachable when the user clicks Check Connection', async () => {
     server.use(
@@ -40,9 +46,11 @@ describe('CRRSetupWizard — Configure step', () => {
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
     await fillValidForm();
-    await userEvent.click(screen.getByRole('button', { name: /Check Connection/i }));
+    await clickWhenEnabled(/Check Connection/i);
 
-    expect(await screen.findByText(/Destination reachable/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Connection established/i)).toBeInTheDocument();
+    expect(await screen.findByText('Connected')).toBeInTheDocument();
+    expect(screen.getByText(/ageless-valley/)).toBeInTheDocument();
   });
 
   it('surfaces the ARTESCA problem code when Check Connection is rejected', async () => {
@@ -65,9 +73,9 @@ describe('CRRSetupWizard — Configure step', () => {
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
     await fillValidForm();
-    await userEvent.click(screen.getByRole('button', { name: /Check Connection/i }));
+    await clickWhenEnabled(/Check Connection/i);
 
-    expect(await screen.findByText(/pasted certificate is not a valid PEM/i)).toBeInTheDocument();
+    expect(await screen.findByText(/The destination certificate is invalid/i)).toBeInTheDocument();
   });
 
   it('blocks the user on Configure with an error toast when the silent verify fails on Continue', async () => {
@@ -90,9 +98,9 @@ describe('CRRSetupWizard — Configure step', () => {
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
     await fillValidForm();
-    await userEvent.click(screen.getByRole('button', { name: /Continue/i }));
+    await clickWhenEnabled(/Continue/i);
 
-    expect(await screen.findByText(/destination cluster did not respond/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Failed to reach the destination/i)).toBeInTheDocument();
   });
 
   it('opens the DNS fallback modal on unresolved hosts and retries with one IP applied to all of them', async () => {
@@ -123,16 +131,16 @@ describe('CRRSetupWizard — Configure step', () => {
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
     await fillValidForm();
-    await userEvent.click(screen.getByRole('button', { name: /Check Connection/i }));
+    await clickWhenEnabled(/Check Connection/i);
 
     // The DNS failure surfaces the fallback modal listing every host that could not be resolved.
     expect(await screen.findByText('• s3.dest.local')).toBeInTheDocument();
     expect(screen.getByText('• iam.dest.local')).toBeInTheDocument();
 
     await userEvent.type(screen.getByRole('textbox', { name: /Destination cluster IP/i }), '10.0.0.9');
-    await userEvent.click(screen.getByRole('button', { name: /Retry Connection/i }));
+    await clickWhenEnabled(/Retry Connection/i);
 
-    expect(await screen.findByText(/Destination reachable/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Connection established/i)).toBeInTheDocument();
     // The single IP fans out to an alias for each unresolved host.
     expect(retryBody?.hostAliases).toEqual([
       { hostname: 's3.dest.local', ip: '10.0.0.9' },
