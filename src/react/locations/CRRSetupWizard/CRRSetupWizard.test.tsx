@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -14,20 +14,16 @@ afterAll(() => server.close());
 
 const PEM = '-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----';
 
-/**
- * Fills the whole Configure form with valid values from a user's point of view —
- * clicks the labelled inputs by their accessible name, disambiguating the two
- * "Account Name" fields by the surrounding section title.
- */
-const fillValidForm = async () => {
-  const accountNameInputs = screen.getAllByRole('textbox', { name: /Account Name/i });
-  const [sourceAccountName, destinationAccountName] = accountNameInputs;
-  await userEvent.type(sourceAccountName, 'source-account');
-  await userEvent.type(screen.getByRole('textbox', { name: /^URL/i }), 'https://10.0.0.42:8443');
-  await userEvent.type(screen.getByRole('textbox', { name: /^Username/i }), 'scality');
-  await userEvent.type(screen.getByLabelText(/^Password/i), 'super-secret');
-  await userEvent.type(screen.getByRole('textbox', { name: /^Certificate/i }), PEM);
-  await userEvent.type(destinationAccountName, 'dest-account');
+// Two "Account Name" fields (source + destination) share the label; disambiguate by order.
+const fillValidForm = () => {
+  const [sourceAccountName, destinationAccountName] = screen.getAllByRole('textbox', { name: /Account Name/i });
+  const set = (element: HTMLElement, value: string) => fireEvent.change(element, { target: { value } });
+  set(sourceAccountName, 'source-account');
+  set(screen.getByRole('textbox', { name: /^URL/i }), 'https://10.0.0.42:8443');
+  set(screen.getByRole('textbox', { name: /^Username/i }), 'scality');
+  set(screen.getByLabelText(/^Password/i), 'super-secret');
+  set(screen.getByRole('textbox', { name: /^Certificate/i }), PEM);
+  set(destinationAccountName, 'dest-account');
 };
 
 const clickWhenEnabled = async (name: RegExp) => {
@@ -45,7 +41,7 @@ describe('CRRSetupWizard — Configure step', () => {
     );
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
-    await fillValidForm();
+    fillValidForm();
     await clickWhenEnabled(/Check Connection/i);
 
     expect(await screen.findByText(/Connection established/i)).toBeInTheDocument();
@@ -72,7 +68,7 @@ describe('CRRSetupWizard — Configure step', () => {
     );
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
-    await fillValidForm();
+    fillValidForm();
     await clickWhenEnabled(/Check Connection/i);
 
     expect(await screen.findByText(/The destination certificate is invalid/i)).toBeInTheDocument();
@@ -97,7 +93,7 @@ describe('CRRSetupWizard — Configure step', () => {
     );
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
-    await fillValidForm();
+    fillValidForm();
     await clickWhenEnabled(/Continue/i);
 
     expect(await screen.findByText(/Failed to reach the destination/i)).toBeInTheDocument();
@@ -130,7 +126,7 @@ describe('CRRSetupWizard — Configure step', () => {
     );
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
-    await fillValidForm();
+    fillValidForm();
     await clickWhenEnabled(/Check Connection/i);
 
     // The DNS failure surfaces the fallback modal listing every host that could not be resolved.

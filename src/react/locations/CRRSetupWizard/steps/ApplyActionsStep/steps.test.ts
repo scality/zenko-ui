@@ -16,6 +16,7 @@ const baseInput: StepListInput = {
   sourceBucketName: 'src-bucket',
   targetBucketName: 'target-bucket',
   destinationAccountName: 'dest-account',
+  isManagementNetwork: true,
 };
 
 const noProgress: StepStateSources = { configuratorEvents: [], chainStatusById: {} };
@@ -34,7 +35,6 @@ describe('buildStepViews', () => {
   it('lists the full provisioning sequence in order when the user creates a new source account and a replication rule', () => {
     const views = buildStepViews(baseInput, noProgress);
     expect(views.map((v) => v.id)).toEqual([
-      'import-destination-certificate',
       'create-source-account',
       'create-source-bucket',
       'create-account',
@@ -44,17 +44,24 @@ describe('buildStepViews', () => {
       'create-role',
       'attach-role-policy',
       'create-bucket',
+      'register-endpoint',
+      'configure-source-dns',
+      'import-destination-certificate',
       'create-location',
       'create-replication-rule',
     ]);
   });
 
   it('numbers the steps and shows the chosen source and destination account names', () => {
-    const [first, sourceAcc, sourceBkt, destAcc] = buildStepViews(baseInput, noProgress);
-    expect(first).toMatchObject({ step: 1, label: 'Import Destination Certificate' });
-    expect(sourceAcc).toMatchObject({ step: 2, label: 'Create Account on Source: src-account' });
-    expect(sourceBkt).toMatchObject({ step: 3, label: 'Create Bucket on Source: src-bucket' });
-    expect(destAcc).toMatchObject({ step: 4, label: 'Create Account on Destination: dest-account' });
+    const views = buildStepViews(baseInput, noProgress);
+    const [sourceAcc, sourceBkt, destAcc] = views;
+    expect(sourceAcc).toMatchObject({ step: 1, label: 'Create Account on Source: src-account' });
+    expect(sourceBkt).toMatchObject({ step: 2, label: 'Create Bucket on Source: src-bucket' });
+    expect(destAcc).toMatchObject({ step: 3, label: 'Create Account on Destination: dest-account' });
+    expect(views.find((v) => v.id === 'import-destination-certificate')).toMatchObject({
+      step: 12,
+      label: 'Import Certificate into Truststore',
+    });
   });
 
   it('labels the destination IAM chain and the target bucket per the ARTESCA CRR procedure', () => {
@@ -65,6 +72,8 @@ describe('buildStepViews', () => {
     expect(labels).toContain('Create IAM Role');
     expect(labels).toContain('Attach Policy to Role');
     expect(labels).toContain('Create Target Bucket: target-bucket');
+    expect(labels).toContain('Register Destination S3 Endpoint');
+    expect(labels).toContain('Configure Source DNS Resolution');
     expect(labels).toContain('Create Location');
     expect(labels).toContain('Create Replication Rule');
   });
@@ -79,6 +88,12 @@ describe('buildStepViews', () => {
     expect(views.find((v) => v.id === 'create-source-bucket')).toBeUndefined();
     expect(views.find((v) => v.id === 'create-bucket')).toBeUndefined();
     expect(views.find((v) => v.id === 'create-replication-rule')).toBeUndefined();
+  });
+
+  it('drops the endpoint and DNS steps in data-network mode', () => {
+    const views = buildStepViews({ ...baseInput, isManagementNetwork: false }, noProgress);
+    expect(views.find((v) => v.id === 'register-endpoint')).toBeUndefined();
+    expect(views.find((v) => v.id === 'configure-source-dns')).toBeUndefined();
   });
 
   it('shows every step as pending before anything runs', () => {
@@ -149,6 +164,35 @@ describe('buildStepViews — wizard-run rows', () => {
   });
 });
 
+describe('buildStepViews — active flag', () => {
+  it('marks a wizard row active only while its link is running', () => {
+    const running = buildStepViews(baseInput, withChain({ 'create-location': { status: 'pending' } }));
+    expect(running.find((v) => v.id === 'create-location')).toMatchObject({ state: 'pending', active: true });
+  });
+
+  it('does not mark a wizard row active before it starts or after it succeeds', () => {
+    const idle = buildStepViews(baseInput, noProgress);
+    expect(idle.find((v) => v.id === 'create-location')).toMatchObject({ state: 'pending', active: false });
+
+    const done = buildStepViews(baseInput, withChain({ 'create-location': { status: 'success' } }));
+    expect(done.find((v) => v.id === 'create-location')?.active).toBe(false);
+  });
+
+  it('marks a configurator row active between its started and completed events', () => {
+    const started = buildStepViews(baseInput, withEvents([{ event: 'step.started', step: 'create-user', at: 't' }]));
+    expect(started.find((v) => v.id === 'create-user')).toMatchObject({ state: 'pending', active: true });
+
+    const completed = buildStepViews(
+      baseInput,
+      withEvents([
+        { event: 'step.started', step: 'create-user', at: 't' },
+        { event: 'step.completed', step: 'create-user', at: 't' },
+      ]),
+    );
+    expect(completed.find((v) => v.id === 'create-user')).toMatchObject({ state: 'succeeded', active: false });
+  });
+});
+
 describe('buildStepViews — crr-configurator rows', () => {
   it('marks a configurator step done once it completes and shows the reason when one fails', () => {
     const events: SetupEvent[] = [
@@ -165,6 +209,29 @@ describe('buildStepViews — crr-configurator rows', () => {
     const failed = views.find((v) => v.id === 'create-user');
     expect(failed?.state).toBe('failed');
     expect(failed?.errorMessage).toBe('IAM refused CreateUser: entity already exists');
+  });
+
+  it('drives the management-network endpoint and DNS rows from their stream events', () => {
+    const succeeded = buildStepViews(
+      baseInput,
+      withEvents([{ event: 'step.completed', step: 'register-endpoint', at: 't' }]),
+    );
+    expect(succeeded.find((v) => v.id === 'register-endpoint')?.state).toBe('succeeded');
+
+    const failed = buildStepViews(
+      baseInput,
+      withEvents([
+        {
+          event: 'step.failed',
+          step: 'configure-source-dns',
+          at: 't',
+          error: { code: 'InternalError', message: 'source could not resolve the endpoint' },
+        },
+      ]),
+    );
+    const dns = failed.find((v) => v.id === 'configure-source-dns');
+    expect(dns?.state).toBe('failed');
+    expect(dns?.errorMessage).toBe('source could not resolve the endpoint');
   });
 
   it('blames the first pending configurator row when the stream fails without pinning a step', () => {
@@ -234,6 +301,8 @@ describe('allSucceeded / hasFailure', () => {
         'create-role',
         'attach-role-policy',
         'create-bucket',
+        'register-endpoint',
+        'configure-source-dns',
       ].map((step) => ({ event: 'step.completed', step, at: 't' }) as SetupEvent),
       chainStatusById: {
         'import-destination-certificate': { status: 'success' },

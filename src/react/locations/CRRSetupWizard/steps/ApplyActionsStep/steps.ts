@@ -11,6 +11,8 @@ export type StepId =
   | 'create-role'
   | 'attach-role-policy'
   | 'create-bucket'
+  | 'register-endpoint'
+  | 'configure-source-dns'
   | 'create-location'
   | 'create-replication-rule';
 
@@ -21,6 +23,7 @@ export type StepView = {
   step: number;
   label: string;
   state: StepState;
+  active: boolean;
   errorMessage?: string;
 };
 
@@ -31,6 +34,7 @@ export type StepListInput = {
   sourceBucketName: string;
   targetBucketName: string;
   destinationAccountName: string;
+  isManagementNetwork: boolean;
 };
 
 export type ChainStepState = 'idle' | 'pending' | 'success' | 'error';
@@ -50,11 +54,6 @@ type StepDef = {
 };
 
 const STEPS: StepDef[] = [
-  {
-    id: 'import-destination-certificate',
-    when: () => true,
-    label: () => 'Import Destination Certificate',
-  },
   {
     id: 'create-source-account',
     when: (i) => i.isNewSourceAccount,
@@ -80,6 +79,21 @@ const STEPS: StepDef[] = [
     when: (i) => i.createReplicationRule,
     label: (i) => `Create Target Bucket: ${i.targetBucketName}`,
   },
+  {
+    id: 'register-endpoint',
+    when: (i) => i.isManagementNetwork,
+    label: () => 'Register Destination S3 Endpoint',
+  },
+  {
+    id: 'configure-source-dns',
+    when: (i) => i.isManagementNetwork,
+    label: () => 'Configure Source DNS Resolution',
+  },
+  {
+    id: 'import-destination-certificate',
+    when: () => true,
+    label: () => 'Import Certificate into Truststore',
+  },
   { id: 'create-location', when: () => true, label: () => 'Create Location' },
   {
     id: 'create-replication-rule',
@@ -97,6 +111,8 @@ const CONFIGURATOR_STEP_IDS = new Set<StepId>([
   'create-role',
   'attach-role-policy',
   'create-bucket',
+  'register-endpoint',
+  'configure-source-dns',
 ]);
 
 /** The single crr-configurator chain link; every configurator row retries by re-running it. */
@@ -117,29 +133,37 @@ const WIZARD_ROW_LINKS: Partial<Record<StepId, string[]>> = {
   'create-replication-rule': ['create-replication-rule'],
 };
 
-const configuratorRowState = (events: SetupEvent[], id: StepId): { state: StepState; errorMessage?: string } => {
+const configuratorRowState = (
+  events: SetupEvent[],
+  id: StepId,
+): { state: StepState; active: boolean; errorMessage?: string } => {
   let state: StepState = 'pending';
+  let active = false;
   let errorMessage: string | undefined;
   for (const event of events) {
     if (!('step' in event) || event.step !== id) continue;
-    if (event.event === 'step.completed') state = 'succeeded';
-    else if (event.event === 'step.failed') {
+    if (event.event === 'step.started') active = true;
+    else if (event.event === 'step.completed') {
+      state = 'succeeded';
+      active = false;
+    } else if (event.event === 'step.failed') {
       state = 'failed';
+      active = false;
       errorMessage = event.error.message;
     }
   }
-  return { state, errorMessage };
+  return { state, active, errorMessage };
 };
 
 const wizardRowState = (
   linkIds: string[],
   chainStatusById: Record<string, ChainStatus | undefined>,
-): { state: StepState; errorMessage?: string } => {
+): { state: StepState; active: boolean; errorMessage?: string } => {
   const statuses = linkIds.map((id) => chainStatusById[id]);
   const errored = statuses.find((s) => s?.status === 'error');
-  if (errored) return { state: 'failed', errorMessage: errored.errorMessage };
-  if (statuses.every((s) => s?.status === 'success')) return { state: 'succeeded' };
-  return { state: 'pending' };
+  if (errored) return { state: 'failed', active: false, errorMessage: errored.errorMessage };
+  if (statuses.every((s) => s?.status === 'success')) return { state: 'succeeded', active: false };
+  return { state: 'pending', active: statuses.some((s) => s?.status === 'pending') };
 };
 
 /**
@@ -151,16 +175,21 @@ export const buildStepViews = (input: StepListInput, sources: StepStateSources):
   const active = STEPS.filter((def) => def.when(input));
   const views: StepView[] = active.map((def, index) => {
     const base = { id: def.id, step: index + 1, label: def.label(input) };
-    const { state, errorMessage } = CONFIGURATOR_STEP_IDS.has(def.id)
+    const {
+      state,
+      active: isActive,
+      errorMessage,
+    } = CONFIGURATOR_STEP_IDS.has(def.id)
       ? configuratorRowState(sources.configuratorEvents, def.id)
       : wizardRowState(WIZARD_ROW_LINKS[def.id] ?? [def.id], sources.chainStatusById);
-    return { ...base, state, errorMessage };
+    return { ...base, state, active: isActive, errorMessage };
   });
 
   if (sources.configuratorError && !views.some((v) => v.state === 'failed')) {
     const firstPendingConfiguratorRow = views.find((v) => CONFIGURATOR_STEP_IDS.has(v.id) && v.state === 'pending');
     if (firstPendingConfiguratorRow) {
       firstPendingConfiguratorRow.state = 'failed';
+      firstPendingConfiguratorRow.active = false;
       firstPendingConfiguratorRow.errorMessage = sources.configuratorError;
     }
   }

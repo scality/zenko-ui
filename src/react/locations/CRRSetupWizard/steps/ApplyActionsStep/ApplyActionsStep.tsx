@@ -1,4 +1,4 @@
-import { Form, Icon, Stack, Text } from '@scality/core-ui';
+import { Form, Icon, Loader, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useCreateBucket, useSetBucketReplication, useSetBucketVersioning } from '@scality/data-browser-library';
@@ -58,6 +58,14 @@ const StatusCell = ({ view, onRetry }: { view: StepView; onRetry: () => void }) 
         <span>Failed</span>
         <Button icon={<Icon name="Redo" />} variant="secondary" type="button" label="Retry" onClick={onRetry} />
         {view.errorMessage && <ErrorText>{view.errorMessage}</ErrorText>}
+      </StatusBox>
+    );
+  }
+  if (view.active) {
+    return (
+      <StatusBox>
+        <Loader size="small" />
+        <span>Pending...</span>
       </StatusBox>
     );
   }
@@ -136,9 +144,7 @@ export const ApplyActionsStep = (props: Props) => {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: keyed on the mutation instances so a status change rebuilds the config and rows show live status
   const { mutations, variables } = useMemo(() => {
-    const configs: MutationConfig[] = [
-      { id: 'import-destination-certificate', label: 'Import Destination Certificate', mutation: importCertificate },
-    ];
+    const configs: MutationConfig[] = [];
     const resolvers: VariablesResolvers = {
       'import-destination-certificate': () => ({ certificate: props.certificate }),
     };
@@ -171,6 +177,12 @@ export const ApplyActionsStep = (props: Props) => {
 
     configs.push({ id: CONFIGURATOR_CHAIN_LINK_ID, label: 'Configure Destination', mutation: setup });
     resolvers[CONFIGURATOR_CHAIN_LINK_ID] = () => body;
+
+    configs.push({
+      id: 'import-destination-certificate',
+      label: 'Import Certificate into Truststore',
+      mutation: importCertificate,
+    });
 
     configs.push({ id: 'create-location', label: 'Create Location', mutation: createLocation });
     resolvers['create-location'] = (prev) => {
@@ -253,6 +265,7 @@ export const ApplyActionsStep = (props: Props) => {
           sourceBucketName: sourceBucketName ?? '',
           targetBucketName: props.targetBucketName ?? '',
           destinationAccountName: destinationAccountName ?? '',
+          isManagementNetwork: props.connectionMode === 'management-network',
         },
         { configuratorEvents: setup.events, chainStatusById, configuratorError },
       ),
@@ -263,6 +276,7 @@ export const ApplyActionsStep = (props: Props) => {
       sourceBucketName,
       props.targetBucketName,
       destinationAccountName,
+      props.connectionMode,
       setup.events,
       chainStatusById,
       configuratorError,

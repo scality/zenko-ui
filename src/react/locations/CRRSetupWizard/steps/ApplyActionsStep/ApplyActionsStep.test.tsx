@@ -54,7 +54,6 @@ describe('ApplyActionsStep', () => {
     expect(screen.getByText('Configure paris-prod for Cross-Region Replication')).toBeInTheDocument();
 
     const actions = [
-      'Import Destination Certificate',
       'Create Account on Source: crr-src',
       'Create Bucket on Source: crr-src-bucket',
       'Create Account on Destination: crr-dest',
@@ -64,13 +63,16 @@ describe('ApplyActionsStep', () => {
       'Create IAM Role',
       'Attach Policy to Role',
       'Create Target Bucket: crr-target-bucket',
+      'Register Destination S3 Endpoint',
+      'Configure Source DNS Resolution',
+      'Import Certificate into Truststore',
       'Create Location',
       'Create Replication Rule',
     ];
     for (const action of actions) {
       expect(screen.getByText(action)).toBeInTheDocument();
     }
-    expect(screen.getAllByText('Pending...').length).toBe(12);
+    expect(screen.getAllByText('Pending...').length).toBe(14);
     // The setup only becomes confirmable once every action has succeeded.
     expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
   });
@@ -78,7 +80,7 @@ describe('ApplyActionsStep', () => {
   it('does not surface a source-account action when the user reuses an existing account', () => {
     render(<ApplyActionsStep {...VALUES} accountNameType="existing" />, { wrapper: Wrapper });
     expect(screen.queryByText(/Create Account on Source/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText('Pending...').length).toBe(11);
+    expect(screen.getAllByText('Pending...').length).toBe(13);
   });
 
   it('does not surface the source bucket, target bucket or replication rule when no rule is requested', () => {
@@ -88,7 +90,7 @@ describe('ApplyActionsStep', () => {
     expect(screen.queryByText(/Create Bucket on Source/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Target Bucket/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Replication Rule/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText('Pending...').length).toBe(9);
+    expect(screen.getAllByText('Pending...').length).toBe(11);
   });
 
   it('falls back to "ARTESCA" in the title when Verify returned no instance name', () => {

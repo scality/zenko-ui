@@ -19,4 +19,10 @@ describe('isCertificateAlreadyImported', () => {
   it('is true when the exact certificate is already in the truststore', () => {
     expect(isCertificateAlreadyImported(withCerts(['some-other-cert', CERT]), CERT)).toBe(true);
   });
+
+  it('ignores trailing-whitespace / line-ending differences so a re-import stays a no-op', () => {
+    expect(isCertificateAlreadyImported(withCerts([CERT]), `${CERT}\n`)).toBe(true);
+    expect(isCertificateAlreadyImported(withCerts([`${CERT}\n`]), CERT)).toBe(true);
+    expect(isCertificateAlreadyImported(withCerts([CERT]), CERT.replace(/\n/g, '\r\n'))).toBe(true);
+  });
 });

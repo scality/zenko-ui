@@ -3,9 +3,13 @@ import { useAddCertificateToZenkoConfigurationMutation } from '../../../../js/mu
 import { getZenkoCRQuery } from '../../../queries';
 import type { ZenkoCR } from '../../../truststore/Truststore';
 
+export const normalizeCertificate = (certificate: string): string => certificate.replace(/\r\n/g, '\n').trim();
+
 /** True when the PEM is already in the source truststore, so importing it again is a no-op. */
 export const isCertificateAlreadyImported = (zenkoCR: ZenkoCR | undefined, certificate: string): boolean =>
-  (zenkoCR?.spec?.egress?.extraCACerts ?? []).some((bundle) => bundle['ca.crt'] === certificate);
+  (zenkoCR?.spec?.egress?.extraCACerts ?? []).some(
+    (bundle) => normalizeCertificate(bundle['ca.crt']) === normalizeCertificate(certificate),
+  );
 
 /**
  * Imports the destination CA certificate into the source cluster's truststore
@@ -22,12 +26,13 @@ export const useImportDestinationCertificateMutation = () => {
 
   return useMutation({
     mutationFn: async ({ certificate }: { certificate: string }) => {
+      const normalized = normalizeCertificate(certificate);
       // Read the latest cached CR at execution time, not the render-time snapshot.
       const currentCR = queryClient.getQueryData<ZenkoCR>(['zenkoCR']) ?? zenkoCR;
-      if (isCertificateAlreadyImported(currentCR, certificate)) {
+      if (isCertificateAlreadyImported(currentCR, normalized)) {
         return;
       }
-      await addCertificate.mutateAsync({ certificate });
+      await addCertificate.mutateAsync({ certificate: normalized });
     },
   });
 };
