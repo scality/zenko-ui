@@ -94,7 +94,7 @@ export const ApplyActionsStep = (props: Props) => {
   const createSourceBucket = useCreateBucket();
   const enableSourceVersioning = useSetBucketVersioning();
   const setup = useCRRConfigurationSetupMutation();
-  const createLocation = useCreateCRRLocationMutation();
+  const createLocation = useCreateCRRLocationMutation({ waitForReconciliation: withReplicationRule });
   const createReplicationRuleMutation = useSetBucketReplication();
 
   const accountsAdapter = useAccessibleAccountsAdapter();

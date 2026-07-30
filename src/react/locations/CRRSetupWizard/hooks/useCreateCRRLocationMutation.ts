@@ -7,8 +7,11 @@ import { useManagementClient } from '../../../ManagementProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
 import { useCreateLocationMutation } from '../../hooks/useCreateLocationMutation';
 
-const POLL_INTERVAL_MS = 500;
-const MAX_POLLS = 120; // ~60s
+// Bounded best-effort window for the running configuration to catch up before
+// the following replication-rule step runs. Bounded by wall-clock time, not a
+// poll count, because each status poll is itself a round-trip to the instance.
+const RECONCILE_WAIT_MS = 60_000;
+const POLL_INTERVAL_MS = 2_000;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -18,12 +21,18 @@ const isAlreadyExists = (error: unknown): boolean => {
 };
 
 /**
- * Creates the CRR location and resolves only once it has been applied to the
- * running configuration. The subsequent replication rule references the
- * location by name (`StorageClass`), which cloudserver only accepts after the
- * overlay has reconciled — so the wizard must wait here before that step runs.
+ * Creates the CRR location. Success is decoupled from reconciliation: the step
+ * succeeds as soon as the location is written to the overlay (the same source
+ * the Locations list reads from), so it no longer lags behind — nor reports a
+ * false failure while — the location already exists.
+ *
+ * `waitForReconciliation` adds a bounded best-effort wait for
+ * `runningConfigurationVersion` to advance, used only when a replication rule
+ * follows: that step references the location by name through cloudserver, which
+ * accepts it only once the overlay has reconciled. The wait never fails the
+ * step — on timeout it resolves, leaving the replication-rule step to retry.
  */
-export const useCreateCRRLocationMutation = () => {
+export const useCreateCRRLocationMutation = ({ waitForReconciliation }: { waitForReconciliation: boolean }) => {
   const createLocation = useCreateLocationMutation();
   const managementClient = useManagementClient();
   const { useAuth } = useShellHooks();
@@ -47,21 +56,22 @@ export const useCreateCRRLocationMutation = () => {
 
   return useMutation({
     mutationFn: async (location: LocationV1) => {
-      const referenceVersion = await runningConfigurationVersion();
+      const referenceVersion = waitForReconciliation ? await runningConfigurationVersion() : 0;
       try {
         await createLocation.mutateAsync(location);
       } catch (error) {
-        // On a retry after a reconcile timeout the location already exists — keep waiting, don't re-fail.
+        // On a retry the location already exists — treat as created, keep going.
         if (!isAlreadyExists(error)) throw error;
       }
-      for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
+      // The location is now in the overlay, so the create is done. Only wait when
+      // a replication rule follows, and only best-effort within a bounded window.
+      if (!waitForReconciliation) return;
+      const deadline = Date.now() + RECONCILE_WAIT_MS;
+      while (Date.now() < deadline) {
         if (cancelledRef.current) return;
-        if ((await runningConfigurationVersion()) > referenceVersion) {
-          return;
-        }
+        if ((await runningConfigurationVersion()) > referenceVersion) return;
         await delay(POLL_INTERVAL_MS);
       }
-      throw new Error('Timed out waiting for the location to be applied to the running configuration');
     },
   });
 };
