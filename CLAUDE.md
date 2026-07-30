@@ -19,3 +19,8 @@ This is the **Zenko UI**, a React-based web frontend for the Scality Zenko multi
 - **Biome** for linting/formatting
 - **Jest** + React Testing Library for tests
 - **Scality internal deps**: `@scality/core-ui`, `@scality/module-federation`, `@scality/data-browser-library`, `zenkoclient`
+
+## Branch naming
+
+Always prefix branches (and PRs) with `bugfix/` instead of `fix/` — some of our tooling
+only picks up the PR when the branch uses that prefix.
