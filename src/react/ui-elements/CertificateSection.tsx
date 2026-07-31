@@ -1,4 +1,4 @@
-import { Dropzone, Stack, Text, TextArea } from '@scality/core-ui';
+import { Dropzone, Stack, spacing, Text, TextArea } from '@scality/core-ui';
 import type { ChangeEvent } from 'react';
 import { useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
@@ -13,6 +13,10 @@ const CertificateContainer = styled.div`
   gap: 0.5rem;
   color: ${(props) => props.theme.textPrimary};
   max-width: 45rem;
+
+  & textarea {
+    border: ${spacing.r1} solid transparent;
+  }
 `;
 
 const PLACEHOLDER = `Example:

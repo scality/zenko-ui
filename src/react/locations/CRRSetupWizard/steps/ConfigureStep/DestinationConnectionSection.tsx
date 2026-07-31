@@ -1,6 +1,7 @@
-import { FormGroup, FormSection, Icon, Radio, Stack, Text, Wrap } from '@scality/core-ui';
+import { FormGroup, FormSection, Icon, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
+import { RadioGroup } from '../../../../ISV/components/RadioGroup';
 import { CertificateSection } from '../../../../ui-elements/CertificateSection';
 import type { ConfigureFormValues } from './schema';
 
@@ -47,22 +48,16 @@ export const DestinationConnectionSection = ({
             name="connectionMode"
             control={control}
             render={({ field }) => (
-              <Stack direction="horizontal" gap="r16">
-                <Radio
-                  name="connectionMode"
-                  value="management-network"
-                  checked={field.value === 'management-network'}
-                  onChange={() => field.onChange('management-network')}
-                  label="Management Network"
-                />
-                <Radio
-                  name="connectionMode"
-                  value="data-network"
-                  checked={field.value === 'data-network'}
-                  onChange={() => field.onChange('data-network')}
-                  label="Data Network"
-                />
-              </Stack>
+              <RadioGroup
+                name="connectionMode"
+                options={[
+                  { value: 'management-network', label: 'Management Network' },
+                  { value: 'data-network', label: 'Data Network' },
+                ]}
+                value={field.value}
+                onChange={(next) => field.onChange(next)}
+                direction="horizontal"
+              />
             )}
           />
         }
@@ -86,7 +81,9 @@ export const DestinationConnectionSection = ({
           required
           helpErrorPosition="bottom"
           error={errorIfTouched('baseDomain')}
-          content={<Input id="baseDomain" {...register('baseDomain')} />}
+          content={
+            <Input id="baseDomain" noPlaceholderPrefix placeholder="ui.<base-domain>" {...register('baseDomain')} />
+          }
         />
       )}
       {connectionMode === 'data-network' && (

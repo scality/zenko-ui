@@ -143,4 +143,37 @@ describe('CRRSetupWizard — Configure step', () => {
       { hostname: 'iam.dest.local', ip: '10.0.0.9' },
     ]);
   });
+
+  it('reopens the DNS modal when the mapped IP leaves the destination unreachable', async () => {
+    let verifyCalls = 0;
+    server.use(
+      rest.post(VERIFY_URL, (_req, res, ctx) => {
+        verifyCalls += 1;
+        const code = verifyCalls === 1 ? 'DestinationDnsResolutionFailed' : 'DestinationUnreachable';
+        return res(
+          ctx.status(502),
+          ctx.set('Content-Type', 'application/problem+json'),
+          ctx.body(
+            JSON.stringify({
+              type: 'about:blank',
+              title: 'error',
+              status: 502,
+              code,
+              ...(verifyCalls === 1 ? { unresolvedHosts: ['s3.dest.local'] } : {}),
+            }),
+          ),
+        );
+      }),
+    );
+    render(<CRRSetupWizard />, { wrapper: Wrapper });
+
+    fillValidForm();
+    await clickWhenEnabled(/Check Connection/i);
+    expect(await screen.findByText('• s3.dest.local')).toBeInTheDocument();
+
+    await userEvent.type(screen.getByRole('textbox', { name: /Destination cluster IP/i }), '10.0.0.9');
+    await clickWhenEnabled(/Retry Connection/i);
+
+    expect(await screen.findByText('• s3.dest.local')).toBeInTheDocument();
+  });
 });

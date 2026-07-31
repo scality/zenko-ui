@@ -1,4 +1,4 @@
-import { Form, Icon, Loader, Stack, Text } from '@scality/core-ui';
+import { Banner, Form, Icon, Loader, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useCreateBucket, useSetBucketReplication, useSetBucketVersioning } from '@scality/data-browser-library';
@@ -57,7 +57,6 @@ const StatusCell = ({ view, onRetry }: { view: StepView; onRetry: () => void }) 
         <Icon name="Exclamation-circle" color={theme.statusCritical} />
         <span>Failed</span>
         <Button icon={<Icon name="Redo" />} variant="secondary" type="button" label="Retry" onClick={onRetry} />
-        {view.errorMessage && <ErrorText>{view.errorMessage}</ErrorText>}
       </StatusBox>
     );
   }
@@ -347,23 +346,31 @@ export const ApplyActionsStep = (props: Props) => {
       style={{ width: '50rem' }}
     >
       {Slots}
+      {stepViews.some((view) => view.id === 'create-location' && view.active) && (
+        <Banner variant="warning" icon={<Icon color="statusWarning" name="Exclamation-circle" />}>
+          Expect some delay (about 1 minute)—creating the location takes time.
+        </Banner>
+      )}
       <div style={{ height: '32rem', overflow: 'auto' }}>
         <Table>
           <T.Head>
             <T.HeadRow style={{ display: 'flex' }}>
               <T.HeadCell style={{ width: '150px' }}>Step</T.HeadCell>
-              <T.HeadCell style={{ width: '50%' }}>Action</T.HeadCell>
-              <T.HeadCell style={{ width: '12.5%' }}>Status</T.HeadCell>
+              <T.HeadCell style={{ flex: 1, minWidth: 0 }}>Action</T.HeadCell>
+              <T.HeadCell style={{ width: '200px' }}>Status</T.HeadCell>
             </T.HeadRow>
           </T.Head>
           <T.Body>
             {stepViews.map((view) => (
               <T.Row key={view.id} style={{ display: 'flex' }}>
                 <T.Cell style={{ width: '150px' }}>{view.step}</T.Cell>
-                <T.Cell style={{ width: '50%' }}>
-                  <Text>{view.label}</Text>
+                <T.Cell style={{ flex: 1, minWidth: 0 }}>
+                  <Stack direction="vertical" gap="r4">
+                    <Text>{view.label}</Text>
+                    {view.state === 'failed' && view.errorMessage && <ErrorText>{view.errorMessage}</ErrorText>}
+                  </Stack>
                 </T.Cell>
-                <T.Cell style={{ width: '12.5%' }}>
+                <T.Cell style={{ width: '200px' }}>
                   <StatusCell view={view} onRetry={() => onRetry(view)} />
                 </T.Cell>
               </T.Row>

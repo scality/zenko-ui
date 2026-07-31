@@ -43,6 +43,9 @@ const unresolvedHostsFrom = (error: unknown): string[] | null => {
   return null;
 };
 
+const isDestinationUnreachable = (error: unknown): boolean =>
+  error instanceof ServiceError && error.code === 'DestinationUnreachable';
+
 const mergeAliases = (existing: HostAlias[], added: HostAlias[]): HostAlias[] => {
   const byHost = new Map(existing.map((alias) => [alias.hostname, alias]));
   for (const alias of added) byHost.set(alias.hostname, alias);
@@ -74,6 +77,11 @@ export const ConfigureStep = () => {
     const hosts = unresolvedHostsFrom(error);
     if (hosts) {
       setDnsFallbackHosts(hosts);
+      return;
+    }
+    const aliases = getValues('hostAliases');
+    if (aliases.length > 0 && isDestinationUnreachable(error)) {
+      setDnsFallbackHosts(aliases.map((alias) => alias.hostname));
       return;
     }
     showToast({ open: true, status: 'error', message: errorMessage(error) });
