@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install Oras
         run: |
@@ -45,7 +45,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v6
 
       - uses: actions/setup-node@v3
         with:
@@ -82,7 +82,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v3
         with:
           node-version: "20"
