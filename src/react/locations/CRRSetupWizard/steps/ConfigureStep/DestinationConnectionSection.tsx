@@ -1,9 +1,21 @@
-import { FormGroup, FormSection, Icon, Stack, Text, Wrap } from '@scality/core-ui';
+import { FormGroup, FormSection, Icon, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
+import styled from 'styled-components';
 import { RadioGroup } from '../../../../ISV/components/RadioGroup';
 import { CertificateSection } from '../../../../ui-elements/CertificateSection';
 import type { ConfigureFormValues } from './schema';
+
+const ConnectionBox = styled.div`
+  background: ${(props) => props.theme.backgroundLevel2};
+  border: 1px solid ${(props) => props.theme.border};
+  border-radius: 6px;
+  padding: ${spacing.r16};
+`;
+
+const ConstrainedInput = styled(Input)`
+  max-width: 22rem;
+`;
 
 type Props = {
   isCheckingConnection: boolean;
@@ -37,73 +49,94 @@ export const DestinationConnectionSection = ({
 
   return (
     <FormSection forceLabelWidth={280} title={{ name: 'Destination Connection' }}>
-      <FormGroup
-        id="connectionMode"
-        direction="horizontal"
-        label="Mode"
-        required
-        helpErrorPosition="bottom"
-        content={
-          <Controller
-            name="connectionMode"
-            control={control}
-            render={({ field }) => (
-              <RadioGroup
-                name="connectionMode"
-                options={[
-                  { value: 'management-network', label: 'Management Network' },
-                  { value: 'data-network', label: 'Data Network' },
-                ]}
-                value={field.value}
-                onChange={(next) => field.onChange(next)}
-                direction="horizontal"
-              />
-            )}
-          />
-        }
-      />
-      {connectionMode === 'management-network' && (
+      <ConnectionBox>
         <FormGroup
-          id="url"
+          id="connectionMode"
           direction="horizontal"
-          label="URL"
+          label="Mode"
           required
           helpErrorPosition="bottom"
-          error={errorIfTouched('url')}
-          content={<Input id="url" noPlaceholderPrefix placeholder="https://<IP>:8443" {...register('url')} />}
-        />
-      )}
-      {connectionMode === 'data-network' && (
-        <FormGroup
-          id="baseDomain"
-          direction="horizontal"
-          label="Base Domain"
-          required
-          helpErrorPosition="bottom"
-          error={errorIfTouched('baseDomain')}
           content={
-            <Input id="baseDomain" noPlaceholderPrefix placeholder="ui.<base-domain>" {...register('baseDomain')} />
-          }
-        />
-      )}
-      {connectionMode === 'data-network' && (
-        <FormGroup
-          id="s3Endpoint"
-          direction="horizontal"
-          label="S3 Endpoint"
-          required
-          helpErrorPosition="bottom"
-          error={errorIfTouched('s3Endpoint')}
-          content={
-            <Input
-              id="s3Endpoint"
-              noPlaceholderPrefix
-              placeholder="https://s3.example.com"
-              {...register('s3Endpoint')}
+            <Controller
+              name="connectionMode"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup
+                  name="connectionMode"
+                  options={[
+                    {
+                      value: 'management-network',
+                      label: 'Management Network',
+                      description: 'Connects directly to the management IP.',
+                    },
+                    {
+                      value: 'data-network',
+                      label: 'Data Network',
+                      description: 'Goes through the public S3 endpoint instead.',
+                    },
+                  ]}
+                  value={field.value}
+                  onChange={(next) => field.onChange(next)}
+                  direction="vertical"
+                />
+              )}
             />
           }
         />
-      )}
+        {connectionMode === 'management-network' && (
+          <FormGroup
+            id="url"
+            direction="horizontal"
+            label="URL"
+            required
+            helpErrorPosition="bottom"
+            error={errorIfTouched('url')}
+            content={
+              <ConstrainedInput id="url" noPlaceholderPrefix placeholder="https://<IP>:8443" {...register('url')} />
+            }
+          />
+        )}
+        {connectionMode === 'data-network' && (
+          <FormGroup
+            id="baseDomain"
+            direction="horizontal"
+            label="Base Domain"
+            required
+            helpErrorPosition="bottom"
+            error={errorIfTouched('baseDomain')}
+            content={
+              <ConstrainedInput
+                id="baseDomain"
+                noPlaceholderPrefix
+                placeholder="ui.<base-domain>"
+                {...register('baseDomain')}
+              />
+            }
+          />
+        )}
+        {connectionMode === 'data-network' && (
+          <FormGroup
+            id="s3Endpoint"
+            direction="horizontal"
+            label="S3 Endpoint"
+            required
+            helpErrorPosition="bottom"
+            error={errorIfTouched('s3Endpoint')}
+            content={
+              <ConstrainedInput
+                id="s3Endpoint"
+                noPlaceholderPrefix
+                placeholder="https://s3.example.com"
+                {...register('s3Endpoint')}
+              />
+            }
+          />
+        )}
+      </ConnectionBox>
+      <Text color="textSecondary">
+        Credentials: these must belong to a user with at least the Storage Manager role on the destination site
+        deployment.
+      </Text>
       <FormGroup
         id="username"
         direction="horizontal"

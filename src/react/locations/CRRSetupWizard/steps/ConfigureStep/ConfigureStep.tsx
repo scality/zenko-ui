@@ -1,4 +1,4 @@
-import { Form, Icon, Stack, useToast } from '@scality/core-ui';
+import { Form, Icon, InfoMessage, Stack, useToast } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -155,13 +155,19 @@ export const ConfigureStep = () => {
           </Stack>
         }
       >
-        <SourceSection />
+        <InfoMessage
+          title="Cross-Region location"
+          content="A location is created here, on the source site, pointing to a destination site. The destination automatically receives the resources required for replication."
+          link="/artesca/docs/data_management/location_management/add_a_crr_location.html"
+          linkText="Learn more"
+        />
         <DestinationConnectionSection
           isCheckingConnection={verify.isLoading}
           onCheckConnection={onCheckConnection}
           isConnected={isConnected}
           connectedInstanceName={connectedInstanceName}
         />
+        <SourceSection />
         <DestinationAccountSection />
         <ReplicationSection />
       </Form>

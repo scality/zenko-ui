@@ -1,4 +1,4 @@
-import { FormGroup, FormSection } from '@scality/core-ui';
+import { FormGroup, FormSection, Text } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -42,7 +42,11 @@ export const SourceSection = () => {
   );
 
   return (
-    <FormSection forceLabelWidth={280} title={{ name: 'Source' }}>
+    <FormSection forceLabelWidth={280} title={{ name: 'Source site' }}>
+      <Text color="textSecondary">
+        Use an existing account or create a new one. If you choose an existing account, data already present in its
+        buckets won't be recovered by the replication.
+      </Text>
       <FormGroup
         id="accountNameType"
         direction="horizontal"
@@ -70,7 +74,7 @@ export const SourceSection = () => {
       <FormGroup
         id="accountName"
         direction="horizontal"
-        label="Account Name"
+        label="Account name"
         required
         helpErrorPosition="bottom"
         error={accountNameError}
