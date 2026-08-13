@@ -11,7 +11,7 @@ const FormContainer = styled.form`
   padding: ${spacing.sp20};
   background-color: ${(props) => props.theme.backgroundLevel4};
 
-  // TODO: fix inside core-ui
+  /* TODO: fix inside core-ui */
   .sc-select__single-value {
     width: 100%;
   }
@@ -42,7 +42,6 @@ const FormContainer = styled.form`
 
     input {
       margin-bottom: ${spacing.sp4};
-      // width:90%;
     }
     input.form-check-input {
       width: auto;

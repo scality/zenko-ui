@@ -53,10 +53,10 @@ export const VeeamCapacityFormSection = ({ autoFocusEnabled }: { autoFocusEnable
   } = useFormContext();
 
   return (
-    <FormSection forceLabelWidth={300}>
+    <FormSection>
       <FormGroup
         id="capacity"
-        label="Max Veeam Repository Capacity"
+        label="Max Capacity"
         error={errors.capacity?.message?.toString() ?? ''}
         helpErrorPosition="bottom"
         labelHelpTooltip={<VeeamCapacityTooltip />}

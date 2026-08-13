@@ -41,18 +41,18 @@ export const SubTitle = styled.div`
   color: ${(props) => props.theme.textPrimary};
   font-weight: bold;
 `;
-export const SectionTitle = styled.div<{ fontSize?: string }>`
+export const SectionTitle = styled.div<{ $fontSize?: string }>`
   display: flex;
   color: ${(props) => props.theme.textPrimary};
-  font-size: ${(props) => props.fontSize || 'inherit'};
+  font-size: ${(props) => props.$fontSize || 'inherit'};
 `;
 export const Fieldset = styled.fieldset<{
-  direction?: string;
-  alignItems?: string;
+  $direction?: string;
+  $alignItems?: string;
 }>`
   display: flex;
-  flex-direction: ${(props) => props.direction || 'column'};
-  ${(props) => (props.alignItems ? `align-items: ${props.alignItems};` : '')}
+  flex-direction: ${(props) => props.$direction || 'column'};
+  ${(props) => (props.$alignItems ? `align-items: ${props.$alignItems};` : '')}
   border: 0;
   padding: 0;
   margin-top: ${spacing.r12};
@@ -143,7 +143,7 @@ export const WarningInput = ({ error, id }: ErrorInputProps) => {
   );
 };
 // * Label
-const LabelContainer = styled.label<{ required?: boolean }>`
+const LabelContainer = styled.label<{ $required?: boolean }>`
   display: flex;
   align-items: center;
   width: 60%;

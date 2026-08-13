@@ -80,11 +80,11 @@ export const Row = styled.div`
   margin-bottom: ${spacing.sp4};
   min-height: ${spacing.sp24};
 `;
-const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
-  color: ${(props) => (props.principal ? props.theme.textPrimary : props.theme?.textSecondary)};
-  font-weight: ${(props) => (props.principal ? 'bold' : 'normal')};
+const RawKey = styled.div<{ $principal?: boolean; $required?: boolean }>`
+  color: ${(props) => (props.$principal ? props.theme.textPrimary : props.theme?.textSecondary)};
+  font-weight: ${(props) => (props.$principal ? 'bold' : 'normal')};
   ${(props) =>
-    props.required
+    props.$required
       ? `
         &:after {
             content: '*';
@@ -92,15 +92,15 @@ const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
     `
       : ''}
 `;
-export const Key = styled(RawKey)<{ size?: string }>`
+export const Key = styled(RawKey)<{ $size?: string }>`
   && {
-    flex: ${(props) => props.size || '0.35'};
+    flex: ${(props) => props.$size || '0.35'};
     min-width: 0;
   }
 `;
-const KeyContainer = styled.div<{ size?: number }>`
+const KeyContainer = styled.div<{ $size?: number }>`
   display: flex;
-  flex: 1 1 ${(props) => props.size || 35}%;
+  flex: 1 1 ${(props) => props.$size || 35}%;
 `;
 type KeyTooltipProps = {
   children: ReactNode;
@@ -110,24 +110,27 @@ type KeyTooltipProps = {
   principal?: boolean;
   size?: number;
 };
-export const KeyTooltip = ({ children, tooltipMessage, tooltipWidth, size, ...props }: KeyTooltipProps) => (
-  <KeyContainer size={size}>
-    <RawKey {...props}> {children} </RawKey>
+export const KeyTooltip = ({ children, tooltipMessage, tooltipWidth, size, required, principal }: KeyTooltipProps) => (
+  <KeyContainer $size={size}>
+    <RawKey $principal={principal} $required={required}>
+      {' '}
+      {children}{' '}
+    </RawKey>
     {tooltipMessage && <IconHelp tooltipMessage={tooltipMessage} overlayStyle={{ width: tooltipWidth }} />}
   </KeyContainer>
 );
-export const Value = styled.div<{ size?: string; width?: string }>`
-  flex: ${(props) => props.size || '0.65'};
+export const Value = styled.div<{ $size?: string; $width?: string }>`
+  flex: ${(props) => props.$size || '0.65'};
   flex-direction: column;
   i {
     margin-right: ${spacing.sp8};
   }
   min-width: 0;
-  width: ${(props) => props.width};
+  width: ${(props) => props.$width};
 `;
-export const GroupValues = styled.div<{ size?: string }>`
+export const GroupValues = styled.div<{ $size?: string }>`
   display: flex;
-  flex: ${(props) => props.size || '0.65'};
+  flex: ${(props) => props.$size || '0.65'};
   justify-content: space-between;
   align-items: center;
   min-width: 0;
@@ -140,22 +143,22 @@ const Table = styled.div`
   overflow: auto;
   width: 100%;
 `;
-export const Header = styled.div<{ isRemoved?: boolean }>`
-  display: ${(props) => (props.isRemoved ? 'none' : 'flex')};
+export const Header = styled.div<{ $isRemoved?: boolean }>`
+  display: ${(props) => (props.$isRemoved ? 'none' : 'flex')};
   flex-direction: row;
   justify-content: space-between;
 `;
-export const BannerContainer = styled.div<{ isHidden?: boolean }>`
+export const BannerContainer = styled.div<{ $isHidden?: boolean }>`
   margin-right: ${spacing.sp8};
   width: 60%;
-  visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
+  visibility: ${(props) => (props.$isHidden ? 'hidden' : 'visible')};
 `;
 export const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-bottom: ${spacing.sp8};
 `;
-export const ExtraCell = styled.div<{ marginLeft?: string }>`
-  margin-left: ${(props) => props.marginLeft || spacing.sp20};
+export const ExtraCell = styled.div<{ $marginLeft?: string }>`
+  margin-left: ${(props) => props.$marginLeft || spacing.sp20};
 `;
 export default Table;

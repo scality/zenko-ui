@@ -133,7 +133,6 @@ export const VeeamCapacityModalInternal = ({
             style={{
               paddingTop: '0.5rem',
               paddingBottom: '0.5rem',
-              width: '40rem',
             }}
           >
             <VeeamCapacityFormSection autoFocusEnabled={isCapacityModalOpen} />

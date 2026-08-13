@@ -263,7 +263,7 @@ function AttachmentConfirmationModal({
     ];
 
     return (
-      <div style={{ height: '25rem', width: '50rem' }}>
+      <div style={{ height: '20rem', width: '50rem', display: 'flex', flexDirection: 'column' }}>
         <div>The following entities will be attached or detached: </div>
         <Box display="flex" gap={24} alignItems="center">
           <SecondaryText>
@@ -271,17 +271,22 @@ function AttachmentConfirmationModal({
           </SecondaryText>
           <p>{resourceName}</p>
         </Box>
-        <Table
-          //@ts-expect-error fix this when you are working on it
-          columns={columns}
-          data={attachmentOperationsFlat}
-          defaultSortingKey={'entityName'}
-        >
-          <Table.SingleSelectableContent
-            rowHeight="h32"
-            separationLineVariant="backgroundLevel3"
-          ></Table.SingleSelectableContent>
-        </Table>
+        {/* Table is height: 100% and measures its parent, so it must be handed the space left
+            below the text as a definite height. Sizing it against the wrapper instead overflows
+            by the text's height and moves the scrollbar onto the modal body. */}
+        <div style={{ flex: 1, minHeight: 0 }}>
+          <Table
+            //@ts-expect-error fix this when you are working on it
+            columns={columns}
+            data={attachmentOperationsFlat}
+            defaultSortingKey={'entityName'}
+          >
+            <Table.SingleSelectableContent
+              rowHeight="h32"
+              separationLineVariant="backgroundLevel3"
+            ></Table.SingleSelectableContent>
+          </Table>
+        </div>
       </div>
     );
   }
@@ -299,6 +304,7 @@ function AttachmentConfirmationModal({
         />
       </Box>
       <Modal
+        wide
         close={handleClose}
         footer={modalFooter()}
         isOpen={isModalOpen}

@@ -3,7 +3,7 @@ import { Button } from '@scality/core-ui/dist/next';
 import type { ReactNode } from 'react';
 import styled, { css } from 'styled-components';
 
-const Container = styled.div<{ centered?: boolean }>`
+const Container = styled.div<{ $centered?: boolean }>`
   ${(props) => {
     return css`
       color: ${props.theme.textSecondary};
@@ -12,7 +12,7 @@ const Container = styled.div<{ centered?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;
-  text-align: ${(props) => (props.centered ? 'center' : 'left')};
+  text-align: ${(props) => (props.$centered ? 'center' : 'left')};
 `;
 const Container2 = styled.div`
   text-align: center;
@@ -36,7 +36,7 @@ type WarningProps = {
   centered?: boolean;
 };
 export const Warning = ({ icon, title, btnTitle, btnAction, centered }: WarningProps) => (
-  <Container centered={centered}>
+  <Container $centered={centered}>
     <div>{icon}</div>
     <Title> {title} </Title>
     {!!btnTitle && !!btnAction && (

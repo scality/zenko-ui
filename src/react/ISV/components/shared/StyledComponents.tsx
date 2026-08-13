@@ -5,7 +5,7 @@ export const ListItem = styled.li`
   padding: 0.5rem;
 `;
 
-export const ISVWideModal = styled(Modal)`
+export const ISVWideModal = styled(Modal).attrs({ wide: true })`
   background-color: ${(props) => props.theme.backgroundLevel1};
   > div {
     max-width: 60vw;

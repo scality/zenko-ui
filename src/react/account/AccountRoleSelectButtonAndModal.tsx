@@ -154,7 +154,7 @@ export function AccountRoleSelectButtonAndModal({
   return (
     <>
       <AccountSelectorButton
-        bigButton={bigButton}
+        $bigButton={bigButton}
         variant="primary"
         onClick={() => {
           setIsModalOpen(true);
@@ -174,6 +174,7 @@ export function AccountRoleSelectButtonAndModal({
         icon={<Icon name="Account" />}
       />
       <Modal
+        wide
         close={handleClose}
         footer={
           <ModalFooter

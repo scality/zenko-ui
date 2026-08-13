@@ -56,7 +56,7 @@ export const HeadRow = styled.tr`
   width: 100%;
   cursor: pointer;
 
-  // following is needed to display scroll bar onto the table
+  /* following is needed to display scroll bar onto the table */
   display: table;
   table-layout: fixed;
 `;
@@ -67,16 +67,16 @@ export const HeadCell = styled.th`
 
 // * table body
 export const Body = styled.tbody`
-  // following is needed to display scroll bar onto the table
+  /* following is needed to display scroll bar onto the table */
   display: block;
   overflow: auto;
 `;
 export const BodyWindowing = styled.tbody`
   flex: 1;
 `;
-export const Row = styled(HeadRow)`
-  // it's better to use 1px instead of spacing.r1, otherwise the border of some rows
-  // can look different cause of subpixel positioning
+export const Row = styled(HeadRow)<{ $isSelected?: boolean }>`
+  /* it's better to use 1px instead of spacing.r1, otherwise the border of some rows
+     can look different cause of subpixel positioning */
   border-bottom: 1px solid ${(props) => props.theme.backgroundLevel1};
   &:hover,
   &:focus {
@@ -88,19 +88,16 @@ export const Row = styled(HeadRow)`
   box-sizing: border-box;
   border-right: ${spacing.r4} solid transparent;
 
-  ${(
-    //@ts-expect-error fix this when you are working on it
-    { isSelected, theme },
-  ) =>
-    isSelected &&
+  ${({ $isSelected, theme }) =>
+    $isSelected &&
     `
         background-color: ${theme.highlight};
         border-right: ${spacing.r4} solid ${theme.selectedActive};
     `}
 `;
-export const Cell = styled.td<{ shade?: boolean }>`
+export const Cell = styled.td<{ $shade?: boolean }>`
   vertical-align: middle;
-  color: ${(props) => (props.shade ? props.theme.infoPrimary : props.theme.textPrimary)};
+  color: ${(props) => (props.$shade ? props.theme.infoPrimary : props.theme.textPrimary)};
   padding: ${spacing.r4} ${spacing.r16} ${spacing.r4} ${spacing.r16};
   text-overflow: ellipsis;
   overflow: hidden;
@@ -142,12 +139,12 @@ export const Search = styled.div`
   display: flex;
   flex: 0 0 auto;
 `;
-export const SearchMetadataContainer = styled.form<{ isHidden?: boolean }>`
+export const SearchMetadataContainer = styled.form<{ $isHidden?: boolean }>`
   flex: 1 0 auto;
   display: flex;
   max-width: 600px;
   margin-right: ${spacing.r20};
-  visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
+  visibility: ${(props) => (props.$isHidden ? 'hidden' : 'visible')};
 `;
 export const SearchMetadataInputAndIcon = styled.div`
   position: relative;
@@ -172,8 +169,8 @@ export const ActionButton = styled(Button)`
 export const InlineButton = styled(Button)`
   height: ${spacing.r24};
 `;
-export const AccountSelectorButton = styled(Button)<{ bigButton?: boolean }>`
-  height: ${(props) => (props.bigButton ? spacing.r32 : spacing.r24)};
+export const AccountSelectorButton = styled(Button)<{ $bigButton?: boolean }>`
+  height: ${(props) => (props.$bigButton ? spacing.r32 : spacing.r24)};
 `;
 export const Title = styled.div`
   font-size: ${fontSize.larger};
@@ -230,8 +227,8 @@ export const ButtonContainer = styled.div`
     margin-left: ${spacing.r4};
   }
 `;
-export const SubHeaderContainer = styled.div<{ isHidden?: boolean }>`
-  visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
+export const SubHeaderContainer = styled.div<{ $isHidden?: boolean }>`
+  visibility: ${(props) => (props.$isHidden ? 'hidden' : 'visible')};
   margin-left: ${spacing.r4};
 `;
 export const TableContainer = styled.div`
@@ -240,11 +237,11 @@ export const TableContainer = styled.div`
   height: 100%;
 `;
 export const GentleEmphaseSecondaryText = styled(SecondaryText)<{
-  alignRight?: boolean;
+  $alignRight?: boolean;
 }>`
   font-style: italic;
   ${(props) =>
-    props.alignRight
+    props.$alignRight
       ? `
     text-align: right;
     display: block;

@@ -30,9 +30,9 @@ const CardContent = (props: { logo: React.JSX.Element; application: string }) =>
   );
 };
 
-const CustomLabel = styled.label<{ selected?: boolean; disabled?: boolean }>`
-  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+const CustomLabel = styled.label<{ $selected?: boolean; $disabled?: boolean }>`
+  opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
+  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   position: relative;
   display: flex;
   justify-content: space-between;
@@ -40,11 +40,11 @@ const CustomLabel = styled.label<{ selected?: boolean; disabled?: boolean }>`
   padding: ${spacing.r20};
   align-items: flex-start;
   border-radius: ${spacing.f8};
-  background-color: ${(props) => (props.selected ? props.theme.highlight : props.theme.backgroundLevel4)};
+  background-color: ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel4)};
   border: 1px solid
-    ${(props) => (props.selected ? props.theme.highlight : props.theme.backgroundLevel4)};
+    ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel4)};
   &:hover {
-    border-color: ${(props) => !props.disabled && props.theme.textPrimary};
+    border-color: ${(props) => !props.$disabled && props.theme.textPrimary};
   }
   width: 100%;
   height: 100%;
@@ -76,7 +76,7 @@ export const CardISV = (props: CardProps) => {
   const isDisabled = disabled ?? false;
 
   const labelContent = (
-    <CustomLabel disabled={isDisabled} htmlFor={`isv-${name}`} selected={selected} aria-disabled={isDisabled}>
+    <CustomLabel $disabled={isDisabled} htmlFor={`isv-${name}`} $selected={selected} aria-disabled={isDisabled}>
       <CardContent logo={logo} application={application} />
 
       <Input

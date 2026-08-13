@@ -32,23 +32,23 @@ export type AttachmentTableProps<
 
 const rowHeight = 'h48';
 const MenuContainer = styled.ul<{
-  width: string;
-  isOpen: boolean;
-  searchInputIsFocused: boolean;
+  $width: string;
+  $isOpen: boolean;
+  $searchInputIsFocused: boolean;
 }>`
   background-color: ${(props) => props.theme.backgroundLevel1};
   background-clip: content-box;
   padding: 0;
   list-style: none;
   position: absolute;
-  width: ${(props) => props.width};
+  width: ${(props) => props.$width};
   z-index: 1;
   margin-top: -1.7rem;
   margin-left: 0;
   margin-bottom: 0;
   margin-right: 0;
   ${(props) =>
-    props.isOpen
+    props.$isOpen
       ? `
       border-top-left-radius: 0;
       border-top-right-radius: 0;
@@ -56,7 +56,7 @@ const MenuContainer = styled.ul<{
       border-bottom-left-radius: 4px;
       border: 1px solid ${props.theme.selectedActive};
   `
-      : props.searchInputIsFocused
+      : props.$searchInputIsFocused
         ? `border-bottom: 1px solid ${props.theme.selectedActive};`
         : ''}
   border-top: 0;
@@ -339,7 +339,6 @@ export const AttachmentTable = <
                 onBlur={() => {
                   setSearchInputIsFocused(false);
                 }}
-                disableToggle
                 disabled={firstPageStatus === 'error' || firstPageStatus === 'loading'}
               />
               <Loader />
@@ -360,15 +359,14 @@ export const AttachmentTable = <
             onBlur={() => {
               setSearchInputIsFocused(false);
             }}
-            disableToggle
           />
         )}
       </SearchBoxContainer>
       <MenuContainer
         {...getMenuProps()}
-        width={searchWidth}
-        isOpen={isOpen}
-        searchInputIsFocused={searchInputIsFocused}
+        $width={searchWidth}
+        $isOpen={isOpen}
+        $searchInputIsFocused={searchInputIsFocused}
       >
         {isOpen &&
           filteredEntities.map((item, index) => (
@@ -379,7 +377,7 @@ export const AttachmentTable = <
         {isOpen && filteredEntities.length === 0 && status === 'loading' && <li>Searching...</li>}
         {isOpen && numberOfFilteredEntities > filteredEntities.length && (
           <li>
-            <GentleEmphaseSecondaryText alignRight>
+            <GentleEmphaseSecondaryText $alignRight>
               There {numberOfFilteredEntities - filteredEntities.length === 1 ? 'is' : 'are'}{' '}
               {numberOfFilteredEntities - filteredEntities.length} more{' '}
               {numberOfFilteredEntities - filteredEntities.length === 1 ? 'entity' : 'entities'} matching your search.

@@ -13,18 +13,18 @@ export const Items = styled.div`
   display: flex;
   flex-direction: column;
 `;
-export const Item = styled.div<{ isShrink?: boolean }>`
+export const Item = styled.div<{ $isShrink?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
 
   margin-bottom: ${spacing.r4};
-  // For Select we adjust width of the sc-scrollbar div because in CoreUI.SelectV2
-  // the first parent is .sc-scrollbar
+  /* For Select we adjust width of the sc-scrollbar div because in CoreUI.SelectV2
+     the first parent is .sc-scrollbar */
   .sc-scrollbar {
-    flex: 0 ${(props) => (props.isShrink ? '36%' : '53%')};
-    width: ${(props) => (props.isShrink ? '36%' : '53%')};
-    min-width: ${(props) => (props.isShrink ? '36%' : '53%')};
+    flex: 0 ${(props) => (props.$isShrink ? '36%' : '53%')};
+    width: ${(props) => (props.$isShrink ? '36%' : '53%')};
+    min-width: ${(props) => (props.$isShrink ? '36%' : '53%')};
   }
 `;
 export const Header = styled.div`
@@ -76,10 +76,10 @@ export const InputExtraKey = styled(Input)`
   width: 28%;
   min-width: 28%;
 `;
-export const InputValue = styled(Input)<{ isShrink?: boolean }>`
-  flex: 0 ${(props) => (props.isShrink ? '22%' : '39%')};
-  width: ${(props) => (props.isShrink ? '22%' : '39%')};
-  min-width: ${(props) => (props.isShrink ? '22%' : '39%')};
+export const InputValue = styled(Input)<{ $isShrink?: boolean }>`
+  flex: 0 ${(props) => (props.$isShrink ? '22%' : '39%')};
+  width: ${(props) => (props.$isShrink ? '22%' : '39%')};
+  min-width: ${(props) => (props.$isShrink ? '22%' : '39%')};
   background-color: ${(props) => props.theme.backgroundLevel1};
 `;
 export const InputTag = styled(Input)`
@@ -96,9 +96,9 @@ export const Char = styled.div`
   min-width: 2%;
   text-align: center;
 `;
-const CustomButton = styled(Button)<{ isVisible?: boolean }>`
+const CustomButton = styled(Button)<{ $isVisible?: boolean }>`
   ${(props) =>
-    !props.isVisible
+    !props.$isVisible
       ? `
         display: none;
     `
@@ -140,7 +140,7 @@ export const AddButton = ({ index, items, insertEntry, disabled, iconStyle }: Ad
     <>
       {!isVisible && <Box ml={16} />}
       <CustomButton
-        isVisible={isVisible}
+        $isVisible={isVisible}
         type="button"
         variant="outline"
         disabled={isDisabled}

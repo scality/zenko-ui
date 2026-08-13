@@ -11,13 +11,13 @@ type Props = {
   account: Account;
 };
 const Container = styled.div<{
-  height: CSSProperties['height'];
-  width: CSSProperties['width'];
+  $height: CSSProperties['height'];
+  $width: CSSProperties['width'];
 }>`
   display: flex;
   flex-direction: column;
-  height: ${(props) => props.height}px;
-  width: ${(props) => props.width}px;
+  height: ${(props) => props.$height}px;
+  width: ${(props) => props.$width}px;
 `;
 
 function Properties({ account }: Props) {
@@ -34,7 +34,7 @@ function Properties({ account }: Props) {
   return (
     <AutoSizer>
       {({ height, width }) => (
-        <Container height={height} width={width}>
+        <Container $height={height} $width={width}>
           <AccountInfo account={account} />
           {isStorageManager && <AccountKeys account={account} onOpenKeyModal={handleOpenModal} />}
           <SecretKeyModal
