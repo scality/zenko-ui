@@ -14,7 +14,7 @@ describe('VeeamCapacityModal', () => {
     editBtn: () => screen.getByLabelText('Edit max capacity'),
     cancelBtn: () => screen.getByText('Cancel'),
     editModalBtn: () => screen.getByLabelText('Update max capacity'),
-    capacityInput: () => screen.getByRole('spinbutton', { name: /Max Veeam Repository Capacity/ }),
+    capacityInput: () => screen.getByRole('spinbutton', { name: /Max Capacity/ }),
   };
 
   beforeEach(() => {

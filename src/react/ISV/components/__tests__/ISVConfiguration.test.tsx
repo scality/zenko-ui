@@ -17,14 +17,6 @@ jest.mock('@scality/module-federation', () => ({
   useBasenameRelativeNavigate: jest.fn().mockImplementation(() => mockNavigate),
 }));
 
-// Mock useRef to reset iamRequestSentRef
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useRef: jest.fn().mockImplementation((initialValue) => ({
-    current: initialValue,
-  })),
-}));
-
 // Mock domain hooks
 jest.mock('../../../next-architecture/domain/business/accounts', () => ({
   useListAccounts: jest.fn(),

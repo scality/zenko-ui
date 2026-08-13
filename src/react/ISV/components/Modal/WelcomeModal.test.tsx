@@ -28,11 +28,10 @@ jest.mock('./ISVModal', () => {
   const originalModule = jest.requireActual('./ISVModal');
   return {
     ...originalModule,
-    ISVModalContent: ({ children, ...props }) => (
-      <div data-testid="isv-modal-content" {...props}>
-        {children}
-      </div>
-    ),
+    // Do not spread the remaining props onto the div: selectedISV/setSelectedISV are not
+    // DOM attributes and styled-components v6 no longer filters them out, so spreading
+    // them logs "React does not recognize the ... prop on a DOM element".
+    ISVModalContent: ({ children }) => <div data-testid="isv-modal-content">{children}</div>,
   };
 });
 
