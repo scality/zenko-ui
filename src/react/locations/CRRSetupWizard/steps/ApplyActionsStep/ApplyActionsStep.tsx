@@ -39,7 +39,10 @@ export const APPLY_ACTIONS_STEP_INDEX = 1;
 type Props = Partial<ConfigureFormValues> & { destinationInstanceName?: string };
 
 const isCompleteFormValues = (values: Props): values is ConfigureFormValues =>
-  values.connectionMode !== undefined && values.certificate !== undefined && values.username !== undefined;
+  values.baseDomain !== undefined &&
+  values.selectedEndpoint !== undefined &&
+  values.certificate !== undefined &&
+  values.username !== undefined;
 
 const StatusCell = ({ view, onRetry }: { view: StepView; onRetry: () => void }) => {
   const theme = useTheme();
@@ -108,13 +111,11 @@ export const ApplyActionsStep = (props: Props) => {
   const body: StartSetupBody | null = useMemo(
     () => (isCompleteFormValues(props) ? toStartSetupBody(props) : null),
     [
-      props.connectionMode,
       props.certificate,
       props.username,
       props.password,
-      props.url,
       props.baseDomain,
-      props.s3Endpoint,
+      props.selectedEndpoint,
       accountNameType,
       accountName,
       destinationAccountName,
@@ -126,8 +127,7 @@ export const ApplyActionsStep = (props: Props) => {
 
   const locationName = buildCRRLocationName({
     destinationAccountName: destinationAccountName ?? '',
-    url: props.url || undefined,
-    baseDomain: props.baseDomain || undefined,
+    baseDomain: props.baseDomain ?? '',
   });
 
   const sourceRoleArn = (prev: PreviousResults): string => {
@@ -187,7 +187,7 @@ export const ApplyActionsStep = (props: Props) => {
     resolvers['create-location'] = (prev) => {
       const result = configuratorResult(prev);
       if (!result) throw new Error('Cannot create the CRR location: the destination setup result is missing.');
-      return buildCRRLocation(locationName, result);
+      return buildCRRLocation(locationName, result, props.baseDomain ?? '');
     };
 
     if (withReplicationRule) {
@@ -264,7 +264,6 @@ export const ApplyActionsStep = (props: Props) => {
           sourceBucketName: sourceBucketName ?? '',
           targetBucketName: props.targetBucketName ?? '',
           destinationAccountName: destinationAccountName ?? '',
-          isManagementNetwork: props.connectionMode === 'management-network',
         },
         { configuratorEvents: setup.events, chainStatusById, configuratorError },
       ),
@@ -275,7 +274,6 @@ export const ApplyActionsStep = (props: Props) => {
       sourceBucketName,
       props.targetBucketName,
       destinationAccountName,
-      props.connectionMode,
       setup.events,
       chainStatusById,
       configuratorError,
@@ -348,7 +346,7 @@ export const ApplyActionsStep = (props: Props) => {
       {Slots}
       {stepViews.some((view) => view.id === 'create-location' && view.active) && (
         <Banner variant="warning" icon={<Icon color="statusWarning" name="Exclamation-circle" />}>
-          Expect some delay (about 1 minute)—creating the location takes time.
+          Expect some delay (up to a few minutes)—creating the location takes time.
         </Banner>
       )}
       <div style={{ height: '32rem', overflow: 'auto' }}>

@@ -11,8 +11,6 @@ export type StepId =
   | 'create-role'
   | 'attach-role-policy'
   | 'create-bucket'
-  | 'register-endpoint'
-  | 'configure-source-dns'
   | 'create-location'
   | 'create-replication-rule';
 
@@ -34,7 +32,6 @@ export type StepListInput = {
   sourceBucketName: string;
   targetBucketName: string;
   destinationAccountName: string;
-  isManagementNetwork: boolean;
 };
 
 export type ChainStepState = 'idle' | 'pending' | 'success' | 'error';
@@ -80,16 +77,6 @@ const STEPS: StepDef[] = [
     label: (i) => `Create Target Bucket: ${i.targetBucketName}`,
   },
   {
-    id: 'register-endpoint',
-    when: (i) => i.isManagementNetwork,
-    label: () => 'Register Destination S3 Endpoint',
-  },
-  {
-    id: 'configure-source-dns',
-    when: (i) => i.isManagementNetwork,
-    label: () => 'Configure Source DNS Resolution',
-  },
-  {
     id: 'import-destination-certificate',
     when: () => true,
     label: () => 'Import Certificate into Truststore',
@@ -111,8 +98,6 @@ const CONFIGURATOR_STEP_IDS = new Set<StepId>([
   'create-role',
   'attach-role-policy',
   'create-bucket',
-  'register-endpoint',
-  'configure-source-dns',
 ]);
 
 /** The single crr-configurator chain link; every configurator row retries by re-running it. */

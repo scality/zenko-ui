@@ -1,16 +1,10 @@
 import type { SetupResult } from '../../api/types';
-import { buildCRRLocation, buildCRRLocationName, buildCRRReplicationRuleId } from './crrLocation';
+import { buildCRRLocation, buildCRRLocationName, buildCRRReplicationRuleId, crrStsEndpoint } from './crrLocation';
 
 describe('buildCRRLocationName', () => {
-  it('uses the destination host from the connection URL, without scheme or port (management-network)', () => {
-    expect(buildCRRLocationName({ destinationAccountName: 'dest-acct', url: 'https://10.0.0.42:8443' })).toBe(
-      'location-dest-acct-10-0-0-42',
-    );
-  });
-
-  it('uses the base domain host (data-network)', () => {
-    expect(buildCRRLocationName({ destinationAccountName: 'dest-acct', baseDomain: 's3.example.com' })).toBe(
-      'location-dest-acct-s3-example-com',
+  it('reduces the base domain to a name-safe host', () => {
+    expect(buildCRRLocationName({ destinationAccountName: 'dest-acct', baseDomain: 'crr-dest.artesca.local' })).toBe(
+      'location-dest-acct-crr-dest-artesca-local',
     );
   });
 });
@@ -21,22 +15,28 @@ describe('buildCRRReplicationRuleId', () => {
   });
 });
 
+describe('crrStsEndpoint', () => {
+  it('derives the Host-based sts.<base> endpoint from the base domain', () => {
+    expect(crrStsEndpoint('crr-dest.artesca.local')).toBe('https://sts.crr-dest.artesca.local');
+  });
+});
+
 describe('buildCRRLocation', () => {
   const result: SetupResult = {
-    endpoint: 'https://10.0.0.42:8443',
-    stsEndpoint: 'https://10.0.0.42:8443/sts',
+    endpoint: 'https://s3.crr-dest.artesca.local',
+    stsEndpoint: 'https://ui.crr-dest.artesca.local/zenko/sts',
     accessKey: 'AKIA',
     secretKey: 'secret',
     roleArn: 'arn:aws:iam::123456789012:role/crr-role',
   };
 
-  it('builds a location-scality-crr-v1 with the destination endpoints and crr-user keys from the setup result', () => {
-    expect(buildCRRLocation('dest-acct-10-0-0-42', result)).toEqual({
-      name: 'dest-acct-10-0-0-42',
+  it('uses the picked S3 endpoint + keys from the result, but the STS endpoint derived from the base domain', () => {
+    expect(buildCRRLocation('dest-acct-crr-dest', result, 'crr-dest.artesca.local')).toEqual({
+      name: 'dest-acct-crr-dest',
       locationType: 'location-scality-crr-v1',
       details: {
-        endpoint: 'https://10.0.0.42:8443',
-        stsEndpoint: 'https://10.0.0.42:8443/sts',
+        endpoint: 'https://s3.crr-dest.artesca.local',
+        stsEndpoint: 'https://sts.crr-dest.artesca.local',
         accessKey: 'AKIA',
         secretKey: 'secret',
       },

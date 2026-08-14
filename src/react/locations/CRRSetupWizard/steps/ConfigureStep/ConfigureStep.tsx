@@ -5,21 +5,26 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ServiceError } from '../../api/crrConfiguratorClient';
-import type { HostAlias, ProblemCode, VerifyRequestBody, VerifyResponse } from '../../api/types';
-import { DnsFallbackModal } from '../../DnsFallbackModal';
+import type { ProblemCode } from '../../api/types';
 import { useCRRConfigurationVerifyMutation } from '../../hooks/useCRRConfigurationVerifyMutation';
-import { DestinationAccountSection } from './DestinationAccountSection';
+import { useResolveEndpointMutation } from '../../hooks/useResolveEndpointMutation';
+import { DestinationAccountSection, type ResolveStatus } from './DestinationAccountSection';
 import { DestinationConnectionSection } from './DestinationConnectionSection';
 import { ReplicationSection } from './ReplicationSection';
 import { SourceSection } from './SourceSection';
-import { type ConfigureFormValues, configureResolver, defaultConfigureValues, toVerifyBody } from './schema';
+import {
+  type ConfigureFormValues,
+  configureResolver,
+  defaultConfigureValues,
+  toResolveBody,
+  toVerifyBody,
+} from './schema';
 
 /** Step index for the wizard's Stepper.next() calls. */
 export const CONFIGURE_STEP_INDEX = 0;
 
 const errorCopy: Partial<Record<ProblemCode, string>> = {
-  DestinationUnreachable: 'Failed to reach the destination. Check the URL and your network connection.',
-  DestinationDnsResolutionFailed: 'Failed to resolve the destination hostnames.',
+  DestinationUnreachable: 'Failed to reach the destination. Check the base domain and your network connection.',
   DestinationCertificateInvalid: 'The destination certificate is invalid.',
   DestinationAuthFailed: 'Failed to authenticate with the destination. Check your credentials.',
   AssumeRoleFailed: 'Failed to assume the replication role on the destination.',
@@ -35,30 +40,14 @@ const errorMessage = (error: unknown): string => {
   return (error as Error)?.message ?? 'Failed to reach the destination.';
 };
 
-const unresolvedHostsFrom = (error: unknown): string[] | null => {
-  if (error instanceof ServiceError && error.code === 'DestinationDnsResolutionFailed') {
-    const hosts = error.problem.unresolvedHosts;
-    if (hosts && hosts.length > 0) return hosts;
-  }
-  return null;
-};
-
-const isDestinationUnreachable = (error: unknown): boolean =>
-  error instanceof ServiceError && error.code === 'DestinationUnreachable';
-
-const mergeAliases = (existing: HostAlias[], added: HostAlias[]): HostAlias[] => {
-  const byHost = new Map(existing.map((alias) => [alias.hostname, alias]));
-  for (const alias of added) byHost.set(alias.hostname, alias);
-  return [...byHost.values()];
-};
-
 export const ConfigureStep = () => {
   const { next } = useStepper(CONFIGURE_STEP_INDEX);
   const navigate = useBasenameRelativeNavigate();
   const { showToast } = useToast();
   const verify = useCRRConfigurationVerifyMutation();
+  const resolveEndpoint = useResolveEndpointMutation();
   const lastVerifiedRef = useRef<string | null>(null);
-  const [dnsFallbackHosts, setDnsFallbackHosts] = useState<string[] | null>(null);
+  const [resolveStatus, setResolveStatus] = useState<ResolveStatus>('idle');
 
   const formMethods = useForm<ConfigureFormValues>({
     mode: 'all',
@@ -73,70 +62,45 @@ export const ConfigureStep = () => {
     formState: { isValid },
   } = formMethods;
 
-  const handleVerifyError = (error: unknown) => {
-    const hosts = unresolvedHostsFrom(error);
-    if (hosts) {
-      setDnsFallbackHosts(hosts);
-      return;
-    }
-    const aliases = getValues('hostAliases');
-    if (aliases.length > 0 && isDestinationUnreachable(error)) {
-      setDnsFallbackHosts(aliases.map((alias) => alias.hostname));
-      return;
-    }
-    showToast({ open: true, status: 'error', message: errorMessage(error) });
-  };
-
-  const runVerify = async (body: VerifyRequestBody): Promise<VerifyResponse> => {
-    const response = await verify.mutateAsync(body);
-    lastVerifiedRef.current = JSON.stringify(body);
-    return response;
-  };
-
-  const destinationInstanceNameFrom = (response: VerifyResponse | undefined): string | undefined =>
-    response?.ok && response.mode === 'management-network' ? response.instanceName : undefined;
-
-  const onCheckConnection = async () => {
+  const onConnect = async () => {
+    const body = toVerifyBody(getValues());
     try {
-      await runVerify(toVerifyBody(getValues()));
-      showToast({ open: true, status: 'success', message: 'Connection established' });
+      await verify.mutateAsync(body);
+      lastVerifiedRef.current = JSON.stringify(body);
+      // A fresh connection invalidates any prior endpoint choice.
+      setValue('selectedEndpoint', '', { shouldValidate: true });
+      setResolveStatus('idle');
+      showToast({ open: true, status: 'success', message: 'Connected' });
     } catch (error) {
-      handleVerifyError(error);
+      showToast({ open: true, status: 'error', message: errorMessage(error) });
     }
   };
 
-  const onContinue = handleSubmit(async (values) => {
-    const body = toVerifyBody(values);
-    const snapshot = JSON.stringify(body);
-    if (lastVerifiedRef.current === snapshot) {
-      next({ ...values, destinationInstanceName: destinationInstanceNameFrom(verify.data) });
-      return;
-    }
+  const onEndpointSelected = async (hostname: string) => {
+    setResolveStatus('checking');
     try {
-      const response = await runVerify(body);
-      next({ ...values, destinationInstanceName: destinationInstanceNameFrom(response) });
+      const { resolvable } = await resolveEndpoint.mutateAsync(
+        toResolveBody({ ...getValues(), selectedEndpoint: hostname }),
+      );
+      setResolveStatus(resolvable ? 'resolvable' : 'unresolvable');
     } catch (error) {
-      handleVerifyError(error);
+      setResolveStatus('unresolvable');
+      showToast({ open: true, status: 'error', message: errorMessage(error) });
     }
+  };
+
+  const onContinue = handleSubmit((values) => {
+    if (resolveStatus !== 'resolvable') return;
+    next({ ...values });
   });
 
   const watchedValues = watch();
   const isConnected = verify.isSuccess && lastVerifiedRef.current === JSON.stringify(toVerifyBody(watchedValues));
-  const connectedInstanceName = isConnected ? destinationInstanceNameFrom(verify.data) : undefined;
+  const endpoints = isConnected ? (verify.data?.endpoints ?? []) : [];
+  const canContinue = isValid && isConnected && resolveStatus === 'resolvable';
 
   return (
     <FormProvider {...formMethods}>
-      <DnsFallbackModal
-        isOpen={dnsFallbackHosts !== null}
-        unresolvedHosts={dnsFallbackHosts ?? []}
-        initialAliases={getValues('hostAliases')}
-        onCancel={() => setDnsFallbackHosts(null)}
-        onSubmit={(aliases) => {
-          setValue('hostAliases', mergeAliases(getValues('hostAliases'), aliases));
-          setDnsFallbackHosts(null);
-          onCheckConnection();
-        }}
-      />
       <Form
         onSubmit={onContinue}
         requireMode="partial"
@@ -149,7 +113,7 @@ export const ConfigureStep = () => {
               variant="primary"
               label="Continue"
               isLoading={verify.isLoading}
-              disabled={!isValid}
+              disabled={!canContinue}
               icon={<Icon name="Arrow-right" />}
             />
           </Stack>
@@ -161,14 +125,14 @@ export const ConfigureStep = () => {
           link="/artesca/docs/data_management/location_management/add_a_crr_location.html"
           linkText="Learn more"
         />
-        <DestinationConnectionSection
-          isCheckingConnection={verify.isLoading}
-          onCheckConnection={onCheckConnection}
-          isConnected={isConnected}
-          connectedInstanceName={connectedInstanceName}
-        />
+        <DestinationConnectionSection isConnecting={verify.isLoading} onConnect={onConnect} isConnected={isConnected} />
         <SourceSection />
-        <DestinationAccountSection />
+        <DestinationAccountSection
+          isConnected={isConnected}
+          endpoints={endpoints}
+          resolveStatus={resolveStatus}
+          onEndpointSelected={onEndpointSelected}
+        />
         <ReplicationSection />
       </Form>
     </FormProvider>

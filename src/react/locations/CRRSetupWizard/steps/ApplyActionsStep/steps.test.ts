@@ -16,7 +16,6 @@ const baseInput: StepListInput = {
   sourceBucketName: 'src-bucket',
   targetBucketName: 'target-bucket',
   destinationAccountName: 'dest-account',
-  isManagementNetwork: true,
 };
 
 const noProgress: StepStateSources = { configuratorEvents: [], chainStatusById: {} };
@@ -44,8 +43,6 @@ describe('buildStepViews', () => {
       'create-role',
       'attach-role-policy',
       'create-bucket',
-      'register-endpoint',
-      'configure-source-dns',
       'import-destination-certificate',
       'create-location',
       'create-replication-rule',
@@ -59,7 +56,7 @@ describe('buildStepViews', () => {
     expect(sourceBkt).toMatchObject({ step: 2, label: 'Create Bucket on Source: src-bucket' });
     expect(destAcc).toMatchObject({ step: 3, label: 'Create Account on Destination: dest-account' });
     expect(views.find((v) => v.id === 'import-destination-certificate')).toMatchObject({
-      step: 12,
+      step: 10,
       label: 'Import Certificate into Truststore',
     });
   });
@@ -72,8 +69,6 @@ describe('buildStepViews', () => {
     expect(labels).toContain('Create IAM Role');
     expect(labels).toContain('Attach Policy to Role');
     expect(labels).toContain('Create Target Bucket: target-bucket');
-    expect(labels).toContain('Register Destination S3 Endpoint');
-    expect(labels).toContain('Configure Source DNS Resolution');
     expect(labels).toContain('Create Location');
     expect(labels).toContain('Create Replication Rule');
   });
@@ -88,12 +83,6 @@ describe('buildStepViews', () => {
     expect(views.find((v) => v.id === 'create-source-bucket')).toBeUndefined();
     expect(views.find((v) => v.id === 'create-bucket')).toBeUndefined();
     expect(views.find((v) => v.id === 'create-replication-rule')).toBeUndefined();
-  });
-
-  it('drops the endpoint and DNS steps in data-network mode', () => {
-    const views = buildStepViews({ ...baseInput, isManagementNetwork: false }, noProgress);
-    expect(views.find((v) => v.id === 'register-endpoint')).toBeUndefined();
-    expect(views.find((v) => v.id === 'configure-source-dns')).toBeUndefined();
   });
 
   it('shows every step as pending before anything runs', () => {
@@ -211,29 +200,6 @@ describe('buildStepViews — crr-configurator rows', () => {
     expect(failed?.errorMessage).toBe('IAM refused CreateUser: entity already exists');
   });
 
-  it('drives the management-network endpoint and DNS rows from their stream events', () => {
-    const succeeded = buildStepViews(
-      baseInput,
-      withEvents([{ event: 'step.completed', step: 'register-endpoint', at: 't' }]),
-    );
-    expect(succeeded.find((v) => v.id === 'register-endpoint')?.state).toBe('succeeded');
-
-    const failed = buildStepViews(
-      baseInput,
-      withEvents([
-        {
-          event: 'step.failed',
-          step: 'configure-source-dns',
-          at: 't',
-          error: { code: 'InternalError', message: 'source could not resolve the endpoint' },
-        },
-      ]),
-    );
-    const dns = failed.find((v) => v.id === 'configure-source-dns');
-    expect(dns?.state).toBe('failed');
-    expect(dns?.errorMessage).toBe('source could not resolve the endpoint');
-  });
-
   it('blames the first pending configurator row when the stream fails without pinning a step', () => {
     const views = buildStepViews(baseInput, {
       configuratorEvents: [],
@@ -301,8 +267,6 @@ describe('allSucceeded / hasFailure', () => {
         'create-role',
         'attach-role-policy',
         'create-bucket',
-        'register-endpoint',
-        'configure-source-dns',
       ].map((step) => ({ event: 'step.completed', step, at: 't' }) as SetupEvent),
       chainStatusById: {
         'import-destination-certificate': { status: 'success' },

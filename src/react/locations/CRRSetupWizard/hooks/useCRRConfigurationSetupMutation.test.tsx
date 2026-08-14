@@ -26,8 +26,8 @@ const buildWrapper = () => {
 
 const START_BODY: StartSetupBody = {
   destinationConnection: {
-    mode: 'management-network',
-    baseUrl: 'https://cluster.example:8443',
+    baseDomain: 'crr-dest.artesca.local',
+    s3Endpoint: 'https://s3.crr-dest.artesca.local',
     adminUser: 'scality',
     adminPassword: 'test',
   },

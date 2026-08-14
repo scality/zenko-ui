@@ -1,6 +1,8 @@
 import type {
   Problem,
   ProblemCode,
+  ResolveRequestBody,
+  ResolveResponse,
   SetupErrorPayload,
   SetupEvent,
   StartSetupBody,
@@ -41,6 +43,17 @@ export async function verify(body: VerifyRequestBody, { token, signal }: ClientO
   });
   if (!response.ok) throw await asServiceError(response);
   return (await response.json()) as VerifyResponse;
+}
+
+export async function resolve(body: ResolveRequestBody, { token, signal }: ClientOptions): Promise<ResolveResponse> {
+  const response = await fetch(`${BASE}/resolve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!response.ok) throw await asServiceError(response);
+  return (await response.json()) as ResolveResponse;
 }
 
 export async function* startSetup(body: StartSetupBody, { token, signal }: ClientOptions): AsyncIterable<SetupEvent> {

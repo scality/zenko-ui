@@ -9,7 +9,6 @@ type Props = Partial<ConfigureFormValues>;
 export const SummaryStep = ({
   accountName,
   destinationAccountName,
-  url,
   baseDomain,
   createReplicationRule,
   sourceBucketName,
@@ -24,8 +23,7 @@ export const SummaryStep = ({
     );
   const locationName = buildCRRLocationName({
     destinationAccountName: destinationAccountName ?? '',
-    url: url || undefined,
-    baseDomain: baseDomain || undefined,
+    baseDomain: baseDomain ?? '',
   });
 
   const intro = createReplicationRule

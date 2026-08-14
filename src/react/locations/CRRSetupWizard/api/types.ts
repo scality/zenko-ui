@@ -5,44 +5,41 @@
 // and react-query hooks that use these types live in follow-up
 // modules.
 
-export type HostAlias = { hostname: string; ip: string };
-
-export type DestinationConnection =
-  | {
-      mode: 'management-network';
-      baseUrl: string;
-      adminUser: string;
-      adminPassword: string;
-    }
-  | {
-      mode: 'data-network';
-      baseDomain: string;
-      s3Endpoint: string;
-      adminUser: string;
-      adminPassword: string;
-    };
+export type DestinationConnection = {
+  baseDomain: string;
+  adminUser: string;
+  adminPassword: string;
+};
 
 export type VerifyRequestBody = {
   destinationConnection: DestinationConnection;
   destinationCertificate: string;
-  hostAliases?: HostAlias[];
 };
 
-export type VerifyResponse =
-  | {
-      ok: true;
-      mode: 'management-network';
-      instanceName: string;
-      artescaVersion?: string;
-    }
-  | { ok: true; mode: 'data-network' };
+export type DestinationEndpoint = {
+  hostname: string;
+  locationName: string;
+};
+
+export type VerifyResponse = {
+  ok: true;
+  endpoints: DestinationEndpoint[];
+};
+
+export type ResolveRequestBody = {
+  s3Endpoint: string;
+  destinationCertificate: string;
+};
+
+export type ResolveResponse = {
+  resolvable: boolean;
+};
 
 export type StartSetupBody = {
-  destinationConnection: DestinationConnection;
+  destinationConnection: DestinationConnection & { s3Endpoint: string };
   destinationCertificate: string;
   destinationAccount: { mode: 'create' | 'existing'; name: string };
   targetBucket?: string;
-  hostAliases?: HostAlias[];
 };
 
 export type SetupResult = {
@@ -88,7 +85,6 @@ export type SetupEvent = StepStarted | StepCompleted | StepFailed | SetupComplet
 
 export type ProblemCode =
   | 'DestinationUnreachable'
-  | 'DestinationDnsResolutionFailed'
   | 'DestinationCertificateInvalid'
   | 'DestinationAuthFailed'
   | 'AssumeRoleFailed'
@@ -107,5 +103,4 @@ export type Problem = {
   status: number;
   detail?: string;
   code?: ProblemCode;
-  unresolvedHosts?: string[];
 };

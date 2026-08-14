@@ -1,9 +1,10 @@
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { ServiceError, startSetup, verify } from './crrConfiguratorClient';
+import { resolve, ServiceError, startSetup, verify } from './crrConfiguratorClient';
 import type { SetupEvent, StartSetupBody, VerifyRequestBody } from './types';
 
 const VERIFY_URL = '/crr-configurator/api/v1/verify';
+const RESOLVE_URL = '/crr-configurator/api/v1/resolve';
 const STREAM_URL = '/crr-configurator/api/v1/replication-setups';
 const TOKEN = 'test-token';
 const server = setupServer();
@@ -14,8 +15,7 @@ afterAll(() => server.close());
 
 const VERIFY_BODY: VerifyRequestBody = {
   destinationConnection: {
-    mode: 'management-network',
-    baseUrl: 'https://cluster.example:8443',
+    baseDomain: 'crr-dest.artesca.local',
     adminUser: 'scality',
     adminPassword: 'test',
   },
@@ -23,7 +23,13 @@ const VERIFY_BODY: VerifyRequestBody = {
 };
 
 const START_BODY: StartSetupBody = {
-  ...VERIFY_BODY,
+  destinationConnection: {
+    baseDomain: 'crr-dest.artesca.local',
+    s3Endpoint: 'https://s3.crr-dest.artesca.local',
+    adminUser: 'scality',
+    adminPassword: 'test',
+  },
+  destinationCertificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
   destinationAccount: { mode: 'create', name: 'crr-account' },
   targetBucket: 'target-bucket',
 };
@@ -34,18 +40,28 @@ const problemJSON = (status: number, code: string, extras: Record<string, unknow
   JSON.stringify({ type: 'about:blank', title: code, status, code, ...extras });
 
 describe('crrConfiguratorClient / verify', () => {
-  it('returns the parsed VerifyResponse when the configurator accepts the destination', async () => {
+  it('returns the discovered S3 endpoints when the configurator accepts the destination', async () => {
     server.use(
       rest.post(VERIFY_URL, (req, res, ctx) => {
         if (req.headers.get('authorization') !== `Bearer ${TOKEN}`) return res(ctx.status(401));
-        return res(ctx.json({ ok: true, mode: 'management-network', instanceName: 'ageless-valley' }));
+        return res(
+          ctx.json({
+            ok: true,
+            endpoints: [
+              { hostname: 's3.crr-dest.artesca.local', locationName: 'us-east-1' },
+              { hostname: 's3.repl-vlan.crr-dest.artesca.local', locationName: 'us-east-1' },
+            ],
+          }),
+        );
       }),
     );
 
     await expect(verify(VERIFY_BODY, { token: TOKEN })).resolves.toEqual({
       ok: true,
-      mode: 'management-network',
-      instanceName: 'ageless-valley',
+      endpoints: [
+        { hostname: 's3.crr-dest.artesca.local', locationName: 'us-east-1' },
+        { hostname: 's3.repl-vlan.crr-dest.artesca.local', locationName: 'us-east-1' },
+      ],
     });
   });
 
@@ -66,35 +82,53 @@ describe('crrConfiguratorClient / verify', () => {
     });
   });
 
-  it('carries unresolvedHosts so the wizard can prompt for DNS overrides', async () => {
-    server.use(
-      rest.post(VERIFY_URL, (_req, res, ctx) =>
-        res(
-          ctx.status(502),
-          ctx.set('Content-Type', 'application/problem+json'),
-          ctx.body(
-            problemJSON(502, 'DestinationDnsResolutionFailed', {
-              unresolvedHosts: ['cluster-b.internal', 's3.cluster-b.internal'],
-            }),
-          ),
-        ),
-      ),
-    );
-
-    await expect(verify(VERIFY_BODY, { token: TOKEN })).rejects.toMatchObject({
-      problem: {
-        code: 'DestinationDnsResolutionFailed',
-        unresolvedHosts: ['cluster-b.internal', 's3.cluster-b.internal'],
-      },
-    });
-  });
-
   it('surfaces a generic Error when the configurator replies without a problem body', async () => {
     server.use(rest.post(VERIFY_URL, (_req, res, ctx) => res(ctx.status(503), ctx.text('backend down'))));
 
     const promise = verify(VERIFY_BODY, { token: TOKEN });
     await expect(promise).rejects.toThrow('HTTP 503');
     await expect(promise).rejects.not.toBeInstanceOf(ServiceError);
+  });
+});
+
+describe('crrConfiguratorClient / resolve', () => {
+  const RESOLVE_BODY = {
+    s3Endpoint: 'https://s3.crr-dest.artesca.local',
+    destinationCertificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
+  };
+
+  it('reports a resolvable endpoint', async () => {
+    server.use(
+      rest.post(RESOLVE_URL, (req, res, ctx) => {
+        if (req.headers.get('authorization') !== `Bearer ${TOKEN}`) return res(ctx.status(401));
+        return res(ctx.json({ resolvable: true }));
+      }),
+    );
+
+    await expect(resolve(RESOLVE_BODY, { token: TOKEN })).resolves.toEqual({ resolvable: true });
+  });
+
+  it('reports an unresolvable endpoint', async () => {
+    server.use(rest.post(RESOLVE_URL, (_req, res, ctx) => res(ctx.json({ resolvable: false }))));
+
+    await expect(resolve(RESOLVE_BODY, { token: TOKEN })).resolves.toEqual({ resolvable: false });
+  });
+
+  it('throws a ServiceError on an invalid certificate', async () => {
+    server.use(
+      rest.post(RESOLVE_URL, (_req, res, ctx) =>
+        res(
+          ctx.status(400),
+          ctx.set('Content-Type', 'application/problem+json'),
+          ctx.body(problemJSON(400, 'DestinationCertificateInvalid')),
+        ),
+      ),
+    );
+
+    await expect(resolve(RESOLVE_BODY, { token: TOKEN })).rejects.toMatchObject({
+      name: 'ServiceError',
+      problem: { code: 'DestinationCertificateInvalid' },
+    });
   });
 });
 
@@ -114,8 +148,8 @@ describe('crrConfiguratorClient / startSetup', () => {
                 event: 'setup.completed',
                 at: '2026-07-16T13:00:02Z',
                 result: {
-                  endpoint: 'https://cluster.example:8443',
-                  stsEndpoint: 'https://cluster.example:8443/sts',
+                  endpoint: 'https://s3.crr-dest.artesca.local',
+                  stsEndpoint: 'https://ui.crr-dest.artesca.local/zenko/sts',
                   accessKey: 'AKIA…',
                   secretKey: 'secret…',
                   roleArn: 'arn:aws:iam::123456789012:role/crr-replication-role',

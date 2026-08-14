@@ -18,7 +18,7 @@ const renderSummary = (props: Parameters<typeof SummaryStep>[0]) =>
 const baseProps = {
   accountName: 'source-account',
   destinationAccountName: 'crr-dest',
-  url: 'https://10.0.0.42:8443',
+  baseDomain: 'crr-dest.artesca.local',
   createReplicationRule: true,
   sourceBucketName: 'my-source',
   targetBucketName: 'my-target',

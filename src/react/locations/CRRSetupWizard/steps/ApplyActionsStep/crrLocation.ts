@@ -9,35 +9,28 @@ import type { SetupResult } from '../../api/types';
 const sanitizeHost = (host: string): string => host.replace(/[^a-zA-Z0-9-]/g, '-');
 
 /**
- * Derives the CRR location name as `location-<destinationAccountName>-<host>`, where
- * host is the destination IP/hostname only (no scheme, no port). Management-network
- * uses the connection URL's host; data-network uses the base domain.
+ * Derives the CRR location name as `location-<destinationAccountName>-<baseDomain>`,
+ * the base domain reduced to name-safe characters (no scheme, no port).
  */
 export const buildCRRLocationName = ({
   destinationAccountName,
-  url,
   baseDomain,
 }: {
   destinationAccountName: string;
-  url?: string;
-  baseDomain?: string;
-}): string => {
-  const host = url ? new URL(url).hostname : (baseDomain ?? '');
-  return `location-${destinationAccountName}-${sanitizeHost(host)}`;
-};
+  baseDomain: string;
+}): string => `location-${destinationAccountName}-${sanitizeHost(baseDomain)}`;
 
 export const buildCRRReplicationRuleId = (destinationAccountName: string): string =>
   `replication-${destinationAccountName}`;
 
-/**
- * Builds the `location-scality-crr-v1` configuration from the backend setup
- * result: the destination S3/STS endpoints and the crr-user access keys the
- * configurator created.
- */
-export const buildCRRLocation = (name: string, result: SetupResult): LocationV1 => {
+// Host-based sts.<base>, NOT a /zenko-path-routed URL: the source signs STS with
+// SigV4 and the ingress prefix-strip would break the signature.
+export const crrStsEndpoint = (baseDomain: string): string => `https://sts.${baseDomain.replace(/^ui\./, '')}`;
+
+export const buildCRRLocation = (name: string, result: SetupResult, baseDomain: string): LocationV1 => {
   const details: Locationscalitycrrv1Details = {
     endpoint: result.endpoint,
-    stsEndpoint: result.stsEndpoint,
+    stsEndpoint: crrStsEndpoint(baseDomain),
     accessKey: result.accessKey,
     secretKey: result.secretKey,
   };

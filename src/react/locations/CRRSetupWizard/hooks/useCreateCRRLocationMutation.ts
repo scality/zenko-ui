@@ -10,7 +10,7 @@ import { useCreateLocationMutation } from '../../hooks/useCreateLocationMutation
 // Bounded best-effort window for the running configuration to catch up before
 // the following replication-rule step runs. Bounded by wall-clock time, not a
 // poll count, because each status poll is itself a round-trip to the instance.
-const RECONCILE_WAIT_MS = 60_000;
+const RECONCILE_WAIT_MS = 5 * 60_000;
 const POLL_INTERVAL_MS = 2_000;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
