@@ -47,6 +47,7 @@ export const ConfigureStep = () => {
   const verify = useCRRConfigurationVerifyMutation();
   const resolveEndpoint = useResolveEndpointMutation();
   const lastVerifiedRef = useRef<string | null>(null);
+  const pendingResolveRef = useRef<string | null>(null);
   const [resolveStatus, setResolveStatus] = useState<ResolveStatus>('idle');
 
   const formMethods = useForm<ConfigureFormValues>({
@@ -68,6 +69,7 @@ export const ConfigureStep = () => {
       await verify.mutateAsync(body);
       lastVerifiedRef.current = JSON.stringify(body);
       // A fresh connection invalidates any prior endpoint choice.
+      pendingResolveRef.current = null;
       setValue('selectedEndpoint', '', { shouldValidate: true });
       setResolveStatus('idle');
       showToast({ open: true, status: 'success', message: 'Connected' });
@@ -77,13 +79,17 @@ export const ConfigureStep = () => {
   };
 
   const onEndpointSelected = async (hostname: string) => {
+    pendingResolveRef.current = hostname;
     setResolveStatus('checking');
     try {
       const { resolvable } = await resolveEndpoint.mutateAsync(
         toResolveBody({ ...getValues(), selectedEndpoint: hostname }),
       );
+      // Drop a response that lost the race to a newer selection.
+      if (pendingResolveRef.current !== hostname) return;
       setResolveStatus(resolvable ? 'resolvable' : 'unresolvable');
     } catch (error) {
+      if (pendingResolveRef.current !== hostname) return;
       setResolveStatus('unresolvable');
       showToast({ open: true, status: 'error', message: errorMessage(error) });
     }

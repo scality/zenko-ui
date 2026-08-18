@@ -98,6 +98,35 @@ describe('CRRSetupWizard — Configure step', () => {
     expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
   });
 
+  it('ignores a slow resolvability response for a previously selected endpoint', async () => {
+    mockVerifyEndpoints();
+    // Reachable endpoint answers slowly; the unreachable one picked next answers
+    // first, so the stale ✓ lands after the current pick's ✗.
+    server.use(
+      rest.post(RESOLVE_URL, (req, res, ctx) => {
+        const { s3Endpoint } = req.body as { s3Endpoint: string };
+        if (s3Endpoint.includes('repl-vlan')) return res(ctx.json({ resolvable: false }));
+        return res(ctx.delay(300), ctx.json({ resolvable: true }));
+      }),
+    );
+    render(<CRRSetupWizard />, { wrapper: Wrapper });
+
+    fillConnectionForm();
+    await clickWhenEnabled(/Connect/i);
+
+    await pickEndpoint('s3.crr-dest.artesca.local');
+    await userEvent.click(screen.getByText('s3.crr-dest.artesca.local'));
+    await userEvent.click(await screen.findByText('s3.repl-vlan.crr-dest.artesca.local'));
+
+    await waitFor(() => expect(screen.getByLabelText(/Not reachable from this site/i)).toBeInTheDocument());
+
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    expect(screen.getByLabelText(/Not reachable from this site/i)).toBeInTheDocument();
+    // Exact string so it can't match the "Not reachable…" label.
+    expect(screen.queryByLabelText('Reachable from this site')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
+  });
+
   it('surfaces the ARTESCA problem code when Connect is rejected', async () => {
     server.use(
       rest.post(VERIFY_URL, (_req, res, ctx) =>
