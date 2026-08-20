@@ -26,6 +26,12 @@ import { useBucketCreateConfig } from './buckets/useBucketCreateConfig';
 import ListLayoutButtons from './HeaderButtons';
 import { BucketMetricsPrefetch } from './hooks/useBucketMetrics';
 
+// Served by the bundled documentation, so these resolve in offline deployments too.
+// Expiration is a chapter with its own index; transition is a single page.
+const BUCKET_OPERATIONS_DOCS = '/artesca/docs/data_management/bucket_operations';
+const LIFECYCLE_EXPIRATION_DOCS_URL = `${BUCKET_OPERATIONS_DOCS}/lifecycle_expiration/index.html`;
+const LIFECYCLE_TRANSITION_DOCS_URL = `${BUCKET_OPERATIONS_DOCS}/transition_workflow.html`;
+
 const EXTRA_BUCKET_OVERVIEW_SECTIONS = [
   {
     id: 'useCase',
@@ -167,6 +173,8 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
         replicationDestinationFields={ReplicationCRRDestinationFields}
         isLocationCold={isLocationCold}
         isVersioningDisabled={isVersioningDisabled}
+        lifecycleExpirationDocsUrl={LIFECYCLE_EXPIRATION_DOCS_URL}
+        lifecycleTransitionDocsUrl={LIFECYCLE_TRANSITION_DOCS_URL}
       />
     </>
   );
