@@ -1,6 +1,23 @@
-export const MultiAccountsIcon = () => {
+// Follows the shape of core-ui's own custom icons (Bucket, Buckets): the fa
+// classes drive the size and the color is inherited from the wrapper.
+//
+// Two deviations, both because the drawing is not square like a FontAwesome
+// glyph: the viewBox is cropped to the artwork (it used to carry ~14 units of
+// empty space on the sides), and the height is set to 1.4em instead of the 1em
+// `svg-inline--fa` imposes, so the pair of wallets fills the circle the way the
+// bucket icons do rather than floating in the middle of it.
+export const MultiAccountsIcon = ({ size, ariaLabel }: { size?: string; ariaLabel?: string }) => {
   return (
-    <svg width="44" height="28" viewBox="0 0 44 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      viewBox="7 0 30 28"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`svg-inline--fa ${size ? `fa-${size}` : ''}`}
+      style={{ height: '1.4em' }}
+      role="img"
+      aria-hidden={!ariaLabel}
+      aria-label={ariaLabel}
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
