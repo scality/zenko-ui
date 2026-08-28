@@ -86,6 +86,8 @@ const StyledSearchInput = styled(SearchInput)`
 `;
 
 const AttachmentTableContainer = styled.div`
+  container-type: inline-size;
+  container-name: responsive;
   height: 80%;
   background: ${(props) => props.theme.backgroundLevel3};
   padding: ${spacing.r24};

@@ -327,7 +327,7 @@ export function LocationsList() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
+    <Box container display="flex" flexDirection="column" flex="1" id="location-list">
       <Table
         columns={columns}
         status={locations.status}
