@@ -133,6 +133,7 @@ function EndpointList({ endpoints, locations }: Props) {
                 }}
                 label="Create Data Service"
                 variant="primary"
+                iconOnly={760}
                 onClick={() => navigate('/create-dataservice')}
                 type="submit"
               />

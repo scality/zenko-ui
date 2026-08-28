@@ -359,6 +359,7 @@ export function LocationsList() {
                 icon={<Icon name="Create-add" />}
                 label="Create Location"
                 variant="primary"
+                iconOnly={760}
                 onClick={() => navigate('/create-location')}
                 type="submit"
               />
