@@ -81,6 +81,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
         data={data}
         defaultSortingKey={defaultSortingKey}
         status={queryResult.firstPageStatus}
+        revealDroppedColumns
         entityName={{
           en: {
             singular: singularResourceName,
