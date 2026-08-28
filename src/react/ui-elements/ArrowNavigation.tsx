@@ -14,10 +14,15 @@ import styled from 'styled-components';
 // through a dynamic import, and until it lands core-ui's fallback only reserves
 // 1em of width where the arrow needs 1.25em, so the title next to it shifted
 // right on first paint. r40 x r32 is the measured size of the rendered 2x arrow.
+// The left margin is not decoration: AppContainer.OverallSummary wraps its
+// children in an overflow:hidden box, and this button is its first child, flush
+// against the edge. Without the margin, the focus-visible outline, which is
+// painted outside the border box, gets its left edge clipped away.
 const ArrowButton = styled(Button)`
   width: ${spacing.r40};
   height: ${spacing.r32};
   padding: 0;
+  margin-left: ${spacing.r4};
   flex: none;
 `;
 
