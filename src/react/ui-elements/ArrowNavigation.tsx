@@ -4,20 +4,9 @@ import { spacing } from '@scality/core-ui/dist/spacing';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import styled from 'styled-components';
 
-// core-ui's Button with an icon and neither label nor variant is already the
-// bare icon button we need: transparent, no border, and it handles hover and
-// focus-visible. Being a real button, it is also reachable by keyboard, which a
-// styled div with an onClick is not. core-ui requires a string tooltip on an
-// icon-only button and uses it as the accessible name.
-//
-// The box is sized explicitly because `Icon` resolves its FontAwesome glyph
-// through a dynamic import, and until it lands core-ui's fallback only reserves
-// 1em of width where the arrow needs 1.25em, so the title next to it shifted
-// right on first paint. r40 x r32 is the measured size of the rendered 2x arrow.
-// The left margin is not decoration: AppContainer.OverallSummary wraps its
-// children in an overflow:hidden box, and this button is its first child, flush
-// against the edge. Without the margin, the focus-visible outline, which is
-// painted outside the border box, gets its left edge clipped away.
+// Fixed size: `Icon` resolves its glyph through a dynamic import and the
+// fallback reserves too little width, shifting the title on first paint.
+// The left margin keeps the focus outline out of OverallSummary's overflow.
 const ArrowButton = styled(Button)`
   width: ${spacing.r40};
   height: ${spacing.r32};
