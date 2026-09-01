@@ -1,5 +1,5 @@
 import { Loader, Stack, spacing } from '@scality/core-ui';
-import { Table } from '@scality/core-ui/dist/next';
+import { Box, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import type { CellProps, CoreUIColumn } from 'react-table';
 import { useListLocationsForCurrentAccount } from '../next-architecture/domain/business/locations';
@@ -33,6 +33,7 @@ export function AccountLocations() {
       },
       { flex: '0.5', paddingRight: spacing.r16 },
     );
+    const dataUsedColumnDroppable = { ...dataUsedColumn, dropAt: 620 };
     const columns: CoreUIColumn<Location>[] = [
       {
         Header: 'Location Name',
@@ -75,12 +76,13 @@ export function AccountLocations() {
         ),
         //@ts-expect-error fix this when you are working on it
         accessor: 'details.bucketName',
+        dropAt: 780,
         cellStyle: {
           textAlign: 'left',
           flex: '0.5',
         },
       },
-      dataUsedColumn,
+      dataUsedColumnDroppable,
     ];
 
     return columns;
@@ -96,24 +98,27 @@ export function AccountLocations() {
   }
 
   return (
-    <Table
-      columns={columns}
-      data={data}
-      defaultSortingKey={'name'}
-      entityName={{ en: { singular: 'location', plural: 'locations' } }}
-      status={locations.status}
-    >
-      <TableHeaderWrapper search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />} />
+    <Box container display="flex" flexDirection="column" flex="1">
+      <Table
+        columns={columns}
+        data={data}
+        defaultSortingKey={'name'}
+        entityName={{ en: { singular: 'location', plural: 'locations' } }}
+        status={locations.status}
+        revealDroppedColumns
+      >
+        <TableHeaderWrapper search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />} />
 
-      <Table.SingleSelectableContent
-        id="singleTable"
-        rowHeight="h40"
-        separationLineVariant="backgroundLevel1"
-        //@ts-expect-error fix this when you are working on it
-        customItemKey={(index: number, data: Array<Location>) => data[index].name}
-        //@ts-expect-error fix this when you are working on it
-        key={(index: number, data: Array<Location>) => data[index].name}
-      ></Table.SingleSelectableContent>
-    </Table>
+        <Table.SingleSelectableContent
+          id="singleTable"
+          rowHeight="h40"
+          separationLineVariant="backgroundLevel1"
+          //@ts-expect-error fix this when you are working on it
+          customItemKey={(index: number, data: Array<Location>) => data[index].name}
+          //@ts-expect-error fix this when you are working on it
+          key={(index: number, data: Array<Location>) => data[index].name}
+        ></Table.SingleSelectableContent>
+      </Table>
+    </Box>
   );
 }
