@@ -65,7 +65,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
       },
       { minWidth: '7rem' },
     );
-    const additionalStorageManagerColumns = [dataUsedColumn];
+    const additionalStorageManagerColumns = [{ ...dataUsedColumn, dropAt: 500 }];
 
     return [
       {
@@ -79,6 +79,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
       {
         Header: 'Created On',
         accessor: 'creationDate',
+        dropAt: 620,
         cellStyle: {
           textAlign: 'right',
           minWidth: '20ch',
@@ -97,6 +98,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         columns={columns}
         data={accounts}
         defaultSortingKey={'creationDate'}
+        revealDroppedColumns
         entityName={{
           en: {
             singular: 'account',

@@ -33,6 +33,7 @@ export function AccountLocations() {
       },
       { flex: '0.5', paddingRight: spacing.r16 },
     );
+    const dataUsedColumnDroppable = { ...dataUsedColumn, dropAt: 620 };
     const columns: CoreUIColumn<Location>[] = [
       {
         Header: 'Location Name',
@@ -75,12 +76,13 @@ export function AccountLocations() {
         ),
         //@ts-expect-error fix this when you are working on it
         accessor: 'details.bucketName',
+        dropAt: 780,
         cellStyle: {
           textAlign: 'left',
           flex: '0.5',
         },
       },
-      dataUsedColumn,
+      dataUsedColumnDroppable,
     ];
 
     return columns;
@@ -103,6 +105,7 @@ export function AccountLocations() {
         defaultSortingKey={'name'}
         entityName={{ en: { singular: 'location', plural: 'locations' } }}
         status={locations.status}
+        revealDroppedColumns
       >
         <TableHeaderWrapper search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />} />
 
