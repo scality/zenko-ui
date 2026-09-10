@@ -81,8 +81,12 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         accessor: 'creationDate',
         dropAt: 620,
         cellStyle: {
+          // Fits the 19 characters of `date-time-second`. Not `ch`: the table applies one
+          // cellStyle to both the header and the body cells, and the header row is bold, so
+          // a `ch` floor resolves ~12px wider there than in the cells and the two rows stop
+          // agreeing on the column's width.
+          minWidth: '10rem',
           textAlign: 'right',
-          minWidth: '20ch',
         },
         Cell: ({ value }: CellProps<Account, Date>) => (
           <FormattedDateTime format="date-time-second" value={new Date(value)} />
