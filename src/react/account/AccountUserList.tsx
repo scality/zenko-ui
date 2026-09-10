@@ -125,7 +125,7 @@ const ActionButtons = ({ rowValues, accountName }: { rowValues: InternalUser; ac
     <Box gap={spacing.r12} alignSelf="flex-end" display="flex" alignItems="center">
       <AttachButton userName={userName} accountName={accountName || ''} />
       <EditButton userName={userName} />
-      <CopyButton textToCopy={arn} label="ARN" variant="outline" size="inline" />
+      <CopyButton textToCopy={arn} label="ARN" variant="outline" size="inline" iconOnly={760} />
       <DeleteUserAction userName={userName} accountName={accountName} />
     </Box>
   );

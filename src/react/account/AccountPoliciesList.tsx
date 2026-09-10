@@ -135,6 +135,7 @@ const ActionButtons = ({ rowValues, accountName }: { rowValues: InternalPolicy; 
         textToCopy={policyArn}
         label="ARN"
         variant="outline"
+        iconOnly={760}
         aria-label={`Copy ARN ${policyName}`}
       />
       <DeletePolicyAction
