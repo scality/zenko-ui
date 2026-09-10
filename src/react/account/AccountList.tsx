@@ -1,5 +1,5 @@
 import { ConstrainedText, FormattedDateTime, Icon, Link, Stack } from '@scality/core-ui';
-import { Button, Table } from '@scality/core-ui/dist/next';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useMemo } from 'react';
 import type { CellProps, CoreUIColumn } from 'react-table';
@@ -65,7 +65,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
       },
       { minWidth: '7rem' },
     );
-    const additionalStorageManagerColumns = [dataUsedColumn];
+    const additionalStorageManagerColumns = [{ ...dataUsedColumn, dropAt: 500 }];
 
     return [
       {
@@ -79,9 +79,14 @@ function AccountList({ accounts }: { accounts: Account[] }) {
       {
         Header: 'Created On',
         accessor: 'creationDate',
+        dropAt: 620,
         cellStyle: {
+          // Fits the 19 characters of `date-time-second`. Not `ch`: the table applies one
+          // cellStyle to both the header and the body cells, and the header row is bold, so
+          // a `ch` floor resolves ~12px wider there than in the cells and the two rows stop
+          // agreeing on the column's width.
+          minWidth: '10rem',
           textAlign: 'right',
-          minWidth: '20ch',
         },
         Cell: ({ value }: CellProps<Account, Date>) => (
           <FormattedDateTime format="date-time-second" value={new Date(value)} />
@@ -92,17 +97,12 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   }, [nameCell]);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1,
-      }}
-    >
+    <Box container display="flex" flexDirection="column" flex="1">
       <Table
         columns={columns}
         data={accounts}
         defaultSortingKey={'creationDate'}
+        revealDroppedColumns
         entityName={{
           en: {
             singular: 'account',
@@ -121,6 +121,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
                   icon={<Icon name="Create-add" />}
                   label="Create Account"
                   variant="primary"
+                  iconOnly={760}
                   onClick={() => navigate('/create-account')}
                   type="submit"
                 ></Button>
@@ -130,7 +131,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         />
         <Table.SingleSelectableContent rowHeight="h40" separationLineVariant="backgroundLevel1" />
       </Table>
-    </div>
+    </Box>
   );
 }
 

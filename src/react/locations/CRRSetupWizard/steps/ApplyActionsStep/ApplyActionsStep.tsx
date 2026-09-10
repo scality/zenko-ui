@@ -316,7 +316,7 @@ export const ApplyActionsStep = (props: Props) => {
 
   if (!body) {
     return (
-      <Form layout={{ title, kind: 'page' }} style={{ width: '50rem' }}>
+      <Form layout={{ title, kind: 'page' }} style={{ maxWidth: '50rem', width: '100%' }} responsive>
         <Text>Please complete the previous step before running the setup.</Text>
       </Form>
     );
@@ -341,7 +341,8 @@ export const ApplyActionsStep = (props: Props) => {
           />
         </Stack>
       }
-      style={{ width: '50rem' }}
+      style={{ maxWidth: '50rem', width: '100%' }}
+      responsive
     >
       {Slots}
       {stepViews.some((view) => view.id === 'create-location' && view.active) && (

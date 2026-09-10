@@ -210,6 +210,7 @@ export function LocationsList() {
       },
       { flex: '0.4' },
     );
+    const dataUsedColumnDroppable = { ...dataUsedColumn, dropAt: 780 };
 
     const columns: CoreUIColumn<Location>[] = [
       {
@@ -252,13 +253,14 @@ export function LocationsList() {
         ),
         //@ts-expect-error fix this when you are working on it
         accessor: 'details.bucketName',
+        dropAt: 900,
         cellStyle: {
           textAlign: 'left',
           flex: '0.3',
           width: 'unset',
         },
       },
-      dataUsedColumn,
+      dataUsedColumnDroppable,
     ];
 
     columns.push({
@@ -281,6 +283,7 @@ export function LocationsList() {
       ),
       accessor: 'id',
       disableSortBy: true,
+      dropAt: 660,
       cellStyle: {
         textAlign: 'left',
         flex: '0.5',
@@ -327,12 +330,13 @@ export function LocationsList() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
+    <Box container display="flex" flexDirection="column" flex="1" id="location-list">
       <Table
         columns={columns}
         status={locations.status}
         data={data}
         defaultSortingKey={'name'}
+        revealDroppedColumns
         entityName={{
           en: {
             singular: 'location',
@@ -355,6 +359,7 @@ export function LocationsList() {
                 icon={<Icon name="Create-add" />}
                 label="Create Location"
                 variant="primary"
+                iconOnly={760}
                 onClick={() => navigate('/create-location')}
                 type="submit"
               />

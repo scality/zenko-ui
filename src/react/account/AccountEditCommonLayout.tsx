@@ -73,6 +73,7 @@ export const CommonPolicyLayout = ({
           </Stack>
         )
       }
+      responsive
     >
       <FormSection>
         <FormGroup

@@ -104,7 +104,7 @@ function EndpointList({ endpoints, locations }: Props) {
   );
 
   return (
-    <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
+    <Box container display="flex" flexDirection="column" flex="1" id="endpoint-list">
       <Table
         //@ts-expect-error fix this when you are working on it
         columns={columns}
@@ -133,6 +133,7 @@ function EndpointList({ endpoints, locations }: Props) {
                 }}
                 label="Create Data Service"
                 variant="primary"
+                iconOnly={760}
                 onClick={() => navigate('/create-dataservice')}
                 type="submit"
               />
