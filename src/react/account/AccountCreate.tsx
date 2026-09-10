@@ -112,6 +112,7 @@ function AccountCreate() {
           </Banner>
         )
       }
+      responsive
     >
       <FormSection>
         <FormGroup

@@ -109,6 +109,7 @@ const ImportCertificate = () => {
             />
           </Stack>
         }
+        responsive
       >
         <Stack direction="vertical" gap="r16" style={{ width: 'min-content' }}>
           <Stack direction="vertical" gap="r8">

@@ -150,6 +150,7 @@ function EndpointCreate() {
           ) : null}
         </Stack>
       }
+      responsive
     >
       <FormSection>
         <FormGroup

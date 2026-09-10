@@ -126,6 +126,7 @@ const AccountUpdateUser = () => {
           </Banner>
         )
       }
+      responsive
     >
       <FormSection>
         <FormGroup

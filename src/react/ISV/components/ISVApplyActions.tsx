@@ -111,7 +111,8 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
             />
           </Stack>
         }
-        style={{ width: '50rem' }}
+        style={{ maxWidth: '50rem', width: '100%' }}
+        responsive
       >
         <Stack gap="r16" direction="vertical">
           <div ref={scrollContainerRef} style={{ height: '32rem', overflow: 'auto' }}>
