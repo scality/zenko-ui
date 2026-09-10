@@ -97,6 +97,7 @@ const EditButton = ({ userName }: { userName: string }) => {
       variant="secondary"
       label="Edit"
       icon={<Icon name="Pen" color="textSecondary" />}
+      iconOnly={760}
       onClick={() => navigate(`/accounts/${currentAccount.account.Name}/users/${userName}/update-user`)}
     />
   );
@@ -110,6 +111,7 @@ const AttachButton = ({ userName, accountName }: { userName: string; accountName
       variant="secondary"
       label="Attach"
       icon={<Icon name="Link" />}
+      iconOnly={760}
       type="button"
       onClick={() => navigate(`/accounts/${accountName}/users/${userName}/attachments`)}
       aria-label={`Attach ${userName}`}
@@ -289,7 +291,9 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'actions',
       cellStyle: {
         textAlign: 'right',
-        width: '24rem',
+        width: 'unset',
+        flex: 'none',
+        minWidth: '16rem',
         marginRight: spacing.r12,
       },
       disableSortBy: true,
@@ -308,6 +312,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
           icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create User"
           variant="primary"
+          iconOnly={760}
           onClick={() => navigate(`/accounts/${accountName}/create-user`)}
           type="submit"
         />

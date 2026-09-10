@@ -44,10 +44,10 @@ const EditButton = ({
       {isEditPolicyDisabled && (
         <Button
           size="inline"
-          style={{ width: '5rem' }}
           variant="secondary"
           label="View"
           icon={<Icon name="Eye" />}
+          iconOnly={760}
           onClick={() =>
             navigate(
               `/accounts/${accountName}/policies/${encodeURIComponent(policyArn)}/${defaultVersionId}/update-policy`,
@@ -70,7 +70,7 @@ const EditButton = ({
       {!isEditPolicyDisabled && (
         <Button
           size="inline"
-          style={{ width: '5rem' }}
+          iconOnly={760}
           disabled={
             status === 'idle' || status === 'loading' || status === 'error' || !data || !isLatestVersionTheDefaultOne
           }
@@ -111,6 +111,7 @@ const AttachButton = ({
       variant="secondary"
       label="Attach"
       icon={<Icon name="Link" />}
+      iconOnly={760}
       onClick={() => navigate(`/accounts/${accountName}/policies/${encodeURIComponent(policyArn)}/attachments`)}
       aria-label={`Attach ${policyName}`}
     />
@@ -352,7 +353,9 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        minWidth: '25rem',
+        width: 'unset',
+        flex: 'none',
+        minWidth: '16rem',
         paddingRight: spacing.r12,
       },
       disableSortBy: true,
@@ -369,6 +372,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
           icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create Policy"
           variant="primary"
+          iconOnly={760}
           onClick={() => navigate('/create-policy')}
           type="submit"
         />
