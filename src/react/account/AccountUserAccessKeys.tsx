@@ -173,6 +173,7 @@ const AccountUserAccessKeys = () => {
     {
       Header: 'Created On',
       accessor: 'createdOn',
+      dropAt: 700,
       Cell: (value) => CreatedOnCell(value.row.original),
       cellStyle: {
         minWidth: '10rem',
@@ -271,6 +272,7 @@ const AccountUserAccessKeys = () => {
             data={data}
             defaultSortingKey={'health'}
             status={accessKeysStatus}
+            revealDroppedColumns
             entityName={{
               en: {
                 singular: 'access key',

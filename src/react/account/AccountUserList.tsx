@@ -261,6 +261,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     {
       Header: 'Access Keys',
       accessor: 'accessKeys',
+      dropAt: 600,
       cellStyle: {
         width: 'unset',
         textAlign: 'right',
@@ -272,6 +273,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     {
       Header: 'Created On',
       accessor: 'createdOn',
+      dropAt: 760,
       cellStyle: {
         width: 'unset',
         textAlign: 'right',

@@ -313,6 +313,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
     {
       Header: 'Policy Path',
       accessor: 'policyPath',
+      dropAt: 860,
       cellStyle: {
         flex: 0.5,
         minWidth: '5rem',
@@ -322,6 +323,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
     {
       Header: 'Last Modified',
       accessor: 'modifiedOn',
+      dropAt: 740,
       cellStyle: {
         width: 'unset',
         textAlign: 'right',
@@ -338,6 +340,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
     {
       Header: 'Attachments',
       accessor: 'attachments',
+      dropAt: 640,
       cellStyle: {
         width: 'unset',
         textAlign: 'right',
