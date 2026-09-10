@@ -278,6 +278,7 @@ export const DefaultISVSummary = ({
       }}
       requireMode="all"
       rightActions={<Button variant="primary" type="button" label="Finish" onClick={onFinish} />}
+      responsive
     >
       <Text isEmphazed>
         Your ARTESCA is now configured and ready to integrate with {platform.name}. <br />

@@ -50,6 +50,7 @@ export const SummaryStep = ({
       layout={{ title: 'Summary', kind: 'page' }}
       requireMode="all"
       rightActions={<Button variant="primary" type="button" label="Finish" onClick={onFinish} />}
+      responsive
     >
       <Text isEmphazed>{intro}</Text>
       <FormSection title={{ name: 'Details' }}>

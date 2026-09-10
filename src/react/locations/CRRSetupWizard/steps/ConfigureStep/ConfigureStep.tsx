@@ -124,6 +124,7 @@ export const ConfigureStep = () => {
             />
           </Stack>
         }
+        responsive
       >
         <InfoMessage
           title="Cross-Region location"

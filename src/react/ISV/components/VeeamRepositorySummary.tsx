@@ -21,6 +21,7 @@ export const VeeamRepositorySummary = ({ formData, onFinish }: VeeamRepositorySu
         kind: 'page',
       }}
       rightActions={<Button type="button" variant="primary" onClick={onFinish} label="Exit" />}
+      responsive
     >
       <Text isEmphazed>
         {buckets.length === 1

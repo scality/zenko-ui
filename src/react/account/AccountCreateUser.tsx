@@ -99,6 +99,7 @@ const AccountCreateUser = () => {
           </Banner>
         )
       }
+      responsive
     >
       <FormSection>
         <FormGroup

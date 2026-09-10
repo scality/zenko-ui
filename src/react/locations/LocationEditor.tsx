@@ -259,6 +259,7 @@ function LocationEditor() {
 
   return (
     <StyledForm
+      responsive
       layout={{
         kind: 'page',
         title: `${locationEditing ? 'Edit' : 'Add New'} Storage Location`,
