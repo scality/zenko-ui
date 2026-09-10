@@ -73,7 +73,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
   })();
 
   return (
-    <Box height="100%">
+    <Box height="100%" container>
       <Table
         //@ts-expect-error fix this when you are working on it
         columns={columns}
