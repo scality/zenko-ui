@@ -175,7 +175,7 @@ const SelectAccountIAMRoleWithAccount = (props: SelectAccountIAMRoleWithAccountP
   const isRolesLoading = roleQueryData.isLoading || !assumedRoleAccountMatchSelectedAccount;
 
   return (
-    <Form layout={{ kind: 'tab' }}>
+    <Form layout={{ kind: 'tab' }} responsive>
       <FormSection>
         <FormGroup
           label="Account"
