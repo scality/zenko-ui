@@ -303,7 +303,7 @@ const Truststore = () => {
             setSelectedCertificate(null);
           }}
         />
-        <Box width="100%">
+        <Box container width="100%">
           <Table
             columns={columns}
             status={status}

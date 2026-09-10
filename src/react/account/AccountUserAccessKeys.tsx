@@ -265,36 +265,38 @@ const AccountUserAccessKeys = () => {
       </AppContainer.OverallSummary>
 
       <AppContainer.MainContent background="backgroundLevel3">
-        <Table
-          columns={columns as unknown as Column[]}
-          data={data}
-          defaultSortingKey={'health'}
-          status={accessKeysStatus}
-          entityName={{
-            en: {
-              singular: 'access key',
-              plural: 'access keys',
-            },
-          }}
-        >
-          <TableHeaderWrapper
-            actions={
-              <Button
-                icon={<Icon name="Create-add" />}
-                label="Create Access Keys"
-                variant="primary"
-                onClick={() =>
-                  navigate(`/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`)
-                }
-                type="submit"
-              />
-            }
-          />
-          <Table.SingleSelectableContent
-            rowHeight="h40"
-            separationLineVariant="backgroundLevel1"
-          ></Table.SingleSelectableContent>
-        </Table>
+        <Box container display="flex" flexDirection="column" flex="1">
+          <Table
+            columns={columns as unknown as Column[]}
+            data={data}
+            defaultSortingKey={'health'}
+            status={accessKeysStatus}
+            entityName={{
+              en: {
+                singular: 'access key',
+                plural: 'access keys',
+              },
+            }}
+          >
+            <TableHeaderWrapper
+              actions={
+                <Button
+                  icon={<Icon name="Create-add" />}
+                  label="Create Access Keys"
+                  variant="primary"
+                  onClick={() =>
+                    navigate(`/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`)
+                  }
+                  type="submit"
+                />
+              }
+            />
+            <Table.SingleSelectableContent
+              rowHeight="h40"
+              separationLineVariant="backgroundLevel1"
+            ></Table.SingleSelectableContent>
+          </Table>
+        </Box>
       </AppContainer.MainContent>
       <Routes>
         <Route path={`create`} element={<AccountUserSecretKeyModal IAMUserName={IAMUserName} />} />
