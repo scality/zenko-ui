@@ -245,6 +245,7 @@ const Truststore = () => {
               label="View Details"
               variant="outline"
               icon={<Icon name="Eye" />}
+              iconOnly={760}
               onClick={() => {
                 setSelectedCertificate(row.original.certificates);
                 setIsCertificateDetailsModalOpen(true);
@@ -254,6 +255,7 @@ const Truststore = () => {
               label="Delete"
               variant="danger"
               icon={<Icon name="Delete" />}
+              iconOnly={760}
               aria-label="Delete Certificate"
               onClick={() => handleDeleteClick(row.original)}
             />
@@ -329,6 +331,7 @@ const Truststore = () => {
                   label="Import Certificate"
                   icon={<Icon name="Upload" />}
                   variant="primary"
+                  iconOnly={760}
                   onClick={() => {
                     navigate('/truststore/import-certificate');
                   }}

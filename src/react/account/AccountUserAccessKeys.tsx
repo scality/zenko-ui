@@ -286,6 +286,7 @@ const AccountUserAccessKeys = () => {
                   icon={<Icon name="Create-add" />}
                   label="Create Access Keys"
                   variant="primary"
+                  iconOnly={760}
                   onClick={() =>
                     navigate(`/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`)
                   }

@@ -117,6 +117,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
                   icon={<Icon name="Create-add" />}
                   label="Create Account"
                   variant="primary"
+                  iconOnly={760}
                   onClick={() => navigate('/create-account')}
                   type="submit"
                 ></Button>
