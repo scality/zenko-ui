@@ -12,8 +12,6 @@ import { STORAGE_USAGE_CONSUMER_ROLE } from '../../utils/hooks';
 const STORAGE_MANAGER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
 const STORAGE_USAGE_CONSUMER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-usage-consumer-role';
 const CUSTOM_ROLE_ARN = 'arn:aws:iam::000000000000:role/my-custom-role';
-const ANOTHER_ACCOUNT_STORAGE_MANAGER_ARN =
-  'arn:aws:iam::111111111111:role/scality-internal/storage-manager-role';
 const ANOTHER_ACCOUNT_STORAGE_USAGE_CONSUMER_ARN =
   'arn:aws:iam::111111111111:role/scality-internal/storage-usage-consumer-role';
 
@@ -108,18 +106,12 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
     {
       Name: 'current-account',
       id: '000000000000',
-      Roles: [
-        { Name: 'storage-manager-role', Arn: STORAGE_MANAGER_ARN },
-        { Name: 'storage-usage-consumer-role', Arn: STORAGE_USAGE_CONSUMER_ARN },
-      ],
+      Roles: [{ Name: 'storage-manager-role', Arn: STORAGE_MANAGER_ARN }],
     },
     {
       Name: 'another-account',
       id: '111111111111',
-      Roles: [
-        { Name: 'storage-manager-role', Arn: ANOTHER_ACCOUNT_STORAGE_MANAGER_ARN },
-        { Name: 'storage-usage-consumer-role', Arn: ANOTHER_ACCOUNT_STORAGE_USAGE_CONSUMER_ARN },
-      ],
+      Roles: [{ Name: 'storage-manager-role', Arn: STORAGE_MANAGER_ARN.replace('000000000000', '111111111111') }],
     },
   ];
 
@@ -194,8 +186,19 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
   });
 
   it('falls back to /accounts/{assumedAccount}/buckets when STORAGE_USAGE_CONSUMER_ROLE is selected from a non-buckets account route', async () => {
+    const accountsWithConsumerOnlyRole = [
+      accounts[0],
+      {
+        Name: 'another-account',
+        id: '111111111111',
+        Roles: [
+          { Name: 'storage-usage-consumer-role', Arn: ANOTHER_ACCOUNT_STORAGE_USAGE_CONSUMER_ARN },
+        ],
+      },
+    ];
+
     await renderOpenModalOnRoute(
-      accounts,
+      accountsWithConsumerOnlyRole,
       '/accounts/current-account/properties',
     );
 
