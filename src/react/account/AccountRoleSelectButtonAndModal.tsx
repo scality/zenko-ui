@@ -157,6 +157,8 @@ export function AccountRoleSelectButtonAndModal({
     setIsModalOpen(false);
   };
 
+  const assumedRoleName = regexArn.exec(assumedRoleArn)?.groups?.name;
+
   return (
     <>
       <AccountSelectorButton
@@ -187,13 +189,14 @@ export function AccountRoleSelectButtonAndModal({
             roleArn={roleArn}
             assumedAccount={assumedAccount}
             assumedRoleArn={assumedRoleArn}
+            assumedRoleName={assumedRoleName}
           />
         }
         isOpen={isModalOpen}
         title="Select Account and Role to assume"
       >
         <ModalBody>
-          {regexArn.exec(assumedRoleArn)?.groups?.name === STORAGE_USAGE_CONSUMER_ROLE && (
+          {assumedRoleName === STORAGE_USAGE_CONSUMER_ROLE && (
             <Box mb={24}>
               <Banner variant="warning" withDefaultIcon>
                 Data Browser unavailable for this role
@@ -237,14 +240,13 @@ export function getPostAccountSwitchPath(pathname: string, assumedAccount: strin
   return subRoute ? `/accounts/${assumedAccount}/${subRoute}` : bucketListPath;
 }
 
-const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount }) => {
+const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount, assumedRoleName }) => {
   const setRole = useSetAssumedRolePromise();
   const navigateWithBasename = useBasenameRelativeNavigate();
   const location = useLocation();
 
-  const handleAccountClick = () => {
-    const assumedRoleName = regexArn.exec(assumedRoleArn)?.groups?.name;
-    navigateWithBasename(getPostAccountSwitchPath(location.pathname, assumedAccount, assumedRoleName));
+  const handleAccountClick = (pathname: string) => {
+    navigateWithBasename(getPostAccountSwitchPath(pathname, assumedAccount, assumedRoleName));
   };
 
   return (
@@ -257,7 +259,7 @@ const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount }) =
           variant="primary"
           onClick={() => {
             setRole({ roleArn: assumedRoleArn });
-            handleAccountClick();
+            handleAccountClick(location.pathname);
             handleClose();
           }}
           label="Continue"
