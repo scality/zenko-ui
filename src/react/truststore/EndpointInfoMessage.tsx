@@ -12,7 +12,7 @@ export const EndpointInfoMessage = ({ hasMargin }: { hasMargin?: boolean }) => {
     <Box
       style={{
         // Label width + padding + Input width
-        width: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH}px)`,
+        width: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH})`,
         marginBottom: hasMargin ? spacing.r16 : 0,
       }}
     >

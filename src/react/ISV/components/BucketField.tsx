@@ -211,7 +211,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
   const renderBucketNameFormSection = useMemo(() => {
     if (fields.length === 1) {
       return (
-        <FormSection forceLabelWidth={280}>
+        <FormSection forceLabelWidth="19rem">
           <BucketNameFormGroup
             index={0}
             errors={errors}
@@ -225,7 +225,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
       );
     } else if (fields.length > 1) {
       return fields.map((field, index) => (
-        <FormSection forceLabelWidth={262} key={field.id}>
+        <FormSection forceLabelWidth="18rem" key={field.id}>
           <BucketContainer>
             <BucketNameFormGroup
               index={index}
@@ -251,7 +251,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
 
   return (
     <>
-      <FormSection forceLabelWidth={280}>
+      <FormSection forceLabelWidth="19rem">
         <FormGroup
           id="bucketNumber"
           label="Number of buckets"

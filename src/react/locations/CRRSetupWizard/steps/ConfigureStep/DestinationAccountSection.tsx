@@ -55,7 +55,7 @@ export const DestinationAccountSection = ({ isConnected, endpoints, resolveStatu
   const nameError = touchedFields.destinationAccountName ? errors.destinationAccountName?.message : undefined;
 
   return (
-    <FormSection forceLabelWidth={280} title={{ name: 'Destination site' }}>
+    <FormSection forceLabelWidth="19rem" title={{ name: 'Destination site' }}>
       <FormGroup
         id="selectedEndpoint"
         direction="horizontal"

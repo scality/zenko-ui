@@ -37,7 +37,11 @@ const StyledForm = styled(Form)`
 // Form constants
 export const ACCESS_KEY_PLACEHOLDER = 'AKI5HMPCLRB86WCKTN2C';
 export const SECRET_KEY_PLACEHOLDER = 'QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6';
-export const LOCATION_EDITOR_FORCED_LABEL_WIDTH = 280;
+/* A string, so FormSection caps the label column in rem: a number is emitted as literal px
+   and cannot grow with the text, while the shell's root font size is viewport-dependent
+   (14px at 1268, 18.56px at 1920), so a px cap makes every label wrap on a wide screen.
+   19rem is the 280px this replaces, taken at the 14.72px root of a 1440px viewport. */
+export const LOCATION_EDITOR_FORCED_LABEL_WIDTH = '19rem';
 
 /** Endpoint field tooltip for S3 / Amazon Glacier S3 (path-style access). */
 export const S3_ENDPOINT_PATH_STYLE_TOOLTIP =

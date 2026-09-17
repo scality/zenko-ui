@@ -96,7 +96,7 @@ const ISVConfigurationInner = ({ formMethods }: ISVConfigurationInnerProps) => {
         }
         responsive
       >
-        <FormSection forceLabelWidth={280}>
+        <FormSection forceLabelWidth="19rem">
           {platform.description && <Box style={{ paddingBottom: '1rem' }}>{platform.description}</Box>}
 
           <FormRenderer fields={platform.fields} formMethods={formMethods} context={{ platform: platform.id }} />

@@ -38,7 +38,7 @@ export const DestinationConnectionSection = ({ isConnecting, onConnect, isConnec
   const connectionValid = CONNECTION_FIELDS.every((field) => Boolean(values[field]) && !errors[field]);
 
   return (
-    <FormSection forceLabelWidth={280} title={{ name: 'Destination Connection' }}>
+    <FormSection forceLabelWidth="19rem" title={{ name: 'Destination Connection' }}>
       <ConnectionBox>
         <FormGroup
           id="baseDomain"

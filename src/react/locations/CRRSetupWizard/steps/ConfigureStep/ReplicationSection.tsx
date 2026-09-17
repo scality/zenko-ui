@@ -23,7 +23,7 @@ export const ReplicationSection = () => {
   }, [enabled]);
 
   return (
-    <FormSection forceLabelWidth={280} title={{ name: 'Replication' }}>
+    <FormSection forceLabelWidth="19rem" title={{ name: 'Replication' }}>
       <FormGroup
         id="createReplicationRule"
         direction="horizontal"

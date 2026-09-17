@@ -39,7 +39,7 @@ export const IAMUserSelectorField = ({ field, formMethods }: IAMUserSelectorFiel
   return (
     <div style={{ position: 'relative', bottom: spacing.f8 }}>
       <Accordion title="Advanced settings" id="advanced-settings" open={isAccordionExpanded} isEmphazed={false}>
-        <FormSection forceLabelWidth={264}>
+        <FormSection forceLabelWidth="18rem">
           <CreateOrSelectNameField
             status={iamUsersStatus}
             options={iamUsers}

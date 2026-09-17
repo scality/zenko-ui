@@ -57,7 +57,7 @@ type InternalSectionProps = SectionRenderProps & {
 };
 
 const ConnectionInfoSection = ({ s3ServicePoint, serviceEndpointLabel }: InternalSectionProps) => (
-  <FormSection forceLabelWidth={150}>
+  <FormSection forceLabelWidth="10rem">
     <FormGroup
       id="service-endpoint"
       label={serviceEndpointLabel}
@@ -92,7 +92,7 @@ const CredentialsSection = ({
 }: InternalSectionProps) => {
   if (secretKey) {
     return (
-      <FormSection forceLabelWidth={150} title={{ name: 'Credentials' }}>
+      <FormSection forceLabelWidth="10rem" title={{ name: 'Credentials' }}>
         <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
           The {secretKeyLabel} cannot be retrieved afterwards, so make sure to keep and secure it now. <br />
           You will be able to create new {baseAccessKeyLabel}s at any time.
@@ -133,7 +133,7 @@ const CredentialsSection = ({
           You must use an {baseAccessKeyLabel} and {secretKeyLabel} already created. Here is a list of{' '}
           {baseAccessKeyLabel}s that can be used for this user:
         </Banner>
-        <FormSection forceLabelWidth={150}>
+        <FormSection forceLabelWidth="10rem">
           {accessKeys.map((ak, index) => (
             <FormGroup
               key={ak}
@@ -161,7 +161,7 @@ const BucketsSection = ({ formData, platform }: InternalSectionProps) => {
   return (
     <>
       {platform.summary.bucketBanner && <>{platform.summary.bucketBanner}</>}
-      <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
+      <FormSection title={{ name: 'Buckets' }} forceLabelWidth="10rem">
         {bucketItems.map((bucket, index) => (
           <FormGroup
             key={bucket.name}
@@ -187,7 +187,7 @@ const ImmutabilitySection = ({ formData, immutableSectionInfos, shouldHideImmuta
   }
 
   return (
-    <FormSection title={{ name: 'Option' }} forceLabelWidth={150}>
+    <FormSection title={{ name: 'Option' }} forceLabelWidth="10rem">
       <FormGroup
         id="immutable"
         required

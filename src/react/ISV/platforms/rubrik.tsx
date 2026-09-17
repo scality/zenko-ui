@@ -126,7 +126,7 @@ export const RubrikPlatform = definePlatform({
       {
         id: 'region',
         render: () => (
-          <FormSection forceLabelWidth={150}>
+          <FormSection forceLabelWidth="10rem">
             <FormGroup
               id="region"
               required
@@ -145,7 +145,7 @@ export const RubrikPlatform = definePlatform({
       {
         id: 'serviceEndpoint',
         render: ({ s3ServicePoint }) => (
-          <FormSection forceLabelWidth={150}>
+          <FormSection forceLabelWidth="10rem">
             <FormGroup
               id="service-endpoint"
               label="S3 Endpoint (Host Name in Rubrik)"

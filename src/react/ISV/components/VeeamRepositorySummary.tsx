@@ -30,7 +30,7 @@ export const VeeamRepositorySummary = ({ formData, onFinish }: VeeamRepositorySu
           : `${buckets.length} Veeam repositories were successfully created in the Veeam application.`}
       </Text>
 
-      <FormSection forceLabelWidth={300}>
+      <FormSection forceLabelWidth="20.5rem">
         <>
           {buckets.map((bucket, index) => (
             <FormGroup
