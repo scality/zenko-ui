@@ -3,14 +3,19 @@ jest.unmock('../AccountRoleSelectButtonAndModal');
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mockOffsetSize, renderWithCustomRoute, Wrapper } from '../../utils/testUtil';
-import AccountRoleSelectButtonAndModal from '../AccountRoleSelectButtonAndModal';
+import AccountRoleSelectButtonAndModal, {
+  getPostAccountSwitchPath,
+} from '../AccountRoleSelectButtonAndModal';
 import * as hooks from '../../utils/hooks';
+import { STORAGE_USAGE_CONSUMER_ROLE } from '../../utils/hooks';
 
 const STORAGE_MANAGER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
 const STORAGE_USAGE_CONSUMER_ARN = 'arn:aws:iam::000000000000:role/scality-internal/storage-usage-consumer-role';
 const CUSTOM_ROLE_ARN = 'arn:aws:iam::000000000000:role/my-custom-role';
 const ANOTHER_ACCOUNT_STORAGE_MANAGER_ARN =
   'arn:aws:iam::111111111111:role/scality-internal/storage-manager-role';
+const ANOTHER_ACCOUNT_STORAGE_USAGE_CONSUMER_ARN =
+  'arn:aws:iam::111111111111:role/scality-internal/storage-usage-consumer-role';
 
 const mockNavigate = jest.fn();
 
@@ -103,12 +108,18 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
     {
       Name: 'current-account',
       id: '000000000000',
-      Roles: [{ Name: 'storage-manager-role', Arn: STORAGE_MANAGER_ARN }],
+      Roles: [
+        { Name: 'storage-manager-role', Arn: STORAGE_MANAGER_ARN },
+        { Name: 'storage-usage-consumer-role', Arn: STORAGE_USAGE_CONSUMER_ARN },
+      ],
     },
     {
       Name: 'another-account',
       id: '111111111111',
-      Roles: [{ Name: 'storage-manager-role', Arn: ANOTHER_ACCOUNT_STORAGE_MANAGER_ARN }],
+      Roles: [
+        { Name: 'storage-manager-role', Arn: ANOTHER_ACCOUNT_STORAGE_MANAGER_ARN },
+        { Name: 'storage-usage-consumer-role', Arn: ANOTHER_ACCOUNT_STORAGE_USAGE_CONSUMER_ARN },
+      ],
     },
   ];
 
@@ -152,5 +163,96 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
     await userEvent.click(continueButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/accounts/another-account/buckets');
+  });
+
+  it('preserves the sub-route when navigating from /accounts/current-account/properties', async () => {
+    await renderOpenModalOnRoute(
+      accounts,
+      '/accounts/current-account/properties',
+    );
+
+    await userEvent.click(await screen.findByText('another-account'));
+
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    await userEvent.click(continueButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/accounts/another-account/properties');
+  });
+
+  it('collapses a deep bucket/object route to the bucket list', async () => {
+    await renderOpenModalOnRoute(
+      accounts,
+      '/accounts/current-account/buckets/some-bucket/objects',
+    );
+
+    await userEvent.click(await screen.findByText('another-account'));
+
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    await userEvent.click(continueButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/accounts/another-account/buckets');
+  });
+
+  it('falls back to /accounts/{assumedAccount}/buckets when STORAGE_USAGE_CONSUMER_ROLE is selected from a non-buckets account route', async () => {
+    await renderOpenModalOnRoute(
+      accounts,
+      '/accounts/current-account/properties',
+    );
+
+    await userEvent.click(await screen.findByText('another-account'));
+    await userEvent.click(await screen.findByText('storage-usage-consumer-role'));
+
+    const continueButton = screen.getByRole('button', { name: /Continue/i });
+    await userEvent.click(continueButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/accounts/another-account/buckets');
+  });
+});
+
+describe('getPostAccountSwitchPath', () => {
+  it('falls back to the bucket list for a param-less route', () => {
+    expect(getPostAccountSwitchPath('/workflows', 'another-account')).toBe(
+      '/accounts/another-account/buckets',
+    );
+  });
+
+  it('preserves the sub-route for a route with an :accountName param', () => {
+    expect(getPostAccountSwitchPath('/accounts/current-account/properties', 'another-account')).toBe(
+      '/accounts/another-account/properties',
+    );
+  });
+
+  it('collapses a deep buckets route to the bucket list', () => {
+    expect(
+      getPostAccountSwitchPath(
+        '/accounts/current-account/buckets/some-bucket/objects',
+        'another-account',
+      ),
+    ).toBe('/accounts/another-account/buckets');
+  });
+
+  it('collapses a deep data/buckets route to the bucket list', () => {
+    expect(
+      getPostAccountSwitchPath(
+        '/accounts/current-account/data/buckets/some-bucket/objects',
+        'another-account',
+      ),
+    ).toBe('/accounts/another-account/buckets');
+  });
+
+  it('navigates to the bucket list on the buckets route itself with no deep param', () => {
+    expect(getPostAccountSwitchPath('/accounts/current-account/buckets', 'another-account')).toBe(
+      '/accounts/another-account/buckets',
+    );
+  });
+
+  it('falls back to /accounts/{assumedAccount}/buckets when STORAGE_USAGE_CONSUMER_ROLE is assumed, even from a non-buckets route', () => {
+    expect(
+      getPostAccountSwitchPath(
+        '/accounts/current-account/properties',
+        'another-account',
+        STORAGE_USAGE_CONSUMER_ROLE,
+      ),
+    ).toBe('/accounts/another-account/buckets');
   });
 });
