@@ -1,8 +1,9 @@
-import { FormGroup, FormSection, Icon, Stack, spacing, Text, Wrap } from '@scality/core-ui';
+import { Icon, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
 import { CertificateSection } from '../../../../ui-elements/CertificateSection';
+import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
 import type { ConfigureFormValues } from './schema';
 
 const ConnectionBox = styled.div`

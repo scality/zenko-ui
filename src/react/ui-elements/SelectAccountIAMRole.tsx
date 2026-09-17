@@ -1,4 +1,4 @@
-import { Form, FormGroup, FormSection, ToastProvider, useToast } from '@scality/core-ui';
+import { ToastProvider, useToast } from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
 import type { Bucket } from '@scality/data-browser-library';
 import { ShellHooksProvider } from '@scality/module-federation';
@@ -20,6 +20,7 @@ import {
 import { LocationsEndpointsAdapterProvider } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
 import { regexArn, SCALITY_IAM_ROLES } from '../utils/hooks';
+import { Form, FormGroup, FormSection } from './CoreUIForm';
 
 export class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(buckets: Bucket[]): Promise<Record<string, LatestUsedCapacity>> {

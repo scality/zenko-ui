@@ -1,8 +1,9 @@
-import { FormSection, spacing } from '@scality/core-ui';
+import { spacing } from '@scality/core-ui';
 import type { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { Accordion } from '@scality/core-ui/dist/next';
 import { useEffect, useRef } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
+import { FormSection } from '../../../ui-elements/CoreUIForm';
 import { Checkbox } from '../../../ui-elements/FormLayout';
 import type { FormData, IAMUserSelectorFieldDef } from '../../engine/types';
 import { CreateOrSelectNameField, type Option } from '../CreateOrSelectNameField';

@@ -1,4 +1,4 @@
-import { Banner, Form, FormGroup, FormSection, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
+import { Banner, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -6,6 +6,7 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
+import { Form, FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { HideCredential } from '../../ui-elements/Hide';
 import { noopBasedEventDispatcher, useAccounts, useAuthGroups } from '../../utils/hooks';
 import { VEEAM_OFFICE_365 } from '../constants';

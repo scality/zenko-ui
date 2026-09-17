@@ -1,10 +1,11 @@
-import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
+import { spacing, Text } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type FieldErrors, useFieldArray, useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
 import { useXCoreLibrary, XCORE_NOT_AVAILABLE } from '../../next-architecture/ui/XCoreLibraryProvider';
+import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { unitChoices } from '../constants';
 import { CapacityFormSection, CapacityFormWithXcore } from './ISVCapacityFormSection';
 

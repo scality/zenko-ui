@@ -1,5 +1,5 @@
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Banner, Form, FormGroup, FormSection, Icon, Stack, spacing } from '@scality/core-ui';
+import { Banner, Icon, Stack, spacing } from '@scality/core-ui';
 import { Box, Button, Input, Select } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import Joi from 'joi';
@@ -12,6 +12,7 @@ import { useLocationsAndEndpoints } from '../next-architecture/domain/business/a
 import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE } from '../next-architecture/ui/ArtescaLibraryProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { Form, FormGroup, FormSection } from '../ui-elements/CoreUIForm';
 import { useArtescaPlusVeeamMode } from './hooks';
 
 const BannerMessageList = styled.ul`

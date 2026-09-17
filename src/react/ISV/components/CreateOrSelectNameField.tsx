@@ -1,5 +1,6 @@
-import { FormGroup, Stack } from '@scality/core-ui';
+import { Stack } from '@scality/core-ui';
 import { Controller, useFormContext } from 'react-hook-form';
+import { FormGroup } from '../../ui-elements/CoreUIForm';
 import { RadioGroup } from './RadioGroup';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { Loader } from '@scality/core-ui/dist/components/loader/Loader.component';

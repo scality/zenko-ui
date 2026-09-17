@@ -1,8 +1,8 @@
-import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import type React from 'react';
 import { useState } from 'react';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
+import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
 

@@ -1,7 +1,8 @@
-import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
+import { Checkbox } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import { useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
 import type { ConfigureFormValues } from './schema';
 
 export const ReplicationSection = () => {

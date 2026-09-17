@@ -1,11 +1,12 @@
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Form, FormSection, Icon, Stack } from '@scality/core-ui';
+import { Icon, Stack } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { Fragment, useState } from 'react';
 import { FormProvider, type UseFormReturn, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
+import { Form, FormSection } from '../../ui-elements/CoreUIForm';
 import { DEFAULT_IMMUTABLE_PERIOD_DAYS, VEEAM_OFFICE_365 } from '../constants';
 import { FormData, ISVPlatform } from '../engine/types';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';

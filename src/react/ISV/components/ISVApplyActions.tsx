@@ -1,5 +1,6 @@
-import { Banner, Form, Icon, Stack, Text } from '@scality/core-ui';
+import { Banner, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
+import { Form } from '../../ui-elements/CoreUIForm';
 import Table, * as T from '../../ui-elements/Table';
 import { StatusBox } from '../../ui-elements/status';
 import { Button } from '@scality/core-ui/dist/next';

@@ -1,4 +1,4 @@
-import { Banner, Form, FormGroup, FormSection, Icon, Loader as LoaderCoreUI, Stack } from '@scality/core-ui';
+import { Banner, Icon, Loader as LoaderCoreUI, Stack } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import { type ChangeEvent, type ReactNode, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import type { LocationV1 } from '../../js/managementClient/api';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
+import { Form, FormGroup, FormSection } from '../ui-elements/CoreUIForm';
 import { useCreateLocationMutation } from './hooks/useCreateLocationMutation';
 import type { LocationTypeKey } from '../../types/config';
 import { notFalsyTypeGuard } from '../../types/typeGuards';

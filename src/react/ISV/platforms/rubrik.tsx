@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { FormGroup, FormSection, Stack, Text } from '@scality/core-ui';
+import { Stack, Text } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import styled from 'styled-components';
+import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
 import { DEFAULT_REGION } from '../components/ISVSummary';
 import RubrikLogo from '../components/Modal/Logos/RubrikLogo';

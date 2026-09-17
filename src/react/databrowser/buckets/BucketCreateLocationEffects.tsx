@@ -1,8 +1,9 @@
-import { Checkbox, FormGroup } from '@scality/core-ui';
+import { Checkbox } from '@scality/core-ui';
 import { useEffect, useRef } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { XDM_FEATURE } from '../../../js/config';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { FormGroup } from '../../ui-elements/CoreUIForm';
 import { useWatchedLocation } from './useWatchedLocation';
 
 const helpNonAsyncLocation = 'Selected Storage Location does not support Async Metadata updates.';

@@ -1,5 +1,5 @@
 import { isValidTrustedCACertificate } from '@scality/certchain';
-import { Dropzone, Form, Stack, Text, TextArea, useToast } from '@scality/core-ui';
+import { Dropzone, Stack, Text, TextArea, useToast } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo } from 'react';
@@ -7,6 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { useAddCertificateToZenkoConfigurationMutation } from '../../js/mutations';
 import { getZenkoCRQuery } from '../queries';
+import { Form } from '../ui-elements/CoreUIForm';
 
 const CertificatePlaceholder = `Example: 
 -----BEGIN CERTIFICATE-----

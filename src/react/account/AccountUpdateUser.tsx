@@ -1,5 +1,5 @@
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Banner, Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
+import { Banner, Icon, Stack } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import type { ListUsersResponse } from 'aws-sdk/clients/iam';
 import Joi from 'joi';
@@ -11,6 +11,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useComponentError, useModalError } from '../ErrorProvider';
 import { useIAMClient } from '../IAMProvider';
 import { getListUsersQuery } from '../queries';
+import { Form, FormGroup, FormSection } from '../ui-elements/CoreUIForm';
 import { useOutsideClick } from '../utils/hooks';
 
 const regexpName = /^[\w+=,.@ -]+$/;

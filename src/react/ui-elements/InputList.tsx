@@ -1,6 +1,6 @@
-import { FormGroup } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import type { HTMLProps } from 'react';
+import { FormGroup } from './CoreUIForm';
 import { AddButton, SubButton } from './EditableKeyValue';
 import { Input } from './FormLayout';
 

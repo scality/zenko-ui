@@ -1,6 +1,7 @@
-import { FormGroup, FormSection, Icon, Loader, Stack, Text, Tooltip } from '@scality/core-ui';
+import { Icon, Loader, Stack, Text, Tooltip } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
+import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
 import type { DestinationEndpoint } from '../../api/types';
 import type { ConfigureFormValues } from './schema';
 

@@ -1,10 +1,11 @@
-import { FormGroup, Stack } from '@scality/core-ui';
+import { Stack } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { useShellHooks } from '@scality/module-federation';
 
 import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useXcoreRuntimeConfig } from '../../next-architecture/ui/ConfigProvider';
+import { FormGroup } from '../../ui-elements/CoreUIForm';
 import { unitChoices } from '../constants';
 import { useCapacityUnit } from '../hooks/useCapacityUnit';
 import { CapacityTooltip } from './shared/PlatformTooltips';

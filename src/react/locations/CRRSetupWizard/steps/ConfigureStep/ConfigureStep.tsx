@@ -1,9 +1,10 @@
-import { Form, Icon, InfoMessage, Stack, useToast } from '@scality/core-ui';
+import { Icon, InfoMessage, Stack, useToast } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { Form } from '../../../../ui-elements/CoreUIForm';
 import { ServiceError } from '../../api/crrConfiguratorClient';
 import type { ProblemCode } from '../../api/types';
 import { useCRRConfigurationVerifyMutation } from '../../hooks/useCRRConfigurationVerifyMutation';

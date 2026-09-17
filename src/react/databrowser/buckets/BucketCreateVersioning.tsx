@@ -1,6 +1,7 @@
-import { Checkbox, FormGroup } from '@scality/core-ui';
+import { Checkbox } from '@scality/core-ui';
 import type { BucketCreateVersioningProps } from '@scality/data-browser-library';
 import { useFormContext } from 'react-hook-form';
+import { FormGroup } from '../../ui-elements/CoreUIForm';
 import { useWatchedLocation } from './useWatchedLocation';
 
 export function BucketCreateVersioning({ isVersioning, isObjectLockEnabled }: BucketCreateVersioningProps) {

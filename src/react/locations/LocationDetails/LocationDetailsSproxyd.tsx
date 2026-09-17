@@ -1,7 +1,7 @@
-import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
 import type { LocationDetails } from '../../../types/config';
+import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { InputList } from '../../ui-elements/FormLayout';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 

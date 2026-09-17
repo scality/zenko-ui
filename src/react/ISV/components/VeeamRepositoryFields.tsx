@@ -1,7 +1,8 @@
-import { FormGroup, Stack, Text, Toggle } from '@scality/core-ui';
+import { Stack, Text, Toggle } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import { FormGroup } from '../../ui-elements/CoreUIForm';
 import { MAX_IMMUTABLE_PERIOD_DAYS } from '../constants';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 

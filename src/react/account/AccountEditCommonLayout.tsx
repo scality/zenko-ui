@@ -1,9 +1,10 @@
-import { Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
+import { Icon, Stack } from '@scality/core-ui';
 import { Box, Button, CopyButton, Editor } from '@scality/core-ui/dist/next';
 import type { JSONSchema7 } from 'json-schema';
 import { type JSX, type MouseEvent, type SubmitEvent, useState } from 'react';
 import { type Control, Controller } from 'react-hook-form';
 import policySchema from '../../../policyJsonSchema.json';
+import { Form, FormGroup, FormSection } from '../ui-elements/CoreUIForm';
 
 export const CommonPolicyLayout = ({
   onSubmit,

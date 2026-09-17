@@ -1,5 +1,5 @@
-import { FormSection } from '@scality/core-ui';
 import React from 'react';
+import { FormSection } from '../../ui-elements/CoreUIForm';
 import InputList from '../../ui-elements/InputList';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';

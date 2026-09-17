@@ -1,6 +1,7 @@
-import { Form, FormGroup, FormSection, Text } from '@scality/core-ui';
+import { Text } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { Form, FormGroup, FormSection } from '../../../ui-elements/CoreUIForm';
 import { buildCRRLocationName, buildCRRReplicationRuleId } from './ApplyActionsStep/crrLocation';
 import type { ConfigureFormValues } from './ConfigureStep/schema';
 

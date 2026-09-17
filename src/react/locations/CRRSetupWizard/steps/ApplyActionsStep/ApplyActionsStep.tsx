@@ -1,4 +1,4 @@
-import { Banner, Form, Icon, Loader, Stack, Text } from '@scality/core-ui';
+import { Banner, Icon, Loader, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useCreateBucket, useSetBucketReplication, useSetBucketVersioning } from '@scality/data-browser-library';
@@ -14,6 +14,7 @@ import { useCreateAccountMutation } from '../../../../../js/mutations';
 import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useInstanceId } from '../../../../next-architecture/ui/AuthProvider';
+import { Form } from '../../../../ui-elements/CoreUIForm';
 import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import { ErrorText, StatusBox } from '../../../../ui-elements/status';
 import Table, * as T from '../../../../ui-elements/Table';

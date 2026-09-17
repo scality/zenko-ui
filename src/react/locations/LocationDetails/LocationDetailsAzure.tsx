@@ -1,4 +1,3 @@
-import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import React from 'react';
 import {
@@ -7,6 +6,7 @@ import {
   type LocationAzureSharedAccessSignature,
   type LocationAzureSharedKey,
 } from '../../../js/managementClient/api';
+import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
 

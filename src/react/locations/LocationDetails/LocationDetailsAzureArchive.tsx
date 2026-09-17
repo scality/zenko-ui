@@ -1,4 +1,3 @@
-import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import lodashSet from 'lodash.set';
 import { useState } from 'react';
@@ -13,6 +12,7 @@ import {
   type LocationAzureStorageQueueV1,
 } from '../../../js/managementClient/api';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
+import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
 

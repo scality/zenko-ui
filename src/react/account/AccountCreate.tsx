@@ -1,5 +1,5 @@
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Banner, Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
+import { Banner, Icon, Stack } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import Joi from 'joi';
@@ -12,6 +12,7 @@ import { useSetAssumedRole } from '../DataServiceRoleProvider';
 import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { Form, FormGroup, FormSection } from '../ui-elements/CoreUIForm';
 
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
 const regexpName = /^[\w+=,.@ -]+$/;

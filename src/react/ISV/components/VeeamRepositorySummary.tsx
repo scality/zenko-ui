@@ -1,6 +1,7 @@
-import { Form, FormGroup, FormSection, InfoMessage, Text, Wrap } from '@scality/core-ui';
+import { InfoMessage, Text, Wrap } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import styled from 'styled-components';
+import { Form, FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import type { FormData } from '../engine/types';
 
 const WrapperWithWidth = styled(Wrap)`
