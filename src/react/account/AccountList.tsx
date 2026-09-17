@@ -10,6 +10,7 @@ import { useAccountLatestUsedCapacity } from '../next-architecture/domain/busine
 import type { Account } from '../next-architecture/domain/entities/account';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
+import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
 
@@ -121,7 +122,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
                   icon={<Icon name="Create-add" />}
                   label="Create Account"
                   variant="primary"
-                  iconOnly={760}
+                  iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
                   onClick={() => navigate('/create-account')}
                   type="submit"
                 ></Button>

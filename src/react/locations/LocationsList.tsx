@@ -20,6 +20,7 @@ import { useBucketList } from '../queries/instanceStatusQuery';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
+import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { getLocationType } from '../utils/storageOptions';
 import { useCRRFeature } from './CRRSetupWizard/hooks/useCRRFeature';
@@ -359,7 +360,7 @@ export function LocationsList() {
                 icon={<Icon name="Create-add" />}
                 label="Create Location"
                 variant="primary"
-                iconOnly={760}
+                iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
                 onClick={() => navigate('/create-location')}
                 type="submit"
               />

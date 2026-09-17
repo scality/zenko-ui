@@ -11,6 +11,7 @@ import { useDeleteCertificateFromZenkoConfigurationMutation } from '../../js/mut
 import type { ApiError } from '../../types/actions';
 import { getZenkoCRQuery } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { ROW_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import CertificateDetails from './CertificateDetails';
 import {
@@ -245,7 +246,7 @@ const Truststore = () => {
               label="View Details"
               variant="outline"
               icon={<Icon name="Eye" />}
-              iconOnly={760}
+              iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
               onClick={() => {
                 setSelectedCertificate(row.original.certificates);
                 setIsCertificateDetailsModalOpen(true);
@@ -255,7 +256,7 @@ const Truststore = () => {
               label="Delete"
               variant="danger"
               icon={<Icon name="Delete" />}
-              iconOnly={760}
+              iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
               aria-label="Delete Certificate"
               onClick={() => handleDeleteClick(row.original)}
             />
@@ -331,7 +332,6 @@ const Truststore = () => {
                   label="Import Certificate"
                   icon={<Icon name="Upload" />}
                   variant="primary"
-                  iconOnly={760}
                   onClick={() => {
                     navigate('/truststore/import-certificate');
                   }}

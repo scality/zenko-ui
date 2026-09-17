@@ -23,6 +23,7 @@ import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { formatSimpleDate } from '../utils';
 import { useAccessKeyOutdatedStatus, useAwsPaginatedEntities } from '../utils/IAMhooks';
@@ -286,7 +287,7 @@ const AccountUserAccessKeys = () => {
                   icon={<Icon name="Create-add" />}
                   label="Create Access Keys"
                   variant="primary"
-                  iconOnly={760}
+                  iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
                   onClick={() =>
                     navigate(`/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`)
                   }

@@ -6,6 +6,7 @@ import type { Endpoint, Hostname, LocationName } from '../../types/config';
 import { renderLocation } from '../locations/utils';
 import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE } from '../next-architecture/ui/ArtescaLibraryProvider';
+import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { AuthorizedAdvancedMetricsButton, cloudServerDashboard } from './AdvancedMetricsButton';
 import { DeleteEndpoint } from './DeleteEndpoint';
@@ -133,7 +134,7 @@ function EndpointList({ endpoints, locations }: Props) {
                 }}
                 label="Create Data Service"
                 variant="primary"
-                iconOnly={760}
+                iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
                 onClick={() => navigate('/create-dataservice')}
                 type="submit"
               />
