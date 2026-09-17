@@ -2,10 +2,17 @@ import { Banner, Icon, Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
+import { matchPath, useLocation } from 'react-router';
 import { useCurrentAccount, useDataServiceRole, useSetAssumedRolePromise } from '../DataServiceRoleProvider';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { AccountSelectorButton } from '../ui-elements/Table';
-import { regexArn, SCALITY_INTERNAL_ROLES, STORAGE_MANAGER_ROLE, STORAGE_USAGE_CONSUMER_ROLE, useAccounts } from '../utils/hooks';
+import {
+  regexArn,
+  SCALITY_INTERNAL_ROLES,
+  STORAGE_MANAGER_ROLE,
+  STORAGE_USAGE_CONSUMER_ROLE,
+  useAccounts,
+} from '../utils/hooks';
 
 function AccountRoleList({ accountsWithRoles, onRowSelected }) {
   const { roleArn } = useDataServiceRole();
@@ -128,7 +135,8 @@ export function AccountRoleSelectButtonAndModal({
     rolePath: string;
     roleArn: string;
   }[] = useMemo(() => {
-    const rows = accounts?.flatMap((account) => {
+    const rows =
+      accounts?.flatMap((account) => {
         const accountName = account.Name;
         const parsedRoles = account.Roles.map((role) => {
           const parsedArn = regexArn.exec(role.Arn);
@@ -139,9 +147,7 @@ export function AccountRoleSelectButtonAndModal({
             roleArn: role.Arn,
           };
         });
-        const storageManagerRoles = parsedRoles.filter(
-          (role) => role.roleName === STORAGE_MANAGER_ROLE,
-        );
+        const storageManagerRoles = parsedRoles.filter((role) => role.roleName === STORAGE_MANAGER_ROLE);
         return storageManagerRoles.length > 0 ? storageManagerRoles : parsedRoles;
       }) || [];
     return rows;
@@ -150,6 +156,8 @@ export function AccountRoleSelectButtonAndModal({
   const handleClose = () => {
     setIsModalOpen(false);
   };
+
+  const assumedRoleName = regexArn.exec(assumedRoleArn)?.groups?.name;
 
   return (
     <>
@@ -181,13 +189,14 @@ export function AccountRoleSelectButtonAndModal({
             roleArn={roleArn}
             assumedAccount={assumedAccount}
             assumedRoleArn={assumedRoleArn}
+            assumedRoleName={assumedRoleName}
           />
         }
         isOpen={isModalOpen}
         title="Select Account and Role to assume"
       >
         <ModalBody>
-          {regexArn.exec(assumedRoleArn)?.groups?.name === STORAGE_USAGE_CONSUMER_ROLE && (
+          {assumedRoleName === STORAGE_USAGE_CONSUMER_ROLE && (
             <Box mb={24}>
               <Banner variant="warning" withDefaultIcon>
                 Data Browser unavailable for this role
@@ -207,12 +216,37 @@ export function AccountRoleSelectButtonAndModal({
   );
 }
 
-const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount }) => {
+export function getPostAccountSwitchPath(pathname: string, assumedAccount: string, assumedRoleName?: string): string {
+  const bucketListPath = `/accounts/${assumedAccount}/buckets`;
+
+  const matchAccountRoute = matchPath('/accounts/:accountName/*', pathname);
+
+  if (!matchAccountRoute || assumedRoleName === STORAGE_USAGE_CONSUMER_ROLE) {
+    return bucketListPath;
+  }
+
+  const matchBucketsDeepRoute = matchPath('/accounts/:accountName/buckets/*', pathname);
+  const matchDataBucketsDeepRoute = matchPath('/accounts/:accountName/data/buckets/*', pathname);
+
+  if (
+    (matchBucketsDeepRoute && matchBucketsDeepRoute.params['*']) ||
+    (matchDataBucketsDeepRoute && matchDataBucketsDeepRoute.params['*'])
+  ) {
+    return bucketListPath;
+  }
+
+  const subRoute = matchAccountRoute.params['*'];
+
+  return subRoute ? `/accounts/${assumedAccount}/${subRoute}` : bucketListPath;
+}
+
+const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount, assumedRoleName }) => {
   const setRole = useSetAssumedRolePromise();
   const navigateWithBasename = useBasenameRelativeNavigate();
+  const location = useLocation();
 
-  const handleAccountClick = () => {
-    navigateWithBasename(`/accounts/${assumedAccount}/buckets`);
+  const handleAccountClick = (pathname: string) => {
+    navigateWithBasename(getPostAccountSwitchPath(pathname, assumedAccount, assumedRoleName));
   };
 
   return (
@@ -225,7 +259,7 @@ const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount }) =
           variant="primary"
           onClick={() => {
             setRole({ roleArn: assumedRoleArn });
-            handleAccountClick();
+            handleAccountClick(location.pathname);
             handleClose();
           }}
           label="Continue"
