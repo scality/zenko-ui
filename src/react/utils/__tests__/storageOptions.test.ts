@@ -90,6 +90,17 @@ describe('selectStorageOptions', () => {
     expect(result.find((o) => o.value === hiddenKey)).toBeDefined();
   });
 
+  it('never offers Ceph RADOS Gateway when creating a location', () => {
+    // Capability granted on purpose: the option must be absent even where the deployment still advertises it.
+    const result = selectStorageOptions({ locationTypeCephRadosGW: true } as never, []);
+    expect(result.find((o) => o.value === 'location-ceph-radosgw-s3-v1')).toBeUndefined();
+  });
+
+  it('still offers Ceph RADOS Gateway when editing an existing one', () => {
+    const result = selectStorageOptions({} as never, [], undefined, false);
+    expect(result.find((o) => o.value === 'location-ceph-radosgw-s3-v1')).toBeDefined();
+  });
+
   it('hides the HDClient option when one is already created', () => {
     const result = selectStorageOptions({} as never, [
       // biome-ignore lint/suspicious/noExplicitAny: minimal stub

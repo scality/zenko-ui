@@ -249,7 +249,10 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     hasIcon: false,
     checkCapability: 'locationTypeCephRadosGW',
     ingestCapability: 'cephIngestLocation',
-    hidden: false,
+    // No longer a supported location type, so it must not be offered at creation. The entry stays
+    // rather than being deleted because already-created locations of this type still resolve their
+    // display name through this map, and editing one re-includes hidden options.
+    hidden: true,
     category: 'on-prem',
   },
   'location-do-spaces-v1': {
