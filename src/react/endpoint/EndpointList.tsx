@@ -86,6 +86,9 @@ function EndpointList({ endpoints, locations }: Props) {
         disableSortBy: true,
         cellStyle: {
           flex: '0.1',
+          // Without a floor this share of the free width falls under the button's own size
+          // at a narrow container, and the button spills onto the panel edge.
+          minWidth: 'max-content',
           paddingRight: '18px',
         },
         Cell({ row: { original } }: CellProps) {

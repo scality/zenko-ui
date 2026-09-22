@@ -298,7 +298,12 @@ export function LocationsList() {
       accessor: 'details',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '5rem',
+        /* The column takes a share of the free width (`flex: 0.2` on a zero basis), which
+           at a narrow container resolves to less than the buttons need — they then spill
+           past the cell and sit on the panel edge with the right padding behind them.
+           `max-content` is a floor rather than a measured width so it keeps holding if a
+           button is added or its size changes. */
+        minWidth: 'max-content',
         marginLeft: 'auto',
         flex: '0.2',
         paddingRight: '18px',
