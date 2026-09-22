@@ -14,3 +14,12 @@ export const ROW_ACTION_ICON_ONLY_BELOW = 760;
    have room to spare at that point and collapse later than they strictly must, which is the
    price of one threshold the whole app shares. */
 export const TOOLBAR_ACTION_ICON_ONLY_BELOW = 620;
+
+/* Style for a wrapper placed between a FormGroup's `content` and the control inside it.
+   A FormGroup whose help or error sits below left-aligns its field cell, so that a control
+   sized only by its own attributes — a TextArea with `cols`, an Input with `size="1/3"` —
+   keeps that size instead of growing to fill the fluid field column. A wrapper inherits
+   that alignment and shrinks to its content, which pins a full-width Input inside it to
+   its intrinsic width and stops it shrinking with the column. Wrappers holding a control
+   that is meant to span the column opt back into stretching with this. */
+export const FIELD_CONTENT_STRETCH = { alignSelf: 'stretch', minWidth: 0 } as const;

@@ -2,6 +2,7 @@ import { Icon, Loader, Stack, Text, Tooltip } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
 import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
+import { FIELD_CONTENT_STRETCH } from '../../../../ui-elements/responsive';
 import type { DestinationEndpoint } from '../../api/types';
 import type { ConfigureFormValues } from './schema';
 
@@ -102,7 +103,7 @@ export const DestinationAccountSection = ({ isConnected, endpoints, resolveStatu
         helpErrorPosition="bottom"
         error={nameError}
         content={
-          <Stack direction="vertical" gap="r8">
+          <Stack direction="vertical" gap="r8" style={FIELD_CONTENT_STRETCH}>
             <Input id="destinationAccountName" autoComplete="off" {...register('destinationAccountName')} />
             <Button
               type="button"

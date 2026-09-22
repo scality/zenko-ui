@@ -1,6 +1,7 @@
 import { Stack } from '@scality/core-ui';
 import { Controller, useFormContext } from 'react-hook-form';
 import { FormGroup } from '../../ui-elements/CoreUIForm';
+import { FIELD_CONTENT_STRETCH } from '../../ui-elements/responsive';
 import { RadioGroup } from './RadioGroup';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { Loader } from '@scality/core-ui/dist/components/loader/Loader.component';
@@ -128,7 +129,7 @@ export const CreateOrSelectNameField = ({
         helpErrorPosition="bottom"
         error={fieldError}
         content={
-          <Stack gap="r8" direction="vertical">
+          <Stack gap="r8" direction="vertical" style={FIELD_CONTENT_STRETCH}>
             {showTextInput ? (
               <Input
                 id={fieldName}
