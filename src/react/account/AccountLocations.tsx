@@ -98,7 +98,7 @@ export function AccountLocations() {
   }
 
   return (
-    <Box container display="flex" flexDirection="column" flex="1">
+    <Box container height="100%">
       <Table
         columns={columns}
         data={data}

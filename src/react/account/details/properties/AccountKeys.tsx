@@ -1,11 +1,12 @@
 import { Banner, FormattedDateTime, Icon, spacing, Wrap } from '@scality/core-ui';
-import { Button, CopyButton, Table } from '@scality/core-ui/dist/next';
+import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useMemo, useState } from 'react';
 import type { Row } from 'react-table';
 import styled from 'styled-components';
 import type { Account } from '../../../../types/account';
 import { useModalError } from '../../../ErrorProvider';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
+import { PANEL_ACTION_ICON_ONLY_BELOW } from '../../../ui-elements/responsive';
 import { useAccessKeysQuery, useDeleteAccessKeyMutation } from './useAccessKeysQuery';
 
 const AccessKeysDetails = styled.div`
@@ -81,7 +82,10 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
         Header: 'Access key ID',
         accessor: 'access_key',
         cellStyle: {
-          flex: '0.3',
+          // The key and its copy button are what the row is for, so this column takes the
+          // slack the two narrow ones leave.
+          flex: '1',
+          minWidth: '12rem',
         },
         Cell({ value: access_key }: { value: string }) {
           return (
@@ -97,6 +101,7 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
         accessor: 'created_at',
         cellStyle: {
           flex: '0.25',
+          minWidth: '9rem',
           textAlign: 'right',
           marginRight: '1rem',
         },
@@ -125,7 +130,10 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
         accessor: 'access_key',
         disableSortBy: true,
         cellStyle: {
-          flex: '1',
+          // One icon button, so it takes a share small enough to keep it beside the date
+          // rather than at the far edge of a column wider than either of the other two.
+          flex: '0.1',
+          minWidth: '2.5rem',
         },
 
         Cell({ value: access_key }: { value: string }) {
@@ -164,26 +172,29 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
   return (
     <AccessKeysDetails>
       <h3 style={{ marginLeft: spacing.r16 }}>Root user Access keys details</h3>
-      <Wrap alignItems="center" paddingLeft={spacing.r16}>
-        {accessKeys && accessKeys.length > 0 && (
-          <div data-testid="root-access-keys-banner">
-            <Banner variant="danger" icon={<Icon name="Exclamation-circle" />}>
-              <>
-                Security Status: Root user Access keys give unrestricted access to account resources. It is a best
-                practice to delete root Access keys and use IAM user access keys instead.
-              </>
-            </Banner>
-          </div>
-        )}
-        <ButtonContainer>
-          <Button
-            variant="primary"
-            icon={<Icon name="Create-add" />}
-            onClick={onOpenKeyModal}
-            label="Create Access key"
-          />
-        </ButtonContainer>
-      </Wrap>
+      <Box container>
+        <Wrap alignItems="center" paddingLeft={spacing.r16}>
+          {accessKeys && accessKeys.length > 0 && (
+            <div data-testid="root-access-keys-banner">
+              <Banner variant="danger" icon={<Icon name="Exclamation-circle" />}>
+                <>
+                  Security Status: Root user Access keys give unrestricted access to account resources. It is a best
+                  practice to delete root Access keys and use IAM user access keys instead.
+                </>
+              </Banner>
+            </div>
+          )}
+          <ButtonContainer>
+            <Button
+              variant="primary"
+              icon={<Icon name="Create-add" />}
+              onClick={onOpenKeyModal}
+              label="Create Access key"
+              iconOnly={PANEL_ACTION_ICON_ONLY_BELOW}
+            />
+          </ButtonContainer>
+        </Wrap>
+      </Box>
       <TableContainer>
         <Table
           entityName={{

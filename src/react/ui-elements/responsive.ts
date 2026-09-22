@@ -23,3 +23,10 @@ export const TOOLBAR_ACTION_ICON_ONLY_BELOW = 620;
    its intrinsic width and stops it shrinking with the column. Wrappers holding a control
    that is meant to span the column opt back into stretching with this. */
 export const FIELD_CONTENT_STRETCH = { alignSelf: 'stretch', minWidth: 0 } as const;
+
+/* Container width below which a panel's own action buttons drop their labels for their icons.
+   Higher than the toolbar's: these sit on a panel header beside a title rather than in a row of
+   their own, so they have to give way sooner. Measured against the panel, which is always
+   narrower than the page, so the 768px content box this work targets — the width left when the
+   side drawer opens on a 1268px browser — keeps them collapsed for the whole of that case. */
+export const PANEL_ACTION_ICON_ONLY_BELOW = 768;
