@@ -15,8 +15,9 @@ export const StyledGrid = styled.div`
   gap: ${spacing.r8};
   /* auto-fill rather than a fixed 3: the modal is sized as a fraction of the window, so
      three 12rem cards stop fitting before the window does and the row overflows its
-     scroll area. Filling by available width drops to two cards, then one. */
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+     scroll area. Filling by available width drops to two cards, then one. The track floor
+     is also never under a third of the row, which caps a wide modal at three per row. */
+  grid-template-columns: repeat(auto-fill, minmax(max(12rem, (100% - 2 * ${spacing.r8}) / 3), 1fr));
   grid-auto-rows: 7rem;
   border-radius: ${spacing.f8};
 `;
