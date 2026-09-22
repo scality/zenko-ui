@@ -1,4 +1,4 @@
-import { Banner, FormattedDateTime, Icon, spacing, Wrap } from '@scality/core-ui';
+import { Banner, ConstrainedText, FormattedDateTime, Icon, spacing, Wrap } from '@scality/core-ui';
 import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useMemo, useState } from 'react';
 import type { Row } from 'react-table';
@@ -89,8 +89,14 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
         },
         Cell({ value: access_key }: { value: string }) {
           return (
-            <Wrap style={{ alignItems: 'center' }}>
-              {access_key}
+            <Wrap style={{ alignItems: 'center', minWidth: 0 }}>
+              {/* A key is twenty opaque characters with nothing to wrap on, so left to itself it
+                  holds the cell open at its full length and paints over the date beside it. The
+                  zero basis keeps the whole remainder for the key and leaves the copy button at
+                  its own size. */}
+              <div style={{ flex: '1 1 0', minWidth: 0 }}>
+                <ConstrainedText text={access_key} />
+              </div>
               <CopyButton textToCopy={access_key} />
             </Wrap>
           );
