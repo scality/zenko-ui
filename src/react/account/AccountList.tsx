@@ -73,7 +73,13 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         Header: 'Account Name',
         accessor: 'name',
         cellStyle: {
-          minWidth: '20rem',
+          /* The table lays its columns out in blocks, so a column that states no `flex`
+             keeps the 150px default width and the row stops short of its own right edge.
+             The name is the column with something to say, so it takes the slack. Its
+             floor is what it needs to stay readable: the name is a `ConstrainedText`
+             clamped to two lines, so past the floor it ellipsises rather than overflows. */
+          flex: 1,
+          minWidth: '10rem',
         },
         Cell: (value: CellProps<Account, string>) => nameCell(value),
       },
