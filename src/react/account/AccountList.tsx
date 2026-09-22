@@ -1,4 +1,4 @@
-import { ConstrainedText, FormattedDateTime, Icon, Link, Stack } from '@scality/core-ui';
+import { ConstrainedText, FormattedDateTime, Icon, Link, Stack, spacing } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useMemo } from 'react';
@@ -13,6 +13,12 @@ import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColum
 import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
+
+/* The table gives its cells no right gutter of their own, so whichever column comes last
+   sits on the panel border. Which one that is varies — `Data Used` shows only to a storage
+   manager, and `Created On` drops at a narrow container — so every right-aligned column
+   carries the gutter. */
+const ROW_RIGHT_GUTTER = spacing.r16;
 
 function useAutoAssumeRoleUponAccountDeletion({ accounts }: { accounts: Account[] }) {
   const { account } = useCurrentAccount();
@@ -64,9 +70,8 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           accountCanonicalId: account.canonicalId,
         });
       },
-      { minWidth: '7rem' },
+      { minWidth: '7rem', paddingRight: ROW_RIGHT_GUTTER },
     );
-    const additionalStorageManagerColumns = [{ ...dataUsedColumn, dropAt: 500 }];
 
     return [
       {
@@ -94,12 +99,13 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           // agreeing on the column's width.
           minWidth: '10rem',
           textAlign: 'right',
+          paddingRight: ROW_RIGHT_GUTTER,
         },
         Cell: ({ value }: CellProps<Account, Date>) => (
           <FormattedDateTime format="date-time-second" value={new Date(value)} />
         ),
       },
-      ...(isStorageManager ? additionalStorageManagerColumns : []),
+      ...(isStorageManager ? [dataUsedColumn] : []),
     ];
   }, [nameCell]);
 
