@@ -1,10 +1,38 @@
-import { Icon, Stack } from '@scality/core-ui';
-import { Box, Button, CopyButton, Editor } from '@scality/core-ui/dist/next';
+import { Icon, Stack, spacing } from '@scality/core-ui';
+import { Button, CopyButton, Editor } from '@scality/core-ui/dist/next';
 import type { JSONSchema7 } from 'json-schema';
 import { type JSX, type MouseEvent, type SubmitEvent, useState } from 'react';
 import { type Control, Controller } from 'react-hook-form';
+import styled from 'styled-components';
 import policySchema from '../../../policyJsonSchema.json';
 import { Form, FormGroup, FormSection } from '../ui-elements/CoreUIForm';
+import { EDITOR_ASIDE_STACK_AT, FIELD_CONTENT_STRETCH } from '../ui-elements/responsive';
+
+const EditorRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: ${spacing.r16};
+  min-width: 0;
+  width: 100%;
+
+  @container responsive (max-width: ${EDITOR_ASIDE_STACK_AT}px) {
+    flex-direction: column;
+  }
+`;
+
+const EditorPane = styled.div`
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+`;
+
+const EditorAside = styled.div`
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${spacing.r8};
+`;
 
 export const CommonPolicyLayout = ({
   onSubmit,
@@ -108,29 +136,30 @@ export const CommonPolicyLayout = ({
           help="We are supporting AWS IAM standards."
           helpErrorPosition="bottom"
           content={
-            <div ref={editorContainerRef}>
-              <Stack>
-                <Controller
-                  control={control}
-                  name="policyDocument"
-                  rules={{
-                    required: 'The policy document is required',
-                  }}
-                  render={({ field: { onChange, value } }) => (
-                    <Editor
-                      language={{ name: 'json', schema: policySchema as unknown as JSONSchema7 }}
-                      width="33rem"
-                      height={`${editorHeight}px`}
-                      onChange={onChange}
-                      value={value}
-                      readOnly={isReadOnly}
-                    />
-                  )}
-                />
-                <Box alignSelf="baseline">
+            <div ref={editorContainerRef} style={FIELD_CONTENT_STRETCH}>
+              <EditorRow>
+                <EditorPane>
+                  <Controller
+                    control={control}
+                    name="policyDocument"
+                    rules={{
+                      required: 'The policy document is required',
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                      <Editor
+                        language={{ name: 'json', schema: policySchema as unknown as JSONSchema7 }}
+                        height={`${editorHeight}px`}
+                        onChange={onChange}
+                        value={value}
+                        readOnly={isReadOnly}
+                      />
+                    )}
+                  />
+                </EditorPane>
+                <EditorAside>
                   <CopyButton textToCopy={policyDocument} label="Policy" variant="outline" />
-                </Box>
-              </Stack>
+                </EditorAside>
+              </EditorRow>
             </div>
           }
         />

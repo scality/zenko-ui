@@ -4,6 +4,7 @@ import { Box, Table } from '@scality/core-ui/dist/next';
 import { type UseComboboxStateChange, useCombobox } from 'downshift';
 import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { ROW_ACTION_ICON_ONLY_BELOW } from '../../ui-elements/responsive';
 import { GentleEmphaseSecondaryText, InlineButton } from '../../ui-elements/Table';
 import { type AWS_PAGINATED_QUERY, useAwsPaginatedEntities } from '../../utils/IAMhooks';
 import {
@@ -400,7 +401,11 @@ export const AttachmentTable = <
               Header: 'Name',
               accessor: 'name',
               cellStyle: {
-                minWidth: '20rem',
+                // The names are the column worth reading, so it takes the slack. Its floor was
+                // most of the row's own minimum width, which left the table scrolling sideways
+                // in the narrow panel it sits in.
+                flex: 1,
+                minWidth: '10rem',
                 marginLeft: '3rem',
               },
             },
@@ -409,7 +414,7 @@ export const AttachmentTable = <
               //@ts-expect-error fix this when you are working on it
               accessor: 'isPending',
               cellStyle: {
-                flex: 1,
+                flex: '0.3',
               },
               Cell: ({ value }: { value?: boolean }) => {
                 return <>{value ? 'Pending' : 'Attached'}</>;
@@ -421,7 +426,7 @@ export const AttachmentTable = <
               accessor: 'action',
               cellStyle: {
                 textAlign: 'right',
-                minWidth: '10rem',
+                minWidth: '2.5rem',
                 marginLeft: 'auto',
                 marginRight: '0.5rem',
               },
@@ -439,6 +444,7 @@ export const AttachmentTable = <
                   }}
                   icon={<Icon name="Close" />}
                   label="Remove"
+                  iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
                   variant="danger"
                   disabled={!!entity.disableDetach}
                 />

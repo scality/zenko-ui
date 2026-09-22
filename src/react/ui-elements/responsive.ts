@@ -30,3 +30,9 @@ export const FIELD_CONTENT_STRETCH = { alignSelf: 'stretch', minWidth: 0 } as co
    narrower than the page, so the 768px content box this work targets — the width left when the
    side drawer opens on a 1268px browser — keeps them collapsed for the whole of that case. */
 export const PANEL_ACTION_ICON_ONLY_BELOW = 768;
+
+/* Container width below which an editor's aside — its copy button and any note beside it —
+   moves under the editor instead of sitting next to it. The editor is the field's whole
+   point, so the aside is what gives way; below this the two side by side leave the editor
+   too narrow to read a line of JSON in. */
+export const EDITOR_ASIDE_STACK_AT = 540;
