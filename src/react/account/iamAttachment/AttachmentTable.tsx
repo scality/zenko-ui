@@ -414,7 +414,11 @@ export const AttachmentTable = <
               //@ts-expect-error fix this when you are working on it
               accessor: 'isPending',
               cellStyle: {
+                // The header is the widest thing in this column -- 112px against 55px for the
+                // longest value it labels -- so a share alone lets the column shrink past its
+                // own title and the header disappears while the values still read fine.
                 flex: '0.3',
+                minWidth: '9rem',
               },
               Cell: ({ value }: { value?: boolean }) => {
                 return <>{value ? 'Pending' : 'Attached'}</>;

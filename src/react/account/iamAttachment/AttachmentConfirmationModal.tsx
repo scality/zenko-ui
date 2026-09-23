@@ -262,8 +262,20 @@ function AttachmentConfirmationModal({
       },
     ];
 
+    // A wide modal's body takes its width from this box and scrolls horizontally rather than
+    // shrink, so a flat 50rem put the whole confirmation behind a scrollbar on any window
+    // narrower than about 930px. The cap is what the modal can actually offer: its own 90vw
+    // less the body's 2rem of padding on each side.
     return (
-      <div style={{ height: '20rem', width: '50rem', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          height: '20rem',
+          width: 'min(50rem, calc(90vw - 4rem))',
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <div>The following entities will be attached or detached: </div>
         <Box display="flex" gap={24} alignItems="center">
           <SecondaryText>
