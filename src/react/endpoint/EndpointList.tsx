@@ -87,10 +87,7 @@ function EndpointList({ endpoints, locations }: Props) {
         cellStyle: {
           flex: '0.1',
           // Without a floor this share of the free width falls under the button's own size at
-          // a narrow container, and the button spills onto the panel edge. A fixed floor
-          // rather than `max-content`: the table applies one cellStyle to the header and to
-          // the body cells, and this header is empty, so a content-derived floor sizes the
-          // two differently and the columns stop lining up.
+          // a narrow container, and the button spills onto the panel edge.
           minWidth: '2.5rem',
           paddingRight: '18px',
         },

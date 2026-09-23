@@ -401,9 +401,6 @@ export const AttachmentTable = <
               Header: 'Name',
               accessor: 'name',
               cellStyle: {
-                // The names are the column worth reading, so it takes the slack. Its floor was
-                // most of the row's own minimum width, which left the table scrolling sideways
-                // in the narrow panel it sits in.
                 flex: 1,
                 minWidth: '10rem',
                 marginLeft: '3rem',

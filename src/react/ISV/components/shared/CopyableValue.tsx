@@ -3,15 +3,10 @@ import { CopyButton } from '@scality/core-ui/dist/next';
 import styled from 'styled-components';
 
 /**
- * Row holding a summary value next to the button that copies it.
- *
- * The values are unbreakable strings whose length the page does not control -- a service
- * endpoint, an access key, a bucket name -- so a fixed width could neither shrink for them nor
- * stop them spilling out of the field. The cap keeps the intended reading width on a wide form;
- * the two min-widths hand the squeeze to the value's own ellipsis below it.
- *
- * Exported for the rows whose value is not plain text, such as a hidden credential. Everything
- * else should use CopyableValue.
+ * The values are unbreakable strings whose length the page does not control -- an endpoint, an
+ * access key, a bucket name -- so a fixed width could neither shrink for them nor stop them
+ * spilling out of the field. The cap keeps the reading width; the min-widths hand the squeeze
+ * to the value's own ellipsis below it.
  */
 export const CopyableValueRow = styled(Wrap)`
   max-width: 20rem;

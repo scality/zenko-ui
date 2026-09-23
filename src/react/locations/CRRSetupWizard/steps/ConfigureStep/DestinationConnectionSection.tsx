@@ -15,9 +15,8 @@ const ConnectionBox = styled.div`
 
 const ConstrainedInput = styled(Input)`
   max-width: 22rem;
-  /* A flex item's automatic minimum size is clamped by its max-width, so the 100% this cap
-     replaces was also what let the input shrink past the 151px its size attribute asks for.
-     Without a floor of its own it stops shrinking and spills out of the field cell. */
+  /* The 100% max-width this replaces also let the input shrink to its 151px size-attribute
+     floor; min-width: 0 keeps that, so it stops it spilling out of the field cell. */
   min-width: 0;
 `;
 

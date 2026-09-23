@@ -74,9 +74,8 @@ const StyledDiv = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
-  /* This is the grid item, and the boxes below it are flex items. Each one's automatic
-     minimum size is its content's — the logo's px width — so every box between the track
-     and the logo has to be told it may shrink, or the card spills out of its track. */
+  /* Every box between the grid track and the logo needs its own min-width: 0, or the chain
+     still holds the card open at the logo's width and it spills out of the track. */
   min-width: 0;
   div {
     display: flex;

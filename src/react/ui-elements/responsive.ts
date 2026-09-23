@@ -1,34 +1,21 @@
-/* Container width below which a table row's action buttons drop their labels for their icon.
-   A row action sits in a column far narrower than the page, so it runs out of room long before
-   the toolbar does and has to collapse while the page is still wide. 760 is just under the
-   768px content box this work targets — the width left when the side drawer opens on a 1268px
-   browser — so the row actions are already icons for the whole of that case. */
+/* Container width below which a table row's action button collapses to icon-only — it sits in
+   a column far narrower than the page, so it gives way first. 760 is just under the 768px
+   content box this work targets: a 500px side drawer open on a 1268px browser. */
 export const ROW_ACTION_ICON_ONLY_BELOW = 760;
 
-/* Container width below which a list toolbar's action buttons drop their labels. Far lower than
-   the row actions': a toolbar action has the whole page width to sit in, so collapsing it at
-   the row threshold takes the labels away while ~140px of the row is still empty.
-   Measured on Accounts, the busiest toolbar (two actions): 32px row padding + the search box at
-   its 139px floor + 16px gap + Start Veeam VBR Assistant at 237px + 16px gap + Create Account
-   at 179px = 619px before anything has to give. Kept 620. Toolbars with one narrower action
-   have room to spare at that point and collapse later than they strictly must, which is the
-   price of one threshold the whole app shares. */
+/* Container width below which a toolbar's actions collapse to icon-only — lower than the row
+   threshold, since a toolbar spans the whole page. Busiest toolbar, two actions: 32 padding +
+   139 search floor + 16 + 237 + 16 + 179 = 619px before anything gives. Kept 620. */
 export const TOOLBAR_ACTION_ICON_ONLY_BELOW = 620;
 
-/* Style for a wrapper placed between a FormGroup's `content` and the control inside it.
-   A FormGroup whose help or error sits below left-aligns its field cell, so that a control
-   sized only by its own attributes — a TextArea with `cols`, an Input with `size="1/3"` —
-   keeps that size instead of growing to fill the fluid field column. A wrapper inherits
-   that alignment and shrinks to its content, which pins a full-width Input inside it to
-   its intrinsic width and stops it shrinking with the column. Wrappers holding a control
-   that is meant to span the column opt back into stretching with this. */
+/* Applied to a wrapper between FormGroup's `content` and its control. FormGroup left-aligns
+   the field cell when help/error sits below, which stops an intrinsically-sized control (or a
+   wrapper around one) from growing with the column; this re-opts it into stretching. */
 export const FIELD_CONTENT_STRETCH = { alignSelf: 'stretch', minWidth: 0 } as const;
 
-/* Container width below which a panel's own action buttons drop their labels for their icons.
-   Higher than the toolbar's: these sit on a panel header beside a title rather than in a row of
-   their own, so they have to give way sooner. Measured against the panel, which is always
-   narrower than the page, so the 768px content box this work targets — the width left when the
-   side drawer opens on a 1268px browser — keeps them collapsed for the whole of that case. */
+/* Container width below which a panel's own action buttons collapse to icon-only. Set to the
+   768px content box itself: panel actions sit beside a header title, so they give way sooner
+   than a toolbar action would. */
 export const PANEL_ACTION_ICON_ONLY_BELOW = 768;
 
 /* Container width below which an editor's aside — its copy button and any note beside it —

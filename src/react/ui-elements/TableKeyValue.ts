@@ -27,9 +27,6 @@ export const Value = styled.td`
   padding-left: 40px;
   max-width: 420px;
   width: 420px;
-  /* The floor only has to keep a value legible, not keep it on one line: the values here are
-     opaque identifiers that wrap or clamp anyway, and a floor near their full length stops the
-     whole panel shrinking long before the page has run out of room. */
   min-width: 8rem;
   word-break: break-word;
 `;

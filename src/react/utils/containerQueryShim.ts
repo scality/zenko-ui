@@ -1,16 +1,11 @@
 /**
- * TODO(jsdom): temporary. Delete once the test environment ships jsdom >= 23.
+ * TODO(jsdom): delete once the test environment ships jsdom >= 23.
  *
- * jsdom 20 (pulled in by jest-environment-jsdom 29) cannot parse `@container`, and a
- * single unparseable at-rule makes it discard the ENTIRE stylesheet rather than just
- * that rule. styled-components emits one shared sheet for the whole app, so one
- * container query silently drops every rule in it — including the `visibility: hidden`
- * that `Accordion` and `Toggle` rely on. Collapsed fields and inactive toggles then
- * become query-able, breaking assertions that have nothing to do with layout.
- *
- * Container queries are only meaningful with real layout, which jsdom does not do, so
- * removing them in tests loses no coverage. Delete this shim once the test environment
- * ships a jsdom that understands `@container` (jsdom >= 23).
+ * jsdom 20 cannot parse `@container`; one unparseable at-rule makes it discard the entire
+ * shared stylesheet rather than just that rule, silently dropping the `visibility: hidden`
+ * that Accordion and Toggle rely on and making collapsed fields and inactive toggles
+ * queryable. Stripping container queries in tests loses no coverage, since they need real
+ * layout that jsdom does not do anyway.
  */
 
 const stripContainerQueries = (css: string): string => {

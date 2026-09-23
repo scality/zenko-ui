@@ -82,8 +82,6 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
         Header: 'Access key ID',
         accessor: 'access_key',
         cellStyle: {
-          // The key and its copy button are what the row is for, so this column takes the
-          // slack the two narrow ones leave.
           flex: '1',
           minWidth: '12rem',
         },
@@ -91,9 +89,8 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
           return (
             <Wrap style={{ alignItems: 'center', minWidth: 0 }}>
               {/* A key is twenty opaque characters with nothing to wrap on, so left to itself it
-                  holds the cell open at its full length and paints over the date beside it. The
-                  zero basis keeps the whole remainder for the key and leaves the copy button at
-                  its own size. */}
+                  holds the cell open and overlaps the date beside it; the zero basis gives it the
+                  remainder and keeps the copy button its own size. */}
               <div style={{ flex: '1 1 0', minWidth: 0 }}>
                 <ConstrainedText text={access_key} />
               </div>
@@ -136,8 +133,6 @@ function AccountKeys({ account, onOpenKeyModal }: Props) {
         accessor: 'access_key',
         disableSortBy: true,
         cellStyle: {
-          // One icon button, so it takes a share small enough to keep it beside the date
-          // rather than at the far edge of a column wider than either of the other two.
           flex: '0.1',
           minWidth: '2.5rem',
         },
