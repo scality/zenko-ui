@@ -1,4 +1,4 @@
-import { Banner, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
+import { Banner, ConstrainedText, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -25,7 +25,18 @@ import { useISVStepper } from './ISVStepperContext';
 export const DEFAULT_REGION = 'us-east-1';
 
 const WrapperWithWidth = styled(Wrap)`
-  width: 20rem;
+  /* The values here are unbreakable strings whose length the page does not control -- a service
+     endpoint, an access key, a bucket name -- so a fixed 20rem could neither shrink for them nor
+     stop them spilling out of the field. The cap keeps the intended reading width on a wide form;
+     the two min-widths hand the squeeze to the value's own ellipsis below it. */
+  max-width: 20rem;
+  align-self: stretch;
+  min-width: 0;
+  align-items: center;
+
+  > :first-child {
+    min-width: 0;
+  }
 `;
 const Container = styled.div`
   background-color: ${(props) => props.theme.backgroundLevel4};
@@ -64,7 +75,7 @@ const ConnectionInfoSection = ({ s3ServicePoint, serviceEndpointLabel }: Interna
       required
       content={
         <WrapperWithWidth>
-          <Text>{s3ServicePoint}</Text>
+          <ConstrainedText text={s3ServicePoint} />
           <CopyButton textToCopy={s3ServicePoint} aria-label={`copy ${serviceEndpointLabel.toLowerCase()}`} />
         </WrapperWithWidth>
       }
@@ -103,7 +114,7 @@ const CredentialsSection = ({
           required
           content={
             <WrapperWithWidth>
-              <Text style={{ display: 'flex', alignItems: 'center' }}>{accessKey}</Text>
+              <ConstrainedText text={accessKey} />
               <CopyButton textToCopy={accessKey} aria-label="copy access key" />
             </WrapperWithWidth>
           }
@@ -142,7 +153,7 @@ const CredentialsSection = ({
               required
               content={
                 <WrapperWithWidth>
-                  <Text style={{ display: 'flex', alignItems: 'center' }}>{ak}</Text>
+                  <ConstrainedText text={ak} />
                   <CopyButton textToCopy={ak} aria-label="copy access key" />
                 </WrapperWithWidth>
               }
@@ -170,7 +181,7 @@ const BucketsSection = ({ formData, platform }: InternalSectionProps) => {
             required
             content={
               <WrapperWithWidth>
-                <Text>{bucket.name}</Text>
+                <ConstrainedText text={bucket.name} />
                 <CopyButton textToCopy={bucket.name} aria-label="copy bucket name" />
               </WrapperWithWidth>
             }
