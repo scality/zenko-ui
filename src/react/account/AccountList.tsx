@@ -74,8 +74,6 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         Header: 'Account Name',
         accessor: 'name',
         cellStyle: {
-          /* The table lays its columns out in blocks, so a column that states no `flex` keeps
-             the 150px default width and the row stops short of its own right edge. */
           flex: 1,
           minWidth: '10rem',
         },
@@ -86,10 +84,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         accessor: 'creationDate',
         dropAt: 620,
         cellStyle: {
-          // Fits the 19 characters of `date-time-second`. Not `ch`: the table applies one
-          // cellStyle to both the header and the body cells, and the header row is bold, so
-          // a `ch` floor resolves ~12px wider there than in the cells and the two rows stop
-          // agreeing on the column's width.
+          // 10rem fits date-time-second's 19 characters.
           minWidth: '10rem',
           textAlign: 'right',
           paddingRight: ROW_RIGHT_GUTTER,

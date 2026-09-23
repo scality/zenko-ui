@@ -262,10 +262,8 @@ function AttachmentConfirmationModal({
       },
     ];
 
-    // A wide modal's body takes its width from this box and scrolls horizontally rather than
-    // shrink, so a flat 50rem put the whole confirmation behind a scrollbar on any window
-    // narrower than about 930px. The cap is what the modal can actually offer: its own 90vw
-    // less the body's 2rem of padding on each side.
+    // The modal's body takes its width from this box and scrolls rather than shrink, so the
+    // cap is what the modal can actually offer: its own 90vw less 2rem of padding each side.
     return (
       <div
         style={{

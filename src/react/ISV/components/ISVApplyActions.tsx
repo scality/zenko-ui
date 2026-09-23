@@ -32,11 +32,6 @@ type ISVApplyActionsProps = FormData & {
 // Status Display Component
 // ============================================================================
 
-// The rows below are flex rows, so a cell's width is its flex basis. Step is the only column
-// with bounded content -- a step number -- so it is the only one pinned; Status may shrink below
-// its basis, wrapping the Retry button under the label, and the action sentence takes the rest
-// and ellipsises. Nothing carries a minimum, because any floor here is paid for in overflow: an
-// 8rem floor on the action column put 45px back at a 768px content box.
 const STEP_COLUMN: CSSProperties = { boxSizing: 'border-box', flex: '0 0 3.5rem' };
 const ACTION_COLUMN: CSSProperties = { boxSizing: 'border-box', flex: '1 1 0', minWidth: 0 };
 const STATUS_COLUMN: CSSProperties = { boxSizing: 'border-box', flex: '0 1 9rem', minWidth: 0 };

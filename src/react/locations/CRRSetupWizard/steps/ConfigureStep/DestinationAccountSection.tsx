@@ -108,9 +108,6 @@ export const DestinationAccountSection = ({ isConnected, endpoints, resolveStatu
             <Button
               type="button"
               variant="outline"
-              // The button cannot shrink below its own label, and the field column is down to
-              // 169px at a 768px content box. Spelling out "account name" does not fit there,
-              // and is redundant beside a field already labelled Account name.
               label="Use Source site name"
               onClick={() =>
                 setValue('destinationAccountName', getValues('accountName'), {

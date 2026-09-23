@@ -3,10 +3,9 @@ import { CopyButton } from '@scality/core-ui/dist/next';
 import styled from 'styled-components';
 
 /**
- * The values are unbreakable strings whose length the page does not control -- an endpoint, an
- * access key, a bucket name -- so a fixed width could neither shrink for them nor stop them
- * spilling out of the field. The cap keeps the reading width; the min-widths hand the squeeze
- * to the value's own ellipsis below it.
+ * The value is an arbitrarily long, unbreakable string (an endpoint, an access key, a bucket
+ * name), which a fixed width would let spill out of the field. The cap plus min-width: 0 hand
+ * the squeeze to the value's own ellipsis instead.
  */
 export const CopyableValueRow = styled(Wrap)`
   max-width: 20rem;

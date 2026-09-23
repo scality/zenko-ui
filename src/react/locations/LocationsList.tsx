@@ -298,10 +298,7 @@ export function LocationsList() {
       accessor: 'details',
       cellStyle: {
         textAlign: 'right',
-        /* A fixed floor, not `max-content`: the table applies one cellStyle to the header and
-           the body, and this header is empty, so a content-derived floor would size them
-           differently and the columns stop lining up. 5rem holds the two icon-only buttons and
-           the gap between them. */
+        /* 5rem holds the two icon-only buttons and the gap between them. */
         minWidth: '5rem',
         marginLeft: 'auto',
         flex: '0.2',

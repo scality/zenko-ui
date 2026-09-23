@@ -32,8 +32,6 @@ type TableHeaderWrapperProps = {
 
 export const TableHeaderWrapper = ({ search, actions }: TableHeaderWrapperProps) => {
   return (
-    // Needs min-width:0 on both the row and the search box's cell, or the box stays pinned to
-    // its own max-content width and pushes the actions out of the toolbar.
     <Wrap padding={spacing.r16} gap={spacing.r16} minWidth={0} style={{ alignItems: 'center' }}>
       <Box minWidth={0}>{search}</Box>
       <Box gap="r16">{actions}</Box>

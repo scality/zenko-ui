@@ -4,8 +4,8 @@
 export const ROW_ACTION_ICON_ONLY_BELOW = 760;
 
 /* Container width below which a toolbar's actions collapse to icon-only — lower than the row
-   threshold, since a toolbar spans the whole page. Busiest toolbar, two actions: 32 padding +
-   139 search floor + 16 + 237 + 16 + 179 = 619px before anything gives. Kept 620. */
+   threshold, since a toolbar spans the whole page. 620 is where the busiest toolbar, a search
+   box and two actions, runs out of room. */
 export const TOOLBAR_ACTION_ICON_ONLY_BELOW = 620;
 
 /* Applied to a wrapper between FormGroup's `content` and its control. FormGroup left-aligns
@@ -18,8 +18,6 @@ export const FIELD_CONTENT_STRETCH = { alignSelf: 'stretch', minWidth: 0 } as co
    than a toolbar action would. */
 export const PANEL_ACTION_ICON_ONLY_BELOW = 768;
 
-/* Container width below which an editor's aside — its copy button and any note beside it —
-   moves under the editor instead of sitting next to it. The editor is the field's whole
-   point, so the aside is what gives way; below this the two side by side leave the editor
-   too narrow to read a line of JSON in. */
+/* Below this width the editor's aside — its copy button and any note — moves under the editor
+   instead of beside it: side by side, the editor is too narrow to read a line of JSON in. */
 export const EDITOR_ASIDE_STACK_AT = 540;
