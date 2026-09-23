@@ -90,8 +90,6 @@ const BucketContainer = styled.div`
   padding-bottom: ${spacing.f8};
   border-radius: ${spacing.f4};
   margin-bottom: ${spacing.f4};
-  position: relative;
-  top: -${spacing.f16};
 `;
 
 const BucketNameFormGroup: React.FC<{
