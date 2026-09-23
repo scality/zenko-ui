@@ -3,6 +3,7 @@ import { Input } from '@scality/core-ui/dist/next';
 import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { FormGroup } from '../../ui-elements/CoreUIForm';
+import { FIELD_CONTENT_STRETCH } from '../../ui-elements/responsive';
 import { MAX_IMMUTABLE_PERIOD_DAYS } from '../constants';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 
@@ -69,7 +70,7 @@ export const VeeamRepositoryFields = () => {
           helpErrorPosition="bottom"
           error={(errors.immutablePeriodDays?.message as string) ?? ''}
           content={
-            <Stack direction="horizontal">
+            <Stack direction="horizontal" style={FIELD_CONTENT_STRETCH}>
               <Controller
                 name="immutablePeriodDays"
                 control={control}
