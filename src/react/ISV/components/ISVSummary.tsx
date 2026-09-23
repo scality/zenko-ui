@@ -1,4 +1,4 @@
-import { Banner, ConstrainedText, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
+import { Banner, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -21,23 +21,10 @@ import type {
 } from '../engine/types';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVStepperContext';
+import { CopyableValue, CopyableValueRow } from './shared/CopyableValue';
 
 export const DEFAULT_REGION = 'us-east-1';
 
-const WrapperWithWidth = styled(Wrap)`
-  /* The values here are unbreakable strings whose length the page does not control -- a service
-     endpoint, an access key, a bucket name -- so a fixed 20rem could neither shrink for them nor
-     stop them spilling out of the field. The cap keeps the intended reading width on a wide form;
-     the two min-widths hand the squeeze to the value's own ellipsis below it. */
-  max-width: 20rem;
-  align-self: stretch;
-  min-width: 0;
-  align-items: center;
-
-  > :first-child {
-    min-width: 0;
-  }
-`;
 const Container = styled.div`
   background-color: ${(props) => props.theme.backgroundLevel4};
   padding: ${spacing.r16};
@@ -73,23 +60,13 @@ const ConnectionInfoSection = ({ s3ServicePoint, serviceEndpointLabel }: Interna
       id="service-endpoint"
       label={serviceEndpointLabel}
       required
-      content={
-        <WrapperWithWidth>
-          <ConstrainedText text={s3ServicePoint} />
-          <CopyButton textToCopy={s3ServicePoint} aria-label={`copy ${serviceEndpointLabel.toLowerCase()}`} />
-        </WrapperWithWidth>
-      }
+      content={<CopyableValue value={s3ServicePoint} copyLabel={`copy ${serviceEndpointLabel.toLowerCase()}`} />}
     />
     <FormGroup
       id="region"
       required
       label="Region"
-      content={
-        <WrapperWithWidth>
-          <Text>{DEFAULT_REGION}</Text>
-          <CopyButton textToCopy={DEFAULT_REGION} aria-label="copy region" />
-        </WrapperWithWidth>
-      }
+      content={<CopyableValue value={DEFAULT_REGION} copyLabel="copy region" />}
     />
   </FormSection>
 );
@@ -112,22 +89,17 @@ const CredentialsSection = ({
           id="access-key"
           label={baseAccessKeyLabel}
           required
-          content={
-            <WrapperWithWidth>
-              <ConstrainedText text={accessKey} />
-              <CopyButton textToCopy={accessKey} aria-label="copy access key" />
-            </WrapperWithWidth>
-          }
+          content={<CopyableValue value={accessKey} copyLabel="copy access key" />}
         />
         <FormGroup
           id="secret-key"
           label={secretKeyLabel}
           required
           content={
-            <WrapperWithWidth>
+            <CopyableValueRow>
               <HideCredential credentials={secretKey} />
               <CopyButton textToCopy={secretKey} aria-label="copy secret access key" />
-            </WrapperWithWidth>
+            </CopyableValueRow>
           }
         />
       </FormSection>
@@ -151,12 +123,7 @@ const CredentialsSection = ({
               id={`access-key-${index}`}
               label={baseAccessKeyLabel}
               required
-              content={
-                <WrapperWithWidth>
-                  <ConstrainedText text={ak} />
-                  <CopyButton textToCopy={ak} aria-label="copy access key" />
-                </WrapperWithWidth>
-              }
+              content={<CopyableValue value={ak} copyLabel="copy access key" />}
             />
           ))}
         </FormSection>
@@ -179,12 +146,7 @@ const BucketsSection = ({ formData, platform }: InternalSectionProps) => {
             id={`bucket-${index}`}
             label={`Bucket #${index + 1}`}
             required
-            content={
-              <WrapperWithWidth>
-                <ConstrainedText text={bucket.name} />
-                <CopyButton textToCopy={bucket.name} aria-label="copy bucket name" />
-              </WrapperWithWidth>
-            }
+            content={<CopyableValue value={bucket.name} copyLabel="copy bucket name" />}
           />
         ))}
       </FormSection>

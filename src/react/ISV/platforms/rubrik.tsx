@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react';
 import { Stack, Text } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
-import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
+import { spacing } from '@scality/core-ui/dist/spacing';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { IAMUSerTooltip } from '../components/IAMUserTooltip';
 import { DEFAULT_REGION } from '../components/ISVSummary';
 import RubrikLogo from '../components/Modal/Logos/RubrikLogo';
+import { CopyableValue } from '../components/shared/CopyableValue';
 import { AccountTooltip, BucketNameTooltip } from '../components/shared/PlatformTooltips';
 import { definePlatform, RubrikValidator } from '../engine';
 import { GET_RUBRIK_POLICY } from '../utils/ISVPolicy';
-
-const WrapperWithWidth = styled(Wrap)`
-  width: 20rem;
-`;
 
 const KeyCode = styled.code`
   white-space: pre-wrap;
@@ -51,9 +48,11 @@ function RubrikRSAKeySection() {
   const [keyError, setKeyError] = useState<string | null>(null);
 
   useEffect(() => {
-    generateRSAPKCS1Pem().then(setPem).catch((e: unknown) => {
-      setKeyError(e instanceof Error ? e.message : 'Key generation failed.');
-    });
+    generateRSAPKCS1Pem()
+      .then(setPem)
+      .catch((e: unknown) => {
+        setKeyError(e instanceof Error ? e.message : 'Key generation failed.');
+      });
   }, []);
 
   const downloadKey = () => {
@@ -70,9 +69,9 @@ function RubrikRSAKeySection() {
   return (
     <Stack gap="r8" direction="vertical" style={{ paddingTop: spacing.r8 }}>
       <Text>
-        Rubrik requires an RSA private key to encrypt archived data. A 2048-bit key has been generated below directly in your
-        browser. ARTESCA has never been aware of nor stored this key. You may copy it or download it. Keep it in a safe place
-        before configuring the Archive Location.
+        Rubrik requires an RSA private key to encrypt archived data. A 2048-bit key has been generated below directly in
+        your browser. ARTESCA has never been aware of nor stored this key. You may copy it or download it. Keep it in a
+        safe place before configuring the Archive Location.
       </Text>
       {keyError ? (
         <Text variant="Smaller" color="statusCritical">
@@ -131,12 +130,7 @@ export const RubrikPlatform = definePlatform({
               id="region"
               required
               label="Region"
-              content={
-                <WrapperWithWidth>
-                  <Text>{DEFAULT_REGION}</Text>
-                  <CopyButton textToCopy={DEFAULT_REGION} aria-label="copy region" />
-                </WrapperWithWidth>
-              }
+              content={<CopyableValue value={DEFAULT_REGION} copyLabel="copy region" />}
             />
           </FormSection>
         ),
@@ -150,12 +144,7 @@ export const RubrikPlatform = definePlatform({
               id="service-endpoint"
               label="S3 Endpoint (Host Name in Rubrik)"
               required
-              content={
-                <WrapperWithWidth>
-                  <Text>{s3ServicePoint}</Text>
-                  <CopyButton textToCopy={s3ServicePoint} aria-label="copy s3 endpoint" />
-                </WrapperWithWidth>
-              }
+              content={<CopyableValue value={s3ServicePoint} copyLabel="copy s3 endpoint" />}
             />
           </FormSection>
         ),
@@ -169,12 +158,12 @@ export const RubrikPlatform = definePlatform({
           return (
             <Stack gap="r8" direction="vertical">
               <Text>
-                When configuring the Archival Location in Rubrik CDM, select{' '}
-                <b>Object Store (S3 Compatible)</b> then <b>Amazon S3 compatible</b>.
+                When configuring the Archival Location in Rubrik CDM, select <b>Object Store (S3 Compatible)</b> then{' '}
+                <b>Amazon S3 compatible</b>.
               </Text>
               <Text>
-                Use the <b>Bucket Prefix</b> field in Rubrik to enter the prefix portion of your bucket name — the
-                part before <b>-rubrik-0</b>.
+                Use the <b>Bucket Prefix</b> field in Rubrik to enter the prefix portion of your bucket name — the part
+                before <b>-rubrik-0</b>.
                 {prefix ? (
                   <>
                     {' '}
@@ -206,9 +195,8 @@ export const RubrikPlatform = definePlatform({
 
   skipModalContent: (
     <Text>
-      To start Rubrik assistant configuration again, you can go to the <b>Accounts</b> page or{' '}
-      <b>Data Browser</b> page. If the platform doesn't have any accounts, it will also prompt you
-      on your next login.
+      To start Rubrik assistant configuration again, you can go to the <b>Accounts</b> page or <b>Data Browser</b> page.
+      If the platform doesn't have any accounts, it will also prompt you on your next login.
     </Text>
   ),
 });

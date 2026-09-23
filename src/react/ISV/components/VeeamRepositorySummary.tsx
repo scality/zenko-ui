@@ -1,12 +1,8 @@
-import { InfoMessage, Text, Wrap } from '@scality/core-ui';
-import { Button, CopyButton } from '@scality/core-ui/dist/next';
-import styled from 'styled-components';
+import { InfoMessage, Text } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import { Form, FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import type { FormData } from '../engine/types';
-
-const WrapperWithWidth = styled(Wrap)`
-  width: 20rem;
-`;
+import { CopyableValue } from './shared/CopyableValue';
 
 type VeeamRepositorySummaryProps = {
   formData: FormData;
@@ -37,12 +33,7 @@ export const VeeamRepositorySummary = ({ formData, onFinish }: VeeamRepositorySu
               key={bucket.name}
               id={`veeam-repository-name-${bucket.name}`}
               label={buckets.length > 1 ? `Veeam repository name #${index + 1}` : 'Veeam repository name'}
-              content={
-                <WrapperWithWidth>
-                  <Text>{bucket.name}</Text>
-                  <CopyButton textToCopy={bucket.name} aria-label="copy repository name" />
-                </WrapperWithWidth>
-              }
+              content={<CopyableValue value={bucket.name} copyLabel="copy repository name" />}
             />
           ))}
         </>
