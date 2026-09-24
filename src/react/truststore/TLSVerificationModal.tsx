@@ -1,6 +1,5 @@
 import { Banner, Checkbox, Icon, Modal, Stack, Text, useToast } from '@scality/core-ui';
-import { Box } from '@scality/core-ui/dist/components/box/Box';
-import { Button } from '@scality/core-ui/dist/next';
+import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import { type MutationOptions, useQueryClient } from 'react-query';
 import { useToggleTLSVerificationMutation } from '../../js/mutations';

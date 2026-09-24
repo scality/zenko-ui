@@ -1,8 +1,6 @@
 import type { ParsedCertificate } from '@scality/certchain';
 import { AppContainer, Banner, ConstrainedText, Icon, Stack, spacing, Text, useToast, Wrap } from '@scality/core-ui';
-import { Box } from '@scality/core-ui/dist/components/box/Box';
-import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Button } from '@scality/core-ui/dist/next';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
 import { type MutationOptions, useQuery, useQueryClient } from 'react-query';

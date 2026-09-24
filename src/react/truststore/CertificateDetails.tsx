@@ -1,7 +1,6 @@
 import type { ParsedCertificate } from '@scality/certchain';
 import { ConstrainedText, Icon, Modal, Stack, spacing, Text, Wrap } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { Box, CopyButton } from '@scality/core-ui/dist/next';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import type React from 'react';
 import styled from 'styled-components';
 import { ModalBody } from '../ui-elements/Modal';
