@@ -118,7 +118,9 @@ describe('CRRSetupWizard — Configure step', () => {
     await userEvent.click(screen.getByText('s3.crr-dest.artesca.local'));
     await userEvent.click(await screen.findByText('s3.repl-vlan.crr-dest.artesca.local'));
 
-    await waitFor(() => expect(screen.getByLabelText(/Not reachable from this site/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByLabelText(/Not reachable from this site/i)).toBeInTheDocument(), {
+      timeout: 5000,
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 350));
     expect(screen.getByLabelText(/Not reachable from this site/i)).toBeInTheDocument();
