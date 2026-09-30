@@ -1,7 +1,7 @@
 import { Banner, Icon, Loader, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
-import { useCreateBucket, useSetBucketReplication, useSetBucketVersioning } from '@scality/data-browser-library';
+import { useSetBucketReplication, useSetBucketVersioning } from '@scality/data-browser-library';
 import {
   type MutationConfig,
   type PreviousResults,
@@ -22,10 +22,12 @@ import type { SetupResult, StartSetupBody } from '../../api/types';
 import { sourceStorageManagerRoleArn, useAssumeSourceRoleMutation } from '../../hooks/useAssumeSourceRoleMutation';
 import { useCRRConfigurationSetupMutation } from '../../hooks/useCRRConfigurationSetupMutation';
 import { useCreateCRRLocationMutation } from '../../hooks/useCreateCRRLocationMutation';
+import { useCreateSourceBucketMutation } from '../../hooks/useCreateSourceBucketMutation';
 import { useImportDestinationCertificateMutation } from '../../hooks/useImportDestinationCertificateMutation';
 import { type ConfigureFormValues, toStartSetupBody } from '../ConfigureStep/schema';
 import { buildCRRLocation, buildCRRLocationName } from './crrLocation';
 import { buildCRRReplicationConfiguration } from './replicationConfiguration';
+import { s3ErrorMessage } from './s3Errors';
 import {
   allSucceeded,
   buildStepViews,
@@ -94,7 +96,7 @@ export const ApplyActionsStep = (props: Props) => {
   const importCertificate = useImportDestinationCertificateMutation();
   const createSourceAccount = useCreateAccountMutation();
   const assumeSourceRole = useAssumeSourceRoleMutation();
-  const createSourceBucket = useCreateBucket();
+  const createSourceBucket = useCreateSourceBucketMutation();
   const enableSourceVersioning = useSetBucketVersioning();
   const setup = useCRRConfigurationSetupMutation();
   const createLocation = useCreateCRRLocationMutation({ waitForReconciliation: withReplicationRule });
@@ -229,7 +231,7 @@ export const ApplyActionsStep = (props: Props) => {
 
   const { Slots, steps, start, getResult, allRequiredStepsComplete } = useChainedMutations({ mutations, variables });
 
-  const errorMessage = (error: unknown): string | undefined => (error as Error | undefined)?.message;
+  const errorMessage = (error: unknown): string | undefined => s3ErrorMessage(error, sourceBucketName);
   const linkErrors: Record<string, string | undefined> = {
     'import-destination-certificate': errorMessage(importCertificate.error),
     'create-source-account': errorMessage(createSourceAccount.error),
