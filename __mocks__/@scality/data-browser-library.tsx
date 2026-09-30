@@ -122,3 +122,23 @@ export const useBuckets = jest.fn(() => ({
   isError: false,
   error: null,
 }));
+
+export const BUCKET_LIST_ICON_ONLY_AT = 480;
+
+export const BucketOverviewField = ({
+  label,
+  value,
+  children,
+  actions,
+}: {
+  label: string;
+  value?: React.ReactNode;
+  children?: React.ReactNode;
+  actions?: React.ReactNode;
+}) => (
+  <div>
+    <span>{label}</span>
+    <span>{children || value || 'N/A'}</span>
+    {actions}
+  </div>
+);

@@ -1,6 +1,5 @@
-import { useBucketOverviewContext, useGetBucketTagging } from '@scality/data-browser-library';
+import { BucketOverviewField, useBucketOverviewContext, useGetBucketTagging } from '@scality/data-browser-library';
 import { VeeamCapacityOverviewRow } from '../../ISV/components/veeam/VeeamCapacityOverviewRow';
-import { Key, Row, Value } from '../../ui-elements/TableKeyValue2';
 import { detectBucketApplication } from '../utils/bucketApplicationDetector';
 
 /**
@@ -30,10 +29,7 @@ export const UseCaseSection = () => {
 
   return (
     <>
-      <Row>
-        <Key>Application</Key>
-        <Value>{application.displayName}</Value>
-      </Row>
+      <BucketOverviewField label="Application" value={application.displayName} />
       {application.shouldShowVeeamCapacity && <VeeamCapacityOverviewRow bucketName={bucketName} />}
     </>
   );

@@ -1,7 +1,6 @@
 import { PrettyBytes } from '@scality/core-ui';
-import { useGetBucketTagging, useGetObject } from '@scality/data-browser-library';
+import { BucketOverviewField, useGetBucketTagging, useGetObject } from '@scality/data-browser-library';
 import { useCallback, useEffect, useState } from 'react';
-import * as T from '../../../ui-elements/TableKeyValue2';
 import {
   BUCKET_TAG_APPLICATION,
   BUCKET_TAG_VEEAM_APPLICATION,
@@ -75,20 +74,22 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
   if (!isSOSAPIEnabled) return null;
 
   return (
-    <T.Row>
-      <T.Key> Max repository Capacity </T.Key>
-      <T.GroupValues>
-        {isLoading ? 'Loading...' : isError ? 'Error' : <PrettyBytes bytes={capacity} decimals={2} />}
-        {!isLoading && !isError && (
+    <BucketOverviewField
+      label="Max repository Capacity"
+      actions={
+        !isLoading &&
+        !isError && (
           <VeeamCapacityModal
             bucketName={bucketName}
             maxCapacity={capacity}
             status={veeamObjectStatus}
             onCapacityUpdated={handleCapacityUpdated}
           />
-        )}
-      </T.GroupValues>
-    </T.Row>
+        )
+      }
+    >
+      {isLoading ? 'Loading...' : isError ? 'Error' : <PrettyBytes bytes={capacity} decimals={2} />}
+    </BucketOverviewField>
   );
 };
 
