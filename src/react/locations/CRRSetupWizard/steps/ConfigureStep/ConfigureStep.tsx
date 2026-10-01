@@ -26,7 +26,7 @@ export const CONFIGURE_STEP_INDEX = 0;
 
 const errorCopy: Partial<Record<ProblemCode, string>> = {
   DestinationUnreachable: 'Failed to reach the destination. Check the base domain and your network connection.',
-  DestinationCertificateInvalid: 'The destination certificate is invalid.',
+  DestinationCertificateInvalid: 'The certificate does not match the destination.',
   DestinationAuthFailed: 'Failed to authenticate with the destination. Check your credentials.',
   AssumeRoleFailed: 'Failed to assume the replication role on the destination.',
   Unauthorized: 'Your session has expired. Sign in again.',
