@@ -151,6 +151,6 @@ describe('CRRSetupWizard — Configure step', () => {
     fillConnectionForm();
     await clickWhenEnabled(/Connect/i);
 
-    expect(await screen.findByText(/The destination certificate is invalid/i)).toBeInTheDocument();
+    expect(await screen.findByText(/does not match the destination/i)).toBeInTheDocument();
   });
 });
