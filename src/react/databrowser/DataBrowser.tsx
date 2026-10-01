@@ -32,14 +32,11 @@ const BUCKET_OPERATIONS_DOCS = '/artesca/docs/data_management/bucket_operations'
 const LIFECYCLE_EXPIRATION_DOCS_URL = `${BUCKET_OPERATIONS_DOCS}/lifecycle_expiration/index.html`;
 const LIFECYCLE_TRANSITION_DOCS_URL = `${BUCKET_OPERATIONS_DOCS}/transition_workflow.html`;
 
-// Container widths below which the two columns we add to the bucket list drop. They sit above the
-// library's own thresholds because they are the least essential columns in the table, and a fixed
-// width would have pinned the table's minimum width instead of letting anything give.
-//
-// Measured content demand at a 14px root, widest cell plus the sort caret and the cell gutter:
-// Bucket Name 135, Storage Location 195 (ours appends the service name), Data Used 90,
-// Created on 160, Metadata updates 135. Four columns therefore stop fitting under ~580, five under
-// ~715; below each the library's own Created on (425) and Storage Location (280) take over.
+// Container widths below which the two columns we add to the bucket list drop. Content demand at a
+// 14px root, widest cell plus the sort caret and the cell gutter: Bucket Name 135, Storage Location
+// 195 (ours appends the service name), Data Used 90, Created on 160, Metadata updates 135. Four
+// columns stop fitting under 580, five under 715; below each, the library's own Created on (425)
+// and Storage Location (280) drop instead.
 const DATA_USED_DROP_AT = 580;
 const METADATA_UPDATES_DROP_AT = 715;
 
@@ -112,9 +109,8 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
 
   const extraBucketListColumns = useMemo(() => {
     const columns: ColumnConfig<Bucket>[] = [
-      // Overrides the library's own Storage Location column, so it inherits that column's flex,
-      // sorting and drop threshold. It only replaces the renderer: ours appends the service name
-      // to the location.
+      // Same id as the library's Storage Location column: replaces its renderer, keeps its flex,
+      // sorting and drop threshold.
       {
         id: 'location',
         header: 'Storage Location',

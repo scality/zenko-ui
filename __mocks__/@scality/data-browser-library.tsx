@@ -123,8 +123,6 @@ export const useBuckets = jest.fn(() => ({
   error: null,
 }));
 
-export const BUCKET_LIST_ICON_ONLY_AT = 480;
-
 export const BucketOverviewField = ({
   label,
   value,

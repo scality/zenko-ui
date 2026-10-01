@@ -1,10 +1,14 @@
 import { Icon } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import { BUCKET_LIST_ICON_ONLY_AT } from '@scality/data-browser-library';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useState } from 'react';
 import { useIsVeeamVBROnly } from '../hooks/useIsVeeamVBROnly';
 import ISVModal from './Modal/ISVModal';
+
+// Container width below which this button drops its label. Beside Create Bucket the pair measures
+// 343px; 660 leaves the toolbar's left block room for the counter, a 155px search field and the
+// refresh button.
+const ICON_ONLY_AT = 660;
 
 export const StartISVConnectorButton = () => {
   const navigate = useBasenameRelativeNavigate();
@@ -26,9 +30,7 @@ export const StartISVConnectorButton = () => {
           }
         }}
         type="button"
-        // Collapses with the bucket list's own Create Bucket button rather than on its own
-        // threshold: the two sit in the same toolbar, and this label is the longer of the pair.
-        iconOnly={BUCKET_LIST_ICON_ONLY_AT}
+        iconOnly={ICON_ONLY_AT}
       />
     </>
   );
