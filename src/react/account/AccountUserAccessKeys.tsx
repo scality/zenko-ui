@@ -91,6 +91,8 @@ const AccessKeysCell = (rowValue) => {
   );
 };
 
+const DELETE_ICON_ONLY_AT = 560;
+
 const DeleteAccessKeyAction = (rowValue) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
   const IAMClient = useIAMClient();
@@ -122,6 +124,7 @@ const DeleteAccessKeyAction = (rowValue) => {
         disabled={accessKeyStatus === 'Active'}
         icon={<Icon name="Delete" />}
         label="Delete"
+        iconOnly={DELETE_ICON_ONLY_AT}
         onClick={() => {
           setShowModal(true);
         }}

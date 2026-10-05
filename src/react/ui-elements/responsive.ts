@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 /* Container width below which a table row's action button collapses to icon-only — it sits in
    a column far narrower than the page, so it gives way first. 760 is just under the 768px
    content box this work targets: a 500px side drawer open on a 1268px browser. */
@@ -21,3 +23,16 @@ export const PANEL_ACTION_ICON_ONLY_BELOW = 768;
 /* Below this width the editor's aside — its copy button and any note — moves under the editor
    instead of beside it: side by side, the editor is too narrow to read a line of JSON in. */
 export const EDITOR_ASIDE_STACK_AT = 540;
+
+/* Wrap the table inside its container: an element cannot query its own container, so the custom
+   property would never switch. */
+export const RowActionsWidthScope = styled.div`
+  display: contents;
+  --row-actions-width: 26rem;
+
+  @container responsive (max-width: ${ROW_ACTION_ICON_ONLY_BELOW}px) {
+    --row-actions-width: 16rem;
+  }
+`;
+
+export const ROW_ACTIONS_RESERVED_WIDTH = 'var(--row-actions-width)';

@@ -6,6 +6,7 @@ import type { ChangeEvent, JSX } from 'react';
 import { useLocation } from 'react-router';
 import type IAMClient from '../../js/IAMClient';
 import { useIAMClient } from '../IAMProvider';
+import { RowActionsWidthScope } from '../ui-elements/responsive';
 import { useQueryParams } from '../utils/hooks';
 import { type AWS_PAGINATED_ENTITIES, type AWS_PAGINATED_QUERY, useAwsPaginatedEntities } from '../utils/IAMhooks';
 
@@ -74,72 +75,74 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
 
   return (
     <Box height="100%" container>
-      <Table
-        //@ts-expect-error fix this when you are working on it
-        columns={columns}
-        //@ts-expect-error fix this when you are working on it
-        data={data}
-        defaultSortingKey={defaultSortingKey}
-        status={queryResult.firstPageStatus}
-        revealDroppedColumns
-        entityName={{
-          en: {
-            singular: singularResourceName,
-            plural: pluralResourceName,
-          },
-        }}
-      >
-        <Wrap style={{ padding: spacing.r16 }}>
-          <Box display="flex" alignItems="center">
-            {queryResult.firstPageStatus !== 'loading' && queryResult.firstPageStatus !== 'error'
-              ? data &&
-                filterData && (
-                  <TableItemCount
-                    locale="en"
-                    count={data.length}
-                    entity={{
-                      singular: singularResourceName,
-                      plural: pluralResourceName,
+      <RowActionsWidthScope>
+        <Table
+          //@ts-expect-error fix this when you are working on it
+          columns={columns}
+          //@ts-expect-error fix this when you are working on it
+          data={data}
+          defaultSortingKey={defaultSortingKey}
+          status={queryResult.firstPageStatus}
+          revealDroppedColumns
+          entityName={{
+            en: {
+              singular: singularResourceName,
+              plural: pluralResourceName,
+            },
+          }}
+        >
+          <Wrap style={{ padding: spacing.r16 }}>
+            <Box display="flex" alignItems="center">
+              {queryResult.firstPageStatus !== 'loading' && queryResult.firstPageStatus !== 'error'
+                ? data &&
+                  filterData && (
+                    <TableItemCount
+                      locale="en"
+                      count={data.length}
+                      entity={{
+                        singular: singularResourceName,
+                        plural: pluralResourceName,
+                      }}
+                    />
+                  )
+                : ''}
+              <WithTooltipWhileLoading
+                isLoading={queryResult.status === 'loading'}
+                tooltipOverlay={disabledSearchWhileLoading}
+              >
+                {filterData ? (
+                  <SearchInput
+                    disabled={queryResult.status !== 'success'}
+                    value={search}
+                    placeholder={'Search'}
+                    onReset={() => {
+                      queryParams.delete(SEARCH_QUERY_PARAM);
+                      navigate(`${location.pathname}?${queryParams.toString()}`);
+                    }}
+                    onChange={(evt: ChangeEvent<HTMLInputElement>) => {
+                      setSearch(evt.target.value);
                     }}
                   />
-                )
-              : ''}
-            <WithTooltipWhileLoading
-              isLoading={queryResult.status === 'loading'}
-              tooltipOverlay={disabledSearchWhileLoading}
-            >
-              {filterData ? (
-                <SearchInput
-                  disabled={queryResult.status !== 'success'}
-                  value={search}
-                  placeholder={'Search'}
-                  onReset={() => {
-                    queryParams.delete(SEARCH_QUERY_PARAM);
-                    navigate(`${location.pathname}?${queryParams.toString()}`);
-                  }}
-                  onChange={(evt: ChangeEvent<HTMLInputElement>) => {
-                    setSearch(evt.target.value);
-                  }}
-                />
-              ) : (
-                <Table.SearchWithQueryParams
-                  queryParams={SEARCH_QUERY_PARAM}
-                  disabled={queryResult.status !== 'success'}
-                />
-              )}
-            </WithTooltipWhileLoading>
-            {queryResult.firstPageStatus === 'loading' ? <Box ml={12}>{loading}</Box> : ''}
-            {queryResult.status === 'error' ? <Box ml={12}>{errorPreviousHeaders}</Box> : ''}
-          </Box>
-          {additionalHeaders}
-        </Wrap>
-        <Table.SingleSelectableContent
-          rowHeight="h40"
-          separationLineVariant="backgroundLevel1"
-          //@ts-expect-error fix this when you are working on it
-          customItemKey={getItemKey}
-        ></Table.SingleSelectableContent>
-      </Table>
+                ) : (
+                  <Table.SearchWithQueryParams
+                    queryParams={SEARCH_QUERY_PARAM}
+                    disabled={queryResult.status !== 'success'}
+                  />
+                )}
+              </WithTooltipWhileLoading>
+              {queryResult.firstPageStatus === 'loading' ? <Box ml={12}>{loading}</Box> : ''}
+              {queryResult.status === 'error' ? <Box ml={12}>{errorPreviousHeaders}</Box> : ''}
+            </Box>
+            {additionalHeaders}
+          </Wrap>
+          <Table.SingleSelectableContent
+            rowHeight="h40"
+            separationLineVariant="backgroundLevel1"
+            //@ts-expect-error fix this when you are working on it
+            customItemKey={getItemKey}
+          ></Table.SingleSelectableContent>
+        </Table>
+      </RowActionsWidthScope>
     </Box>
   );
 };
