@@ -35,10 +35,14 @@ const LIFECYCLE_TRANSITION_DOCS_URL = `${BUCKET_OPERATIONS_DOCS}/transition_work
 // Container widths below which the two columns we add to the bucket list drop. Content demand at a
 // 14px root, widest cell plus the sort caret and the cell gutter: Bucket Name 135, Storage Location
 // 195 (ours appends the service name), Data Used 90, Created on 160, Metadata updates 135. Four
-// columns stop fitting under 580, five under 715; below each, the library's own Created on (425)
-// and Storage Location (280) drop instead.
+// columns stop fitting under 580, five under 715.
 const DATA_USED_DROP_AT = 580;
 const METADATA_UPDATES_DROP_AT = 715;
+
+// Library's Storage Location threshold and flex, restated because an override inherits them only
+// from DBR-78. Remove both constants then.
+const LOCATION_DROP_AT = 280;
+const LOCATION_FLEX = '1.2';
 
 const EXTRA_BUCKET_OVERVIEW_SECTIONS = [
   {
@@ -109,13 +113,14 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
 
   const extraBucketListColumns = useMemo(() => {
     const columns: ColumnConfig<Bucket>[] = [
-      // Same id as the library's Storage Location column: replaces its renderer, keeps its flex,
-      // sorting and drop threshold.
+      // Sorting is lost until DBR-78: an override replaces the default column today, and config
+      // cannot restate sorting.
       {
         id: 'location',
         header: 'Storage Location',
+        dropAt: LOCATION_DROP_AT,
         render: StorageLocationColumn,
-        cellStyle: { textAlign: 'left' },
+        cellStyle: { width: 'unset', flex: LOCATION_FLEX, minWidth: 0, textAlign: 'left' },
       },
     ];
 
