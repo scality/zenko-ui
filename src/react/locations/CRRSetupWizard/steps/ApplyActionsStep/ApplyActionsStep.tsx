@@ -1,7 +1,7 @@
 import { Banner, Icon, Loader, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
-import { useCreateBucket, useSetBucketReplication, useSetBucketVersioning } from '@scality/data-browser-library';
+import { useCreateBucket, useSetBucketVersioning } from '@scality/data-browser-library';
 import {
   type MutationConfig,
   type PreviousResults,
@@ -22,6 +22,7 @@ import type { SetupResult, StartSetupBody } from '../../api/types';
 import { sourceStorageManagerRoleArn, useAssumeSourceRoleMutation } from '../../hooks/useAssumeSourceRoleMutation';
 import { useCRRConfigurationSetupMutation } from '../../hooks/useCRRConfigurationSetupMutation';
 import { useCreateCRRLocationMutation } from '../../hooks/useCreateCRRLocationMutation';
+import { useCreateReplicationRuleMutation } from '../../hooks/useCreateReplicationRuleMutation';
 import { useImportDestinationCertificateMutation } from '../../hooks/useImportDestinationCertificateMutation';
 import { type ConfigureFormValues, toStartSetupBody } from '../ConfigureStep/schema';
 import { buildCRRLocation, buildCRRLocationName } from './crrLocation';
@@ -97,8 +98,8 @@ export const ApplyActionsStep = (props: Props) => {
   const createSourceBucket = useCreateBucket();
   const enableSourceVersioning = useSetBucketVersioning();
   const setup = useCRRConfigurationSetupMutation();
-  const createLocation = useCreateCRRLocationMutation({ waitForReconciliation: withReplicationRule });
-  const createReplicationRuleMutation = useSetBucketReplication();
+  const createLocation = useCreateCRRLocationMutation();
+  const createReplicationRuleMutation = useCreateReplicationRuleMutation();
 
   const accountsAdapter = useAccessibleAccountsAdapter();
   const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
