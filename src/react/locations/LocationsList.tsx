@@ -257,6 +257,7 @@ export function LocationsList() {
         dropAt: 900,
         cellStyle: {
           textAlign: 'left',
+          minWidth: '9rem',
           flex: '0.3',
           width: 'unset',
         },
@@ -287,6 +288,7 @@ export function LocationsList() {
       dropAt: 660,
       cellStyle: {
         textAlign: 'left',
+        minWidth: '9.5rem',
         flex: '0.5',
         width: 'unset',
       },
