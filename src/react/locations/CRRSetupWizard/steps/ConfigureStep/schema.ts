@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import type { FieldErrors, Resolver } from 'react-hook-form';
 import { accountNameValidationSchema } from '../../../../account/AccountCreate';
-import type { ResolveRequestBody, StartSetupBody, VerifyRequestBody } from '../../api/types';
+import type { ConnectionRequestBody, ResolveRequestBody, StartSetupBody } from '../../api/types';
 
 export type AccountNameType = 'create' | 'existing';
 
@@ -100,8 +100,7 @@ export const configureResolver: Resolver<ConfigureFormValues> = (values) => {
 
 export const endpointUrl = (hostname: string): string => `https://${hostname}`;
 
-// Verify only authenticates and lists endpoints, so it carries no S3 endpoint.
-export const toVerifyBody = (values: ConfigureFormValues): VerifyRequestBody => ({
+export const toConnectionBody = (values: ConfigureFormValues): ConnectionRequestBody => ({
   destinationConnection: {
     baseDomain: values.baseDomain,
     adminUser: values.username,
@@ -115,15 +114,10 @@ export const toResolveBody = (values: ConfigureFormValues): ResolveRequestBody =
   destinationCertificate: values.certificate,
 });
 
+// The destination and its credentials travel with the connection, not here.
 export const toStartSetupBody = (values: ConfigureFormValues): StartSetupBody => {
   const body: StartSetupBody = {
-    destinationConnection: {
-      baseDomain: values.baseDomain,
-      adminUser: values.username,
-      adminPassword: values.password,
-      s3Endpoint: endpointUrl(values.selectedEndpoint),
-    },
-    destinationCertificate: values.certificate,
+    s3Endpoint: endpointUrl(values.selectedEndpoint),
     destinationAccount: { mode: 'create', name: values.destinationAccountName },
   };
   if (values.createReplicationRule && values.targetBucketName) {

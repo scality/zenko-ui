@@ -18,7 +18,7 @@ import { Form } from '../../../../ui-elements/CoreUIForm';
 import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import { ErrorText, StatusBox } from '../../../../ui-elements/status';
 import Table, * as T from '../../../../ui-elements/Table';
-import type { SetupResult, StartSetupBody } from '../../api/types';
+import type { SetupResult, StartSetupVariables } from '../../api/types';
 import { sourceStorageManagerRoleArn, useAssumeSourceRoleMutation } from '../../hooks/useAssumeSourceRoleMutation';
 import { useCRRConfigurationSetupMutation } from '../../hooks/useCRRConfigurationSetupMutation';
 import { useCreateCRRLocationMutation } from '../../hooks/useCreateCRRLocationMutation';
@@ -38,9 +38,10 @@ import {
 
 export const APPLY_ACTIONS_STEP_INDEX = 1;
 
-type Props = Partial<ConfigureFormValues> & { destinationInstanceName?: string };
+type Props = Partial<ConfigureFormValues> & { destinationInstanceName?: string; connectionId?: string };
 
-const isCompleteFormValues = (values: Props): values is ConfigureFormValues =>
+const isCompleteFormValues = (values: Props): values is ConfigureFormValues & { connectionId: string } =>
+  values.connectionId !== undefined &&
   values.baseDomain !== undefined &&
   values.selectedEndpoint !== undefined &&
   values.certificate !== undefined &&
@@ -110,9 +111,10 @@ export const ApplyActionsStep = (props: Props) => {
       : '';
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: depend on the individual form fields, not the props object identity
-  const body: StartSetupBody | null = useMemo(
-    () => (isCompleteFormValues(props) ? toStartSetupBody(props) : null),
+  const setupVariables: StartSetupVariables | null = useMemo(
+    () => (isCompleteFormValues(props) ? { connectionId: props.connectionId, body: toStartSetupBody(props) } : null),
     [
+      props.connectionId,
       props.certificate,
       props.username,
       props.password,
@@ -177,7 +179,7 @@ export const ApplyActionsStep = (props: Props) => {
     }
 
     configs.push({ id: CONFIGURATOR_CHAIN_LINK_ID, label: 'Configure Destination', mutation: setup });
-    resolvers[CONFIGURATOR_CHAIN_LINK_ID] = () => body;
+    resolvers[CONFIGURATOR_CHAIN_LINK_ID] = () => setupVariables;
 
     configs.push({
       id: 'import-destination-certificate',
@@ -215,7 +217,7 @@ export const ApplyActionsStep = (props: Props) => {
   }, [
     isNewSourceAccount,
     withReplicationRule,
-    body,
+    setupVariables,
     locationName,
     existingSourceRoleArn,
     importCertificate,
@@ -284,11 +286,11 @@ export const ApplyActionsStep = (props: Props) => {
 
   const hasStartedRef = useRef(false);
   useEffect(() => {
-    if (body && !hasStartedRef.current) {
+    if (setupVariables && !hasStartedRef.current) {
       hasStartedRef.current = true;
       start();
     }
-  }, [body, start]);
+  }, [setupVariables, start]);
 
   const allDone = allSucceeded(stepViews) && allRequiredStepsComplete;
   // While the chain runs, Exit is disabled so the user can't navigate away mid-provisioning; it re-enables on completion or failure.
@@ -316,7 +318,7 @@ export const ApplyActionsStep = (props: Props) => {
 
   const title = `Configure ${destinationInstanceName || 'ARTESCA'} for Cross-Region Replication`;
 
-  if (!body) {
+  if (!setupVariables) {
     return (
       <Form layout={{ title, kind: 'page' }} style={{ maxWidth: '50rem', width: '100%' }} responsive>
         <Text>Please complete the previous step before running the setup.</Text>

@@ -11,7 +11,7 @@ export type DestinationConnection = {
   adminPassword: string;
 };
 
-export type VerifyRequestBody = {
+export type ConnectionRequestBody = {
   destinationConnection: DestinationConnection;
   destinationCertificate: string;
 };
@@ -21,9 +21,17 @@ export type DestinationEndpoint = {
   locationName: string;
 };
 
-export type VerifyResponse = {
-  ok: true;
+export type DestinationAccount = {
+  name: string;
+  id: string;
+};
+
+/** `connectionId` stands in for the admin credentials on every later call, until `expiresAt`. */
+export type ConnectionResponse = {
+  connectionId: string;
+  expiresAt: string;
   endpoints: DestinationEndpoint[];
+  accounts: DestinationAccount[];
 };
 
 export type ResolveRequestBody = {
@@ -36,10 +44,14 @@ export type ResolveResponse = {
 };
 
 export type StartSetupBody = {
-  destinationConnection: DestinationConnection & { s3Endpoint: string };
-  destinationCertificate: string;
+  s3Endpoint: string;
   destinationAccount: { mode: 'create' | 'existing'; name: string };
   targetBucket?: string;
+};
+
+export type StartSetupVariables = {
+  connectionId: string;
+  body: StartSetupBody;
 };
 
 export type SetupResult = {
@@ -87,6 +99,8 @@ export type ProblemCode =
   | 'DestinationUnreachable'
   | 'DestinationCertificateInvalid'
   | 'DestinationAuthFailed'
+  | 'DestinationRefreshUnavailable'
+  | 'ConnectionInvalid'
   | 'AssumeRoleFailed'
   | 'OverlayTimeout'
   | 'ReplicationConfigRejected'

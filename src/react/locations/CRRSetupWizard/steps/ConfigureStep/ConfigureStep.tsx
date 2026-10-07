@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Form } from '../../../../ui-elements/CoreUIForm';
 import { ServiceError } from '../../api/crrConfiguratorClient';
 import type { ProblemCode } from '../../api/types';
-import { useCRRConfigurationVerifyMutation } from '../../hooks/useCRRConfigurationVerifyMutation';
+import { useDestinationConnectionMutation } from '../../hooks/useDestinationConnectionMutation';
 import { useResolveEndpointMutation } from '../../hooks/useResolveEndpointMutation';
 import { DestinationAccountSection, type ResolveStatus } from './DestinationAccountSection';
 import { DestinationConnectionSection } from './DestinationConnectionSection';
@@ -17,8 +17,8 @@ import {
   type ConfigureFormValues,
   configureResolver,
   defaultConfigureValues,
+  toConnectionBody,
   toResolveBody,
-  toVerifyBody,
 } from './schema';
 
 /** Step index for the wizard's Stepper.next() calls. */
@@ -28,6 +28,8 @@ const errorCopy: Partial<Record<ProblemCode, string>> = {
   DestinationUnreachable: 'Failed to reach the destination. Check the base domain and your network connection.',
   DestinationCertificateInvalid: 'The destination certificate is invalid.',
   DestinationAuthFailed: 'Failed to authenticate with the destination. Check your credentials.',
+  DestinationRefreshUnavailable:
+    'The destination does not issue refresh tokens, so the wizard cannot keep a connection to it open.',
   AssumeRoleFailed: 'Failed to assume the replication role on the destination.',
   Unauthorized: 'Your session has expired. Sign in again.',
   Forbidden: 'You are not authorized to configure replication.',
@@ -45,9 +47,9 @@ export const ConfigureStep = () => {
   const { next } = useStepper(CONFIGURE_STEP_INDEX);
   const navigate = useBasenameRelativeNavigate();
   const { showToast } = useToast();
-  const verify = useCRRConfigurationVerifyMutation();
+  const connection = useDestinationConnectionMutation();
   const resolveEndpoint = useResolveEndpointMutation();
-  const lastVerifiedRef = useRef<string | null>(null);
+  const lastConnectedRef = useRef<string | null>(null);
   const pendingResolveRef = useRef<string | null>(null);
   const [resolveStatus, setResolveStatus] = useState<ResolveStatus>('idle');
 
@@ -65,10 +67,10 @@ export const ConfigureStep = () => {
   } = formMethods;
 
   const onConnect = async () => {
-    const body = toVerifyBody(getValues());
+    const body = toConnectionBody(getValues());
     try {
-      await verify.mutateAsync(body);
-      lastVerifiedRef.current = JSON.stringify(body);
+      await connection.mutateAsync(body);
+      lastConnectedRef.current = JSON.stringify(body);
       // A fresh connection invalidates any prior endpoint choice.
       pendingResolveRef.current = null;
       setValue('selectedEndpoint', '', { shouldValidate: true });
@@ -97,13 +99,14 @@ export const ConfigureStep = () => {
   };
 
   const onContinue = handleSubmit((values) => {
-    if (resolveStatus !== 'resolvable') return;
-    next({ ...values });
+    if (resolveStatus !== 'resolvable' || !connection.data) return;
+    next({ ...values, connectionId: connection.data.connectionId });
   });
 
   const watchedValues = watch();
-  const isConnected = verify.isSuccess && lastVerifiedRef.current === JSON.stringify(toVerifyBody(watchedValues));
-  const endpoints = isConnected ? (verify.data?.endpoints ?? []) : [];
+  const isConnected =
+    connection.isSuccess && lastConnectedRef.current === JSON.stringify(toConnectionBody(watchedValues));
+  const endpoints = isConnected ? (connection.data?.endpoints ?? []) : [];
   const canContinue = isValid && isConnected && resolveStatus === 'resolvable';
 
   return (
@@ -119,7 +122,7 @@ export const ConfigureStep = () => {
               type="submit"
               variant="primary"
               label="Continue"
-              isLoading={verify.isLoading}
+              isLoading={connection.isLoading}
               disabled={!canContinue}
               icon={<Icon name="Arrow-right" />}
             />
@@ -133,7 +136,11 @@ export const ConfigureStep = () => {
           link="/artesca/docs/data_management/location_management/add_a_crr_location.html"
           linkText="Learn more"
         />
-        <DestinationConnectionSection isConnecting={verify.isLoading} onConnect={onConnect} isConnected={isConnected} />
+        <DestinationConnectionSection
+          isConnecting={connection.isLoading}
+          onConnect={onConnect}
+          isConnected={isConnected}
+        />
         <SourceSection />
         <DestinationAccountSection
           isConnected={isConnected}

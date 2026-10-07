@@ -5,10 +5,10 @@ import type { ReactNode } from 'react';
 import { QueryClient } from 'react-query';
 import { QueryClientProvider } from '../../../../QueryClientProvider';
 import { ServiceError } from '../api/crrConfiguratorClient';
-import type { VerifyRequestBody } from '../api/types';
-import { useCRRConfigurationVerifyMutation } from './useCRRConfigurationVerifyMutation';
+import type { ConnectionRequestBody } from '../api/types';
+import { useDestinationConnectionMutation } from './useDestinationConnectionMutation';
 
-const VERIFY_URL = '/crr-configurator/api/v1/verify';
+const CONNECTIONS_URL = '/crr-configurator/api/v1/destination/connections';
 const server = setupServer();
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
@@ -24,7 +24,7 @@ const buildWrapper = () => {
   );
 };
 
-const VERIFY_BODY: VerifyRequestBody = {
+const CONNECTION_BODY: ConnectionRequestBody = {
   destinationConnection: {
     baseDomain: 'crr-dest.artesca.local',
     adminUser: 'scality',
@@ -33,29 +33,29 @@ const VERIFY_BODY: VerifyRequestBody = {
   destinationCertificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
 };
 
-describe('useCRRConfigurationVerifyMutation', () => {
-  it('exposes the discovered endpoints on success', async () => {
-    server.use(
-      rest.post(VERIFY_URL, (_req, res, ctx) =>
-        res(ctx.json({ ok: true, endpoints: [{ hostname: 's3.crr-dest.artesca.local', locationName: 'us-east-1' }] })),
-      ),
-    );
+const CONNECTION = {
+  connectionId: 'sealed-handle',
+  expiresAt: '2026-10-07T14:00:00Z',
+  endpoints: [{ hostname: 's3.crr-dest.artesca.local', locationName: 'us-east-1' }],
+  accounts: [{ name: 'finance', id: '123456789012' }],
+};
 
-    const { result } = renderHook(() => useCRRConfigurationVerifyMutation(), {
+describe('useDestinationConnectionMutation', () => {
+  it('exposes the connection and what the destination offers on success', async () => {
+    server.use(rest.post(CONNECTIONS_URL, (_req, res, ctx) => res(ctx.json(CONNECTION))));
+
+    const { result } = renderHook(() => useDestinationConnectionMutation(), {
       wrapper: buildWrapper(),
     });
-    act(() => result.current.mutate(VERIFY_BODY));
+    act(() => result.current.mutate(CONNECTION_BODY));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual({
-      ok: true,
-      endpoints: [{ hostname: 's3.crr-dest.artesca.local', locationName: 'us-east-1' }],
-    });
+    expect(result.current.data).toEqual(CONNECTION);
   });
 
   it('exposes a ServiceError when the configurator returns problem+json', async () => {
     server.use(
-      rest.post(VERIFY_URL, (_req, res, ctx) =>
+      rest.post(CONNECTIONS_URL, (_req, res, ctx) =>
         res(
           ctx.status(400),
           ctx.set('Content-Type', 'application/problem+json'),
@@ -71,10 +71,10 @@ describe('useCRRConfigurationVerifyMutation', () => {
       ),
     );
 
-    const { result } = renderHook(() => useCRRConfigurationVerifyMutation(), {
+    const { result } = renderHook(() => useDestinationConnectionMutation(), {
       wrapper: buildWrapper(),
     });
-    act(() => result.current.mutate(VERIFY_BODY));
+    act(() => result.current.mutate(CONNECTION_BODY));
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBeInstanceOf(ServiceError);

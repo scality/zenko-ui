@@ -2,7 +2,7 @@ import { useShellHooks } from '@scality/module-federation';
 import { useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { SetupFailedError, startSetup } from '../api/crrConfiguratorClient';
-import type { SetupEvent, SetupResult, StartSetupBody } from '../api/types';
+import type { SetupEvent, SetupResult, StartSetupVariables } from '../api/types';
 
 const EVENTS_QUERY_KEY = ['crr-configurator', 'setup', 'events'] as const;
 
@@ -24,14 +24,14 @@ export const useCRRConfigurationSetupMutation = () => {
     staleTime: Number.POSITIVE_INFINITY,
   });
 
-  const mutation = useMutation<SetupResult, Error, StartSetupBody>({
-    mutationFn: async (body) => {
+  const mutation = useMutation<SetupResult, Error, StartSetupVariables>({
+    mutationFn: async ({ connectionId, body }) => {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
       queryClient.setQueryData<SetupEvent[]>(EVENTS_QUERY_KEY, []);
       const token = await getToken();
-      for await (const event of startSetup(body, { token, signal: controller.signal })) {
+      for await (const event of startSetup(connectionId, body, { token, signal: controller.signal })) {
         queryClient.setQueryData<SetupEvent[]>(EVENTS_QUERY_KEY, (prev = []) => [...prev, event]);
         if (event.event === 'setup.completed') return event.result;
         if (event.event === 'setup.failed') throw new SetupFailedError(event.error);

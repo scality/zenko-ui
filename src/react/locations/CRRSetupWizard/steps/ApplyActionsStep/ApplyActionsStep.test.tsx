@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { Wrapper } from '../../../../utils/testUtil';
@@ -44,9 +44,13 @@ const VALUES: ConfigureFormValues = {
   prefix: '',
 };
 
+const CONNECTION_ID = 'sealed-handle';
+
 describe('ApplyActionsStep', () => {
   it('lists every provisioning action in order, all pending, for the user to follow', () => {
-    render(<ApplyActionsStep {...VALUES} destinationInstanceName="paris-prod" />, { wrapper: Wrapper });
+    render(<ApplyActionsStep {...VALUES} connectionId={CONNECTION_ID} destinationInstanceName="paris-prod" />, {
+      wrapper: Wrapper,
+    });
 
     expect(screen.getByText('Configure paris-prod for Cross-Region Replication')).toBeInTheDocument();
 
@@ -73,23 +77,67 @@ describe('ApplyActionsStep', () => {
   });
 
   it('does not surface a source-account action when the user reuses an existing account', () => {
-    render(<ApplyActionsStep {...VALUES} accountNameType="existing" />, { wrapper: Wrapper });
+    render(<ApplyActionsStep {...VALUES} connectionId={CONNECTION_ID} accountNameType="existing" />, {
+      wrapper: Wrapper,
+    });
     expect(screen.queryByText(/Create Account on Source/i)).not.toBeInTheDocument();
     expect(screen.getAllByText('Pending...').length).toBe(11);
   });
 
   it('does not surface the source bucket, target bucket or replication rule when no rule is requested', () => {
-    render(<ApplyActionsStep {...VALUES} createReplicationRule={false} sourceBucketName="" targetBucketName="" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ApplyActionsStep
+        {...VALUES}
+        connectionId={CONNECTION_ID}
+        createReplicationRule={false}
+        sourceBucketName=""
+        targetBucketName=""
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
     expect(screen.queryByText(/Create Bucket on Source/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Target Bucket/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Replication Rule/i)).not.toBeInTheDocument();
     expect(screen.getAllByText('Pending...').length).toBe(9);
   });
 
-  it('falls back to "ARTESCA" in the title when Verify returned no instance name', () => {
+  it('runs the destination setup through the connection, without resending the admin credentials', async () => {
+    let request: { url: string; body: unknown } | undefined;
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        request = { url: req.url.pathname, body: req.body };
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(
+      <ApplyActionsStep
+        {...VALUES}
+        connectionId={CONNECTION_ID}
+        accountNameType="existing"
+        createReplicationRule={false}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    await waitFor(() => expect(request).toBeDefined());
+    expect(request?.url).toBe(`/crr-configurator/api/v1/destination/connections/${CONNECTION_ID}/replication-setups`);
+    expect(request?.body).toEqual({
+      s3Endpoint: 'https://s3.crr-dest.artesca.local',
+      destinationAccount: { mode: 'create', name: 'crr-dest' },
+    });
+  });
+
+  it('asks to complete the previous step when it arrives without a connection', () => {
     render(<ApplyActionsStep {...VALUES} />, { wrapper: Wrapper });
+    expect(screen.getByText('Please complete the previous step before running the setup.')).toBeInTheDocument();
+  });
+
+  it('falls back to "ARTESCA" in the title when Verify returned no instance name', () => {
+    render(<ApplyActionsStep {...VALUES} connectionId={CONNECTION_ID} />, { wrapper: Wrapper });
     expect(screen.getByText('Configure ARTESCA for Cross-Region Replication')).toBeInTheDocument();
   });
 });

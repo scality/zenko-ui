@@ -5,10 +5,10 @@ import type { ReactNode } from 'react';
 import { QueryClient } from 'react-query';
 import { QueryClientProvider } from '../../../../QueryClientProvider';
 import { SetupFailedError } from '../api/crrConfiguratorClient';
-import type { StartSetupBody } from '../api/types';
+import type { StartSetupVariables } from '../api/types';
 import { useCRRConfigurationSetupMutation } from './useCRRConfigurationSetupMutation';
 
-const STREAM_URL = '/crr-configurator/api/v1/replication-setups';
+const STREAM_URL = '/crr-configurator/api/v1/destination/connections/sealed-handle/replication-setups';
 const server = setupServer();
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
@@ -24,16 +24,13 @@ const buildWrapper = () => {
   );
 };
 
-const START_BODY: StartSetupBody = {
-  destinationConnection: {
-    baseDomain: 'crr-dest.artesca.local',
+const START: StartSetupVariables = {
+  connectionId: 'sealed-handle',
+  body: {
     s3Endpoint: 'https://s3.crr-dest.artesca.local',
-    adminUser: 'scality',
-    adminPassword: 'test',
+    destinationAccount: { mode: 'create', name: 'crr-account' },
+    targetBucket: 'target-bucket',
   },
-  destinationCertificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
-  destinationAccount: { mode: 'create', name: 'crr-account' },
-  targetBucket: 'target-bucket',
 };
 
 const ndjson = (...lines: unknown[]) => `${lines.map((l) => JSON.stringify(l)).join('\n')}\n`;
@@ -69,7 +66,7 @@ describe('useCRRConfigurationSetupMutation', () => {
       wrapper: buildWrapper(),
     });
     await act(async () => {
-      await result.current.mutateAsync(START_BODY).catch(() => undefined);
+      await result.current.mutateAsync(START).catch(() => undefined);
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -98,7 +95,7 @@ describe('useCRRConfigurationSetupMutation', () => {
       wrapper: buildWrapper(),
     });
     await act(async () => {
-      await result.current.mutateAsync(START_BODY).catch(() => undefined);
+      await result.current.mutateAsync(START).catch(() => undefined);
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
@@ -116,7 +113,7 @@ describe('useCRRConfigurationSetupMutation', () => {
     const { result } = renderHook(() => useCRRConfigurationSetupMutation(), {
       wrapper: buildWrapper(),
     });
-    act(() => result.current.mutate(START_BODY));
+    act(() => result.current.mutate(START));
     await waitFor(() => expect(result.current.isLoading).toBe(true));
 
     act(() => result.current.cancel());
@@ -146,7 +143,7 @@ describe('useCRRConfigurationSetupMutation', () => {
       wrapper: buildWrapper(),
     });
     await act(async () => {
-      await result.current.mutateAsync(START_BODY).catch(() => undefined);
+      await result.current.mutateAsync(START).catch(() => undefined);
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 

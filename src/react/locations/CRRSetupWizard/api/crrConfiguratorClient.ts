@@ -1,4 +1,6 @@
 import type {
+  ConnectionRequestBody,
+  ConnectionResponse,
   Problem,
   ProblemCode,
   ResolveRequestBody,
@@ -6,8 +8,6 @@ import type {
   SetupErrorPayload,
   SetupEvent,
   StartSetupBody,
-  VerifyRequestBody,
-  VerifyResponse,
 } from './types';
 
 const BASE = '/crr-configurator/api/v1';
@@ -34,15 +34,18 @@ export class SetupFailedError extends Error {
 
 export type ClientOptions = { token: string; signal?: AbortSignal };
 
-export async function verify(body: VerifyRequestBody, { token, signal }: ClientOptions): Promise<VerifyResponse> {
-  const response = await fetch(`${BASE}/verify`, {
+export async function createConnection(
+  body: ConnectionRequestBody,
+  { token, signal }: ClientOptions,
+): Promise<ConnectionResponse> {
+  const response = await fetch(`${BASE}/destination/connections`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
     signal,
   });
   if (!response.ok) throw await asServiceError(response);
-  return (await response.json()) as VerifyResponse;
+  return (await response.json()) as ConnectionResponse;
 }
 
 export async function resolve(body: ResolveRequestBody, { token, signal }: ClientOptions): Promise<ResolveResponse> {
@@ -56,17 +59,24 @@ export async function resolve(body: ResolveRequestBody, { token, signal }: Clien
   return (await response.json()) as ResolveResponse;
 }
 
-export async function* startSetup(body: StartSetupBody, { token, signal }: ClientOptions): AsyncIterable<SetupEvent> {
-  const response = await fetch(`${BASE}/replication-setups`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/x-ndjson',
-      Authorization: `Bearer ${token}`,
+export async function* startSetup(
+  connectionId: string,
+  body: StartSetupBody,
+  { token, signal }: ClientOptions,
+): AsyncIterable<SetupEvent> {
+  const response = await fetch(
+    `${BASE}/destination/connections/${encodeURIComponent(connectionId)}/replication-setups`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/x-ndjson',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+      signal,
     },
-    body: JSON.stringify(body),
-    signal,
-  });
+  );
   if (!response.ok) throw await asServiceError(response);
   if (!response.body) throw new Error('replication-setups stream has no body');
 

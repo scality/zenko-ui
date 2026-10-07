@@ -5,7 +5,7 @@ import { setupServer } from 'msw/node';
 import { Wrapper } from '../../utils/testUtil';
 import { CRRSetupWizard } from './CRRSetupWizard';
 
-const VERIFY_URL = '/crr-configurator/api/v1/verify';
+const CONNECTIONS_URL = '/crr-configurator/api/v1/destination/connections';
 const RESOLVE_URL = '/crr-configurator/api/v1/resolve';
 const server = setupServer();
 
@@ -22,8 +22,19 @@ const ENDPOINTS = [
   { hostname: 's3.repl-vlan.crr-dest.artesca.local', locationName: 'us-east-1' },
 ];
 
-const mockVerifyEndpoints = () =>
-  server.use(rest.post(VERIFY_URL, (_req, res, ctx) => res(ctx.json({ ok: true, endpoints: ENDPOINTS }))));
+const mockConnection = () =>
+  server.use(
+    rest.post(CONNECTIONS_URL, (_req, res, ctx) =>
+      res(
+        ctx.json({
+          connectionId: 'sealed-handle',
+          expiresAt: '2026-07-16T13:29:30Z',
+          endpoints: ENDPOINTS,
+          accounts: [],
+        }),
+      ),
+    ),
+  );
 
 const mockResolve = (resolvable: boolean) =>
   server.use(rest.post(RESOLVE_URL, (_req, res, ctx) => res(ctx.json({ resolvable }))));
@@ -56,7 +67,7 @@ const pickEndpoint = async (hostname: string) => {
 
 describe('CRRSetupWizard — Configure step', () => {
   it('discovers the destination S3 endpoints when the user clicks Connect', async () => {
-    mockVerifyEndpoints();
+    mockConnection();
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
     fillConnectionForm();
@@ -69,7 +80,7 @@ describe('CRRSetupWizard — Configure step', () => {
   });
 
   it('marks a picked endpoint resolvable and lets the user continue', async () => {
-    mockVerifyEndpoints();
+    mockConnection();
     mockResolve(true);
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
@@ -84,7 +95,7 @@ describe('CRRSetupWizard — Configure step', () => {
   });
 
   it('blocks Continue when the picked endpoint does not resolve from the source', async () => {
-    mockVerifyEndpoints();
+    mockConnection();
     mockResolve(false);
     render(<CRRSetupWizard />, { wrapper: Wrapper });
 
@@ -99,7 +110,7 @@ describe('CRRSetupWizard — Configure step', () => {
   });
 
   it('ignores a slow resolvability response for a previously selected endpoint', async () => {
-    mockVerifyEndpoints();
+    mockConnection();
     // Reachable endpoint answers slowly; the unreachable one picked next answers
     // first, so the stale ✓ lands after the current pick's ✗.
     server.use(
@@ -131,7 +142,7 @@ describe('CRRSetupWizard — Configure step', () => {
 
   it('surfaces the ARTESCA problem code when Connect is rejected', async () => {
     server.use(
-      rest.post(VERIFY_URL, (_req, res, ctx) =>
+      rest.post(CONNECTIONS_URL, (_req, res, ctx) =>
         res(
           ctx.status(400),
           ctx.set('Content-Type', 'application/problem+json'),

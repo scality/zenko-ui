@@ -1,11 +1,12 @@
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { resolve, ServiceError, startSetup, verify } from './crrConfiguratorClient';
-import type { SetupEvent, StartSetupBody, VerifyRequestBody } from './types';
+import { createConnection, resolve, ServiceError, startSetup } from './crrConfiguratorClient';
+import type { ConnectionRequestBody, SetupEvent, StartSetupBody } from './types';
 
-const VERIFY_URL = '/crr-configurator/api/v1/verify';
+const CONNECTIONS_URL = '/crr-configurator/api/v1/destination/connections';
 const RESOLVE_URL = '/crr-configurator/api/v1/resolve';
-const STREAM_URL = '/crr-configurator/api/v1/replication-setups';
+const CONNECTION_ID = 'sealed-handle';
+const STREAM_URL = `/crr-configurator/api/v1/destination/connections/${CONNECTION_ID}/replication-setups`;
 const TOKEN = 'test-token';
 const server = setupServer();
 
@@ -13,7 +14,7 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const VERIFY_BODY: VerifyRequestBody = {
+const CONNECTION_BODY: ConnectionRequestBody = {
   destinationConnection: {
     baseDomain: 'crr-dest.artesca.local',
     adminUser: 'scality',
@@ -23,13 +24,7 @@ const VERIFY_BODY: VerifyRequestBody = {
 };
 
 const START_BODY: StartSetupBody = {
-  destinationConnection: {
-    baseDomain: 'crr-dest.artesca.local',
-    s3Endpoint: 'https://s3.crr-dest.artesca.local',
-    adminUser: 'scality',
-    adminPassword: 'test',
-  },
-  destinationCertificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
+  s3Endpoint: 'https://s3.crr-dest.artesca.local',
   destinationAccount: { mode: 'create', name: 'crr-account' },
   targetBucket: 'target-bucket',
 };
@@ -39,35 +34,30 @@ const ndjson = (...lines: unknown[]) => `${lines.map((l) => JSON.stringify(l)).j
 const problemJSON = (status: number, code: string, extras: Record<string, unknown> = {}) =>
   JSON.stringify({ type: 'about:blank', title: code, status, code, ...extras });
 
-describe('crrConfiguratorClient / verify', () => {
-  it('returns the discovered S3 endpoints when the configurator accepts the destination', async () => {
-    server.use(
-      rest.post(VERIFY_URL, (req, res, ctx) => {
-        if (req.headers.get('authorization') !== `Bearer ${TOKEN}`) return res(ctx.status(401));
-        return res(
-          ctx.json({
-            ok: true,
-            endpoints: [
-              { hostname: 's3.crr-dest.artesca.local', locationName: 'us-east-1' },
-              { hostname: 's3.repl-vlan.crr-dest.artesca.local', locationName: 'us-east-1' },
-            ],
-          }),
-        );
-      }),
-    );
-
-    await expect(verify(VERIFY_BODY, { token: TOKEN })).resolves.toEqual({
-      ok: true,
+describe('crrConfiguratorClient / createConnection', () => {
+  it('returns the connection and what the destination offers', async () => {
+    const connection = {
+      connectionId: CONNECTION_ID,
+      expiresAt: '2026-07-16T13:29:30Z',
       endpoints: [
         { hostname: 's3.crr-dest.artesca.local', locationName: 'us-east-1' },
         { hostname: 's3.repl-vlan.crr-dest.artesca.local', locationName: 'us-east-1' },
       ],
-    });
+      accounts: [{ name: 'finance', id: '123456789012' }],
+    };
+    server.use(
+      rest.post(CONNECTIONS_URL, (req, res, ctx) => {
+        if (req.headers.get('authorization') !== `Bearer ${TOKEN}`) return res(ctx.status(401));
+        return res(ctx.json(connection));
+      }),
+    );
+
+    await expect(createConnection(CONNECTION_BODY, { token: TOKEN })).resolves.toEqual(connection);
   });
 
   it('throws a ServiceError carrying the ARTESCA problem code on RFC 7807 responses', async () => {
     server.use(
-      rest.post(VERIFY_URL, (_req, res, ctx) =>
+      rest.post(CONNECTIONS_URL, (_req, res, ctx) =>
         res(
           ctx.status(400),
           ctx.set('Content-Type', 'application/problem+json'),
@@ -76,16 +66,16 @@ describe('crrConfiguratorClient / verify', () => {
       ),
     );
 
-    await expect(verify(VERIFY_BODY, { token: TOKEN })).rejects.toMatchObject({
+    await expect(createConnection(CONNECTION_BODY, { token: TOKEN })).rejects.toMatchObject({
       name: 'ServiceError',
       problem: { code: 'DestinationCertificateInvalid', status: 400 },
     });
   });
 
   it('surfaces a generic Error when the configurator replies without a problem body', async () => {
-    server.use(rest.post(VERIFY_URL, (_req, res, ctx) => res(ctx.status(503), ctx.text('backend down'))));
+    server.use(rest.post(CONNECTIONS_URL, (_req, res, ctx) => res(ctx.status(503), ctx.text('backend down'))));
 
-    const promise = verify(VERIFY_BODY, { token: TOKEN });
+    const promise = createConnection(CONNECTION_BODY, { token: TOKEN });
     await expect(promise).rejects.toThrow('HTTP 503');
     await expect(promise).rejects.not.toBeInstanceOf(ServiceError);
   });
@@ -134,9 +124,11 @@ describe('crrConfiguratorClient / resolve', () => {
 
 describe('crrConfiguratorClient / startSetup', () => {
   it('yields every step event and the terminal setup.completed', async () => {
+    let sentBody: unknown;
     server.use(
       rest.post(STREAM_URL, (req, res, ctx) => {
         if (req.headers.get('authorization') !== `Bearer ${TOKEN}`) return res(ctx.status(401));
+        sentBody = req.body;
         return res(
           ctx.status(200),
           ctx.set('Content-Type', 'application/x-ndjson'),
@@ -163,11 +155,13 @@ describe('crrConfiguratorClient / startSetup', () => {
     );
 
     const collected: SetupEvent[] = [];
-    for await (const event of startSetup(START_BODY, { token: TOKEN })) {
+    for await (const event of startSetup(CONNECTION_ID, START_BODY, { token: TOKEN })) {
       collected.push(event);
     }
 
     expect(collected.map((e) => e.event)).toEqual(['step.started', 'step.completed', 'setup.completed']);
+    // The connection carries the credentials: the admin password crossed once, at connect.
+    expect(sentBody).toEqual(START_BODY);
   });
 
   it('yields setup.failed events with the ARTESCA problem code preserved', async () => {
@@ -188,7 +182,7 @@ describe('crrConfiguratorClient / startSetup', () => {
     );
 
     const collected: SetupEvent[] = [];
-    for await (const event of startSetup(START_BODY, { token: TOKEN })) {
+    for await (const event of startSetup(CONNECTION_ID, START_BODY, { token: TOKEN })) {
       collected.push(event);
     }
 
@@ -213,7 +207,7 @@ describe('crrConfiguratorClient / startSetup', () => {
     );
 
     const consume = async () => {
-      for await (const _ of startSetup(START_BODY, { token: TOKEN })) {
+      for await (const _ of startSetup(CONNECTION_ID, START_BODY, { token: TOKEN })) {
         // no-op
       }
     };
