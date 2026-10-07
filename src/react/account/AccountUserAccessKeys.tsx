@@ -23,7 +23,7 @@ import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
+import { ROW_ACTION_ICON_ONLY_BELOW, TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { formatSimpleDate } from '../utils';
 import { useAccessKeyOutdatedStatus, useAwsPaginatedEntities } from '../utils/IAMhooks';
@@ -91,8 +91,6 @@ const AccessKeysCell = (rowValue) => {
   );
 };
 
-const DELETE_ICON_ONLY_AT = 560;
-
 const DeleteAccessKeyAction = (rowValue) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
   const IAMClient = useIAMClient();
@@ -124,7 +122,7 @@ const DeleteAccessKeyAction = (rowValue) => {
         disabled={accessKeyStatus === 'Active'}
         icon={<Icon name="Delete" />}
         label="Delete"
-        iconOnly={DELETE_ICON_ONLY_AT}
+        iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
         onClick={() => {
           setShowModal(true);
         }}
