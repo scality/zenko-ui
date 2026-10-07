@@ -76,6 +76,8 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
   return (
     <BucketOverviewField
       label="Max repository Capacity"
+      loading={isLoading}
+      error={isError}
       actions={
         !isLoading &&
         !isError && (
@@ -88,7 +90,7 @@ const VeeamCapacityContent = ({ bucketName }: { bucketName: string }) => {
         )
       }
     >
-      {isLoading ? 'Loading...' : isError ? 'Error' : <PrettyBytes bytes={capacity} decimals={2} />}
+      <PrettyBytes bytes={capacity} decimals={2} />
     </BucketOverviewField>
   );
 };
