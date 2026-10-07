@@ -239,7 +239,7 @@ export const Wrapper = ({ children }: { children: ReactNode }): ReactNode => {
                 <_ConfigContext.Provider value={zenkoUITestConfig}>
                   <_DataServiceRoleContext.Provider
                     //@ts-expect-error fix this when you are working on it
-                    value={{ role, setRole: jest.fn() }}
+                    value={{ role, setRole: jest.fn(), setRolePromise: jest.fn().mockResolvedValue({}) }}
                   >
                     <_ManagementContext.Provider
                       value={{

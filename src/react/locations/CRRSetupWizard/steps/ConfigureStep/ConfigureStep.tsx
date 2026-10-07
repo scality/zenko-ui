@@ -2,12 +2,13 @@ import { Icon, InfoMessage, Stack, useToast } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Form } from '../../../../ui-elements/CoreUIForm';
 import { ServiceError } from '../../api/crrConfiguratorClient';
 import type { ProblemCode } from '../../api/types';
 import { useCRRConfigurationVerifyMutation } from '../../hooks/useCRRConfigurationVerifyMutation';
+import { useDestinationBucketsQuery } from '../../hooks/useDestinationBucketsQuery';
 import { useResolveEndpointMutation } from '../../hooks/useResolveEndpointMutation';
 import { DestinationAccountSection, type ResolveStatus } from './DestinationAccountSection';
 import { DestinationConnectionSection } from './DestinationConnectionSection';
@@ -72,6 +73,10 @@ export const ConfigureStep = () => {
       // A fresh connection invalidates any prior endpoint choice.
       pendingResolveRef.current = null;
       setValue('selectedEndpoint', '', { shouldValidate: true });
+      // An account picked from another destination's list may not exist on this one.
+      if (getValues('destinationAccountNameType') === 'existing') {
+        setValue('destinationAccountName', '', { shouldValidate: true });
+      }
       setResolveStatus('idle');
       showToast({ open: true, status: 'success', message: 'Connected' });
     } catch (error) {
@@ -104,6 +109,31 @@ export const ConfigureStep = () => {
   const watchedValues = watch();
   const isConnected = verify.isSuccess && lastVerifiedRef.current === JSON.stringify(toVerifyBody(watchedValues));
   const endpoints = isConnected ? (verify.data?.endpoints ?? []) : [];
+  const destinationAccounts = isConnected ? (verify.data?.accounts ?? []) : [];
+  // No listing, hence no admin credentials sent, unless the replication rule needs a bucket.
+  const reusedDestinationAccount =
+    isConnected && watchedValues.createReplicationRule && watchedValues.destinationAccountNameType === 'existing'
+      ? watchedValues.destinationAccountName
+      : '';
+  const destinationBuckets = useDestinationBucketsQuery(
+    reusedDestinationAccount
+      ? {
+          destinationConnection: toVerifyBody(watchedValues).destinationConnection,
+          accountName: reusedDestinationAccount,
+        }
+      : null,
+  );
+  const destinationBucketChoices = useMemo(
+    () =>
+      reusedDestinationAccount
+        ? {
+            names: destinationBuckets.data ?? [],
+            isLoading: destinationBuckets.isLoading,
+            isError: destinationBuckets.isError,
+          }
+        : null,
+    [reusedDestinationAccount, destinationBuckets.data, destinationBuckets.isLoading, destinationBuckets.isError],
+  );
   const canContinue = isValid && isConnected && resolveStatus === 'resolvable';
 
   return (
@@ -138,10 +168,11 @@ export const ConfigureStep = () => {
         <DestinationAccountSection
           isConnected={isConnected}
           endpoints={endpoints}
+          accounts={destinationAccounts}
           resolveStatus={resolveStatus}
           onEndpointSelected={onEndpointSelected}
         />
-        <ReplicationSection />
+        <ReplicationSection destinationBuckets={destinationBucketChoices} />
       </Form>
     </FormProvider>
   );

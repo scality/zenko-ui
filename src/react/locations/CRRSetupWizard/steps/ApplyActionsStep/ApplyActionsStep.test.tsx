@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { useCreateBucket, useSetBucketVersioning } from '@scality/data-browser-library';
+import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { Wrapper } from '../../../../utils/testUtil';
@@ -22,7 +23,11 @@ const server = setupServer(
   ),
 );
 beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+const defaultCreateBucket = (useCreateBucket as jest.Mock).getMockImplementation();
+const defaultSetBucketVersioning = (useSetBucketVersioning as jest.Mock).getMockImplementation();
 afterEach(() => {
+  (useCreateBucket as jest.Mock).mockImplementation(defaultCreateBucket);
+  (useSetBucketVersioning as jest.Mock).mockImplementation(defaultSetBucketVersioning);
   server.resetHandlers();
   mockNext.mockReset();
   mockPrev.mockReset();
@@ -37,9 +42,12 @@ const VALUES: ConfigureFormValues = {
   password: 'super-secret',
   certificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
   selectedEndpoint: 's3.crr-dest.artesca.local',
+  destinationAccountNameType: 'create',
   destinationAccountName: 'crr-dest',
   createReplicationRule: true,
+  sourceBucketNameType: 'create',
   sourceBucketName: 'crr-src-bucket',
+  targetBucketNameType: 'create',
   targetBucketName: 'crr-target-bucket',
   prefix: '',
 };
@@ -86,6 +94,53 @@ describe('ApplyActionsStep', () => {
     expect(screen.queryByText(/Create Target Bucket/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Replication Rule/i)).not.toBeInTheDocument();
     expect(screen.getAllByText('Pending...').length).toBe(9);
+  });
+
+  it('reuses the chosen destination account instead of creating one', async () => {
+    let body: unknown;
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        body = req.body;
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(
+      <ApplyActionsStep
+        {...VALUES}
+        accountNameType="existing"
+        createReplicationRule={false}
+        destinationAccountNameType="existing"
+        destinationAccountName="finance"
+      />,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getByText('Use Account on Destination: finance')).toBeInTheDocument();
+    await waitFor(() => expect(body).toBeDefined());
+    expect(body).toMatchObject({ destinationAccount: { mode: 'existing', name: 'finance' } });
+  });
+
+  it('reuses the chosen source and target buckets instead of creating them', async () => {
+    const mutationMock = () => ({ mutate: jest.fn(), mutateAsync: jest.fn(), status: 'idle', reset: jest.fn() });
+    const createBucket = mutationMock();
+    const enableVersioning = mutationMock();
+    (useCreateBucket as jest.Mock).mockReturnValue(createBucket);
+    (useSetBucketVersioning as jest.Mock).mockReturnValue(enableVersioning);
+
+    render(
+      <ApplyActionsStep
+        {...VALUES}
+        accountNameType="existing"
+        sourceBucketNameType="existing"
+        targetBucketNameType="existing"
+      />,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getByText('Use Bucket on Source: crr-src-bucket')).toBeInTheDocument();
+    expect(screen.getByText('Use Target Bucket: crr-target-bucket')).toBeInTheDocument();
+    await waitFor(() => expect(enableVersioning.mutate).toHaveBeenCalled());
+    expect(createBucket.mutate).not.toHaveBeenCalled();
   });
 
   it('falls back to "ARTESCA" in the title when Verify returned no instance name', () => {
