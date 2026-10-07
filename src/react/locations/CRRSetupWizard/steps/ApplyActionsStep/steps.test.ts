@@ -11,6 +11,7 @@ import {
 
 const baseInput: StepListInput = {
   isNewSourceAccount: true,
+  isNewDestinationAccount: true,
   createReplicationRule: true,
   sourceAccountName: 'src-account',
   sourceBucketName: 'src-bucket',
@@ -71,6 +72,11 @@ describe('buildStepViews', () => {
     expect(labels).toContain('Create Target Bucket: target-bucket');
     expect(labels).toContain('Create Location');
     expect(labels).toContain('Create Replication Rule');
+  });
+
+  it('keeps the destination account row when the user reuses one, worded as a reuse', () => {
+    const views = buildStepViews({ ...baseInput, isNewDestinationAccount: false }, noProgress);
+    expect(views.find((v) => v.id === 'create-account')?.label).toBe('Use Account on Destination: dest-account');
   });
 
   it('drops create-source-account when the user reuses an existing source account', () => {

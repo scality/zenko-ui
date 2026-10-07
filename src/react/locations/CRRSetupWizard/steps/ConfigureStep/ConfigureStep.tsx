@@ -74,6 +74,10 @@ export const ConfigureStep = () => {
       // A fresh connection invalidates any prior endpoint choice.
       pendingResolveRef.current = null;
       setValue('selectedEndpoint', '', { shouldValidate: true });
+      // An account picked from another destination's list may not exist on this one.
+      if (getValues('destinationAccountNameType') === 'existing') {
+        setValue('destinationAccountName', '', { shouldValidate: true });
+      }
       setResolveStatus('idle');
       showToast({ open: true, status: 'success', message: 'Connected' });
     } catch (error) {
@@ -107,6 +111,7 @@ export const ConfigureStep = () => {
   const isConnected =
     connection.isSuccess && lastConnectedRef.current === JSON.stringify(toConnectionBody(watchedValues));
   const endpoints = isConnected ? (connection.data?.endpoints ?? []) : [];
+  const destinationAccounts = isConnected ? (connection.data?.accounts ?? []) : [];
   const canContinue = isValid && isConnected && resolveStatus === 'resolvable';
 
   return (
@@ -145,6 +150,7 @@ export const ConfigureStep = () => {
         <DestinationAccountSection
           isConnected={isConnected}
           endpoints={endpoints}
+          accounts={destinationAccounts}
           resolveStatus={resolveStatus}
           onEndpointSelected={onEndpointSelected}
         />

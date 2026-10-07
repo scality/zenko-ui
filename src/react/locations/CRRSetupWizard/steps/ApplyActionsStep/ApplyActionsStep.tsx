@@ -85,11 +85,13 @@ export const ApplyActionsStep = (props: Props) => {
     accountNameType,
     accountName,
     sourceBucketName,
+    destinationAccountNameType,
     destinationAccountName,
     createReplicationRule,
     destinationInstanceName,
   } = props;
   const isNewSourceAccount = accountNameType === 'create';
+  const isNewDestinationAccount = destinationAccountNameType !== 'existing';
   const withReplicationRule = createReplicationRule === true;
 
   // Pre-create every mutation so per-row error messages stay accessible.
@@ -122,6 +124,7 @@ export const ApplyActionsStep = (props: Props) => {
       props.selectedEndpoint,
       accountNameType,
       accountName,
+      destinationAccountNameType,
       destinationAccountName,
       createReplicationRule,
       sourceBucketName,
@@ -263,6 +266,7 @@ export const ApplyActionsStep = (props: Props) => {
       buildStepViews(
         {
           isNewSourceAccount,
+          isNewDestinationAccount,
           createReplicationRule: withReplicationRule,
           sourceAccountName: accountName ?? '',
           sourceBucketName: sourceBucketName ?? '',
@@ -273,6 +277,7 @@ export const ApplyActionsStep = (props: Props) => {
       ),
     [
       isNewSourceAccount,
+      isNewDestinationAccount,
       withReplicationRule,
       accountName,
       sourceBucketName,

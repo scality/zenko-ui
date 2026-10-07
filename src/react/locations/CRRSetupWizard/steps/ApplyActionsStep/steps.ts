@@ -27,6 +27,7 @@ export type StepView = {
 
 export type StepListInput = {
   isNewSourceAccount: boolean;
+  isNewDestinationAccount: boolean;
   createReplicationRule: boolean;
   sourceAccountName: string;
   sourceBucketName: string;
@@ -64,7 +65,7 @@ const STEPS: StepDef[] = [
   {
     id: 'create-account',
     when: () => true,
-    label: (i) => `Create Account on Destination: ${i.destinationAccountName}`,
+    label: (i) => `${i.isNewDestinationAccount ? 'Create' : 'Use'} Account on Destination: ${i.destinationAccountName}`,
   },
   { id: 'create-user', when: () => true, label: () => 'Create IAM User' },
   { id: 'create-access-key', when: () => true, label: () => 'Generate Access Key' },

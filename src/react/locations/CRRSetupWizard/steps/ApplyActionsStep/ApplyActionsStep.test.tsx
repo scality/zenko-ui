@@ -37,6 +37,7 @@ const VALUES: ConfigureFormValues = {
   password: 'super-secret',
   certificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
   selectedEndpoint: 's3.crr-dest.artesca.local',
+  destinationAccountNameType: 'create',
   destinationAccountName: 'crr-dest',
   createReplicationRule: true,
   sourceBucketName: 'crr-src-bucket',
@@ -129,6 +130,31 @@ describe('ApplyActionsStep', () => {
       s3Endpoint: 'https://s3.crr-dest.artesca.local',
       destinationAccount: { mode: 'create', name: 'crr-dest' },
     });
+  });
+
+  it('reuses the chosen destination account instead of creating one', async () => {
+    let body: unknown;
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        body = req.body;
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(
+      <ApplyActionsStep
+        {...VALUES}
+        connectionId={CONNECTION_ID}
+        accountNameType="existing"
+        createReplicationRule={false}
+        destinationAccountNameType="existing"
+        destinationAccountName="finance"
+      />,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getByText('Use Account on Destination: finance')).toBeInTheDocument();
+    await waitFor(() => expect(body).toBeDefined());
+    expect(body).toMatchObject({ destinationAccount: { mode: 'existing', name: 'finance' } });
   });
 
   it('asks to complete the previous step when it arrives without a connection', () => {

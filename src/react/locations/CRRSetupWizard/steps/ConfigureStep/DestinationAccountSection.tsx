@@ -1,9 +1,11 @@
 import { Icon, Loader, Stack, Text, Tooltip } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
+import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import { RadioGroup } from '../../../../ISV/components/RadioGroup';
 import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
 import { FIELD_CONTENT_STRETCH } from '../../../../ui-elements/responsive';
-import type { DestinationEndpoint } from '../../api/types';
+import type { DestinationAccount, DestinationEndpoint } from '../../api/types';
 import type { ConfigureFormValues } from './schema';
 
 export type ResolveStatus = 'idle' | 'checking' | 'resolvable' | 'unresolvable';
@@ -11,9 +13,15 @@ export type ResolveStatus = 'idle' | 'checking' | 'resolvable' | 'unresolvable';
 type Props = {
   isConnected: boolean;
   endpoints: DestinationEndpoint[];
+  accounts: DestinationAccount[];
   resolveStatus: ResolveStatus;
   onEndpointSelected: (hostname: string) => void;
 };
+
+const ACCOUNT_OPTIONS = [
+  { value: 'create', label: 'Create a new Account' },
+  { value: 'existing', label: 'Use an existing Account' },
+];
 
 const RESOLVE_COPY = {
   checking: 'Checking connectivity…',
@@ -45,15 +53,40 @@ const ResolveIndicator = ({ status }: { status: ResolveStatus }) => {
   );
 };
 
-export const DestinationAccountSection = ({ isConnected, endpoints, resolveStatus, onEndpointSelected }: Props) => {
+export const DestinationAccountSection = ({
+  isConnected,
+  endpoints,
+  accounts,
+  resolveStatus,
+  onEndpointSelected,
+}: Props) => {
   const {
     control,
     register,
     setValue,
     getValues,
+    watch,
     formState: { errors, touchedFields },
   } = useFormContext<ConfigureFormValues>();
   const nameError = touchedFields.destinationAccountName ? errors.destinationAccountName?.message : undefined;
+  const usesExistingAccount = watch('destinationAccountNameType') === 'existing';
+
+  const canPickExisting = accounts.length > 0;
+  const accountOptions = useMemo(
+    () =>
+      ACCOUNT_OPTIONS.map((opt) =>
+        opt.value === 'existing' && !canPickExisting
+          ? {
+              ...opt,
+              disabled: true,
+              disabledReason: isConnected
+                ? 'The destination has no account to reuse'
+                : 'Connect to the destination to list its accounts',
+            }
+          : opt,
+      ),
+    [canPickExisting, isConnected],
+  );
 
   return (
     <FormSection forceLabelWidth="19rem" title={{ name: 'Destination site' }}>
@@ -94,7 +127,37 @@ export const DestinationAccountSection = ({ isConnected, endpoints, resolveStatu
           )
         }
       />
-      <Text color="textSecondary">An account will be created on the destination site with this name.</Text>
+      <FormGroup
+        id="destinationAccountNameType"
+        direction="horizontal"
+        label="Account"
+        required
+        helpErrorPosition="bottom"
+        content={
+          <Controller
+            name="destinationAccountNameType"
+            control={control}
+            render={({ field }) => (
+              <RadioGroup
+                options={accountOptions}
+                value={field.value}
+                onChange={(next) => {
+                  field.onChange(next);
+                  setValue('destinationAccountName', '', {
+                    shouldValidate: true,
+                    shouldDirty: false,
+                    shouldTouch: false,
+                  });
+                }}
+                direction="vertical"
+              />
+            )}
+          />
+        }
+      />
+      {!usesExistingAccount && (
+        <Text color="textSecondary">An account will be created on the destination site with this name.</Text>
+      )}
       <FormGroup
         id="destinationAccountName"
         direction="horizontal"
@@ -103,21 +166,42 @@ export const DestinationAccountSection = ({ isConnected, endpoints, resolveStatu
         helpErrorPosition="bottom"
         error={nameError}
         content={
-          <Stack direction="vertical" gap="r8" style={FIELD_CONTENT_STRETCH}>
-            <Input id="destinationAccountName" autoComplete="off" {...register('destinationAccountName')} />
-            <Button
-              type="button"
-              variant="outline"
-              label="Use Source site name"
-              onClick={() =>
-                setValue('destinationAccountName', getValues('accountName'), {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                  shouldTouch: true,
-                })
-              }
+          usesExistingAccount && canPickExisting ? (
+            <Controller
+              name="destinationAccountName"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  id="destinationAccountName"
+                  value={field.value}
+                  onChange={(value) => field.onChange(value)}
+                  placeholder="Select existing account"
+                >
+                  {accounts.map((account) => (
+                    <Select.Option key={account.id} value={account.name}>
+                      {account.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
             />
-          </Stack>
+          ) : (
+            <Stack direction="vertical" gap="r8" style={FIELD_CONTENT_STRETCH}>
+              <Input id="destinationAccountName" autoComplete="off" {...register('destinationAccountName')} />
+              <Button
+                type="button"
+                variant="outline"
+                label="Use Source site name"
+                onClick={() =>
+                  setValue('destinationAccountName', getValues('accountName'), {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                    shouldTouch: true,
+                  })
+                }
+              />
+            </Stack>
+          )
         }
       />
     </FormSection>

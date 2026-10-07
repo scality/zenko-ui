@@ -18,6 +18,7 @@ export type ConfigureFormValues = {
   /** Hostname of the destination S3 endpoint the user picked from discovery. */
   selectedEndpoint: string;
 
+  destinationAccountNameType: AccountNameType;
   destinationAccountName: string;
 
   createReplicationRule: boolean;
@@ -34,6 +35,7 @@ export const defaultConfigureValues: ConfigureFormValues = {
   password: '',
   certificate: '',
   selectedEndpoint: '',
+  destinationAccountNameType: 'create',
   destinationAccountName: '',
   createReplicationRule: false,
   sourceBucketName: '',
@@ -60,7 +62,12 @@ export const configureSchema = Joi.object<ConfigureFormValues>({
 
   selectedEndpoint: Joi.string().min(1).required(),
 
-  destinationAccountName: accountNameValidationSchema,
+  destinationAccountNameType: Joi.string().valid('create', 'existing').required(),
+  destinationAccountName: Joi.when('destinationAccountNameType', {
+    is: 'create',
+    then: accountNameValidationSchema,
+    otherwise: Joi.string().min(1).required(),
+  }),
 
   createReplicationRule: Joi.boolean().required(),
   sourceBucketName: Joi.when('createReplicationRule', {
@@ -118,7 +125,7 @@ export const toResolveBody = (values: ConfigureFormValues): ResolveRequestBody =
 export const toStartSetupBody = (values: ConfigureFormValues): StartSetupBody => {
   const body: StartSetupBody = {
     s3Endpoint: endpointUrl(values.selectedEndpoint),
-    destinationAccount: { mode: 'create', name: values.destinationAccountName },
+    destinationAccount: { mode: values.destinationAccountNameType, name: values.destinationAccountName },
   };
   if (values.createReplicationRule && values.targetBucketName) {
     body.targetBucket = values.targetBucketName;
