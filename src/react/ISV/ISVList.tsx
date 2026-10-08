@@ -39,7 +39,7 @@ export const ISVList: ISVCardConfig[] = [
   },
   {
     id: 'veritas',
-    name: 'Veritas NetBackup',
+    name: 'Cohesity NetBackup',
     logo: <VeritasLogo />,
     documentationLink: '/artesca/docs/partner_applications/backup_and_archives/cohesity_netbackup.html',
     category: 'backup-and-archive',
