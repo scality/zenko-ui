@@ -1,3 +1,4 @@
+import { Loader } from '@scality/core-ui';
 import React from 'react';
 
 /**
@@ -122,3 +123,35 @@ export const useBuckets = jest.fn(() => ({
   isError: false,
   error: null,
 }));
+
+export const BucketOverviewField = ({
+  label,
+  value,
+  loading,
+  error,
+  errorMessage = 'Error',
+  children,
+  actions,
+}: {
+  label: string;
+  value?: React.ReactNode;
+  loading?: boolean;
+  error?: boolean;
+  errorMessage?: string;
+  children?: React.ReactNode;
+  actions?: React.ReactNode;
+}) => {
+  const renderValue = () => {
+    if (loading) return <Loader />;
+    if (error) return errorMessage;
+    return children || value || 'N/A';
+  };
+
+  return (
+    <div>
+      <span>{label}</span>
+      <span>{renderValue()}</span>
+      {actions}
+    </div>
+  );
+};

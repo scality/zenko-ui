@@ -13,7 +13,11 @@ import { useErrorHandler } from '../ErrorProvider';
 import { useIAMClient } from '../IAMProvider';
 import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { ROW_ACTION_ICON_ONLY_BELOW, TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
+import {
+  ROW_ACTION_ICON_ONLY_BELOW,
+  ROW_ACTIONS_RESERVED_WIDTH,
+  TOOLBAR_ACTION_ICON_ONLY_BELOW,
+} from '../ui-elements/responsive';
 import { errorParser } from '../utils';
 import type { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
@@ -357,7 +361,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       cellStyle: {
         width: 'unset',
         flex: 'none',
-        minWidth: '16rem',
+        minWidth: ROW_ACTIONS_RESERVED_WIDTH,
         paddingRight: spacing.r12,
       },
       disableSortBy: true,

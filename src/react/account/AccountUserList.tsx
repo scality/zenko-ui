@@ -19,7 +19,11 @@ import {
   getUserListGroupsQuery,
 } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { ROW_ACTION_ICON_ONLY_BELOW, TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
+import {
+  ROW_ACTION_ICON_ONLY_BELOW,
+  ROW_ACTIONS_RESERVED_WIDTH,
+  TOOLBAR_ACTION_ICON_ONLY_BELOW,
+} from '../ui-elements/responsive';
 import { errorParser } from '../utils';
 import { type AWS_PAGINATED_ENTITIES, useAwsPaginatedEntities } from '../utils/IAMhooks';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
@@ -294,7 +298,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         textAlign: 'right',
         width: 'unset',
         flex: 'none',
-        minWidth: '16rem',
+        minWidth: ROW_ACTIONS_RESERVED_WIDTH,
         marginRight: spacing.r12,
       },
       disableSortBy: true,
