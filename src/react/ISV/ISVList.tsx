@@ -2,7 +2,6 @@ import CohesityLogo from './components/Modal/Logos/CohesityLogo';
 import CteraLogo from './components/Modal/Logos/CteraLogo';
 import HycuLogo from './components/Modal/Logos/HycuLogo';
 import SplunkLogo from './components/Modal/Logos/SplunkLogo';
-import VeritasLogo from './components/Modal/Logos/VeritasLogo';
 import ZertoLogo from './components/Modal/Logos/ZertoLogo';
 import { platformRegistry } from './platforms/registry';
 import type { ISVCardConfig } from './types';
@@ -40,7 +39,7 @@ export const ISVList: ISVCardConfig[] = [
   {
     id: 'veritas',
     name: 'Cohesity NetBackup',
-    logo: <VeritasLogo />,
+    logo: <CohesityLogo />,
     documentationLink: '/artesca/docs/partner_applications/backup_and_archives/cohesity_netbackup.html',
     category: 'backup-and-archive',
   },
