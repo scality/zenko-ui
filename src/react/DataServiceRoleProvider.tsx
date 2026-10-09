@@ -64,7 +64,7 @@ const useAssumeRoleQuery = () => {
 };
 
 export const useS3ConfigFromAssumeRoleResult = () => {
-  const { zenkoEndpoint, s3InternalFQDN } = useConfig();
+  const { zenkoEndpoint, s3InternalFQDN, s3PublicEndpoint } = useConfig();
   const endpoint = genClientEndpoint(zenkoEndpoint);
 
   return {
@@ -82,6 +82,7 @@ export const useS3ConfigFromAssumeRoleResult = () => {
         endpoint: zenkoEndpoint,
         target: s3InternalFQDN,
       },
+      publicEndpoint: s3PublicEndpoint,
       s3Capabilities: {
         supportedNotificationEvents: [
           's3:ObjectCreated:*',

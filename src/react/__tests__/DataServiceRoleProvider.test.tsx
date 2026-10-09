@@ -61,6 +61,9 @@ jest.spyOn(hooks, 'useAccounts').mockReturnValue({
 
 import DataServiceRoleProvider, { useDataServiceRole, useAssumedRole, useAssumeRoleQuery, useCurrentAccount, _DataServiceRoleContext } from '../DataServiceRoleProvider';
 import * as dataBrowserLibrary from '@scality/data-browser-library';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
+
+type DataBrowserProviderProps = React.ComponentProps<typeof dataBrowserLibrary.DataBrowserProvider>;
 
 const theme = coreUIAvailableThemes.darkRebrand;
 
@@ -300,6 +303,63 @@ describe('DataServiceRoleProvider', () => {
         configurable: true,
       });
     }
+  });
+
+  describe('S3 config handed to the data browser', () => {
+    const renderAndCaptureS3Config = async () => {
+      const originalDataBrowserProvider = dataBrowserLibrary.DataBrowserProvider;
+      let capturedGetS3Config: DataBrowserProviderProps['getS3Config'];
+      Object.defineProperty(dataBrowserLibrary, 'DataBrowserProvider', {
+        value: ({ getS3Config, children }: DataBrowserProviderProps) => {
+          capturedGetS3Config = getS3Config;
+          return <>{children}</>;
+        },
+        writable: true,
+        configurable: true,
+      });
+
+      try {
+        const Wrapper = createWrapper();
+        render(
+          <Wrapper>
+            <DataServiceRoleProvider>
+              <div data-testid="child-content">Hello</div>
+            </DataServiceRoleProvider>
+          </Wrapper>,
+        );
+        await waitFor(() => {
+          expect(screen.getByTestId('child-content')).toBeInTheDocument();
+        });
+        if (!capturedGetS3Config) throw new Error('DataBrowserProvider did not receive getS3Config');
+        return capturedGetS3Config();
+      } finally {
+        Object.defineProperty(dataBrowserLibrary, 'DataBrowserProvider', {
+          value: originalDataBrowserProvider,
+          writable: true,
+          configurable: true,
+        });
+      }
+    };
+
+    it('signs pre-signed URLs against the public S3 endpoint when one is configured', async () => {
+      const defaultConfig = jest.mocked(useConfig)();
+      jest.mocked(useConfig).mockReturnValue({ ...defaultConfig, s3PublicEndpoint: 'https://s3.example.com' });
+
+      try {
+        const s3Config = await renderAndCaptureS3Config();
+
+        expect(s3Config.publicEndpoint).toBe('https://s3.example.com');
+      } finally {
+        jest.mocked(useConfig).mockImplementation(() => defaultConfig);
+      }
+    });
+
+    it('keeps pre-signed URLs on the proxy when no public S3 endpoint is configured', async () => {
+      const s3Config = await renderAndCaptureS3Config();
+
+      expect(s3Config.publicEndpoint).toBeUndefined();
+      expect(s3Config.proxy).toMatchObject({ enabled: true });
+    });
   });
 
   it('credentials are configured to auto-refresh before expiry', () => {
