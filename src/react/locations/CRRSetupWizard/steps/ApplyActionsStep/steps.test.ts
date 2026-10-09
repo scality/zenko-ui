@@ -11,6 +11,9 @@ import {
 
 const baseInput: StepListInput = {
   isNewSourceAccount: true,
+  isNewSourceBucket: true,
+  isNewDestinationAccount: true,
+  isNewTargetBucket: true,
   createReplicationRule: true,
   sourceAccountName: 'src-account',
   sourceBucketName: 'src-bucket',

@@ -17,7 +17,7 @@ const Harness = ({ overrides }: { overrides?: Partial<ConfigureFormValues> }) =>
   });
   return (
     <FormProvider {...methods}>
-      <ReplicationSection />
+      <ReplicationSection destinationBuckets={null} />
     </FormProvider>
   );
 };

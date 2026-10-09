@@ -3,11 +3,11 @@ import type { FieldErrors, Resolver } from 'react-hook-form';
 import { accountNameValidationSchema } from '../../../../account/AccountCreate';
 import type { ResolveRequestBody, StartSetupBody, VerifyRequestBody } from '../../api/types';
 
-export type AccountNameType = 'create' | 'existing';
+export type NameType = 'create' | 'existing';
 
 export type ConfigureFormValues = {
   /** Source account selection — field names match the `CreateOrSelectNameField` convention. */
-  accountNameType: AccountNameType;
+  accountNameType: NameType;
   accountName: string;
 
   baseDomain: string;
@@ -18,10 +18,13 @@ export type ConfigureFormValues = {
   /** Hostname of the destination S3 endpoint the user picked from discovery. */
   selectedEndpoint: string;
 
+  destinationAccountNameType: NameType;
   destinationAccountName: string;
 
   createReplicationRule: boolean;
+  sourceBucketNameType: NameType;
   sourceBucketName: string;
+  targetBucketNameType: NameType;
   targetBucketName: string;
   prefix: string;
 };
@@ -34,9 +37,12 @@ export const defaultConfigureValues: ConfigureFormValues = {
   password: '',
   certificate: '',
   selectedEndpoint: '',
+  destinationAccountNameType: 'create',
   destinationAccountName: '',
   createReplicationRule: false,
+  sourceBucketNameType: 'create',
   sourceBucketName: '',
+  targetBucketNameType: 'create',
   targetBucketName: '',
   prefix: '',
 };
@@ -60,14 +66,21 @@ export const configureSchema = Joi.object<ConfigureFormValues>({
 
   selectedEndpoint: Joi.string().min(1).required(),
 
-  destinationAccountName: accountNameValidationSchema,
+  destinationAccountNameType: Joi.string().valid('create', 'existing').required(),
+  destinationAccountName: Joi.when('destinationAccountNameType', {
+    is: 'create',
+    then: accountNameValidationSchema,
+    otherwise: Joi.string().min(1).required(),
+  }),
 
   createReplicationRule: Joi.boolean().required(),
+  sourceBucketNameType: Joi.string().valid('create', 'existing').required(),
   sourceBucketName: Joi.when('createReplicationRule', {
     is: true,
     then: Joi.string().min(1).required(),
     otherwise: Joi.string().allow(''),
   }),
+  targetBucketNameType: Joi.string().valid('create', 'existing').required(),
   targetBucketName: Joi.when('createReplicationRule', {
     is: true,
     then: Joi.string().min(1).required(),
@@ -124,7 +137,7 @@ export const toStartSetupBody = (values: ConfigureFormValues): StartSetupBody =>
       s3Endpoint: endpointUrl(values.selectedEndpoint),
     },
     destinationCertificate: values.certificate,
-    destinationAccount: { mode: 'create', name: values.destinationAccountName },
+    destinationAccount: { mode: values.destinationAccountNameType, name: values.destinationAccountName },
   };
   if (values.createReplicationRule && values.targetBucketName) {
     body.targetBucket = values.targetBucketName;

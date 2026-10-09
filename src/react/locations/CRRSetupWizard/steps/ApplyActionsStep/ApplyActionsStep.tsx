@@ -84,11 +84,17 @@ export const ApplyActionsStep = (props: Props) => {
     accountNameType,
     accountName,
     sourceBucketName,
+    destinationAccountNameType,
     destinationAccountName,
+    targetBucketNameType,
+    sourceBucketNameType,
     createReplicationRule,
     destinationInstanceName,
   } = props;
   const isNewSourceAccount = accountNameType === 'create';
+  const isNewDestinationAccount = destinationAccountNameType !== 'existing';
+  const isNewTargetBucket = targetBucketNameType !== 'existing';
+  const isNewSourceBucket = sourceBucketNameType !== 'existing';
   const withReplicationRule = createReplicationRule === true;
 
   // Pre-create every mutation so per-row error messages stay accessible.
@@ -120,6 +126,7 @@ export const ApplyActionsStep = (props: Props) => {
       props.selectedEndpoint,
       accountNameType,
       accountName,
+      destinationAccountNameType,
       destinationAccountName,
       createReplicationRule,
       sourceBucketName,
@@ -162,8 +169,11 @@ export const ApplyActionsStep = (props: Props) => {
       configs.push({ id: 'assume-source-role', label: 'Assume Source Role', mutation: assumeSourceRole });
       resolvers['assume-source-role'] = (prev) => ({ roleArn: sourceRoleArn(prev) });
 
-      configs.push({ id: 'create-source-bucket', label: 'Create Source Bucket', mutation: createSourceBucket });
-      resolvers['create-source-bucket'] = () => ({ Bucket: sourceBucketName });
+      // A reused bucket already exists: creating it again fails with BucketAlreadyOwnedByYou.
+      if (isNewSourceBucket) {
+        configs.push({ id: 'create-source-bucket', label: 'Create Source Bucket', mutation: createSourceBucket });
+        resolvers['create-source-bucket'] = () => ({ Bucket: sourceBucketName });
+      }
 
       configs.push({
         id: 'create-source-bucket-versioning',
@@ -214,6 +224,7 @@ export const ApplyActionsStep = (props: Props) => {
     return { mutations: configs, variables: resolvers };
   }, [
     isNewSourceAccount,
+    isNewSourceBucket,
     withReplicationRule,
     body,
     locationName,
@@ -261,6 +272,9 @@ export const ApplyActionsStep = (props: Props) => {
       buildStepViews(
         {
           isNewSourceAccount,
+          isNewDestinationAccount,
+          isNewTargetBucket,
+          isNewSourceBucket,
           createReplicationRule: withReplicationRule,
           sourceAccountName: accountName ?? '',
           sourceBucketName: sourceBucketName ?? '',
@@ -271,6 +285,9 @@ export const ApplyActionsStep = (props: Props) => {
       ),
     [
       isNewSourceAccount,
+      isNewDestinationAccount,
+      isNewTargetBucket,
+      isNewSourceBucket,
       withReplicationRule,
       accountName,
       sourceBucketName,

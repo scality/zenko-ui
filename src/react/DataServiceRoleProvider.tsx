@@ -63,7 +63,7 @@ const useAssumeRoleQuery = () => {
   };
 };
 
-const useS3ConfigFromAssumeRoleResult = () => {
+export const useS3ConfigFromAssumeRoleResult = () => {
   const { zenkoEndpoint, s3InternalFQDN } = useConfig();
   const endpoint = genClientEndpoint(zenkoEndpoint);
 

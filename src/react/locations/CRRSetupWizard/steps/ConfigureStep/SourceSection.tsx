@@ -1,8 +1,7 @@
-import { Text } from '@scality/core-ui';
+import { RadioGroup, Text } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { RadioGroup } from '../../../../ISV/components/RadioGroup';
 import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
@@ -60,6 +59,8 @@ export const SourceSection = () => {
             control={control}
             render={({ field }) => (
               <RadioGroup
+                name="accountNameType"
+                aria-labelledby="label-accountNameType"
                 options={radioOptions}
                 value={field.value}
                 onChange={(next) => {

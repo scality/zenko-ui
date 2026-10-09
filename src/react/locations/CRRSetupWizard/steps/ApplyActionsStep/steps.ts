@@ -27,6 +27,9 @@ export type StepView = {
 
 export type StepListInput = {
   isNewSourceAccount: boolean;
+  isNewDestinationAccount: boolean;
+  isNewTargetBucket: boolean;
+  isNewSourceBucket: boolean;
   createReplicationRule: boolean;
   sourceAccountName: string;
   sourceBucketName: string;
@@ -59,12 +62,12 @@ const STEPS: StepDef[] = [
   {
     id: 'create-source-bucket',
     when: (i) => i.createReplicationRule,
-    label: (i) => `Create Bucket on Source: ${i.sourceBucketName}`,
+    label: (i) => `${i.isNewSourceBucket ? 'Create' : 'Use'} Bucket on Source: ${i.sourceBucketName}`,
   },
   {
     id: 'create-account',
     when: () => true,
-    label: (i) => `Create Account on Destination: ${i.destinationAccountName}`,
+    label: (i) => `${i.isNewDestinationAccount ? 'Create' : 'Use'} Account on Destination: ${i.destinationAccountName}`,
   },
   { id: 'create-user', when: () => true, label: () => 'Create IAM User' },
   { id: 'create-access-key', when: () => true, label: () => 'Generate Access Key' },
@@ -74,7 +77,7 @@ const STEPS: StepDef[] = [
   {
     id: 'create-bucket',
     when: (i) => i.createReplicationRule,
-    label: (i) => `Create Target Bucket: ${i.targetBucketName}`,
+    label: (i) => `${i.isNewTargetBucket ? 'Create' : 'Use'} Target Bucket: ${i.targetBucketName}`,
   },
   {
     id: 'import-destination-certificate',
@@ -116,6 +119,13 @@ const WIZARD_ROW_LINKS: Partial<Record<StepId, string[]>> = {
   'create-source-bucket': ['assume-source-role', 'create-source-bucket', 'create-source-bucket-versioning'],
   'create-location': ['create-location'],
   'create-replication-rule': ['create-replication-rule'],
+};
+
+const wizardRowLinks = (id: StepId, input: StepListInput): string[] => {
+  const links = WIZARD_ROW_LINKS[id] ?? [id];
+  return id === 'create-source-bucket' && !input.isNewSourceBucket
+    ? links.filter((linkId) => linkId !== 'create-source-bucket')
+    : links;
 };
 
 const configuratorRowState = (
@@ -166,7 +176,7 @@ export const buildStepViews = (input: StepListInput, sources: StepStateSources):
       errorMessage,
     } = CONFIGURATOR_STEP_IDS.has(def.id)
       ? configuratorRowState(sources.configuratorEvents, def.id)
-      : wizardRowState(WIZARD_ROW_LINKS[def.id] ?? [def.id], sources.chainStatusById);
+      : wizardRowState(wizardRowLinks(def.id, input), sources.chainStatusById);
     return { ...base, state, active: isActive, errorMessage };
   });
 
