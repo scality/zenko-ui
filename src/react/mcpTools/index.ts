@@ -11,10 +11,8 @@ import { buildZenkoContext, type ToolContext } from './types';
  *
  * Returns all MCP tools exposed by zenko-ui:
  *   - Zenko-specific tools (account management, IAM, STS credentials, CLI instructions)
- *   - All data-browser S3 tools wrapped via createZenkoS3Tools — each S3 operation
- *     tool gains a roleArn parameter and resolves temporary STS credentials at call time.
- *
- * Call getAssumableRoles first to obtain a roleArn to pass to S3 tools.
+ *   - The data-browser navigation tools, via createZenkoS3Tools. The S3 operation
+ *     tools are not exposed.
  *
  * Cache-sync: shell-ui injects its shared QueryClient via `context.queryClient`,
  * and each individual tool's execute uses it directly (e.g. createAccount
@@ -50,11 +48,6 @@ export function createTools(
     bake(getCredentialsInstructionsTool),
     bake(getAWSCLIS3InstructionsTool),
     bake(getAWSCLIIamInstructionsTool),
-    // data-browser S3 tools adapted for Zenko: each gains a roleArn param
-    // and resolves STS credentials at call time via createZenkoS3Tools.
-    // Per-tool cache invalidation is emitted by the data-browser codegen
-    // into each generated S3 tool's execute, scoped to the keys that tool
-    // actually affects.
     ...createZenkoS3Tools(context, navigate),
   ];
 }
