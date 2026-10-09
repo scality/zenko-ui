@@ -4,6 +4,7 @@ import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router';
 import { Form } from '../../../../ui-elements/CoreUIForm';
 import { ServiceError } from '../../api/crrConfiguratorClient';
 import type { ProblemCode } from '../../api/types';
@@ -17,7 +18,7 @@ import { SourceSection } from './SourceSection';
 import {
   type ConfigureFormValues,
   configureResolver,
-  defaultConfigureValues,
+  initialConfigureValues,
   toResolveBody,
   toVerifyBody,
 } from './schema';
@@ -52,10 +53,17 @@ export const ConfigureStep = () => {
   const pendingResolveRef = useRef<string | null>(null);
   const [resolveStatus, setResolveStatus] = useState<ResolveStatus>('idle');
 
+  const [searchParams] = useSearchParams();
+  const sourceAccount = searchParams.get('account');
+  const sourceBucket = searchParams.get('bucket');
+  const cancelPath =
+    sourceAccount && sourceBucket
+      ? `/accounts/${encodeURIComponent(sourceAccount)}/buckets/${encodeURIComponent(sourceBucket)}?tab=replication`
+      : '/locations';
   const formMethods = useForm<ConfigureFormValues>({
     mode: 'all',
     resolver: configureResolver,
-    defaultValues: defaultConfigureValues,
+    defaultValues: initialConfigureValues(searchParams),
   });
   const {
     handleSubmit,
@@ -144,7 +152,7 @@ export const ConfigureStep = () => {
         layout={{ title: 'Configure Cross-Region Location', kind: 'page' }}
         rightActions={
           <Stack gap="r16">
-            <Button type="button" variant="outline" label="Cancel" onClick={() => navigate('/locations')} />
+            <Button type="button" variant="outline" label="Cancel" onClick={() => navigate(cancelPath)} />
             <Button
               type="submit"
               variant="primary"

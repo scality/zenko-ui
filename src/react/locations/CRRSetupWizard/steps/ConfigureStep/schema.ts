@@ -47,6 +47,22 @@ export const defaultConfigureValues: ConfigureFormValues = {
   prefix: '',
 };
 
+export const initialConfigureValues = (searchParams: URLSearchParams): ConfigureFormValues => {
+  const account = searchParams.get('account');
+  const bucket = searchParams.get('bucket');
+  if (!account) return defaultConfigureValues;
+  return {
+    ...defaultConfigureValues,
+    accountNameType: 'existing',
+    accountName: account,
+    ...(bucket && {
+      createReplicationRule: true,
+      sourceBucketNameType: 'existing',
+      sourceBucketName: bucket,
+    }),
+  };
+};
+
 // biome-ignore-start lint/suspicious/noThenProperty: `then` is Joi's conditional schema branch, not a promise-like method
 export const configureSchema = Joi.object<ConfigureFormValues>({
   accountNameType: Joi.string().valid('create', 'existing').required(),

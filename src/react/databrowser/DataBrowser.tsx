@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { Route, Routes, useLocation, useParams } from 'react-router';
 import { XDM_FEATURE } from '../../js/config';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
+import { StartCRRConfigurationButton } from '../locations/CRRSetupWizard/StartCRRConfigurationButton';
 import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
@@ -154,6 +155,15 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
     },
   ];
 
+  const extraReplicationActions = [
+    {
+      id: 'startCRRConfiguration',
+      render: ({ bucketName }: { bucketName: string }) => (
+        <StartCRRConfigurationButton source={{ accountName: accountName ?? '', bucketName }} />
+      ),
+    },
+  ];
+
   const headerComponent = useMemo(
     () => (
       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -177,6 +187,7 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
         extraBucketOverviewSections={EXTRA_BUCKET_OVERVIEW_SECTIONS}
         extraBucketOverviewGeneral={EXTRA_BUCKET_OVERVIEW_GENERAL}
         extraBucketListActions={extraBucketListActions}
+        extraReplicationActions={extraReplicationActions}
         storageClassSelector={StorageClassSelector}
         storageClassLabel="Location Name"
         locationSelector={LocationSelector}

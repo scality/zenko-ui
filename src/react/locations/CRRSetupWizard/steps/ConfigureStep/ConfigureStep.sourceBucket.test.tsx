@@ -3,8 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { useLocation } from 'react-router';
 import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
-import { Wrapper } from '../../../../utils/testUtil';
+import { NewWrapper, Wrapper } from '../../../../utils/testUtil';
 import { ConfigureStep } from './ConfigureStep';
 
 const mockNext = jest.fn();
@@ -99,5 +100,30 @@ describe('ConfigureStep — source bucket', () => {
     await waitFor(() => expect(sourceReuseRadio()).toBeDisabled());
     await userEvent.hover(sourceReuseRadio().closest('label') ?? sourceReuseRadio());
     expect(await screen.findByText("Could not list the account's buckets")).toBeInTheDocument();
+  });
+
+  it('opened from a bucket, preselects that bucket and its account, keeps them editable, and cancels back to the bucket', async () => {
+    const CurrentUrl = () => {
+      const { pathname, search } = useLocation();
+      return <output>{`${pathname}${search}`}</output>;
+    };
+    render(
+      <>
+        <ConfigureStep />
+        <CurrentUrl />
+      </>,
+      { wrapper: NewWrapper('/create-crr-configuration?account=finance&bucket=finance-src') },
+    );
+
+    expect(screen.getAllByRole('radio', { name: /Use an existing Account/i })[0]).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /Create Replication Rule/i })).toBeChecked();
+    await waitFor(() => expect(sourceReuseRadio()).toBeChecked());
+    expect(await screen.findByText('finance-src')).toBeInTheDocument();
+
+    await userEvent.click(screen.getAllByRole('radio', { name: /Create a new Bucket/i })[0]);
+    expect(screen.getByRole('textbox', { name: /Source Bucket name/i })).toHaveValue('');
+
+    await userEvent.click(screen.getByRole('button', { name: /Cancel/i }));
+    expect(screen.getByRole('status')).toHaveTextContent('/accounts/finance/buckets/finance-src?tab=replication');
   });
 });

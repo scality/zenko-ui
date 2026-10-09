@@ -7,6 +7,9 @@ import { CRRSetupWizard } from './CRRSetupWizard';
 
 const VERIFY_URL = '/crr-configurator/api/v1/verify';
 const RESOLVE_URL = '/crr-configurator/api/v1/resolve';
+// Each test plays a whole Configure flow: a loaded runner exceeds the 5 s default.
+jest.setTimeout(30_000);
+
 const server = setupServer();
 
 // 'bypass' (not 'error'): SourceSection's account listing goes through the
