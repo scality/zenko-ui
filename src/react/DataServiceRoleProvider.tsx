@@ -75,7 +75,7 @@ export const useS3ConfigFromAssumeRoleResult = () => {
       endpoint,
       region: DEFAULT_REGION,
       forcePathStyle: true,
-      features: ['ISV', 'metadatasearch', 'replicationV1', 'lifecycleTransition'],
+      features: ['ISV', 'metadatasearch', 'replicationV1', 'replicationMultiDestination', 'lifecycleTransition'],
       cacheKey,
       proxy: {
         enabled: true,
