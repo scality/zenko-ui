@@ -26,7 +26,6 @@ import { useCreateReplicationRuleMutation } from '../../hooks/useCreateReplicati
 import { useImportDestinationCertificateMutation } from '../../hooks/useImportDestinationCertificateMutation';
 import { type ConfigureFormValues, toStartSetupBody } from '../ConfigureStep/schema';
 import { buildCRRLocation, buildCRRLocationName } from './crrLocation';
-import { buildCRRReplicationConfiguration } from './replicationConfiguration';
 import {
   allSucceeded,
   buildStepViews,
@@ -105,7 +104,7 @@ export const ApplyActionsStep = (props: Props) => {
   const enableSourceVersioning = useSetBucketVersioning();
   const setup = useCRRConfigurationSetupMutation();
   const createLocation = useCreateCRRLocationMutation();
-  const createReplicationRuleMutation = useCreateReplicationRuleMutation();
+  const createReplicationRuleMutation = useCreateReplicationRuleMutation({ bucketName: sourceBucketName ?? '' });
 
   const accountsAdapter = useAccessibleAccountsAdapter();
   const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
@@ -211,13 +210,12 @@ export const ApplyActionsStep = (props: Props) => {
       resolvers['create-replication-rule'] = (prev) => {
         const result = configuratorResult(prev);
         if (!result) throw new Error('Cannot create the replication rule: the destination setup result is missing.');
-        return buildCRRReplicationConfiguration({
+        return {
           sourceBucketName: sourceBucketName ?? '',
           targetBucketName: props.targetBucketName ?? '',
           locationName,
-          destinationAccountName: destinationAccountName ?? '',
           destinationRoleArn: result.roleArn,
-        });
+        };
       };
     }
 

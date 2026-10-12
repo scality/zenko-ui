@@ -10,8 +10,10 @@ describe('buildCRRLocationName', () => {
 });
 
 describe('buildCRRReplicationRuleId', () => {
-  it('names the rule after the destination account', () => {
-    expect(buildCRRReplicationRuleId('dest-acct')).toBe('replication-dest-acct');
+  it('names the rule after the CRR location and the target bucket', () => {
+    expect(buildCRRReplicationRuleId('location-dest-acct-crr-dest-local', 'target')).toBe(
+      'replication-dest-acct-crr-dest-local-target',
+    );
   });
 });
 

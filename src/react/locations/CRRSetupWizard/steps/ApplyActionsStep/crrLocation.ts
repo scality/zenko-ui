@@ -20,8 +20,8 @@ export const buildCRRLocationName = ({
   baseDomain: string;
 }): string => `location-${destinationAccountName}-${sanitizeHost(baseDomain)}`;
 
-export const buildCRRReplicationRuleId = (destinationAccountName: string): string =>
-  `replication-${destinationAccountName}`;
+export const buildCRRReplicationRuleId = (locationName: string, targetBucketName: string): string =>
+  `${locationName.replace(/^location-/, 'replication-')}-${targetBucketName}`;
 
 // Host-based sts.<base>, NOT a /zenko-path-routed URL: the source signs STS with
 // SigV4 and the ingress prefix-strip would break the signature.
