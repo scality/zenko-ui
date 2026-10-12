@@ -21,6 +21,7 @@ const server = setupServer(
   rest.post('*/replication-setups', (_req, res, ctx) =>
     res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body('')),
   ),
+  rest.get('*/api/v1/config/overlay/view/:instanceId', (_req, res, ctx) => res(ctx.json({ locations: {} }))),
 );
 beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
 const defaultCreateBucket = (useCreateBucket as jest.Mock).getMockImplementation();
@@ -33,6 +34,48 @@ afterEach(() => {
   mockPrev.mockReset();
 });
 afterAll(() => server.close());
+
+const LOCATION_NAME = 'location-crr-dest-crr-dest-artesca-local';
+
+const sourceHasLocation = (locationType: string) =>
+  server.use(
+    rest.get('*/api/v1/config/overlay/view/:instanceId', (_req, res, ctx) =>
+      res(
+        ctx.delay(100),
+        ctx.json({ locations: { [LOCATION_NAME]: { name: LOCATION_NAME, locationType, details: {} } } }),
+      ),
+    ),
+  );
+
+const SETUP_RESULT = {
+  endpoint: 'https://s3.crr-dest.artesca.local',
+  stsEndpoint: 'https://sts.crr-dest.artesca.local',
+  accessKey: 'AK',
+  secretKey: 'SK',
+  roleArn: 'arn:aws:iam::123:role/crr-replication-role',
+};
+
+const rowStatus = (row: HTMLElement) => row.querySelectorAll('td')[2]?.textContent?.trim();
+
+/** Streams the destination setup the way crr-configurator does when every step goes through. */
+const succeedEveryConfiguratorStep = (steps: string[]) =>
+  server.use(
+    rest.post('*/replication-setups', (_req, res, ctx) =>
+      res(
+        ctx.status(200),
+        ctx.set('Content-Type', 'application/x-ndjson'),
+        ctx.body(
+          [
+            ...steps.flatMap((step) => [
+              JSON.stringify({ event: 'step.started', step }),
+              JSON.stringify({ event: 'step.completed', step }),
+            ]),
+            JSON.stringify({ event: 'setup.completed', result: SETUP_RESULT }),
+          ].join('\n') + '\n',
+        ),
+      ),
+    ),
+  );
 
 const VALUES: ConfigureFormValues = {
   accountNameType: 'create',
@@ -53,10 +96,11 @@ const VALUES: ConfigureFormValues = {
 };
 
 describe('ApplyActionsStep', () => {
-  it('lists every provisioning action in order, all pending, for the user to follow', () => {
+  it('lists every provisioning action in order for the user to follow', async () => {
     render(<ApplyActionsStep {...VALUES} destinationInstanceName="paris-prod" />, { wrapper: Wrapper });
 
     expect(screen.getByText('Configure paris-prod for Cross-Region Replication')).toBeInTheDocument();
+    await screen.findByText('Create IAM User');
 
     const actions = [
       'Create Account on Source: crr-src',
@@ -75,25 +119,27 @@ describe('ApplyActionsStep', () => {
     for (const action of actions) {
       expect(screen.getByText(action)).toBeInTheDocument();
     }
-    expect(screen.getAllByText('Pending...').length).toBe(12);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 12);
     // The setup only becomes confirmable once every action has succeeded.
     expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
   });
 
-  it('does not surface a source-account action when the user reuses an existing account', () => {
+  it('does not surface a source-account action when the user reuses an existing account', async () => {
     render(<ApplyActionsStep {...VALUES} accountNameType="existing" />, { wrapper: Wrapper });
+    await screen.findByText('Create IAM User');
     expect(screen.queryByText(/Create Account on Source/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText('Pending...').length).toBe(11);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 11);
   });
 
-  it('does not surface the source bucket, target bucket or replication rule when no rule is requested', () => {
+  it('does not surface the source bucket, target bucket or replication rule when no rule is requested', async () => {
     render(<ApplyActionsStep {...VALUES} createReplicationRule={false} sourceBucketName="" targetBucketName="" />, {
       wrapper: Wrapper,
     });
+    await screen.findByText('Create IAM User');
     expect(screen.queryByText(/Create Bucket on Source/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Target Bucket/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Replication Rule/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText('Pending...').length).toBe(9);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 9);
   });
 
   it('reuses the chosen destination account instead of creating one', async () => {
@@ -115,9 +161,107 @@ describe('ApplyActionsStep', () => {
       { wrapper: Wrapper },
     );
 
-    expect(screen.getByText('Use Account on Destination: finance')).toBeInTheDocument();
+    expect(await screen.findByText('Use Account on Destination: finance')).toBeInTheDocument();
     await waitFor(() => expect(body).toBeDefined());
     expect(body).toMatchObject({ destinationAccount: { mode: 'existing', name: 'finance' } });
+  });
+
+  it('reuses the location an earlier run created, without minting another access key', async () => {
+    sourceHasLocation('location-scality-crr-v1');
+    const bodies: unknown[] = [];
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        bodies.push(req.body);
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(<ApplyActionsStep {...VALUES} accountNameType="existing" createReplicationRule={false} />, {
+      wrapper: Wrapper,
+    });
+    // The plan never shows, even briefly, an access key the run won't create.
+    expect(screen.queryByText('Generate Access Key')).not.toBeInTheDocument();
+
+    expect(await screen.findByText(`Use Location: ${LOCATION_NAME}`)).toBeInTheDocument();
+    expect(screen.queryByText('Generate Access Key')).not.toBeInTheDocument();
+    await waitFor(() => expect(bodies).toHaveLength(1));
+    expect(bodies[0]).toMatchObject({ existingLocation: true });
+
+    // The reused location waits its turn: no row reads as done while a row above it is still running.
+    const statuses = screen.getAllByRole('row').slice(1).map(rowStatus);
+    expect(statuses.indexOf('Success')).toBe(-1);
+  });
+
+  it('keeps the reused location waiting while a step above it is still running', async () => {
+    sourceHasLocation('location-scality-crr-v1');
+    succeedEveryConfiguratorStep([
+      'create-account',
+      'create-user',
+      'create-policy',
+      'create-role',
+      'attach-role-policy',
+    ]);
+    render(<ApplyActionsStep {...VALUES} accountNameType="existing" createReplicationRule={false} />, {
+      wrapper: Wrapper,
+    });
+
+    const statusOf = async (label: string | RegExp) =>
+      rowStatus((await screen.findByText(label)).closest('tr') as HTMLElement);
+    const locationLabel = `Use Location: ${LOCATION_NAME}`;
+    expect(await statusOf(locationLabel)).toBe('Pending...');
+
+    // The destination steps go through, the certificate import has not: the location waits for it.
+    await waitFor(async () => expect(await statusOf('Attach Policy to Role')).toBe('Success'));
+    expect(await statusOf('Import Certificate into Truststore')).not.toBe('Success');
+    expect(await statusOf(locationLabel)).toBe('Pending...');
+  });
+
+  it("reads the location list again on a second run, instead of deciding on the first run's list", async () => {
+    let listedLocations = {};
+    server.use(
+      rest.get('*/api/v1/config/overlay/view/:instanceId', (_req, res, ctx) =>
+        res(ctx.json({ locations: listedLocations })),
+      ),
+    );
+    const bodies: unknown[] = [];
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        bodies.push(req.body);
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    const runTheStep = () =>
+      render(<ApplyActionsStep {...VALUES} accountNameType="existing" createReplicationRule={false} />, {
+        wrapper: Wrapper,
+      });
+
+    const firstRun = runTheStep();
+    await waitFor(() => expect(bodies).toHaveLength(1));
+    firstRun.unmount();
+
+    // That run created the location: the second one must see it and reuse it.
+    listedLocations = {
+      [LOCATION_NAME]: { name: LOCATION_NAME, locationType: 'location-scality-crr-v1', details: {} },
+    };
+    runTheStep();
+
+    expect(await screen.findByText(`Use Location: ${LOCATION_NAME}`)).toBeInTheDocument();
+    await waitFor(() => expect(bodies).toHaveLength(2));
+    expect(bodies[1]).toMatchObject({ existingLocation: true });
+  });
+
+  it('refuses to run when a location with the same name is not a Cross-Region one', async () => {
+    sourceHasLocation('location-file-v1');
+    let started = false;
+    server.use(
+      rest.post('*/replication-setups', (_req, res, ctx) => {
+        started = true;
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(<ApplyActionsStep {...VALUES} />, { wrapper: Wrapper });
+
+    expect(await screen.findByText(/already exists and is not a Cross-Region location/)).toBeInTheDocument();
+    expect(started).toBe(false);
   });
 
   it('reuses the chosen source and target buckets instead of creating them', async () => {
@@ -137,7 +281,7 @@ describe('ApplyActionsStep', () => {
       { wrapper: Wrapper },
     );
 
-    expect(screen.getByText('Use Bucket on Source: crr-src-bucket')).toBeInTheDocument();
+    expect(await screen.findByText('Use Bucket on Source: crr-src-bucket')).toBeInTheDocument();
     expect(screen.getByText('Use Target Bucket: crr-target-bucket')).toBeInTheDocument();
     await waitFor(() => expect(enableVersioning.mutate).toHaveBeenCalled());
     expect(createBucket.mutate).not.toHaveBeenCalled();

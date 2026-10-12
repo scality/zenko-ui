@@ -9,11 +9,14 @@ import {
   type VariablesResolvers,
 } from '@scality/react-chained-query';
 import { useEffect, useMemo, useRef } from 'react';
+import { useQuery } from 'react-query';
 import { useTheme } from 'styled-components';
+import { LocationType } from '../../../../../js/managementClient/api';
 import { useCreateAccountMutation } from '../../../../../js/mutations';
-import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
+import { queries, useListAccounts } from '../../../../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useInstanceId } from '../../../../next-architecture/ui/AuthProvider';
+import { useLocationsEndpointsAdapter } from '../../../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { Form } from '../../../../ui-elements/CoreUIForm';
 import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import { ErrorText, StatusBox } from '../../../../ui-elements/status';
@@ -114,9 +117,34 @@ export const ApplyActionsStep = (props: Props) => {
       ? (accountsResult.value.find((account) => account.name === accountName)?.preferredAssumableRoleArn ?? '')
       : '';
 
+  const locationName = buildCRRLocationName({
+    destinationAccountName: destinationAccountName ?? '',
+    baseDomain: props.baseDomain ?? '',
+  });
+  const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  // The shared list is cached with refetchOnMount: false and nothing invalidates it when a
+  // location is created, so a second run in the same session would decide on the list from
+  // the first one — and mint the key this step exists to avoid.
+  const {
+    data: locationsAndEndpoints,
+    status: locationsStatus,
+    isFetchedAfterMount,
+  } = useQuery({ ...queries.listLocationsAndEndpoints(locationsEndpointsAdapter), refetchOnMount: 'always' });
+  const existingLocation = locationsAndEndpoints?.locations.find((location) => location.name === locationName);
+  const isNewLocation = existingLocation === undefined;
+  const isCRRLocation = existingLocation?.type === LocationType.ScalityCrrV1;
+  const hasConflictingLocation = !isNewLocation && !isCRRLocation;
+  // Cached data reports success before the refetch lands, hence isFetchedAfterMount.
+  // A failed listing counts as known: the run goes ahead, and create-location swallows the
+  // 409 if the name turns out to be taken.
+  const locationsKnown = isFetchedAfterMount || locationsStatus === 'error';
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: depend on the individual form fields, not the props object identity
   const body: StartSetupBody | null = useMemo(
-    () => (isCompleteFormValues(props) ? toStartSetupBody(props) : null),
+    () =>
+      isCompleteFormValues(props)
+        ? { ...toStartSetupBody(props), ...(isNewLocation ? {} : { existingLocation: true }) }
+        : null,
     [
       props.certificate,
       props.username,
@@ -130,13 +158,9 @@ export const ApplyActionsStep = (props: Props) => {
       createReplicationRule,
       sourceBucketName,
       props.targetBucketName,
+      isNewLocation,
     ],
   );
-
-  const locationName = buildCRRLocationName({
-    destinationAccountName: destinationAccountName ?? '',
-    baseDomain: props.baseDomain ?? '',
-  });
 
   const sourceRoleArn = (prev: PreviousResults): string => {
     if (isNewSourceAccount) {
@@ -194,12 +218,14 @@ export const ApplyActionsStep = (props: Props) => {
       mutation: importCertificate,
     });
 
-    configs.push({ id: 'create-location', label: 'Create Location', mutation: createLocation });
-    resolvers['create-location'] = (prev) => {
-      const result = configuratorResult(prev);
-      if (!result) throw new Error('Cannot create the CRR location: the destination setup result is missing.');
-      return buildCRRLocation(locationName, result, props.baseDomain ?? '');
-    };
+    if (isNewLocation) {
+      configs.push({ id: 'create-location', label: 'Create Location', mutation: createLocation });
+      resolvers['create-location'] = (prev) => {
+        const result = configuratorResult(prev);
+        if (!result) throw new Error('Cannot create the CRR location: the destination setup result is missing.');
+        return buildCRRLocation(locationName, result, props.baseDomain ?? '');
+      };
+    }
 
     if (withReplicationRule) {
       configs.push({
@@ -223,6 +249,7 @@ export const ApplyActionsStep = (props: Props) => {
   }, [
     isNewSourceAccount,
     isNewSourceBucket,
+    isNewLocation,
     withReplicationRule,
     body,
     locationName,
@@ -237,7 +264,11 @@ export const ApplyActionsStep = (props: Props) => {
     createReplicationRuleMutation,
   ]);
 
-  const { Slots, steps, start, getResult, allRequiredStepsComplete } = useChainedMutations({ mutations, variables });
+  const { Slots, steps, start, getResult, allRequiredStepsComplete } = useChainedMutations({
+    mutations,
+    variables,
+    autoStart: false,
+  });
 
   const errorMessage = (error: unknown): string | undefined => (error as Error | undefined)?.message;
   const linkErrors: Record<string, string | undefined> = {
@@ -273,11 +304,13 @@ export const ApplyActionsStep = (props: Props) => {
           isNewDestinationAccount,
           isNewTargetBucket,
           isNewSourceBucket,
+          isNewLocation,
           createReplicationRule: withReplicationRule,
           sourceAccountName: accountName ?? '',
           sourceBucketName: sourceBucketName ?? '',
           targetBucketName: props.targetBucketName ?? '',
           destinationAccountName: destinationAccountName ?? '',
+          locationName,
         },
         { configuratorEvents: setup.events, chainStatusById, configuratorError },
       ),
@@ -286,11 +319,13 @@ export const ApplyActionsStep = (props: Props) => {
       isNewDestinationAccount,
       isNewTargetBucket,
       isNewSourceBucket,
+      isNewLocation,
       withReplicationRule,
       accountName,
       sourceBucketName,
       props.targetBucketName,
       destinationAccountName,
+      locationName,
       setup.events,
       chainStatusById,
       configuratorError,
@@ -299,11 +334,11 @@ export const ApplyActionsStep = (props: Props) => {
 
   const hasStartedRef = useRef(false);
   useEffect(() => {
-    if (body && !hasStartedRef.current) {
+    if (body && locationsKnown && !hasConflictingLocation && !hasStartedRef.current) {
       hasStartedRef.current = true;
       start();
     }
-  }, [body, start]);
+  }, [body, locationsKnown, hasConflictingLocation, start]);
 
   const allDone = allSucceeded(stepViews) && allRequiredStepsComplete;
   // While the chain runs, Exit is disabled so the user can't navigate away mid-provisioning; it re-enables on completion or failure.
@@ -335,6 +370,28 @@ export const ApplyActionsStep = (props: Props) => {
     return (
       <Form layout={{ title, kind: 'page' }} style={{ maxWidth: '50rem', width: '100%' }} responsive>
         <Text>Please complete the previous step before running the setup.</Text>
+      </Form>
+    );
+  }
+
+  if (hasConflictingLocation) {
+    return (
+      <Form layout={{ title, kind: 'page' }} style={{ maxWidth: '50rem', width: '100%' }} responsive>
+        <ErrorText>
+          {`A location named ${locationName} already exists and is not a Cross-Region location. Rename or remove it, then run the wizard again.`}
+        </ErrorText>
+      </Form>
+    );
+  }
+
+  // The plan depends on whether the location already exists: showing it before then would
+  // show steps that disappear a moment later.
+  if (!locationsKnown) {
+    return (
+      <Form layout={{ title, kind: 'page' }} style={{ maxWidth: '50rem', width: '100%' }} responsive>
+        <Loader centered>
+          <div>Preparing the setup...</div>
+        </Loader>
       </Form>
     );
   }

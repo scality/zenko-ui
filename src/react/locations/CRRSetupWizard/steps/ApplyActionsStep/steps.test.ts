@@ -14,11 +14,13 @@ const baseInput: StepListInput = {
   isNewSourceBucket: true,
   isNewDestinationAccount: true,
   isNewTargetBucket: true,
+  isNewLocation: true,
   createReplicationRule: true,
   sourceAccountName: 'src-account',
   sourceBucketName: 'src-bucket',
   targetBucketName: 'target-bucket',
   destinationAccountName: 'dest-account',
+  locationName: 'location-dest-account-crr-dest',
 };
 
 const noProgress: StepStateSources = { configuratorEvents: [], chainStatusById: {} };

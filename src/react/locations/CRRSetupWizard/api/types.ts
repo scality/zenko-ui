@@ -55,6 +55,7 @@ export type StartSetupBody = {
   destinationCertificate: string;
   destinationAccount: { mode: 'create' | 'existing'; name: string };
   targetBucket?: string;
+  existingLocation?: boolean;
 };
 
 export type SetupResult = {

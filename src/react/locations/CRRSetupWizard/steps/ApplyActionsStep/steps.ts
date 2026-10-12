@@ -30,11 +30,13 @@ export type StepListInput = {
   isNewDestinationAccount: boolean;
   isNewTargetBucket: boolean;
   isNewSourceBucket: boolean;
+  isNewLocation: boolean;
   createReplicationRule: boolean;
   sourceAccountName: string;
   sourceBucketName: string;
   targetBucketName: string;
   destinationAccountName: string;
+  locationName: string;
 };
 
 export type ChainStepState = 'idle' | 'pending' | 'success' | 'error';
@@ -70,7 +72,7 @@ const STEPS: StepDef[] = [
     label: (i) => `${i.isNewDestinationAccount ? 'Create' : 'Use'} Account on Destination: ${i.destinationAccountName}`,
   },
   { id: 'create-user', when: () => true, label: () => 'Create IAM User' },
-  { id: 'create-access-key', when: () => true, label: () => 'Generate Access Key' },
+  { id: 'create-access-key', when: (i) => i.isNewLocation, label: () => 'Generate Access Key' },
   { id: 'create-policy', when: () => true, label: () => 'Create Policy' },
   { id: 'create-role', when: () => true, label: () => 'Create IAM Role' },
   { id: 'attach-role-policy', when: () => true, label: () => 'Attach Policy to Role' },
@@ -84,7 +86,11 @@ const STEPS: StepDef[] = [
     when: () => true,
     label: () => 'Import Certificate into Truststore',
   },
-  { id: 'create-location', when: () => true, label: () => 'Create Location' },
+  {
+    id: 'create-location',
+    when: () => true,
+    label: (i) => (i.isNewLocation ? 'Create Location' : `Use Location: ${i.locationName}`),
+  },
   {
     id: 'create-replication-rule',
     when: (i) => i.createReplicationRule,
@@ -123,9 +129,11 @@ const WIZARD_ROW_LINKS: Partial<Record<StepId, string[]>> = {
 
 const wizardRowLinks = (id: StepId, input: StepListInput): string[] => {
   const links = WIZARD_ROW_LINKS[id] ?? [id];
-  return id === 'create-source-bucket' && !input.isNewSourceBucket
-    ? links.filter((linkId) => linkId !== 'create-source-bucket')
-    : links;
+  const skipped = new Set<string>([
+    ...(input.isNewSourceBucket ? [] : ['create-source-bucket']),
+    ...(input.isNewLocation ? [] : ['create-location']),
+  ]);
+  return links.filter((linkId) => !skipped.has(linkId));
 };
 
 const configuratorRowState = (
@@ -168,16 +176,22 @@ const wizardRowState = (
  */
 export const buildStepViews = (input: StepListInput, sources: StepStateSources): StepView[] => {
   const active = STEPS.filter((def) => def.when(input));
-  const views: StepView[] = active.map((def, index) => {
+  const views: StepView[] = [];
+  active.forEach((def, index) => {
     const base = { id: def.id, step: index + 1, label: def.label(input) };
-    const {
-      state,
-      active: isActive,
-      errorMessage,
-    } = CONFIGURATOR_STEP_IDS.has(def.id)
-      ? configuratorRowState(sources.configuratorEvents, def.id)
-      : wizardRowState(wizardRowLinks(def.id, input), sources.chainStatusById);
-    return { ...base, state, active: isActive, errorMessage };
+    let resolved: { state: StepState; active: boolean; errorMessage?: string };
+    if (CONFIGURATOR_STEP_IDS.has(def.id)) {
+      resolved = configuratorRowState(sources.configuratorEvents, def.id);
+    } else {
+      const links = wizardRowLinks(def.id, input);
+      // A reused resource runs nothing of its own, so it follows the rows above it
+      // rather than reading as done before them.
+      resolved =
+        links.length === 0
+          ? { state: views.every((row) => row.state === 'succeeded') ? 'succeeded' : 'pending', active: false }
+          : wizardRowState(links, sources.chainStatusById);
+    }
+    views.push({ ...base, ...resolved });
   });
 
   if (sources.configuratorError && !views.some((v) => v.state === 'failed')) {
