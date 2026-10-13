@@ -1,7 +1,10 @@
-import type { PutBucketReplicationCommandInput } from '@aws-sdk/client-s3';
-import { useSetBucketReplication } from '@scality/data-browser-library';
+import { useGetBucketReplication, useSetBucketReplication } from '@scality/data-browser-library';
 import { useEffect, useRef } from 'react';
 import { useMutation } from 'react-query';
+import {
+  type BuildReplicationConfigurationInput,
+  buildCRRReplicationConfiguration,
+} from '../steps/ApplyActionsStep/replicationConfiguration';
 
 const RETRY_WINDOW_MS = 3 * 60_000;
 const RETRY_INTERVAL_MS = 5_000;
@@ -18,13 +21,18 @@ const isLocationNotYetActive = (error: unknown): boolean => {
   return [candidate?.name, candidate?.originalError?.name].includes('MalformedXML');
 };
 
-type RetryPolicy = { intervalMs?: number; windowMs?: number };
+type Options = { bucketName: string; intervalMs?: number; windowMs?: number };
 
 export const useCreateReplicationRuleMutation = ({
+  bucketName,
   intervalMs = RETRY_INTERVAL_MS,
   windowMs = RETRY_WINDOW_MS,
-}: RetryPolicy = {}) => {
+}: Options) => {
   const setBucketReplication = useSetBucketReplication();
+  // Read when the step runs, as the source account the chain has assumed by then.
+  const currentConfiguration = useGetBucketReplication({ Bucket: bucketName }, { enabled: false, retry: false });
+  const refetchRef = useRef(currentConfiguration.refetch);
+  refetchRef.current = currentConfiguration.refetch;
 
   // So the retry loop cannot outlive the step when the user exits or cancels.
   const cancelledRef = useRef(false);
@@ -36,11 +44,13 @@ export const useCreateReplicationRuleMutation = ({
   }, []);
 
   return useMutation({
-    mutationFn: async (rule: PutBucketReplicationCommandInput) => {
+    mutationFn: async (input: BuildReplicationConfigurationInput) => {
+      const { data } = await refetchRef.current({ throwOnError: true });
+      const configuration = buildCRRReplicationConfiguration(input, data?.ReplicationConfiguration);
       const deadline = Date.now() + windowMs;
       for (;;) {
         try {
-          return await setBucketReplication.mutateAsync(rule);
+          return await setBucketReplication.mutateAsync(configuration);
         } catch (error) {
           if (cancelledRef.current || !isLocationNotYetActive(error) || Date.now() >= deadline) {
             throw error;

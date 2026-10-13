@@ -38,7 +38,7 @@ export const SummaryStep = ({
           {
             id: 'replication-rule',
             label: 'Replication Rule',
-            value: buildCRRReplicationRuleId(destinationAccountName ?? ''),
+            value: buildCRRReplicationRuleId(locationName, targetBucketName ?? ''),
           },
           { id: 'source-bucket', label: 'Source Bucket', value: sourceBucketName ?? '' },
           { id: 'target-bucket', label: 'Target Bucket', value: targetBucketName ?? '' },

@@ -45,8 +45,8 @@ export const ReplicationSection = ({ destinationBuckets }: Props) => {
           {reusesExistingAccount && (
             <div style={{ marginBottom: spacing.r24 }}>
               <InfoMessage
-                title="Existing replication rule"
-                content="If the source bucket already has a replication rule, creating one here replaces its existing replication configuration."
+                title="Existing replication rules"
+                content="Replication rules the source bucket already has are kept; this one is added next to them."
               />
             </div>
           )}

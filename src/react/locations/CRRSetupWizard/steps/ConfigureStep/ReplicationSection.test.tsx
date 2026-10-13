@@ -4,7 +4,7 @@ import { Wrapper } from '../../../../utils/testUtil';
 import { ReplicationSection } from './ReplicationSection';
 import { type ConfigureFormValues, defaultConfigureValues } from './schema';
 
-const overrideWarning = /already has a replication rule/i;
+const overrideWarning = /are kept; this one is added next to them/i;
 
 // jsdom doesn't implement scrollIntoView, which the section calls when it opens.
 beforeAll(() => {
