@@ -51,6 +51,7 @@ describe('buildStepViews', () => {
       'import-destination-certificate',
       'create-location',
       'create-replication-rule',
+      'refresh-configuration',
     ]);
   });
 
@@ -281,6 +282,7 @@ describe('allSucceeded / hasFailure', () => {
         'create-source-bucket-versioning': { status: 'success' },
         'create-location': { status: 'success' },
         'create-replication-rule': { status: 'success' },
+        'refresh-configuration': { status: 'success' },
       },
     };
     expect(allSucceeded(buildStepViews(baseInput, allDone))).toBe(true);

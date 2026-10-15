@@ -1,8 +1,14 @@
 import { useCreateBucket, useSetBucketVersioning } from '@scality/data-browser-library';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { Wrapper } from '../../../../utils/testUtil';
+import { useMemo } from 'react';
+import { useListAccounts, useLocationsAndEndpoints } from '../../../../next-architecture/domain/business/accounts';
+import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { useLocationsEndpointsAdapter } from '../../../../next-architecture/ui/LocationsEndpointsAdapterProvider';
+import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
+import { mockShellHooks, Wrapper } from '../../../../utils/testUtil';
 import type { ConfigureFormValues } from '../ConfigureStep/schema';
 import { ApplyActionsStep } from './ApplyActionsStep';
 
@@ -14,6 +20,9 @@ const mockPrev = jest.fn();
 jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => ({
   useStepper: () => ({ next: mockNext, prev: mockPrev }),
 }));
+
+// One test plays a whole run end to end: slower CI runners exceed the 5 s default.
+jest.setTimeout(20_000);
 
 // Only the network boundary is stubbed. The destination setup stream stays open
 // (empty body) so no step resolves during assertions on the initial plan.
@@ -115,11 +124,12 @@ describe('ApplyActionsStep', () => {
       'Import Certificate into Truststore',
       'Create Location',
       'Create Replication Rule',
+      'Update Configuration',
     ];
     for (const action of actions) {
       expect(screen.getByText(action)).toBeInTheDocument();
     }
-    expect(screen.getAllByRole('row')).toHaveLength(1 + 12);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 13);
     // The setup only becomes confirmable once every action has succeeded.
     expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
   });
@@ -128,7 +138,7 @@ describe('ApplyActionsStep', () => {
     render(<ApplyActionsStep {...VALUES} accountNameType="existing" />, { wrapper: Wrapper });
     await screen.findByText('Create IAM User');
     expect(screen.queryByText(/Create Account on Source/i)).not.toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(1 + 11);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 12);
   });
 
   it('does not surface the source bucket, target bucket or replication rule when no rule is requested', async () => {
@@ -139,7 +149,7 @@ describe('ApplyActionsStep', () => {
     expect(screen.queryByText(/Create Bucket on Source/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Target Bucket/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Replication Rule/i)).not.toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(1 + 9);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 10);
   });
 
   it('reuses the chosen destination account instead of creating one', async () => {
@@ -290,5 +300,164 @@ describe('ApplyActionsStep', () => {
   it('falls back to "ARTESCA" in the title when Verify returned no instance name', () => {
     render(<ApplyActionsStep {...VALUES} />, { wrapper: Wrapper });
     expect(screen.getByText('Configure ARTESCA for Cross-Region Replication')).toBeInTheDocument();
+  });
+});
+
+describe('ApplyActionsStep — what the wizard changed shows up elsewhere', () => {
+  const CREATED_LOCATION = 'location-crr-dest-crr-dest-artesca-local';
+
+  // Stands for the Accounts and Locations pages: both read the lists a run writes to.
+  const ListsTheWizardWritesTo = () => {
+    const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+    const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
+    const { accounts } = useListAccounts({ accessibleAccountsAdapter, metricsAdapter });
+    const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+    const { locationsAndEndpoints } = useLocationsAndEndpoints({ locationsEndpointsAdapter });
+    const accountNames = accounts.status === 'success' ? accounts.value.map((a) => a.name) : [];
+    const locationNames = (locationsAndEndpoints?.locations ?? []).map((location) => location.name);
+    return <output>{`accounts: ${accountNames.join(',')} / locations: ${locationNames.join(',')}`}</output>;
+  };
+
+  const serveLists = (accountNames: string[], locationNames: string[]) =>
+    server.use(
+      rest.post('http://testendpoint', (_req, res, ctx) =>
+        res(
+          ctx.json({
+            IsTruncated: false,
+            Accounts: accountNames.map((name, index) => {
+              const accountId = `${100000000000 + index}`;
+              return {
+                Name: name,
+                CanonicalId: `canonical-${index}`,
+                CreationDate: '2026-01-01T00:00:00Z',
+                id: accountId,
+                Roles: [
+                  {
+                    Name: 'storage-manager-role',
+                    Arn: `arn:aws:iam::${accountId}:role/scality-internal/storage-manager-role`,
+                  },
+                ],
+              };
+            }),
+          }),
+        ),
+      ),
+      rest.get('*/api/v1/config/overlay/view/:instanceId', (_req, res, ctx) =>
+        res(
+          ctx.json({
+            locations: Object.fromEntries(
+              locationNames.map((name) => [name, { name, locationType: 'location-scality-crr-v1', details: {} }]),
+            ),
+          }),
+        ),
+      ),
+    );
+
+  const theRunGoesThrough = () => {
+    const completed = [
+      'create-account',
+      'create-user',
+      'create-access-key',
+      'create-policy',
+      'create-role',
+      'attach-role-policy',
+    ].flatMap((step) => [
+      JSON.stringify({ event: 'step.started', step }),
+      JSON.stringify({ event: 'step.completed', step }),
+    ]);
+    server.use(
+      rest.post('*/replication-setups', (_req, res, ctx) =>
+        res(
+          ctx.status(200),
+          ctx.set('Content-Type', 'application/x-ndjson'),
+          ctx.body(
+            [
+              ...completed,
+              JSON.stringify({
+                event: 'setup.completed',
+                result: {
+                  endpoint: 'https://s3.crr-dest.artesca.local',
+                  stsEndpoint: 'https://sts.crr-dest.artesca.local',
+                  accessKey: 'AK',
+                  secretKey: 'SK',
+                  roleArn: 'arn:aws:iam::123456789012:role/crr-replication-role',
+                },
+              }),
+            ]
+              .map((line) => `${line}\n`)
+              .join(''),
+          ),
+        ),
+      ),
+      rest.post('*/config/:uuid/user', (_req, res, ctx) => res(ctx.json({ id: '100000000001' }))),
+      rest.post('*/config/:uuid/location', (_req, res, ctx) => res(ctx.json({}))),
+      // The destination certificate is already in the source truststore, so importing is a no-op.
+      rest.get('*/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data', (_req, res, ctx) =>
+        res(ctx.json({ spec: { egress: { extraCACerts: [{ 'ca.crt': VALUES.certificate }] } } })),
+      ),
+    );
+    (mockShellHooks.useConfigRetriever as jest.Mock).mockReturnValue({
+      retrieveConfiguration: () => ({ spec: { selfConfiguration: { url: 'http://testendpoint' } } }),
+    });
+  };
+
+  it('shows the account and the location it created when the user goes back to them', async () => {
+    serveLists(['finance'], []);
+    const before = render(<ListsTheWizardWritesTo />, { wrapper: Wrapper });
+    expect(await screen.findByText(/accounts: finance \/ locations:/)).toBeInTheDocument();
+    before.unmount();
+
+    theRunGoesThrough();
+    const wizard = render(<ApplyActionsStep {...VALUES} createReplicationRule={false} />, { wrapper: Wrapper });
+    // The plan is drawn for a location that does not exist yet.
+    expect(await screen.findByText('Create Location')).toBeInTheDocument();
+    // The run creates them while the pages are not mounted to notice.
+    serveLists(['finance', 'crr-src'], [CREATED_LOCATION]);
+    await waitFor(() => expect(screen.getByText('Update Configuration').closest('tr')).toHaveTextContent('Success'), {
+      timeout: 15_000,
+    });
+    // That row only turns Success once both refetches resolved, so the re-read has landed
+    // and the component has seen the new list: no sleep needed to observe what follows.
+    expect(screen.getByRole('button', { name: /Continue/i })).toBeEnabled();
+    // The run created the location, so the plan says so — re-reading the list must not rewrite it.
+    expect(screen.getByText('Create Location')).toBeInTheDocument();
+    expect(screen.queryByText(/Use Location/)).not.toBeInTheDocument();
+    wizard.unmount();
+
+    render(<ListsTheWizardWritesTo />, { wrapper: Wrapper });
+    expect(await screen.findByText(`accounts: finance,crr-src / locations: ${CREATED_LOCATION}`)).toBeInTheDocument();
+  });
+
+  it('reports the refresh as failed when a list cannot be reloaded', async () => {
+    serveLists(['finance'], []);
+    theRunGoesThrough();
+    render(<ApplyActionsStep {...VALUES} createReplicationRule={false} />, { wrapper: Wrapper });
+    await screen.findByText('Create IAM User');
+    server.use(rest.post('http://testendpoint', (_req, res, ctx) => res(ctx.status(500))));
+
+    const refreshRow = async () => (await screen.findByText('Update Configuration')).closest('tr');
+    await waitFor(() => expect(refreshRow()).resolves.toHaveTextContent('Failed'), { timeout: 15_000 });
+    expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
+  });
+
+  it('shows the account it created even when the run stopped on a failure and the user left', async () => {
+    serveLists(['finance'], []);
+    const before = render(<ListsTheWizardWritesTo />, { wrapper: Wrapper });
+    expect(await screen.findByText(/accounts: finance \/ locations:/)).toBeInTheDocument();
+    before.unmount();
+
+    // The account is created, then the destination setup fails: the run never reaches its last step.
+    server.use(rest.post('*/config/:uuid/user', (_req, res, ctx) => res(ctx.json({ id: '100000000001' }))));
+    const wizard = render(<ApplyActionsStep {...VALUES} createReplicationRule={false} />, { wrapper: Wrapper });
+    await screen.findByText('Create IAM User');
+    serveLists(['finance', 'crr-src'], []);
+
+    const exit = await screen.findByRole('button', { name: /Exit/i });
+    await waitFor(() => expect(exit).toBeEnabled());
+    await userEvent.click(exit);
+    wizard.unmount();
+
+    render(<ListsTheWizardWritesTo />, { wrapper: Wrapper });
+    expect(await screen.findByText('accounts: finance,crr-src / locations:')).toBeInTheDocument();
   });
 });
