@@ -1,11 +1,14 @@
-import { DataBrowserProvider, useBuckets } from '@scality/data-browser-library';
+import { InfoMessage, spacing } from '@scality/core-ui';
+import { DataBrowserProvider, useBuckets, useIsBucketEmpty } from '@scality/data-browser-library';
 import { useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 import { useAssumeRoleQuery, useS3ConfigFromAssumeRoleResult } from '../../../../DataServiceRoleProvider';
 import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import { BucketChoiceFields } from './BucketChoiceFields';
+import type { ConfigureFormValues } from './schema';
 
 const SOURCE_BUCKET = {
   typeField: 'sourceBucketNameType',
@@ -21,7 +24,25 @@ const ListedSourceBuckets = () => {
     () => ({ names: (data?.Buckets ?? []).flatMap((bucket) => bucket.Name ?? []), isLoading, isError }),
     [data, isLoading, isError],
   );
-  return <BucketChoiceFields {...SOURCE_BUCKET} buckets={buckets} />;
+
+  const { watch } = useFormContext<ConfigureFormValues>();
+  // An empty name leaves the check idle; a bucket about to be created cannot hold anything.
+  const reusedBucketName = watch('sourceBucketNameType') === 'existing' ? (watch('sourceBucketName') ?? '') : '';
+  const { isEmpty } = useIsBucketEmpty(reusedBucketName);
+
+  return (
+    <>
+      <BucketChoiceFields {...SOURCE_BUCKET} buckets={buckets} />
+      {isEmpty === false && (
+        <div style={{ marginBottom: spacing.r24 }}>
+          <InfoMessage
+            title="Existing objects are not replicated"
+            content="Only objects written after the rule is created are copied to the destination."
+          />
+        </div>
+      )}
+    </>
+  );
 };
 
 export const SourceBucketChoiceFields = ({ accountName }: { accountName: string | null }) => {
