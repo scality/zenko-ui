@@ -12,7 +12,8 @@ export type StepId =
   | 'attach-role-policy'
   | 'create-bucket'
   | 'create-location'
-  | 'create-replication-rule';
+  | 'create-replication-rule'
+  | 'refresh-configuration';
 
 export type StepState = 'pending' | 'succeeded' | 'failed';
 
@@ -95,6 +96,12 @@ const STEPS: StepDef[] = [
     id: 'create-replication-rule',
     when: (i) => i.createReplicationRule,
     label: () => 'Create Replication Rule',
+  },
+  {
+    id: 'refresh-configuration',
+    // Only when the run adds something the Accounts or Locations pages list.
+    when: (i) => i.isNewSourceAccount || i.isNewLocation,
+    label: () => 'Update Configuration',
   },
 ];
 

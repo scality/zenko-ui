@@ -1,8 +1,9 @@
 import { useCreateBucket, useSetBucketVersioning } from '@scality/data-browser-library';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { Wrapper } from '../../../../utils/testUtil';
+import { mockShellHooks, Wrapper } from '../../../../utils/testUtil';
 import type { ConfigureFormValues } from '../ConfigureStep/schema';
 import { ApplyActionsStep } from './ApplyActionsStep';
 
@@ -14,6 +15,9 @@ const mockPrev = jest.fn();
 jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => ({
   useStepper: () => ({ next: mockNext, prev: mockPrev }),
 }));
+
+// One test plays a whole run end to end: slower CI runners exceed the 5 s default.
+jest.setTimeout(20_000);
 
 // Only the network boundary is stubbed. The destination setup stream stays open
 // (empty body) so no step resolves during assertions on the initial plan.
@@ -115,11 +119,12 @@ describe('ApplyActionsStep', () => {
       'Import Certificate into Truststore',
       'Create Location',
       'Create Replication Rule',
+      'Update Configuration',
     ];
     for (const action of actions) {
       expect(screen.getByText(action)).toBeInTheDocument();
     }
-    expect(screen.getAllByRole('row')).toHaveLength(1 + 12);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 13);
     // The setup only becomes confirmable once every action has succeeded.
     expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
   });
@@ -128,7 +133,7 @@ describe('ApplyActionsStep', () => {
     render(<ApplyActionsStep {...VALUES} accountNameType="existing" />, { wrapper: Wrapper });
     await screen.findByText('Create IAM User');
     expect(screen.queryByText(/Create Account on Source/i)).not.toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(1 + 11);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 12);
   });
 
   it('does not surface the source bucket, target bucket or replication rule when no rule is requested', async () => {
@@ -139,7 +144,7 @@ describe('ApplyActionsStep', () => {
     expect(screen.queryByText(/Create Bucket on Source/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Target Bucket/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Replication Rule/i)).not.toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(1 + 9);
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 10);
   });
 
   it('reuses the chosen destination account instead of creating one', async () => {
@@ -290,5 +295,119 @@ describe('ApplyActionsStep', () => {
   it('falls back to "ARTESCA" in the title when Verify returned no instance name', () => {
     render(<ApplyActionsStep {...VALUES} />, { wrapper: Wrapper });
     expect(screen.getByText('Configure ARTESCA for Cross-Region Replication')).toBeInTheDocument();
+  });
+});
+
+describe('ApplyActionsStep — refreshing what the run created', () => {
+  const originalConfigRetriever = (mockShellHooks.useConfigRetriever as jest.Mock).getMockImplementation();
+  afterEach(() => (mockShellHooks.useConfigRetriever as jest.Mock).mockImplementation(originalConfigRetriever));
+
+  // Counts the reads of the two lists the Accounts and Locations pages show. Once the run has
+  // created the location, the locations list returns it.
+  const watchLists = () => {
+    const reads = { accounts: 0, locations: 0 };
+    server.use(
+      rest.post('http://testendpoint', (_req, res, ctx) => {
+        reads.accounts += 1;
+        return res(ctx.json({ IsTruncated: false, Accounts: [] }));
+      }),
+      rest.get('*/api/v1/config/overlay/view/:instanceId', (_req, res, ctx) => {
+        reads.locations += 1;
+        const created = reads.locations > 1;
+        return res(
+          ctx.json({
+            locations: created
+              ? { [LOCATION_NAME]: { name: LOCATION_NAME, locationType: 'location-scality-crr-v1', details: {} } }
+              : {},
+          }),
+        );
+      }),
+      rest.post('*/config/:uuid/user', (_req, res, ctx) => res(ctx.json({ id: '100000000001' }))),
+    );
+    return reads;
+  };
+
+  const theDestinationSetupSucceeds = () => {
+    const steps = [
+      'create-account',
+      'create-user',
+      'create-access-key',
+      'create-policy',
+      'create-role',
+      'attach-role-policy',
+    ];
+    const events = [
+      ...steps.flatMap((step) => [
+        { event: 'step.started', step },
+        { event: 'step.completed', step },
+      ]),
+      {
+        event: 'setup.completed',
+        result: {
+          endpoint: 'https://s3.crr-dest.artesca.local',
+          stsEndpoint: 'https://sts.crr-dest.artesca.local',
+          accessKey: 'AK',
+          secretKey: 'SK',
+          roleArn: 'arn:aws:iam::123456789012:role/crr-replication-role',
+        },
+      },
+    ];
+    server.use(
+      rest.post('*/replication-setups', (_req, res, ctx) =>
+        res(
+          ctx.set('Content-Type', 'application/x-ndjson'),
+          ctx.body(events.map((event) => `${JSON.stringify(event)}\n`).join('')),
+        ),
+      ),
+      rest.post('*/config/:uuid/location', (_req, res, ctx) => res(ctx.json({}))),
+      // The destination certificate is already trusted, so importing it does nothing.
+      rest.get('*/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data', (_req, res, ctx) =>
+        res(ctx.json({ spec: { egress: { extraCACerts: [{ 'ca.crt': VALUES.certificate }] } } })),
+      ),
+    );
+    (mockShellHooks.useConfigRetriever as jest.Mock).mockReturnValue({
+      retrieveConfiguration: () => ({ spec: { selfConfiguration: { url: 'http://testendpoint' } } }),
+    });
+  };
+
+  it('has no Update Configuration step when the run reuses both the account and the location', async () => {
+    sourceHasLocation('location-scality-crr-v1');
+    render(<ApplyActionsStep {...VALUES} accountNameType="existing" createReplicationRule={false} />, {
+      wrapper: Wrapper,
+    });
+
+    expect(await screen.findByRole('row', { name: /Use Location/ })).toBeInTheDocument();
+    expect(screen.queryByRole('row', { name: /Update Configuration/ })).not.toBeInTheDocument();
+  });
+
+  it('reloads the accounts and the locations once the run has created them, keeping its plan', async () => {
+    const reads = watchLists();
+    theDestinationSetupSucceeds();
+    render(<ApplyActionsStep {...VALUES} createReplicationRule={false} />, { wrapper: Wrapper });
+    expect(await screen.findByRole('row', { name: /Create Location/ })).toBeInTheDocument();
+    const readsBeforeTheRun = { ...reads };
+
+    await waitFor(
+      () => expect(screen.getByRole('row', { name: /Update Configuration/ })).toHaveTextContent('Success'),
+      { timeout: 15_000 },
+    );
+
+    expect(reads.accounts).toBeGreaterThan(readsBeforeTheRun.accounts);
+    expect(reads.locations).toBeGreaterThan(readsBeforeTheRun.locations);
+    // The location now exists, yet the plan still tells what this run did.
+    expect(screen.getByRole('row', { name: /Create Location/ })).toBeInTheDocument();
+  });
+
+  it('reloads the accounts when the user leaves a run that already created one', async () => {
+    const reads = watchLists();
+    render(<ApplyActionsStep {...VALUES} createReplicationRule={false} />, { wrapper: Wrapper });
+    // The destination setup does not answer: the run stops after creating the account.
+    const exit = await screen.findByRole('button', { name: /Exit/i });
+    await waitFor(() => expect(exit).toBeEnabled());
+    const readsBeforeLeaving = reads.accounts;
+
+    await userEvent.click(exit);
+
+    await waitFor(() => expect(reads.accounts).toBeGreaterThan(readsBeforeLeaving));
   });
 });
