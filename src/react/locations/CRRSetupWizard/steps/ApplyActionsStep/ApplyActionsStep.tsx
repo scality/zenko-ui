@@ -27,6 +27,7 @@ import { useCRRConfigurationSetupMutation } from '../../hooks/useCRRConfiguratio
 import { useCreateCRRLocationMutation } from '../../hooks/useCreateCRRLocationMutation';
 import { useCreateReplicationRuleMutation } from '../../hooks/useCreateReplicationRuleMutation';
 import { useImportDestinationCertificateMutation } from '../../hooks/useImportDestinationCertificateMutation';
+import { useRefreshConfigurationMutation } from '../../hooks/useRefreshConfigurationMutation';
 import { type ConfigureFormValues, toStartSetupBody } from '../ConfigureStep/schema';
 import { buildCRRLocation, buildCRRLocationName } from './crrLocation';
 import {
@@ -108,6 +109,7 @@ export const ApplyActionsStep = (props: Props) => {
   const setup = useCRRConfigurationSetupMutation();
   const createLocation = useCreateCRRLocationMutation();
   const createReplicationRuleMutation = useCreateReplicationRuleMutation({ bucketName: sourceBucketName ?? '' });
+  const refreshConfiguration = useRefreshConfigurationMutation();
 
   const accountsAdapter = useAccessibleAccountsAdapter();
   const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
@@ -132,6 +134,10 @@ export const ApplyActionsStep = (props: Props) => {
   } = useQuery({ ...queries.listLocationsAndEndpoints(locationsEndpointsAdapter), refetchOnMount: 'always' });
   const existingLocation = locationsAndEndpoints?.locations.find((location) => location.name === locationName);
   const isNewLocation = existingLocation === undefined;
+  // The last step re-reads the location list, which would otherwise turn this false mid-run:
+  // the plan would rewrite itself under the user. It is fixed when the run starts.
+  const planLocationRef = useRef<boolean | null>(null);
+  const isNewLocationForRun = planLocationRef.current ?? isNewLocation;
   const isCRRLocation = existingLocation?.type === LocationType.ScalityCrrV1;
   const hasConflictingLocation = !isNewLocation && !isCRRLocation;
   // Cached data reports success before the refetch lands, hence isFetchedAfterMount.
@@ -143,7 +149,7 @@ export const ApplyActionsStep = (props: Props) => {
   const body: StartSetupBody | null = useMemo(
     () =>
       isCompleteFormValues(props)
-        ? { ...toStartSetupBody(props), ...(isNewLocation ? {} : { existingLocation: true }) }
+        ? { ...toStartSetupBody(props), ...(isNewLocationForRun ? {} : { existingLocation: true }) }
         : null,
     [
       props.certificate,
@@ -158,7 +164,7 @@ export const ApplyActionsStep = (props: Props) => {
       createReplicationRule,
       sourceBucketName,
       props.targetBucketName,
-      isNewLocation,
+      isNewLocationForRun,
     ],
   );
 
@@ -218,7 +224,7 @@ export const ApplyActionsStep = (props: Props) => {
       mutation: importCertificate,
     });
 
-    if (isNewLocation) {
+    if (isNewLocationForRun) {
       configs.push({ id: 'create-location', label: 'Create Location', mutation: createLocation });
       resolvers['create-location'] = (prev) => {
         const result = configuratorResult(prev);
@@ -245,11 +251,14 @@ export const ApplyActionsStep = (props: Props) => {
       };
     }
 
+    configs.push({ id: 'refresh-configuration', label: 'Update Configuration', mutation: refreshConfiguration });
+    resolvers['refresh-configuration'] = () => ({});
+
     return { mutations: configs, variables: resolvers };
   }, [
     isNewSourceAccount,
     isNewSourceBucket,
-    isNewLocation,
+    isNewLocationForRun,
     withReplicationRule,
     body,
     locationName,
@@ -262,6 +271,7 @@ export const ApplyActionsStep = (props: Props) => {
     setup,
     createLocation,
     createReplicationRuleMutation,
+    refreshConfiguration,
   ]);
 
   const { Slots, steps, start, getResult, allRequiredStepsComplete } = useChainedMutations({
@@ -279,6 +289,7 @@ export const ApplyActionsStep = (props: Props) => {
     'create-source-bucket-versioning': errorMessage(enableSourceVersioning.error),
     'create-location': errorMessage(createLocation.error),
     'create-replication-rule': errorMessage(createReplicationRuleMutation.error),
+    'refresh-configuration': errorMessage(refreshConfiguration.error),
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-read the current link errors whenever the chain steps change
@@ -304,7 +315,7 @@ export const ApplyActionsStep = (props: Props) => {
           isNewDestinationAccount,
           isNewTargetBucket,
           isNewSourceBucket,
-          isNewLocation,
+          isNewLocation: isNewLocationForRun,
           createReplicationRule: withReplicationRule,
           sourceAccountName: accountName ?? '',
           sourceBucketName: sourceBucketName ?? '',
@@ -319,7 +330,7 @@ export const ApplyActionsStep = (props: Props) => {
       isNewDestinationAccount,
       isNewTargetBucket,
       isNewSourceBucket,
-      isNewLocation,
+      isNewLocationForRun,
       withReplicationRule,
       accountName,
       sourceBucketName,
@@ -336,9 +347,10 @@ export const ApplyActionsStep = (props: Props) => {
   useEffect(() => {
     if (body && locationsKnown && !hasConflictingLocation && !hasStartedRef.current) {
       hasStartedRef.current = true;
+      planLocationRef.current = isNewLocation;
       start();
     }
-  }, [body, locationsKnown, hasConflictingLocation, start]);
+  }, [body, locationsKnown, hasConflictingLocation, isNewLocation, start]);
 
   const allDone = allSucceeded(stepViews) && allRequiredStepsComplete;
   // While the chain runs, Exit is disabled so the user can't navigate away mid-provisioning; it re-enables on completion or failure.
@@ -362,6 +374,13 @@ export const ApplyActionsStep = (props: Props) => {
     if (advancedRef.current || !allDone) return;
     advancedRef.current = true;
     next({ result: setupResult, ...props });
+  };
+
+  // A run that stopped on a failure has still created some of it, and never reached
+  // the refresh step. Leaving is the other way out, so it refreshes too — as the ISV does.
+  const onExit = () => {
+    refreshConfiguration.mutate();
+    prev(props);
   };
 
   const title = `Configure ${destinationInstanceName || 'ARTESCA'} for Cross-Region Replication`;
@@ -402,7 +421,7 @@ export const ApplyActionsStep = (props: Props) => {
       requireMode="all"
       rightActions={
         <Stack gap="r16">
-          <Button type="button" variant="outline" label="Exit" disabled={isRunning} onClick={() => prev(props)} />
+          <Button type="button" variant="outline" label="Exit" disabled={isRunning} onClick={onExit} />
           {setup.isLoading && <Button type="button" variant="outline" label="Cancel" onClick={setup.cancel} />}
           <Button
             type="button"

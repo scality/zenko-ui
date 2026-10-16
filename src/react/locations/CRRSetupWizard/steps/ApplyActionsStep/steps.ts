@@ -12,7 +12,8 @@ export type StepId =
   | 'attach-role-policy'
   | 'create-bucket'
   | 'create-location'
-  | 'create-replication-rule';
+  | 'create-replication-rule'
+  | 'refresh-configuration';
 
 export type StepState = 'pending' | 'succeeded' | 'failed';
 
@@ -96,6 +97,7 @@ const STEPS: StepDef[] = [
     when: (i) => i.createReplicationRule,
     label: () => 'Create Replication Rule',
   },
+  { id: 'refresh-configuration', when: () => true, label: () => 'Update Configuration' },
 ];
 
 /** Contract rows whose state is derived from the crr-configurator NDJSON stream. */
