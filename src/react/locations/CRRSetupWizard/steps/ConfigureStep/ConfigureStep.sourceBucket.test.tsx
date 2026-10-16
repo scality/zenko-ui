@@ -1,4 +1,4 @@
-import { useBuckets } from '@scality/data-browser-library';
+import { useBuckets, useIsBucketEmpty } from '@scality/data-browser-library';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
@@ -125,5 +125,41 @@ describe('ConfigureStep — source bucket', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Cancel/i }));
     expect(screen.getByRole('status')).toHaveTextContent('/accounts/finance/buckets/finance-src?tab=replication');
+  });
+});
+
+describe('ConfigureStep — objects already in the reused source bucket', () => {
+  const WARNING = /Existing objects are not replicated/i;
+  const answers = (isEmpty: boolean | null) =>
+    (useIsBucketEmpty as jest.Mock).mockReturnValue({ isEmpty, isLoading: isEmpty === null, error: null });
+  const openedOnFinanceSrc = () =>
+    render(<ConfigureStep />, { wrapper: NewWrapper('/create-crr-configuration?account=finance&bucket=finance-src') });
+
+  afterEach(() => answers(null));
+
+  it('warns that what the bucket already holds will not be replicated', async () => {
+    answers(false);
+    openedOnFinanceSrc();
+
+    expect(await screen.findByText(WARNING)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Only objects written after the rule is created are copied to the destination/i),
+    ).toBeInTheDocument();
+  });
+
+  it('says nothing when the bucket is empty', async () => {
+    answers(true);
+    openedOnFinanceSrc();
+
+    expect(await screen.findByText('finance-src')).toBeInTheDocument();
+    expect(screen.queryByText(WARNING)).not.toBeInTheDocument();
+  });
+
+  it('says nothing until the bucket has answered', async () => {
+    answers(null);
+    openedOnFinanceSrc();
+
+    expect(await screen.findByText('finance-src')).toBeInTheDocument();
+    expect(screen.queryByText(WARNING)).not.toBeInTheDocument();
   });
 });

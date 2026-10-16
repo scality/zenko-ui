@@ -133,6 +133,12 @@ export const useBuckets = jest.fn(() => ({
   error: null,
 }));
 
+export const useIsBucketEmpty = jest.fn(() => ({
+  isEmpty: null,
+  isLoading: false,
+  error: null,
+}));
+
 export const BucketOverviewField = ({
   label,
   value,
