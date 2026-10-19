@@ -4,6 +4,7 @@ import { Box, Table } from '@scality/core-ui/dist/next';
 import { type UseComboboxStateChange, useCombobox } from 'downshift';
 import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { ROW_ACTION_ICON_ONLY_BELOW } from '../../ui-elements/responsive';
 import { GentleEmphaseSecondaryText, InlineButton } from '../../ui-elements/Table';
 import { type AWS_PAGINATED_QUERY, useAwsPaginatedEntities } from '../../utils/IAMhooks';
 import {
@@ -86,6 +87,8 @@ const StyledSearchInput = styled(SearchInput)`
 `;
 
 const AttachmentTableContainer = styled.div`
+  container-type: inline-size;
+  container-name: responsive;
   height: 80%;
   background: ${(props) => props.theme.backgroundLevel3};
   padding: ${spacing.r24};
@@ -398,7 +401,8 @@ export const AttachmentTable = <
               Header: 'Name',
               accessor: 'name',
               cellStyle: {
-                minWidth: '20rem',
+                flex: 1,
+                minWidth: '10rem',
                 marginLeft: '3rem',
               },
             },
@@ -407,7 +411,8 @@ export const AttachmentTable = <
               //@ts-expect-error fix this when you are working on it
               accessor: 'isPending',
               cellStyle: {
-                flex: 1,
+                flex: '0.3',
+                minWidth: '9rem',
               },
               Cell: ({ value }: { value?: boolean }) => {
                 return <>{value ? 'Pending' : 'Attached'}</>;
@@ -419,7 +424,7 @@ export const AttachmentTable = <
               accessor: 'action',
               cellStyle: {
                 textAlign: 'right',
-                minWidth: '10rem',
+                minWidth: '2.5rem',
                 marginLeft: 'auto',
                 marginRight: '0.5rem',
               },
@@ -437,6 +442,7 @@ export const AttachmentTable = <
                   }}
                   icon={<Icon name="Close" />}
                   label="Remove"
+                  iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
                   variant="danger"
                   disabled={!!entity.disableDetach}
                 />

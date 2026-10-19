@@ -1,7 +1,7 @@
-import { FormattedDateTime, Icon, Modal, spacing, Wrap } from '@scality/core-ui';
+import { ConstrainedText, FormattedDateTime, Icon, Modal, spacing, Wrap } from '@scality/core-ui';
 
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { CopyButton } from '@scality/core-ui/dist/next';
+import { Box, CopyButton } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate, useShellHooks } from '@scality/module-federation';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
@@ -10,10 +10,11 @@ import type { Account } from '../../../../types/account';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { useManagementClient } from '../../../ManagementProvider';
 import { useLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
-import { useLocationsEndpointsAdapter } from '../../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
+import { useLocationsEndpointsAdapter } from '../../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
+import { PANEL_ACTION_ICON_ONLY_BELOW } from '../../../ui-elements/responsive';
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { removeRoleArnStored } from '../../../utils/localStorage';
@@ -115,6 +116,7 @@ function DeleteAccountButtonAndModal({ account }: Props) {
         onClick={() => setIsModalOpened(true)}
         variant="danger"
         label="Delete Account"
+        iconOnly={PANEL_ACTION_ICON_ONLY_BELOW}
       />
     </>
   );
@@ -126,19 +128,23 @@ function AccountInfo({ account }: Props) {
   // TODO: Should we let the user delete accounts that still owns buckets.
   return (
     <TableContainer>
-      <Wrap alignItems="center" marginBottom={spacing.r16}>
-        <h3>Account details</h3>
-        {isStorageManager && (
-          <ButtonContainer>
-            <DeleteAccountButtonAndModal account={account} />
-          </ButtonContainer>
-        )}
-      </Wrap>
+      <Box container>
+        <Wrap alignItems="center" marginBottom={spacing.r16}>
+          <h3>Account details</h3>
+          {isStorageManager && (
+            <ButtonContainer>
+              <DeleteAccountButtonAndModal account={account} />
+            </ButtonContainer>
+          )}
+        </Wrap>
+      </Box>
       <Table id="account-details-table">
         <T.Body>
           <T.Row>
             <T.Key> Account ID </T.Key>
-            <T.Value> {account.id} </T.Value>
+            <T.Value>
+              <ConstrainedText text={account.id} lineClamp={2} />
+            </T.Value>
             <T.ExtraCell>
               {' '}
               <CopyButton textToCopy={account.id} />{' '}
@@ -146,7 +152,9 @@ function AccountInfo({ account }: Props) {
           </T.Row>
           <T.Row>
             <T.Key> Name </T.Key>
-            <T.Value> {account.Name} </T.Value>
+            <T.Value>
+              <ConstrainedText text={account.Name} lineClamp={2} />
+            </T.Value>
             <T.ExtraCell>
               {' '}
               <CopyButton textToCopy={account.Name} />{' '}

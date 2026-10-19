@@ -7,19 +7,9 @@ HTMLCanvasElement.prototype.getContext = () => {
   // return whatever getContext has to return
 };
 
-global.ResizeObserver = class ResizeObserver {
-  constructor(callback) {
-    this._callback = callback;
-  }
-  observe(target) {
-    this._callback(
-      [{ contentRect: { width: target.offsetWidth, height: target.offsetHeight } }],
-      this,
-    );
-  }
-  unobserve() {}
-  disconnect() {}
-};
+// Deliberately no ResizeObserver mock: jsdom does no layout, so a mock could only report a 0px
+// box, which core-ui's container-width hook would read as a real narrow container and collapse
+// every dropAt/iconOnly. Absent, the hook treats the width as unknown and renders wide.
 
 // CodeMirror requires DOM measurement APIs unavailable in jsdom
 const emptyDOMRect = { x: 0, y: 0, width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0 };

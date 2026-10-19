@@ -7,6 +7,9 @@ import { CRRSetupWizard } from './CRRSetupWizard';
 
 const VERIFY_URL = '/crr-configurator/api/v1/verify';
 const RESOLVE_URL = '/crr-configurator/api/v1/resolve';
+// Each test plays a whole Configure flow: a loaded runner exceeds the 5 s default.
+jest.setTimeout(30_000);
+
 const server = setupServer();
 
 // 'bypass' (not 'error'): SourceSection's account listing goes through the
@@ -118,7 +121,9 @@ describe('CRRSetupWizard — Configure step', () => {
     await userEvent.click(screen.getByText('s3.crr-dest.artesca.local'));
     await userEvent.click(await screen.findByText('s3.repl-vlan.crr-dest.artesca.local'));
 
-    await waitFor(() => expect(screen.getByLabelText(/Not reachable from this site/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByLabelText(/Not reachable from this site/i)).toBeInTheDocument(), {
+      timeout: 5000,
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 350));
     expect(screen.getByLabelText(/Not reachable from this site/i)).toBeInTheDocument();

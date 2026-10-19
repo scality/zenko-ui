@@ -19,7 +19,7 @@ type CardProps = {
 const CardContent = (props: { logo: React.JSX.Element; application: string }) => {
   const { logo, application } = props;
   return (
-    <Stack direction="vertical" gap="r8">
+    <Stack direction="vertical" gap="r8" style={{ minWidth: 0 }}>
       {logo}
       {application && (
         <Text color="textPrimary" isEmphazed variant="Smaller">
@@ -48,8 +48,19 @@ const CustomLabel = styled.label<{ $selected?: boolean; $disabled?: boolean }>`
   }
   width: 100%;
   height: 100%;
-  min-width: 12rem;
+  /* The grid track already floors the card at 12rem; a second floor here can only sit above
+     the track and push the card out of it. */
+  min-width: 0;
   box-sizing: border-box;
+
+  /* Each logo carries its own px width, up to 183px, and a percentage max-width alone does
+     not let it shrink: that percentage is ignored while a flex or grid item's automatic
+     minimum size is computed, so the logo keeps holding the card open at its full width. */
+  svg {
+    max-width: 100%;
+    height: auto;
+    min-width: 0;
+  }
 `;
 
 const CustomLink = styled(Link)`
@@ -63,10 +74,14 @@ const StyledDiv = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
+  /* Every box between the grid track and the logo needs its own min-width: 0, or the chain
+     still holds the card open at the logo's width and it spills out of the track. */
+  min-width: 0;
   div {
     display: flex;
     width: 100%;
     height: 100%;
+    min-width: 0;
   }
 `;
 export const CardISV = (props: CardProps) => {

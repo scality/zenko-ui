@@ -193,6 +193,7 @@ const config: Configuration = {
             features: [],
             basePath: '/',
             s3InternalFQDN: `s3.${zenkoDNS}`,
+            s3PublicEndpoint: `https://s3.${zenkoDNS}`,
             iamInternalFQDN: `iam.${zenkoDNS}`,
           },
           auth: {

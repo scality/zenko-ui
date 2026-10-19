@@ -2,9 +2,11 @@ jest.unmock('../AccountRoleSelectButtonAndModal');
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { mockOffsetSize, renderWithCustomRoute, Wrapper } from '../../utils/testUtil';
 import AccountRoleSelectButtonAndModal, {
   getPostAccountSwitchPath,
+  stripBasePath,
 } from '../AccountRoleSelectButtonAndModal';
 import * as hooks from '../../utils/hooks';
 import { STORAGE_USAGE_CONSUMER_ROLE } from '../../utils/hooks';
@@ -171,6 +173,25 @@ describe('AccountRoleSelectButtonAndModal - handleAccountClick navigation', () =
     expect(mockNavigate).toHaveBeenCalledWith('/accounts/another-account/properties');
   });
 
+  // In the app, the location carries the configured base path (/data on ARTESCA).
+  it('preserves the sub-route when the location carries the app base path', async () => {
+    const config = jest.mocked(useConfig);
+    const original = config.getMockImplementation();
+    config.mockImplementation(() => ({ ...original?.(), basePath: '/data' }) as ReturnType<typeof useConfig>);
+    try {
+      await renderOpenModalOnRoute(accounts, '/data/accounts/current-account/users');
+
+      await userEvent.click(await screen.findByText('another-account'));
+
+      const continueButton = screen.getByRole('button', { name: /Continue/i });
+      await userEvent.click(continueButton);
+
+      expect(mockNavigate).toHaveBeenCalledWith('/accounts/another-account/users');
+    } finally {
+      config.mockImplementation(original);
+    }
+  });
+
   it('collapses a deep bucket/object route to the bucket list', async () => {
     await renderOpenModalOnRoute(
       accounts,
@@ -257,5 +278,18 @@ describe('getPostAccountSwitchPath', () => {
         STORAGE_USAGE_CONSUMER_ROLE,
       ),
     ).toBe('/accounts/another-account/buckets');
+  });
+});
+
+describe('stripBasePath', () => {
+  it('removes the base path from a location inside the app', () => {
+    expect(stripBasePath('/data/accounts/a/users', '/data')).toBe('/accounts/a/users');
+    expect(stripBasePath('/data', '/data')).toBe('/');
+  });
+
+  it('leaves a location outside the base path or a sibling prefix alone', () => {
+    expect(stripBasePath('/accounts/a/users', '/data')).toBe('/accounts/a/users');
+    expect(stripBasePath('/database/x', '/data')).toBe('/database/x');
+    expect(stripBasePath('/accounts/a', '')).toBe('/accounts/a');
   });
 });

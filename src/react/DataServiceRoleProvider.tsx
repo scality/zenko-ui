@@ -63,8 +63,8 @@ const useAssumeRoleQuery = () => {
   };
 };
 
-const useS3ConfigFromAssumeRoleResult = () => {
-  const { zenkoEndpoint, s3InternalFQDN } = useConfig();
+export const useS3ConfigFromAssumeRoleResult = () => {
+  const { zenkoEndpoint, s3InternalFQDN, s3PublicEndpoint } = useConfig();
   const endpoint = genClientEndpoint(zenkoEndpoint);
 
   return {
@@ -75,13 +75,14 @@ const useS3ConfigFromAssumeRoleResult = () => {
       endpoint,
       region: DEFAULT_REGION,
       forcePathStyle: true,
-      features: ['ISV', 'metadatasearch', 'replicationV1', 'lifecycleTransition'],
+      features: ['ISV', 'metadatasearch', 'replicationV1', 'replicationMultiDestination', 'lifecycleTransition'],
       cacheKey,
       proxy: {
         enabled: true,
         endpoint: zenkoEndpoint,
         target: s3InternalFQDN,
       },
+      publicEndpoint: s3PublicEndpoint,
       s3Capabilities: {
         supportedNotificationEvents: [
           's3:ObjectCreated:*',

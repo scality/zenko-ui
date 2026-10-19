@@ -1,5 +1,4 @@
-import { InfoMessage, spacing } from '@scality/core-ui';
-import { Text } from '@scality/core-ui/dist/components/text/Text.component';
+import { InfoMessage, spacing, Text } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import { LOCATION_EDITOR_FORCED_LABEL_WIDTH } from '../locations/LocationEditor';
 import { useConfig, useDeployedMetalk8sInstances } from '../next-architecture/ui/ConfigProvider';
@@ -12,7 +11,7 @@ export const EndpointInfoMessage = ({ hasMargin }: { hasMargin?: boolean }) => {
     <Box
       style={{
         // Label width + padding + Input width
-        width: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH}px)`,
+        width: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH})`,
         marginBottom: hasMargin ? spacing.r16 : 0,
       }}
     >

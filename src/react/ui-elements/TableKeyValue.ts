@@ -27,7 +27,7 @@ export const Value = styled.td`
   padding-left: 40px;
   max-width: 420px;
   width: 420px;
-  min-width: 220px;
+  min-width: 8rem;
   word-break: break-word;
 `;
 export const Title = styled.div`

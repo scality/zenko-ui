@@ -1,10 +1,12 @@
-import { FormGroup, FormSection, Stack } from '@scality/core-ui';
+import { Stack } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { useShellHooks } from '@scality/module-federation';
 
 import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useXcoreRuntimeConfig } from '../../../next-architecture/ui/ConfigProvider';
+import { FormGroup, FormSection } from '../../../ui-elements/CoreUIForm';
+import { FIELD_CONTENT_STRETCH } from '../../../ui-elements/responsive';
 import { unitChoices } from '../../constants';
 import { useCapacityUnit } from '../../hooks/useCapacityUnit';
 import { VeeamCapacityTooltip } from '../shared/PlatformTooltips';
@@ -61,7 +63,7 @@ export const VeeamCapacityFormSection = ({ autoFocusEnabled }: { autoFocusEnable
         helpErrorPosition="bottom"
         labelHelpTooltip={<VeeamCapacityTooltip />}
         content={
-          <Stack direction="horizontal">
+          <Stack direction="horizontal" style={FIELD_CONTENT_STRETCH}>
             <Input
               id="capacity"
               type="number"

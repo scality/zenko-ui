@@ -20,9 +20,10 @@ import { useBucketList } from '../queries/instanceStatusQuery';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
+import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { getLocationType } from '../utils/storageOptions';
-import { useCRRFeature } from './CRRSetupWizard/hooks/useCRRFeature';
+import { StartCRRConfigurationButton } from './CRRSetupWizard/StartCRRConfigurationButton';
 import { PauseAndResume } from './PauseAndResume';
 import { getLocationDeletionBlocker } from './utils';
 
@@ -184,7 +185,6 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
 
 export function LocationsList() {
   const navigate = useBasenameRelativeNavigate();
-  const isCRRWizardEnabled = useCRRFeature();
   const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
   const metricsAdapter = useMetricsAdapter();
   const { locations } = useListLocations({
@@ -210,6 +210,7 @@ export function LocationsList() {
       },
       { flex: '0.4' },
     );
+    const dataUsedColumnDroppable = { ...dataUsedColumn, dropAt: 780 };
 
     const columns: CoreUIColumn<Location>[] = [
       {
@@ -252,13 +253,15 @@ export function LocationsList() {
         ),
         //@ts-expect-error fix this when you are working on it
         accessor: 'details.bucketName',
+        dropAt: 900,
         cellStyle: {
           textAlign: 'left',
+          minWidth: '9rem',
           flex: '0.3',
           width: 'unset',
         },
       },
-      dataUsedColumn,
+      dataUsedColumnDroppable,
     ];
 
     columns.push({
@@ -281,8 +284,10 @@ export function LocationsList() {
       ),
       accessor: 'id',
       disableSortBy: true,
+      dropAt: 660,
       cellStyle: {
         textAlign: 'left',
+        minWidth: '9.5rem',
         flex: '0.5',
         width: 'unset',
       },
@@ -294,6 +299,7 @@ export function LocationsList() {
       accessor: 'details',
       cellStyle: {
         textAlign: 'right',
+        /* 5rem holds the two icon-only buttons and the gap between them. */
         minWidth: '5rem',
         marginLeft: 'auto',
         flex: '0.2',
@@ -327,12 +333,13 @@ export function LocationsList() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
+    <Box container display="flex" flexDirection="column" flex="1" id="location-list">
       <Table
         columns={columns}
         status={locations.status}
         data={data}
         defaultSortingKey={'name'}
+        revealDroppedColumns
         entityName={{
           en: {
             singular: 'location',
@@ -344,17 +351,12 @@ export function LocationsList() {
           search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />}
           actions={
             <Stack gap="r16">
-              {isCRRWizardEnabled && (
-                <Button
-                  label="Start CRR Configuration"
-                  variant="secondary"
-                  onClick={() => navigate('/create-crr-configuration')}
-                />
-              )}
+              <StartCRRConfigurationButton />
               <Button
                 icon={<Icon name="Create-add" />}
                 label="Create Location"
                 variant="primary"
+                iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
                 onClick={() => navigate('/create-location')}
                 type="submit"
               />

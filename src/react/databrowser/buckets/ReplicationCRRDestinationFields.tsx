@@ -1,8 +1,8 @@
-import { FormGroup } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import { useFormContext } from 'react-hook-form';
 import { useLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useLocationsEndpointsAdapter } from '../../next-architecture/ui/LocationsEndpointsAdapterProvider';
+import { FormGroup } from '../../ui-elements/CoreUIForm';
 
 function isCRRLocationType(type: string): boolean {
   return type === 'location-scality-crr-v1';

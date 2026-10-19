@@ -6,6 +6,7 @@ import type { Endpoint, Hostname, LocationName } from '../../types/config';
 import { renderLocation } from '../locations/utils';
 import type { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE } from '../next-architecture/ui/ArtescaLibraryProvider';
+import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { AuthorizedAdvancedMetricsButton, cloudServerDashboard } from './AdvancedMetricsButton';
 import { DeleteEndpoint } from './DeleteEndpoint';
@@ -85,6 +86,9 @@ function EndpointList({ endpoints, locations }: Props) {
         disableSortBy: true,
         cellStyle: {
           flex: '0.1',
+          // Without a floor this share of the free width falls under the button's own size at
+          // a narrow container, and the button spills onto the panel edge.
+          minWidth: '2.5rem',
           paddingRight: '18px',
         },
         Cell({ row: { original } }: CellProps) {
@@ -104,7 +108,7 @@ function EndpointList({ endpoints, locations }: Props) {
   );
 
   return (
-    <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
+    <Box container display="flex" flexDirection="column" flex="1" id="endpoint-list">
       <Table
         //@ts-expect-error fix this when you are working on it
         columns={columns}
@@ -133,6 +137,7 @@ function EndpointList({ endpoints, locations }: Props) {
                 }}
                 label="Create Data Service"
                 variant="primary"
+                iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
                 onClick={() => navigate('/create-dataservice')}
                 type="submit"
               />

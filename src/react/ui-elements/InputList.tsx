@@ -1,8 +1,9 @@
-import { FormGroup } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import type { HTMLProps } from 'react';
+import { FormGroup } from './CoreUIForm';
 import { AddButton, SubButton } from './EditableKeyValue';
 import { Input } from './FormLayout';
+import { FIELD_CONTENT_STRETCH } from './responsive';
 
 function InputList({
   label,
@@ -50,7 +51,7 @@ function InputList({
       content={
         <>
           {values.map((value, index) => (
-            <Box display="flex" gap="1rem" alignItems="center" key={index}>
+            <Box display="flex" gap="1rem" alignItems="center" style={FIELD_CONTENT_STRETCH} key={index}>
               <Input
                 {...(getInputProps ? getInputProps(value, index) : {})}
                 name={`${id}[${index}]`}

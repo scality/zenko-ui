@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { Route, Routes, useLocation, useParams } from 'react-router';
 import { XDM_FEATURE } from '../../js/config';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
+import { StartCRRConfigurationButton } from '../locations/CRRSetupWizard/StartCRRConfigurationButton';
 import { useLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useLocationsEndpointsAdapter } from '../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
@@ -31,6 +32,18 @@ import { BucketMetricsPrefetch } from './hooks/useBucketMetrics';
 const BUCKET_OPERATIONS_DOCS = '/artesca/docs/data_management/bucket_operations';
 const LIFECYCLE_EXPIRATION_DOCS_URL = `${BUCKET_OPERATIONS_DOCS}/lifecycle_expiration/index.html`;
 const LIFECYCLE_TRANSITION_DOCS_URL = `${BUCKET_OPERATIONS_DOCS}/transition_workflow.html`;
+
+// Container widths below which the two columns we add to the bucket list drop. Content demand at a
+// 14px root, widest cell plus the sort caret and the cell gutter: Bucket Name 135, Storage Location
+// 195 (ours appends the service name), Data Used 90, Created on 160, Metadata updates 135. Four
+// columns stop fitting under 580, five under 715.
+const DATA_USED_DROP_AT = 580;
+const METADATA_UPDATES_DROP_AT = 715;
+
+// Library's Storage Location threshold and flex, restated because an override inherits them only
+// from DBR-78. Remove both constants then.
+const LOCATION_DROP_AT = 280;
+const LOCATION_FLEX = '1.2';
 
 const EXTRA_BUCKET_OVERVIEW_SECTIONS = [
   {
@@ -101,12 +114,14 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
 
   const extraBucketListColumns = useMemo(() => {
     const columns: ColumnConfig<Bucket>[] = [
+      // Sorting is lost until DBR-78: an override replaces the default column today, and config
+      // cannot restate sorting.
       {
         id: 'location',
         header: 'Storage Location',
+        dropAt: LOCATION_DROP_AT,
         render: StorageLocationColumn,
-        width: '280px',
-        cellStyle: { textAlign: 'left' },
+        cellStyle: { width: 'unset', flex: LOCATION_FLEX, minWidth: 0, textAlign: 'left' },
       },
     ];
 
@@ -115,8 +130,8 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
         id: 'ingestion',
         header: 'Metadata updates',
         render: MetadataUpdatesColumn,
-        width: '180px',
-        cellStyle: { textAlign: 'right' },
+        dropAt: METADATA_UPDATES_DROP_AT,
+        cellStyle: { width: 'unset', flex: '0.8', minWidth: 0, textAlign: 'right' },
       });
     }
 
@@ -125,8 +140,8 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
         id: 'dataUsed',
         header: 'Data Used',
         render: DataUsedColumn,
-        width: '150px',
-        cellStyle: { textAlign: 'right' },
+        dropAt: DATA_USED_DROP_AT,
+        cellStyle: { width: 'unset', flex: '0.6', minWidth: 0, textAlign: 'right' },
       });
     }
 
@@ -137,6 +152,15 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
     {
       id: 'startISVConnector',
       render: () => <StartISVConnectorButton />,
+    },
+  ];
+
+  const extraReplicationActions = [
+    {
+      id: 'startCRRConfiguration',
+      render: ({ bucketName }: { bucketName: string }) => (
+        <StartCRRConfigurationButton source={{ accountName: accountName ?? '', bucketName }} />
+      ),
     },
   ];
 
@@ -163,6 +187,7 @@ export default function DataBrowser({ hideHeader = false }: { hideHeader?: boole
         extraBucketOverviewSections={EXTRA_BUCKET_OVERVIEW_SECTIONS}
         extraBucketOverviewGeneral={EXTRA_BUCKET_OVERVIEW_GENERAL}
         extraBucketListActions={extraBucketListActions}
+        extraReplicationActions={extraReplicationActions}
         storageClassSelector={StorageClassSelector}
         storageClassLabel="Location Name"
         locationSelector={LocationSelector}

@@ -11,11 +11,16 @@ import {
 
 const baseInput: StepListInput = {
   isNewSourceAccount: true,
+  isNewSourceBucket: true,
+  isNewDestinationAccount: true,
+  isNewTargetBucket: true,
+  isNewLocation: true,
   createReplicationRule: true,
   sourceAccountName: 'src-account',
   sourceBucketName: 'src-bucket',
   targetBucketName: 'target-bucket',
   destinationAccountName: 'dest-account',
+  locationName: 'location-dest-account-crr-dest',
 };
 
 const noProgress: StepStateSources = { configuratorEvents: [], chainStatusById: {} };
@@ -46,6 +51,7 @@ describe('buildStepViews', () => {
       'import-destination-certificate',
       'create-location',
       'create-replication-rule',
+      'refresh-configuration',
     ]);
   });
 
@@ -57,20 +63,20 @@ describe('buildStepViews', () => {
     expect(destAcc).toMatchObject({ step: 3, label: 'Create Account on Destination: dest-account' });
     expect(views.find((v) => v.id === 'import-destination-certificate')).toMatchObject({
       step: 10,
-      label: 'Import Certificate into Truststore',
+      label: 'Import Destination Certificate on Source',
     });
   });
 
   it('labels the destination IAM chain and the target bucket per the ARTESCA CRR procedure', () => {
     const labels = buildStepViews(baseInput, noProgress).map((v) => v.label);
-    expect(labels).toContain('Create IAM User');
-    expect(labels).toContain('Generate Access Key');
-    expect(labels).toContain('Create Policy');
-    expect(labels).toContain('Create IAM Role');
-    expect(labels).toContain('Attach Policy to Role');
-    expect(labels).toContain('Create Target Bucket: target-bucket');
-    expect(labels).toContain('Create Location');
-    expect(labels).toContain('Create Replication Rule');
+    expect(labels).toContain('Create IAM User on Destination');
+    expect(labels).toContain('Generate Access Key on Destination');
+    expect(labels).toContain('Create Policy on Destination');
+    expect(labels).toContain('Create IAM Role on Destination');
+    expect(labels).toContain('Attach Policy to Role on Destination');
+    expect(labels).toContain('Create Bucket on Destination: target-bucket');
+    expect(labels).toContain('Create Location on Source: location-dest-account-crr-dest');
+    expect(labels).toContain('Create Replication Rule on Source');
   });
 
   it('drops create-source-account when the user reuses an existing source account', () => {
@@ -276,6 +282,7 @@ describe('allSucceeded / hasFailure', () => {
         'create-source-bucket-versioning': { status: 'success' },
         'create-location': { status: 'success' },
         'create-replication-rule': { status: 'success' },
+        'refresh-configuration': { status: 'success' },
       },
     };
     expect(allSucceeded(buildStepViews(baseInput, allDone))).toBe(true);

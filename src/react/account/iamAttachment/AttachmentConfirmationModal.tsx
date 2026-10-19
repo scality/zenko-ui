@@ -262,8 +262,18 @@ function AttachmentConfirmationModal({
       },
     ];
 
+    // The modal's body takes its width from this box and scrolls rather than shrink, so the
+    // cap is what the modal can actually offer: its own 90vw less 2rem of padding each side.
     return (
-      <div style={{ height: '20rem', width: '50rem', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          height: '20rem',
+          width: 'min(50rem, calc(90vw - 4rem))',
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <div>The following entities will be attached or detached: </div>
         <Box display="flex" gap={24} alignItems="center">
           <SecondaryText>

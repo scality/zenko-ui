@@ -4,6 +4,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
 import { matchPath, useLocation } from 'react-router';
 import { useCurrentAccount, useDataServiceRole, useSetAssumedRolePromise } from '../DataServiceRoleProvider';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { AccountSelectorButton } from '../ui-elements/Table';
 import {
@@ -217,6 +218,13 @@ export function AccountRoleSelectButtonAndModal({
   );
 }
 
+// The router location carries the app's base path (e.g. /data); the account routes do not.
+export function stripBasePath(pathname: string, basePath: string): string {
+  if (!basePath || basePath === '/') return pathname;
+  if (pathname === basePath) return '/';
+  return pathname.startsWith(`${basePath}/`) ? pathname.slice(basePath.length) : pathname;
+}
+
 export function getPostAccountSwitchPath(pathname: string, assumedAccount: string, assumedRoleName?: string): string {
   const bucketListPath = `/accounts/${assumedAccount}/buckets`;
 
@@ -245,6 +253,7 @@ const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount, ass
   const setRole = useSetAssumedRolePromise();
   const navigateWithBasename = useBasenameRelativeNavigate();
   const location = useLocation();
+  const { basePath } = useConfig();
 
   const handleAccountClick = (pathname: string) => {
     navigateWithBasename(getPostAccountSwitchPath(pathname, assumedAccount, assumedRoleName));
@@ -260,7 +269,7 @@ const ModalFooter = ({ handleClose, assumedRoleArn, roleArn, assumedAccount, ass
           variant="primary"
           onClick={() => {
             setRole({ roleArn: assumedRoleArn });
-            handleAccountClick(location.pathname);
+            handleAccountClick(stripBasePath(location.pathname, basePath));
             handleClose();
           }}
           label="Continue"

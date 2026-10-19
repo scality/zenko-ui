@@ -2,6 +2,7 @@ import { Icon } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { spacing } from '@scality/core-ui/dist/spacing';
 import { useGrafanaURL } from '../next-architecture/ui/ConfigProvider';
+import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { useAuthGroups } from '../utils/hooks';
 
 //TODO grafana url should be retrieved as an explicit field of UI configuration
@@ -26,7 +27,12 @@ export function AuthorizedAdvancedMetricsButton() {
           rel="noopener noreferrer"
           style={{ marginLeft: spacing.r8 }}
         >
-          <Button label="Advanced Metrics" variant={'secondary'} icon={<Icon name="External-link" />} />
+          <Button
+            label="Advanced Metrics"
+            variant={'secondary'}
+            icon={<Icon name="External-link" />}
+            iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
+          />
         </a>
       ) : (
         ''

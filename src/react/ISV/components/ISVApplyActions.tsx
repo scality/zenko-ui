@@ -1,9 +1,10 @@
-import { Banner, Form, Icon, Stack, Text } from '@scality/core-ui';
+import { Banner, ConstrainedText, Icon, Stack } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
+import { Form } from '../../ui-elements/CoreUIForm';
 import Table, * as T from '../../ui-elements/Table';
 import { StatusBox } from '../../ui-elements/status';
 import { Button } from '@scality/core-ui/dist/next';
-import { useCallback, memo, useMemo, useState } from 'react';
+import { type CSSProperties, useCallback, memo, useMemo, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { useTheme } from 'styled-components';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -30,6 +31,10 @@ type ISVApplyActionsProps = FormData & {
 // ============================================================================
 // Status Display Component
 // ============================================================================
+
+const STEP_COLUMN: CSSProperties = { boxSizing: 'border-box', flex: '0 0 3.5rem' };
+const ACTION_COLUMN: CSSProperties = { boxSizing: 'border-box', flex: '1 1 0', minWidth: 0 };
+const STATUS_COLUMN: CSSProperties = { boxSizing: 'border-box', flex: '0 1 9rem', minWidth: 0 };
 
 const ChainStatusDisplay = memo(function ChainStatusDisplay({
   props,
@@ -111,26 +116,27 @@ const ChainStatusDisplay = memo(function ChainStatusDisplay({
             />
           </Stack>
         }
-        style={{ width: '50rem' }}
+        style={{ maxWidth: '50rem', width: '100%' }}
+        responsive
       >
         <Stack gap="r16" direction="vertical">
           <div ref={scrollContainerRef} style={{ height: '32rem', overflow: 'auto' }}>
             <Table>
               <T.Head>
                 <T.HeadRow style={{ display: 'flex' }}>
-                  <T.HeadCell style={{ width: '150px' }}>Step</T.HeadCell>
-                  <T.HeadCell style={{ width: '50%' }}>Action</T.HeadCell>
-                  <T.HeadCell style={{ width: '12.5%' }}>Status</T.HeadCell>
+                  <T.HeadCell style={STEP_COLUMN}>Step</T.HeadCell>
+                  <T.HeadCell style={ACTION_COLUMN}>Action</T.HeadCell>
+                  <T.HeadCell style={STATUS_COLUMN}>Status</T.HeadCell>
                 </T.HeadRow>
               </T.Head>
               <T.Body>
                 {steps.map((row) => (
                   <T.Row key={row.id} style={{ display: 'flex' }}>
-                    <T.Cell style={{ width: '150px' }}>{row.step}</T.Cell>
-                    <T.Cell style={{ width: '50%' }}>
-                      <Text>{row.label}</Text>
+                    <T.Cell style={STEP_COLUMN}>{row.step}</T.Cell>
+                    <T.Cell style={ACTION_COLUMN}>
+                      <ConstrainedText text={row.label} />
                     </T.Cell>
-                    <T.Cell style={{ width: '12.5%' }}>
+                    <T.Cell style={STATUS_COLUMN}>
                       {row.status === 'success' ? (
                         <StatusBox>
                           <Icon name="Check" color={theme.statusHealthy} />

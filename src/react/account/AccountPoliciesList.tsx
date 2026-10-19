@@ -13,6 +13,11 @@ import { useErrorHandler } from '../ErrorProvider';
 import { useIAMClient } from '../IAMProvider';
 import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import {
+  ROW_ACTION_ICON_ONLY_BELOW,
+  ROW_ACTIONS_RESERVED_WIDTH,
+  TOOLBAR_ACTION_ICON_ONLY_BELOW,
+} from '../ui-elements/responsive';
 import { errorParser } from '../utils';
 import type { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
@@ -44,10 +49,10 @@ const EditButton = ({
       {isEditPolicyDisabled && (
         <Button
           size="inline"
-          style={{ width: '5rem' }}
           variant="secondary"
           label="View"
           icon={<Icon name="Eye" />}
+          iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
           onClick={() =>
             navigate(
               `/accounts/${accountName}/policies/${encodeURIComponent(policyArn)}/${defaultVersionId}/update-policy`,
@@ -70,7 +75,7 @@ const EditButton = ({
       {!isEditPolicyDisabled && (
         <Button
           size="inline"
-          style={{ width: '5rem' }}
+          iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
           disabled={
             status === 'idle' || status === 'loading' || status === 'error' || !data || !isLatestVersionTheDefaultOne
           }
@@ -111,6 +116,7 @@ const AttachButton = ({
       variant="secondary"
       label="Attach"
       icon={<Icon name="Link" />}
+      iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
       onClick={() => navigate(`/accounts/${accountName}/policies/${encodeURIComponent(policyArn)}/attachments`)}
       aria-label={`Attach ${policyName}`}
     />
@@ -134,6 +140,7 @@ const ActionButtons = ({ rowValues, accountName }: { rowValues: InternalPolicy; 
         textToCopy={policyArn}
         label="ARN"
         variant="outline"
+        iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
         aria-label={`Copy ARN ${policyName}`}
       />
       <DeletePolicyAction
@@ -313,6 +320,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
     {
       Header: 'Policy Path',
       accessor: 'policyPath',
+      dropAt: 860,
       cellStyle: {
         flex: 0.5,
         minWidth: '5rem',
@@ -322,6 +330,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
     {
       Header: 'Last Modified',
       accessor: 'modifiedOn',
+      dropAt: 740,
       cellStyle: {
         width: 'unset',
         textAlign: 'right',
@@ -338,6 +347,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
     {
       Header: 'Attachments',
       accessor: 'attachments',
+      dropAt: 640,
       cellStyle: {
         width: 'unset',
         textAlign: 'right',
@@ -349,7 +359,9 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        minWidth: '25rem',
+        width: 'unset',
+        flex: 'none',
+        minWidth: ROW_ACTIONS_RESERVED_WIDTH,
         paddingRight: spacing.r12,
       },
       disableSortBy: true,
@@ -366,6 +378,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
           icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create Policy"
           variant="primary"
+          iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
           onClick={() => navigate('/create-policy')}
           type="submit"
         />

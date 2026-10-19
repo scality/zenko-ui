@@ -32,8 +32,8 @@ type TableHeaderWrapperProps = {
 
 export const TableHeaderWrapper = ({ search, actions }: TableHeaderWrapperProps) => {
   return (
-    <Wrap padding={spacing.r16} style={{ alignItems: 'center' }}>
-      <Box>{search}</Box>
+    <Wrap padding={spacing.r16} gap={spacing.r16} minWidth={0} style={{ alignItems: 'center' }}>
+      <Box minWidth={0}>{search}</Box>
       <Box gap="r16">{actions}</Box>
     </Wrap>
   );

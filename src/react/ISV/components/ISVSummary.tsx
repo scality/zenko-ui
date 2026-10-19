@@ -1,4 +1,4 @@
-import { Banner, Form, FormGroup, FormSection, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
+import { Banner, Icon, InfoMessage, Text, useToast } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing, Wrap } from '@scality/core-ui/dist/spacing';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -6,6 +6,7 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
+import { Form, FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { HideCredential } from '../../ui-elements/Hide';
 import { noopBasedEventDispatcher, useAccounts, useAuthGroups } from '../../utils/hooks';
 import { VEEAM_OFFICE_365 } from '../constants';
@@ -20,12 +21,10 @@ import type {
 } from '../engine/types';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVStepperContext';
+import { CopyableValue, CopyableValueRow } from './shared/CopyableValue';
 
 export const DEFAULT_REGION = 'us-east-1';
 
-const WrapperWithWidth = styled(Wrap)`
-  width: 20rem;
-`;
 const Container = styled.div`
   background-color: ${(props) => props.theme.backgroundLevel4};
   padding: ${spacing.r16};
@@ -56,28 +55,18 @@ type InternalSectionProps = SectionRenderProps & {
 };
 
 const ConnectionInfoSection = ({ s3ServicePoint, serviceEndpointLabel }: InternalSectionProps) => (
-  <FormSection forceLabelWidth={150}>
+  <FormSection forceLabelWidth="10rem">
     <FormGroup
       id="service-endpoint"
       label={serviceEndpointLabel}
       required
-      content={
-        <WrapperWithWidth>
-          <Text>{s3ServicePoint}</Text>
-          <CopyButton textToCopy={s3ServicePoint} aria-label={`copy ${serviceEndpointLabel.toLowerCase()}`} />
-        </WrapperWithWidth>
-      }
+      content={<CopyableValue value={s3ServicePoint} copyLabel={`copy ${serviceEndpointLabel.toLowerCase()}`} />}
     />
     <FormGroup
       id="region"
       required
       label="Region"
-      content={
-        <WrapperWithWidth>
-          <Text>{DEFAULT_REGION}</Text>
-          <CopyButton textToCopy={DEFAULT_REGION} aria-label="copy region" />
-        </WrapperWithWidth>
-      }
+      content={<CopyableValue value={DEFAULT_REGION} copyLabel="copy region" />}
     />
   </FormSection>
 );
@@ -91,7 +80,7 @@ const CredentialsSection = ({
 }: InternalSectionProps) => {
   if (secretKey) {
     return (
-      <FormSection forceLabelWidth={150} title={{ name: 'Credentials' }}>
+      <FormSection forceLabelWidth="10rem" title={{ name: 'Credentials' }}>
         <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
           The {secretKeyLabel} cannot be retrieved afterwards, so make sure to keep and secure it now. <br />
           You will be able to create new {baseAccessKeyLabel}s at any time.
@@ -100,22 +89,17 @@ const CredentialsSection = ({
           id="access-key"
           label={baseAccessKeyLabel}
           required
-          content={
-            <WrapperWithWidth>
-              <Text style={{ display: 'flex', alignItems: 'center' }}>{accessKey}</Text>
-              <CopyButton textToCopy={accessKey} aria-label="copy access key" />
-            </WrapperWithWidth>
-          }
+          content={<CopyableValue value={accessKey} copyLabel="copy access key" />}
         />
         <FormGroup
           id="secret-key"
           label={secretKeyLabel}
           required
           content={
-            <WrapperWithWidth>
+            <CopyableValueRow>
               <HideCredential credentials={secretKey} />
               <CopyButton textToCopy={secretKey} aria-label="copy secret access key" />
-            </WrapperWithWidth>
+            </CopyableValueRow>
           }
         />
       </FormSection>
@@ -132,19 +116,14 @@ const CredentialsSection = ({
           You must use an {baseAccessKeyLabel} and {secretKeyLabel} already created. Here is a list of{' '}
           {baseAccessKeyLabel}s that can be used for this user:
         </Banner>
-        <FormSection forceLabelWidth={150}>
+        <FormSection forceLabelWidth="10rem">
           {accessKeys.map((ak, index) => (
             <FormGroup
               key={ak}
               id={`access-key-${index}`}
               label={baseAccessKeyLabel}
               required
-              content={
-                <WrapperWithWidth>
-                  <Text style={{ display: 'flex', alignItems: 'center' }}>{ak}</Text>
-                  <CopyButton textToCopy={ak} aria-label="copy access key" />
-                </WrapperWithWidth>
-              }
+              content={<CopyableValue value={ak} copyLabel="copy access key" />}
             />
           ))}
         </FormSection>
@@ -160,19 +139,14 @@ const BucketsSection = ({ formData, platform }: InternalSectionProps) => {
   return (
     <>
       {platform.summary.bucketBanner && <>{platform.summary.bucketBanner}</>}
-      <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
+      <FormSection title={{ name: 'Buckets' }} forceLabelWidth="10rem">
         {bucketItems.map((bucket, index) => (
           <FormGroup
             key={bucket.name}
             id={`bucket-${index}`}
             label={`Bucket #${index + 1}`}
             required
-            content={
-              <WrapperWithWidth>
-                <Text>{bucket.name}</Text>
-                <CopyButton textToCopy={bucket.name} aria-label="copy bucket name" />
-              </WrapperWithWidth>
-            }
+            content={<CopyableValue value={bucket.name} copyLabel="copy bucket name" />}
           />
         ))}
       </FormSection>
@@ -186,7 +160,7 @@ const ImmutabilitySection = ({ formData, immutableSectionInfos, shouldHideImmuta
   }
 
   return (
-    <FormSection title={{ name: 'Option' }} forceLabelWidth={150}>
+    <FormSection title={{ name: 'Option' }} forceLabelWidth="10rem">
       <FormGroup
         id="immutable"
         required
@@ -278,6 +252,7 @@ export const DefaultISVSummary = ({
       }}
       requireMode="all"
       rightActions={<Button variant="primary" type="button" label="Finish" onClick={onFinish} />}
+      responsive
     >
       <Text isEmphazed>
         Your ARTESCA is now configured and ready to integrate with {platform.name}. <br />

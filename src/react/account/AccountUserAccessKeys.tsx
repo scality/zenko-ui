@@ -23,6 +23,7 @@ import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { ROW_ACTION_ICON_ONLY_BELOW, TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { formatSimpleDate } from '../utils';
 import { useAccessKeyOutdatedStatus, useAwsPaginatedEntities } from '../utils/IAMhooks';
@@ -121,6 +122,7 @@ const DeleteAccessKeyAction = (rowValue) => {
         disabled={accessKeyStatus === 'Active'}
         icon={<Icon name="Delete" />}
         label="Delete"
+        iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
         onClick={() => {
           setShowModal(true);
         }}
@@ -173,6 +175,7 @@ const AccountUserAccessKeys = () => {
     {
       Header: 'Created On',
       accessor: 'createdOn',
+      dropAt: 700,
       Cell: (value) => CreatedOnCell(value.row.original),
       cellStyle: {
         minWidth: '10rem',
@@ -265,36 +268,40 @@ const AccountUserAccessKeys = () => {
       </AppContainer.OverallSummary>
 
       <AppContainer.MainContent background="backgroundLevel3">
-        <Table
-          columns={columns as unknown as Column[]}
-          data={data}
-          defaultSortingKey={'health'}
-          status={accessKeysStatus}
-          entityName={{
-            en: {
-              singular: 'access key',
-              plural: 'access keys',
-            },
-          }}
-        >
-          <TableHeaderWrapper
-            actions={
-              <Button
-                icon={<Icon name="Create-add" />}
-                label="Create Access Keys"
-                variant="primary"
-                onClick={() =>
-                  navigate(`/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`)
-                }
-                type="submit"
-              />
-            }
-          />
-          <Table.SingleSelectableContent
-            rowHeight="h40"
-            separationLineVariant="backgroundLevel1"
-          ></Table.SingleSelectableContent>
-        </Table>
+        <Box container display="flex" flexDirection="column" flex="1">
+          <Table
+            columns={columns as unknown as Column[]}
+            data={data}
+            defaultSortingKey={'health'}
+            status={accessKeysStatus}
+            revealDroppedColumns
+            entityName={{
+              en: {
+                singular: 'access key',
+                plural: 'access keys',
+              },
+            }}
+          >
+            <TableHeaderWrapper
+              actions={
+                <Button
+                  icon={<Icon name="Create-add" />}
+                  label="Create Access Keys"
+                  variant="primary"
+                  iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
+                  onClick={() =>
+                    navigate(`/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`)
+                  }
+                  type="submit"
+                />
+              }
+            />
+            <Table.SingleSelectableContent
+              rowHeight="h40"
+              separationLineVariant="backgroundLevel1"
+            ></Table.SingleSelectableContent>
+          </Table>
+        </Box>
       </AppContainer.MainContent>
       <Routes>
         <Route path={`create`} element={<AccountUserSecretKeyModal IAMUserName={IAMUserName} />} />

@@ -9,6 +9,7 @@ export type AppConfig = {
   readonly iamEndpoint: string;
   readonly iamInternalFQDN: string;
   readonly s3InternalFQDN: string;
+  readonly s3PublicEndpoint?: string;
   readonly basePath: string;
   readonly features: string[];
 };
