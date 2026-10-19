@@ -72,36 +72,36 @@ const STEPS: StepDef[] = [
     when: () => true,
     label: (i) => `${i.isNewDestinationAccount ? 'Create' : 'Use'} Account on Destination: ${i.destinationAccountName}`,
   },
-  { id: 'create-user', when: () => true, label: () => 'Create IAM User' },
-  { id: 'create-access-key', when: (i) => i.isNewLocation, label: () => 'Generate Access Key' },
-  { id: 'create-policy', when: () => true, label: () => 'Create Policy' },
-  { id: 'create-role', when: () => true, label: () => 'Create IAM Role' },
-  { id: 'attach-role-policy', when: () => true, label: () => 'Attach Policy to Role' },
+  { id: 'create-user', when: () => true, label: () => 'Create IAM User on Destination' },
+  { id: 'create-access-key', when: (i) => i.isNewLocation, label: () => 'Generate Access Key on Destination' },
+  { id: 'create-policy', when: () => true, label: () => 'Create Policy on Destination' },
+  { id: 'create-role', when: () => true, label: () => 'Create IAM Role on Destination' },
+  { id: 'attach-role-policy', when: () => true, label: () => 'Attach Policy to Role on Destination' },
   {
     id: 'create-bucket',
     when: (i) => i.createReplicationRule,
-    label: (i) => `${i.isNewTargetBucket ? 'Create' : 'Use'} Target Bucket: ${i.targetBucketName}`,
+    label: (i) => `${i.isNewTargetBucket ? 'Create' : 'Use'} Bucket on Destination: ${i.targetBucketName}`,
   },
   {
     id: 'import-destination-certificate',
     when: () => true,
-    label: () => 'Import Certificate into Truststore',
+    label: () => 'Import Destination Certificate on Source',
   },
   {
     id: 'create-location',
     when: () => true,
-    label: (i) => (i.isNewLocation ? 'Create Location' : `Use Location: ${i.locationName}`),
+    label: (i) => `${i.isNewLocation ? 'Create' : 'Use'} Location on Source: ${i.locationName}`,
   },
   {
     id: 'create-replication-rule',
     when: (i) => i.createReplicationRule,
-    label: () => 'Create Replication Rule',
+    label: () => 'Create Replication Rule on Source',
   },
   {
     id: 'refresh-configuration',
     // Only when the run adds something the Accounts or Locations pages list.
     when: (i) => i.isNewSourceAccount || i.isNewLocation,
-    label: () => 'Update Configuration',
+    label: () => 'Update Configuration on Source',
   },
 ];
 

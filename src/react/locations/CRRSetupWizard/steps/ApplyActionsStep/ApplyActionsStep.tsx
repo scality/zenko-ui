@@ -1,4 +1,4 @@
-import { Banner, Icon, Loader, Stack, Text } from '@scality/core-ui';
+import { Banner, ConstrainedText, Icon, Loader, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useCreateBucket, useSetBucketVersioning } from '@scality/data-browser-library';
@@ -462,7 +462,7 @@ export const ApplyActionsStep = (props: Props) => {
                 <T.Cell style={{ width: '150px' }}>{view.step}</T.Cell>
                 <T.Cell style={{ flex: 1, minWidth: 0 }}>
                   <Stack direction="vertical" gap="r4">
-                    <Text>{view.label}</Text>
+                    <ConstrainedText text={view.label} lineClamp={1} />
                     {view.state === 'failed' && view.errorMessage && <ErrorText>{view.errorMessage}</ErrorText>}
                   </Stack>
                 </T.Cell>

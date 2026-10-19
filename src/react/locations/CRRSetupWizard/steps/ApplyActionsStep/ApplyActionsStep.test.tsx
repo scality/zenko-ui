@@ -104,22 +104,22 @@ describe('ApplyActionsStep', () => {
     render(<ApplyActionsStep {...VALUES} destinationInstanceName="paris-prod" />, { wrapper: Wrapper });
 
     expect(screen.getByText('Configure paris-prod for Cross-Region Replication')).toBeInTheDocument();
-    await screen.findByText('Create IAM User');
+    await screen.findByText('Create IAM User on Destination');
 
     const actions = [
       'Create Account on Source: crr-src',
       'Create Bucket on Source: crr-src-bucket',
       'Create Account on Destination: crr-dest',
-      'Create IAM User',
-      'Generate Access Key',
-      'Create Policy',
-      'Create IAM Role',
-      'Attach Policy to Role',
-      'Create Target Bucket: crr-target-bucket',
-      'Import Certificate into Truststore',
-      'Create Location',
-      'Create Replication Rule',
-      'Update Configuration',
+      'Create IAM User on Destination',
+      'Generate Access Key on Destination',
+      'Create Policy on Destination',
+      'Create IAM Role on Destination',
+      'Attach Policy to Role on Destination',
+      'Create Bucket on Destination: crr-target-bucket',
+      'Import Destination Certificate on Source',
+      `Create Location on Source: ${LOCATION_NAME}`,
+      'Create Replication Rule on Source',
+      'Update Configuration on Source',
     ];
     for (const action of actions) {
       expect(screen.getByText(action)).toBeInTheDocument();
@@ -131,7 +131,7 @@ describe('ApplyActionsStep', () => {
 
   it('does not surface a source-account action when the user reuses an existing account', async () => {
     render(<ApplyActionsStep {...VALUES} accountNameType="existing" />, { wrapper: Wrapper });
-    await screen.findByText('Create IAM User');
+    await screen.findByText('Create IAM User on Destination');
     expect(screen.queryByText(/Create Account on Source/i)).not.toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(1 + 12);
   });
@@ -140,9 +140,9 @@ describe('ApplyActionsStep', () => {
     render(<ApplyActionsStep {...VALUES} createReplicationRule={false} sourceBucketName="" targetBucketName="" />, {
       wrapper: Wrapper,
     });
-    await screen.findByText('Create IAM User');
+    await screen.findByText('Create IAM User on Destination');
     expect(screen.queryByText(/Create Bucket on Source/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Create Target Bucket/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Create Bucket on Destination/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Replication Rule/i)).not.toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(1 + 10);
   });
@@ -184,10 +184,10 @@ describe('ApplyActionsStep', () => {
       wrapper: Wrapper,
     });
     // The plan never shows, even briefly, an access key the run won't create.
-    expect(screen.queryByText('Generate Access Key')).not.toBeInTheDocument();
+    expect(screen.queryByText('Generate Access Key on Destination')).not.toBeInTheDocument();
 
-    expect(await screen.findByText(`Use Location: ${LOCATION_NAME}`)).toBeInTheDocument();
-    expect(screen.queryByText('Generate Access Key')).not.toBeInTheDocument();
+    expect(await screen.findByText(`Use Location on Source: ${LOCATION_NAME}`)).toBeInTheDocument();
+    expect(screen.queryByText('Generate Access Key on Destination')).not.toBeInTheDocument();
     await waitFor(() => expect(bodies).toHaveLength(1));
     expect(bodies[0]).toMatchObject({ existingLocation: true });
 
@@ -211,12 +211,12 @@ describe('ApplyActionsStep', () => {
 
     const statusOf = async (label: string | RegExp) =>
       rowStatus((await screen.findByText(label)).closest('tr') as HTMLElement);
-    const locationLabel = `Use Location: ${LOCATION_NAME}`;
+    const locationLabel = `Use Location on Source: ${LOCATION_NAME}`;
     expect(await statusOf(locationLabel)).toBe('Pending...');
 
     // The destination steps go through, the certificate import has not: the location waits for it.
-    await waitFor(async () => expect(await statusOf('Attach Policy to Role')).toBe('Success'));
-    expect(await statusOf('Import Certificate into Truststore')).not.toBe('Success');
+    await waitFor(async () => expect(await statusOf('Attach Policy to Role on Destination')).toBe('Success'));
+    expect(await statusOf('Import Destination Certificate on Source')).not.toBe('Success');
     expect(await statusOf(locationLabel)).toBe('Pending...');
   });
 
@@ -249,7 +249,7 @@ describe('ApplyActionsStep', () => {
     };
     runTheStep();
 
-    expect(await screen.findByText(`Use Location: ${LOCATION_NAME}`)).toBeInTheDocument();
+    expect(await screen.findByText(`Use Location on Source: ${LOCATION_NAME}`)).toBeInTheDocument();
     await waitFor(() => expect(bodies).toHaveLength(2));
     expect(bodies[1]).toMatchObject({ existingLocation: true });
   });
@@ -287,7 +287,7 @@ describe('ApplyActionsStep', () => {
     );
 
     expect(await screen.findByText('Use Bucket on Source: crr-src-bucket')).toBeInTheDocument();
-    expect(screen.getByText('Use Target Bucket: crr-target-bucket')).toBeInTheDocument();
+    expect(screen.getByText('Use Bucket on Destination: crr-target-bucket')).toBeInTheDocument();
     await waitFor(() => expect(enableVersioning.mutate).toHaveBeenCalled());
     expect(createBucket.mutate).not.toHaveBeenCalled();
   });
