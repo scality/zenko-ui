@@ -10,13 +10,13 @@ import {
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8, VEEAM_VBO_APPLICATION } from '../constants';
 import type { FormData } from '../engine';
 import { definePlatform, VeeamVBOValidator } from '../engine';
-import { GET_VEEAM_POLICY } from '../utils/ISVPolicy';
+import { GET_VEEAM_VBO_POLICY } from '../utils/ISVPolicy';
 
 export const VeeamVBOPlatform = definePlatform({
   id: 'veeam-vbo',
   name: 'Veeam VB365',
   logo: <VeeamLogo />,
-  policy: GET_VEEAM_POLICY,
+  policy: GET_VEEAM_VBO_POLICY,
   documentationLink: '/artesca/docs/partner_applications/backup_and_archives/veeam_backup_for_ms_365.html',
   application: VEEAM_VBO_APPLICATION,
   category: 'backup-and-archive',

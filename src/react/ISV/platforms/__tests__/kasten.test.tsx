@@ -1,3 +1,4 @@
+import { GET_KASTEN_POLICY } from '../../utils/ISVPolicy';
 import { KastenPlatform } from '../kasten';
 
 describe('KastenPlatform', () => {
@@ -54,38 +55,13 @@ describe('KastenPlatform', () => {
   });
 
   describe('policy generation', () => {
-    it('should generate valid policy for buckets', () => {
-      const policy = KastenPlatform.getPolicy(['bucket1', 'bucket2'], false);
-      const parsed = JSON.parse(policy);
-
-      expect(parsed.Version).toBe('2012-10-17');
-      expect(parsed.Statement).toHaveLength(2);
-    });
-
-    it('should include base actions for non-immutable bucket', () => {
-      const policy = KastenPlatform.getPolicy(['bucket1'], false);
-      const parsed = JSON.parse(policy);
-
-      const actions = parsed.Statement[0].Action;
-      expect(actions).toContain('s3:PutObject');
-      expect(actions).toContain('s3:GetObject');
-      expect(actions).toContain('s3:DeleteObject');
-
-      const listActions = parsed.Statement[1].Action;
-      expect(listActions).toContain('s3:ListBucket');
-      expect(listActions).toContain('s3:ListAllMyBuckets');
-    });
-
-    it('should include immutable actions when immutable is true', () => {
-      const policy = KastenPlatform.getPolicy(['bucket1'], true);
-      const parsed = JSON.parse(policy);
-
-      const actions = parsed.Statement[0].Action;
-      expect(actions).toContain('s3:PutObjectRetention');
-      expect(actions).toContain('s3:GetObjectRetention');
-      expect(actions).toContain('s3:GetBucketObjectLockConfiguration');
-      expect(actions).toContain('s3:GetObjectLegalHold');
-      expect(actions).toContain('s3:PutObjectLegalHold');
+    it('should use the Kasten least-privilege policy', () => {
+      expect(KastenPlatform.getPolicy(['bucket1', 'bucket2'], true)).toBe(
+        GET_KASTEN_POLICY(['bucket1', 'bucket2'], true),
+      );
+      expect(KastenPlatform.getPolicy(['bucket1', 'bucket2'], false)).toBe(
+        GET_KASTEN_POLICY(['bucket1', 'bucket2'], false),
+      );
     });
   });
 });
