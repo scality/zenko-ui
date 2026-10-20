@@ -231,7 +231,7 @@ describe('ISV assistant policies', () => {
     expect(policy).toEqual(withResourcesAsArrays(DOCUMENTED_POLICIES[application][variant]));
   });
 
-  it.each(BUILDER_CASES)('$application $variant policy never grants s3:ListBucket on every bucket', ({
+  it.each(BUILDER_CASES)('$application $variant policy grants s3:ListBucket only on its buckets', ({
     isImmutable,
     getPolicy,
   }) => {
@@ -274,30 +274,82 @@ describe('addBucketsToPolicy', () => {
     expect(updated).toEqual(generatedPolicy(['old-bucket', 'new-bucket']));
   });
 
-  it('gives a new bucket object access in a Rubrik immutable policy created by a previous release', () => {
-    const previousRubrikPolicy: PolicyDocument = {
-      Version: '2012-10-17',
-      Statement: [
-        { Sid: 'GlobalPermission', Effect: 'Allow', Action: ['s3:ListAllMyBuckets'], Resource: '*' },
-        { Sid: 'BucketLevel', Effect: 'Allow', Action: ['s3:ListBucket'], Resource: ['arn:aws:s3:::old-rubrik-0'] },
-        { Sid: 'ObjectLevel', Effect: 'Allow', Action: ['s3:PutObject'], Resource: ['arn:aws:s3:::old-rubrik-0/*'] },
-      ],
+  describe('Rubrik immutable policy created by a previous release', () => {
+    const globalPermission = {
+      Sid: 'GlobalPermission',
+      Effect: 'Allow',
+      Action: ['s3:ListAllMyBuckets'],
+      Resource: '*',
     };
+    const bucketLevel = (buckets: string[]) => ({
+      Sid: 'BucketLevel',
+      Effect: 'Allow',
+      Action: [
+        's3:ListBucket',
+        's3:ListBucketMultipartUploads',
+        's3:GetBucketLocation',
+        's3:GetBucketAcl',
+        's3:GetBucketPolicy',
+        's3:GetBucketVersioning',
+        's3:GetBucketPublicAccessBlock',
+        's3:GetBucketObjectLockConfiguration',
+        's3:PutBucketObjectLockConfiguration',
+      ],
+      Resource: buckets.map((bucket) => `arn:aws:s3:::${bucket}`),
+    });
+    const objectLevel = (buckets: string[]) => ({
+      Sid: 'ObjectLevel',
+      Effect: 'Allow',
+      Action: [
+        's3:AbortMultipartUpload',
+        's3:ListMultipartUploadParts',
+        's3:PutObject',
+        's3:GetObject',
+        's3:DeleteObject',
+        's3:RestoreObject',
+        's3:PutObjectTagging',
+        's3:GetObjectTagging',
+        's3:PutObjectAcl',
+        's3:GetObjectAcl',
+        's3:GetObjectVersion',
+        's3:DeleteObjectVersion',
+        's3:GetObjectVersionTagging',
+        's3:PutObjectVersionTagging',
+        's3:PutObjectRetention',
+        's3:GetObjectRetention',
+        's3:PutObjectLegalHold',
+        's3:GetObjectLegalHold',
+        's3:BypassGovernanceRetention',
+      ],
+      Resource: buckets.map((bucket) => `arn:aws:s3:::${bucket}/*`),
+    });
+    const generated = (buckets: string[]) => JSON.parse(GET_RUBRIK_POLICY(buckets, true));
 
-    const updated = addBucketsToPolicy(
-      previousRubrikPolicy,
-      ['new-rubrik-1'],
-      JSON.parse(GET_RUBRIK_POLICY(['new-rubrik-1'], true)),
-    );
+    it('gives a new bucket the bucket and object access of the existing buckets', () => {
+      const policy = { Version: '2012-10-17', Statement: [globalPermission, bucketLevel(['a']), objectLevel(['a'])] };
 
-    expect(updated.Statement).toEqual([
-      previousRubrikPolicy.Statement[0],
-      { ...previousRubrikPolicy.Statement[1], Resource: ['arn:aws:s3:::old-rubrik-0', 'arn:aws:s3:::new-rubrik-1'] },
-      {
-        ...previousRubrikPolicy.Statement[2],
-        Resource: ['arn:aws:s3:::old-rubrik-0/*', 'arn:aws:s3:::new-rubrik-1/*'],
-      },
-    ]);
+      const updated = addBucketsToPolicy(policy, ['b'], generated(['b']));
+
+      expect(updated.Statement).toEqual([globalPermission, bucketLevel(['a', 'b']), objectLevel(['a', 'b'])]);
+    });
+
+    it('gives object access back to a bucket that a previous release added without it', () => {
+      // A previous release added bucket "b" by appending GlobalPermission and BucketLevel only.
+      const policy = {
+        Version: '2012-10-17',
+        Statement: [globalPermission, bucketLevel(['a']), objectLevel(['a']), globalPermission, bucketLevel(['b'])],
+      };
+
+      const updated = addBucketsToPolicy(policy, ['b'], generated(['b']));
+
+      expect(updated.Statement).toEqual([
+        globalPermission,
+        bucketLevel(['a', 'b']),
+        objectLevel(['a', 'b']),
+        globalPermission,
+        bucketLevel(['b']),
+      ]);
+    });
   });
 
   it('keeps the scope of a policy created before the least-privilege change', () => {
@@ -369,6 +421,48 @@ describe('addBucketsToPolicy', () => {
     ]);
   });
 
+  it('does not extend a statement granting actions that no assistant generates', () => {
+    const adminStatement = {
+      Effect: 'Allow',
+      Action: ['s3:DeleteBucket', 's3:PutBucketPolicy'],
+      Resource: ['arn:aws:s3:::audit-logs'],
+    };
+    const policy: PolicyDocument = {
+      ...generatedPolicy(['old-bucket']),
+      Statement: [...generatedPolicy(['old-bucket']).Statement, adminStatement],
+    };
+
+    const updated = addBucketsToPolicy(policy, ['new-bucket'], generatedPolicy(['new-bucket']));
+
+    expect(updated.Statement).toEqual([...generatedPolicy(['old-bucket', 'new-bucket']).Statement, adminStatement]);
+  });
+
+  it('does not extend a statement that grants everything except some actions', () => {
+    const notActionStatement = {
+      Effect: 'Allow',
+      NotAction: ['s3:DeleteBucket'],
+      Resource: ['arn:aws:s3:::old-bucket'],
+    };
+    const policy = {
+      ...generatedPolicy(['old-bucket']),
+      Statement: [...generatedPolicy(['old-bucket']).Statement, notActionStatement],
+    };
+
+    const updated = addBucketsToPolicy(policy, ['new-bucket'], generatedPolicy(['new-bucket']));
+
+    expect(updated.Statement[3]).toEqual(notActionStatement);
+  });
+
+  it('does not treat access to an object prefix as access to the whole bucket', () => {
+    const prefixStatement = { Effect: 'Allow', Action: ['s3:GetObject'], Resource: ['arn:aws:s3:::old-bucket/logs/*'] };
+    const policy: PolicyDocument = { Version: '2012-10-17', Statement: [prefixStatement] };
+    const generated = generatedPolicy(['new-bucket']);
+
+    const updated = addBucketsToPolicy(policy, ['new-bucket'], generated);
+
+    expect(updated.Statement).toEqual([prefixStatement, generated.Statement[0], generated.Statement[1]]);
+  });
+
   it('leaves Deny statements untouched', () => {
     const denyStatement = {
       Effect: 'Deny',
@@ -385,7 +479,7 @@ describe('addBucketsToPolicy', () => {
     expect(updated.Statement[3]).toEqual(denyStatement);
   });
 
-  it('appends the bucket statements of the generated policy when no statement is scoped to a bucket', () => {
+  it('appends the bucket statements of the generated policy when no assistant statement covers a bucket', () => {
     const policy: PolicyDocument = {
       Version: '2012-10-17',
       Statement: [{ Effect: 'Allow', Action: 's3:ListAllMyBuckets', Resource: '*' }],

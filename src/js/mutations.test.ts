@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { VEEAM_IMMUTABLE_POLICY_NAME, VEEAM_XML_PREFIX } from '../react/ISV/constants';
+import { VEEAM_XML_PREFIX } from '../react/ISV/constants';
 import { GET_COMMVAULT_POLICY, GET_RUBRIK_POLICY, GET_VEEAM_POLICY } from '../react/ISV/utils/ISVPolicy';
 import { NewWrapper, TEST_API_BASE_URL } from '../react/utils/testUtil';
 import { INSTANCE_ID } from './mock/managementClientMSWHandlers';
@@ -41,9 +41,9 @@ const tagSet = [
     Value: 'Veeam 12',
   },
 ];
-const veeamPolicyName = `${VEEAM_IMMUTABLE_POLICY_NAME}-${bucketName}`;
+const veeamPolicyName = `Scality-Veeam-Immutable-Policy-${bucketName}`;
 const veeamPolicyArn = `arn:aws:iam::${accountId}:policy/${veeamPolicyName}`;
-const policyNameWithErrorTriggered = `${VEEAM_IMMUTABLE_POLICY_NAME}-${bucketNameWithErrorTriggered}`;
+const policyNameWithErrorTriggered = `Scality-Veeam-Immutable-Policy-${bucketNameWithErrorTriggered}`;
 const veeamObjectKey = `${VEEAM_XML_PREFIX}/system.xml`;
 
 const getLatestInstanceStatusFailingMock = () =>
@@ -576,7 +576,7 @@ describe('mutations', () => {
     });
     //Exercise
     result.current.mutate({
-      policyName: `${VEEAM_IMMUTABLE_POLICY_NAME}-${bucketNameWithErrorTriggered}`,
+      policyName: policyNameWithErrorTriggered,
       policyDocument: GET_VEEAM_POLICY([bucketNameWithErrorTriggered], true),
     });
     //Verify
@@ -1562,10 +1562,28 @@ describe('mutations', () => {
       expect(calledPolicyDocument).toEqual(JSON.parse(GET_COMMVAULT_POLICY(['old-bucket', 'new-bucket'], false)));
     });
 
-    it('should give a new bucket object access when adding it to a Rubrik immutable policy', async () => {
+    it('should give a new bucket object access when adding it to a Rubrik immutable policy of a previous release', async () => {
+      const previousRubrikPolicy = {
+        Version: '2012-10-17',
+        Statement: [
+          { Sid: 'GlobalPermission', Effect: 'Allow', Action: ['s3:ListAllMyBuckets'], Resource: '*' },
+          {
+            Sid: 'BucketLevel',
+            Effect: 'Allow',
+            Action: ['s3:ListBucket', 's3:GetBucketPolicy'],
+            Resource: ['arn:aws:s3:::old-rubrik-0'],
+          },
+          {
+            Sid: 'ObjectLevel',
+            Effect: 'Allow',
+            Action: ['s3:PutObject', 's3:BypassGovernanceRetention'],
+            Resource: ['arn:aws:s3:::old-rubrik-0/*'],
+          },
+        ],
+      };
       mockQueryClient.fetchQuery.mockResolvedValue(mockExistingPolicy);
       mockIAMClient.getPolicyVersion.mockResolvedValue({
-        PolicyVersion: { Document: encodeURIComponent(GET_RUBRIK_POLICY(['old-rubrik-0'], true)) },
+        PolicyVersion: { Document: encodeURIComponent(JSON.stringify(previousRubrikPolicy)) },
       });
 
       const { result, waitFor } = renderHook(() => useCreateOrAddBucketToPolicyMutation(), { wrapper: NewWrapper() });
@@ -1581,7 +1599,14 @@ describe('mutations', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       const calledPolicyDocument = JSON.parse(mockIAMClient.createPolicyVersion.mock.calls[0][1]);
-      expect(calledPolicyDocument).toEqual(JSON.parse(GET_RUBRIK_POLICY(['old-rubrik-0', 'new-rubrik-1'], true)));
+      expect(calledPolicyDocument.Statement).toEqual([
+        previousRubrikPolicy.Statement[0],
+        { ...previousRubrikPolicy.Statement[1], Resource: ['arn:aws:s3:::old-rubrik-0', 'arn:aws:s3:::new-rubrik-1'] },
+        {
+          ...previousRubrikPolicy.Statement[2],
+          Resource: ['arn:aws:s3:::old-rubrik-0/*', 'arn:aws:s3:::new-rubrik-1/*'],
+        },
+      ]);
     });
 
     it('should handle policy version limit', async () => {

@@ -1,8 +1,8 @@
 export type PolicyStatement = {
   Sid?: string;
   Effect: string;
-  Action: string | string[];
-  Resource: string | string[];
+  Action?: string | string[];
+  Resource?: string | string[];
 };
 
 export type PolicyDocument = {
@@ -174,16 +174,43 @@ export const GET_RUBRIK_POLICY = (buckets: string[], isImmutable: boolean) => {
 const BUCKET_ARN = /^arn:aws:s3:::[^/*]+$/;
 const OBJECT_ARN = /^arn:aws:s3:::[^/*]+\/\*$/;
 
+// Granted by the assistants of earlier releases, before their policies followed least privilege.
+const EARLIER_ASSISTANT_ACTIONS = [
+  's3:BypassGovernanceRetention',
+  's3:GetBucketPolicy',
+  's3:GetBucketPublicAccessBlock',
+  's3:GetObjectAcl',
+  's3:GetObjectTagging',
+  's3:GetObjectVersionTagging',
+  's3:PutObjectAcl',
+  's3:PutObjectTagging',
+  's3:PutObjectVersionTagging',
+];
+
+const ASSISTANT_ACTIONS = new Set([
+  ...[BACKUP_ACTIONS, VEEAM_VBO_ACTIONS, RUBRIK_ACTIONS].flatMap((actions) =>
+    Object.values(actions).flatMap(({ bucket, object }) => [...bucket, ...object]),
+  ),
+  ...EARLIER_ASSISTANT_ACTIONS,
+]);
+
 const toArray = <T>(value: T | T[]): T[] => (Array.isArray(value) ? value : [value]);
 
-const isBucketScoped = (statement: PolicyStatement) =>
-  statement.Effect === 'Allow' &&
-  toArray(statement.Resource ?? []).some((resource) => BUCKET_ARN.test(resource) || OBJECT_ARN.test(resource));
+const isAssistantBucketStatement = (statement: PolicyStatement) => {
+  const actions = toArray(statement.Action ?? []);
+
+  return (
+    statement.Effect === 'Allow' &&
+    actions.length > 0 &&
+    actions.every((action) => ASSISTANT_ACTIONS.has(action)) &&
+    toArray(statement.Resource ?? []).some((resource) => BUCKET_ARN.test(resource) || OBJECT_ARN.test(resource))
+  );
+};
 
 /**
- * Grants the new buckets the access the policy already grants to its buckets: each statement
- * scoped to buckets gets the new buckets in the same ARN forms, so the scope of an existing
- * policy never changes, whichever version of the assistant created it.
+ * Grants the new buckets the access the policy already grants to its buckets, without widening
+ * anything else: only the statements an assistant created, whichever release it was, get the new
+ * buckets, in the ARN forms they already use.
  */
 export const addBucketsToPolicy = (
   policy: Omit<PolicyDocument, 'Statement'> & { Statement: PolicyStatement | PolicyStatement[] },
@@ -193,14 +220,14 @@ export const addBucketsToPolicy = (
   const statements = toArray(policy.Statement);
   const newBuckets = [...new Set(buckets)];
 
-  if (!statements.some(isBucketScoped)) {
-    return { ...policy, Statement: [...statements, ...generatedPolicy.Statement.filter(isBucketScoped)] };
+  if (!statements.some(isAssistantBucketStatement)) {
+    return { ...policy, Statement: [...statements, ...generatedPolicy.Statement.filter(isAssistantBucketStatement)] };
   }
 
   return {
     ...policy,
     Statement: statements.map((statement) => {
-      if (!isBucketScoped(statement)) {
+      if (!isAssistantBucketStatement(statement)) {
         return statement;
       }
       const resources = toArray(statement.Resource);
