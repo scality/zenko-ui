@@ -1,5 +1,6 @@
 import { VEEAM_BACKUP_REPLICATION } from '../../constants';
 import type { FormData, SummaryRenderProps } from '../../engine/types';
+import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 import { VeeamVBRPlatform } from '../veeam-vbr';
 
 describe('VeeamVBRPlatform', () => {
@@ -392,22 +393,13 @@ describe('VeeamVBRPlatform', () => {
   });
 
   describe('policy generation', () => {
-    it('should generate valid policy for buckets', () => {
-      const policy = VeeamVBRPlatform.getPolicy(['bucket1', 'bucket2'], false);
-      const parsed = JSON.parse(policy);
-
-      expect(parsed.Version).toBe('2012-10-17');
-      expect(parsed.Statement).toHaveLength(2);
-      expect(parsed.Statement[0].Resource).toContain('arn:aws:s3:::bucket1');
-      expect(parsed.Statement[0].Resource).toContain('arn:aws:s3:::bucket2');
-    });
-
-    it('should include immutable actions when immutable is true', () => {
-      const policy = VeeamVBRPlatform.getPolicy(['bucket1'], true);
-      const parsed = JSON.parse(policy);
-
-      expect(parsed.Statement[0].Action).toContain('s3:PutObjectRetention');
-      expect(parsed.Statement[0].Action).toContain('s3:GetObjectLegalHold');
+    it('should use the Veeam Backup & Replication least-privilege policy', () => {
+      expect(VeeamVBRPlatform.getPolicy(['bucket1', 'bucket2'], true)).toBe(
+        GET_VEEAM_POLICY(['bucket1', 'bucket2'], true),
+      );
+      expect(VeeamVBRPlatform.getPolicy(['bucket1', 'bucket2'], false)).toBe(
+        GET_VEEAM_POLICY(['bucket1', 'bucket2'], false),
+      );
     });
   });
 });

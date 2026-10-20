@@ -2,7 +2,7 @@ import { useCurrentApp, useShellHooks } from '@scality/module-federation';
 import { useEffect, useRef, useState } from 'react';
 import { type MutationOptions, useMutation, useQueryClient } from 'react-query';
 import { useIAMClient } from '../react/IAMProvider';
-import { defaultActions, immutableActions } from '../react/ISV/utils/ISVPolicy';
+import { addBucketsToPolicy } from '../react/ISV/utils/ISVPolicy';
 import { useManagementClient } from '../react/ManagementProvider';
 import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
 import { useDeployedMetalk8sInstances } from '../react/next-architecture/ui/ConfigProvider';
@@ -173,49 +173,13 @@ const useCreateOrAddBucketToPolicyMutation = () => {
 
       const policyDocument = defaultPolicy.PolicyVersion.Document;
       const decodedPolicyDocument = decodeURIComponent(policyDocument);
-      const policyJSON = JSON.parse(decodedPolicyDocument);
-
-      const statementIndex = policyJSON.Statement.findIndex(
-        (statement: { Effect: string; Action: string[]; Resource: string | string[] }) =>
-          statement.Effect === 'Allow' &&
-          defaultActions.every((action) => statement.Action.includes(action)) &&
-          (isImmutable ? immutableActions.every((action) => statement.Action.includes(action)) : true),
+      const updatedPolicy = addBucketsToPolicy(
+        JSON.parse(decodedPolicyDocument),
+        bucketsName,
+        JSON.parse(newPolicyDocument),
       );
-      if (statementIndex !== -1) {
-        // Get existing resources and ensure it's an array
-        const existingResources = Array.isArray(policyJSON.Statement[statementIndex].Resource)
-          ? policyJSON.Statement[statementIndex].Resource
-          : [policyJSON.Statement[statementIndex].Resource];
 
-        // Create new resources to add
-        const newResources = bucketsName.flatMap((bucket) => [`arn:aws:s3:::${bucket}/*`, `arn:aws:s3:::${bucket}`]);
-
-        // Filter out resources that already exist to avoid duplicates
-        const existingResourcesSet = new Set(existingResources);
-        const resourcesToAdd = newResources.filter((resource) => !existingResourcesSet.has(resource));
-
-        // Only update if there are new resources to add
-        if (resourcesToAdd.length > 0) {
-          policyJSON.Statement[statementIndex].Resource = [...existingResources, ...resourcesToAdd];
-        }
-      } else {
-        const newStatement = JSON.parse(newPolicyDocument).Statement[0];
-        policyJSON.Statement.push(newStatement);
-      }
-
-      //Enforce allow list bucket actions statement on all resources
-      const allowListBucketsStatement = policyJSON.Statement.findIndex(
-        (statement: { Effect: string; Action: string[]; Resource: string | string[] }) =>
-          statement.Effect === 'Allow' &&
-          statement.Action.includes('s3:ListAllMyBuckets') &&
-          statement.Action.includes('s3:ListBucket') &&
-          statement.Resource === '*',
-      );
-      if (allowListBucketsStatement === -1) {
-        policyJSON.Statement.push(JSON.parse(newPolicyDocument).Statement[1]);
-      }
-
-      const updatedPolicyDocument = JSON.stringify(policyJSON, null, 2);
+      const updatedPolicyDocument = JSON.stringify(updatedPolicy, null, 2);
       return IAMClient.createPolicyVersion(policyData.Arn, updatedPolicyDocument);
     },
   });

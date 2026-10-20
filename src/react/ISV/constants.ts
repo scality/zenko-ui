@@ -8,63 +8,6 @@ export const VEEAM_VBO_APPLICATION = 'Veeam Backup for Microsoft 365';
 export const VEEAM_IMMUTABLE_POLICY_NAME = 'Scality-Veeam-Immutable-Policy';
 export const COMMVAULT_APPLICATION = 'Commvault';
 export const KASTEN_APPLICATION = 'Kasten';
-export const GET_VEEAM_IMMUTABLE_POLICY = (bucketName: string) =>
-  JSON.stringify({
-    Version: '2012-10-17',
-    Statement: [
-      {
-        Sid: 'VisualEditor0',
-        Effect: 'Allow',
-        Action: [
-          's3:GetBucketLocation',
-          's3:GetObject',
-          's3:PutObject',
-          's3:DeleteObject',
-          's3:GetBucketVersioning',
-          's3:GetBucketObjectLockConfiguration',
-          's3:ListBucketVersions',
-          's3:GetObjectVersion',
-          's3:GetObjectRetention',
-          's3:GetObjectLegalHold',
-          's3:PutObjectRetention',
-          's3:PutObjectLegalHold',
-          's3:DeleteObjectVersion',
-        ],
-        Resource: [`arn:aws:s3:::${bucketName}/*`, `arn:aws:s3:::${bucketName}`],
-      },
-      {
-        Sid: 'VisualEditor1',
-        Effect: 'Allow',
-        Action: ['s3:ListAllMyBuckets', 's3:ListBucket'],
-        Resource: '*',
-      },
-    ],
-  });
-export const GET_VEEAM_NON_IMMUTABLE_POLICY = (bucketName: string) =>
-  JSON.stringify({
-    Version: '2012-10-17',
-    Statement: [
-      {
-        Sid: 'SecureBucketPolicy0',
-        Effect: 'Allow',
-        Action: [
-          's3:PutObject',
-          's3:GetObject',
-          's3:DeleteObject',
-          's3:GetBucketLocation',
-          's3:GetBucketVersioning',
-          's3:GetBucketObjectLockConfiguration',
-        ],
-        Resource: [`arn:aws:s3:::${bucketName}/*`, `arn:aws:s3:::${bucketName}`],
-      },
-      {
-        Sid: 'SecureBucketPolicy1',
-        Effect: 'Allow',
-        Action: ['s3:ListAllMyBuckets', 's3:ListBucket'],
-        Resource: '*',
-      },
-    ],
-  });
 
 export const VEEAM_XML_PREFIX = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c';
 export const SYSTEM_XML_CONTENT = `<?xml version="1.0" encoding="UTF-8"?><SystemInfo><ProtocolVersion>"1.0"</ProtocolVersion><ModelName>"ARTESCA v1.7"</ModelName><ProtocolCapabilities><CapacityInfo>true</CapacityInfo><UploadSessions>false</UploadSessions><IAMSTS>false</IAMSTS></ProtocolCapabilities></SystemInfo>`;
