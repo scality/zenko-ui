@@ -539,7 +539,7 @@ export const VeeamVBOPlatform = definePlatform({
   id: 'veeam-vbo',
   name: 'Veeam VB365',
   logo: <VeeamLogo />,
-  policy: GET_VEEAM_POLICY,
+  policy: GET_VEEAM_VBO_POLICY,
   documentationLink: '/docs/veeam-vbo.html',
 
   // Additional application selector after account

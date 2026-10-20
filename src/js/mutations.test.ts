@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { GET_VEEAM_IMMUTABLE_POLICY, VEEAM_IMMUTABLE_POLICY_NAME, VEEAM_XML_PREFIX } from '../react/ISV/constants';
+import { VEEAM_XML_PREFIX } from '../react/ISV/constants';
+import { GET_COMMVAULT_POLICY, GET_RUBRIK_POLICY, GET_VEEAM_POLICY } from '../react/ISV/utils/ISVPolicy';
 import { NewWrapper, TEST_API_BASE_URL } from '../react/utils/testUtil';
 import { INSTANCE_ID } from './mock/managementClientMSWHandlers';
 import {
@@ -40,9 +41,9 @@ const tagSet = [
     Value: 'Veeam 12',
   },
 ];
-const veeamPolicyName = `${VEEAM_IMMUTABLE_POLICY_NAME}-${bucketName}`;
+const veeamPolicyName = `Scality-Veeam-Immutable-Policy-${bucketName}`;
 const veeamPolicyArn = `arn:aws:iam::${accountId}:policy/${veeamPolicyName}`;
-const policyNameWithErrorTriggered = `${VEEAM_IMMUTABLE_POLICY_NAME}-${bucketNameWithErrorTriggered}`;
+const policyNameWithErrorTriggered = `Scality-Veeam-Immutable-Policy-${bucketNameWithErrorTriggered}`;
 const veeamObjectKey = `${VEEAM_XML_PREFIX}/system.xml`;
 
 const getLatestInstanceStatusFailingMock = () =>
@@ -553,7 +554,7 @@ describe('mutations', () => {
     //Exercise
     result.current.mutate({
       policyName: veeamPolicyName,
-      policyDocument: GET_VEEAM_IMMUTABLE_POLICY(bucketName),
+      policyDocument: GET_VEEAM_POLICY([bucketName], true),
     });
     //Verify
     await waitFor(() => {
@@ -562,37 +563,7 @@ describe('mutations', () => {
     expect(SUT).toHaveBeenCalledWith(
       new URLSearchParams({
         Action: 'CreatePolicy',
-        PolicyDocument: JSON.stringify({
-          Version: '2012-10-17',
-          Statement: [
-            {
-              Sid: 'VisualEditor0',
-              Effect: 'Allow',
-              Action: [
-                's3:GetBucketLocation',
-                's3:GetObject',
-                's3:PutObject',
-                's3:DeleteObject',
-                's3:GetBucketVersioning',
-                's3:GetBucketObjectLockConfiguration',
-                's3:ListBucketVersions',
-                's3:GetObjectVersion',
-                's3:GetObjectRetention',
-                's3:GetObjectLegalHold',
-                's3:PutObjectRetention',
-                's3:PutObjectLegalHold',
-                's3:DeleteObjectVersion',
-              ],
-              Resource: [`arn:aws:s3:::${bucketName}/*`, `arn:aws:s3:::${bucketName}`],
-            },
-            {
-              Sid: 'VisualEditor1',
-              Effect: 'Allow',
-              Action: ['s3:ListAllMyBuckets', 's3:ListBucket'],
-              Resource: '*',
-            },
-          ],
-        }),
+        PolicyDocument: GET_VEEAM_POLICY([bucketName], true),
         PolicyName: veeamPolicyName,
         Version: '2010-05-08',
       }),
@@ -605,8 +576,8 @@ describe('mutations', () => {
     });
     //Exercise
     result.current.mutate({
-      policyName: `${VEEAM_IMMUTABLE_POLICY_NAME}-${bucketNameWithErrorTriggered}`,
-      policyDocument: GET_VEEAM_IMMUTABLE_POLICY(bucketNameWithErrorTriggered),
+      policyName: policyNameWithErrorTriggered,
+      policyDocument: GET_VEEAM_POLICY([bucketNameWithErrorTriggered], true),
     });
     //Verify
     await waitFor(() => {
@@ -615,40 +586,7 @@ describe('mutations', () => {
     expect(SUT).toHaveBeenCalledWith(
       new URLSearchParams({
         Action: 'CreatePolicy',
-        PolicyDocument: JSON.stringify({
-          Version: '2012-10-17',
-          Statement: [
-            {
-              Sid: 'VisualEditor0',
-              Effect: 'Allow',
-              Action: [
-                's3:GetBucketLocation',
-                's3:GetObject',
-                's3:PutObject',
-                's3:DeleteObject',
-                's3:GetBucketVersioning',
-                's3:GetBucketObjectLockConfiguration',
-                's3:ListBucketVersions',
-                's3:GetObjectVersion',
-                's3:GetObjectRetention',
-                's3:GetObjectLegalHold',
-                's3:PutObjectRetention',
-                's3:PutObjectLegalHold',
-                's3:DeleteObjectVersion',
-              ],
-              Resource: [
-                `arn:aws:s3:::${bucketNameWithErrorTriggered}/*`,
-                `arn:aws:s3:::${bucketNameWithErrorTriggered}`,
-              ],
-            },
-            {
-              Sid: 'VisualEditor1',
-              Effect: 'Allow',
-              Action: ['s3:ListAllMyBuckets', 's3:ListBucket'],
-              Resource: '*',
-            },
-          ],
-        }),
+        PolicyDocument: GET_VEEAM_POLICY([bucketNameWithErrorTriggered], true),
         PolicyName: policyNameWithErrorTriggered,
         Version: '2010-05-08',
       }),
@@ -1560,7 +1498,7 @@ describe('mutations', () => {
       expect(resources.length).toBe(4);
     });
 
-    it('should handle Resource as string and add new bucket', async () => {
+    it('should handle Resource as string and add the new bucket in the same ARN form', async () => {
       // Test both string conversion and adding new bucket in one test
       mockQueryClient.fetchQuery.mockResolvedValue(mockExistingPolicy);
       mockIAMClient.getPolicyVersion.mockResolvedValue({
@@ -1595,11 +1533,80 @@ describe('mutations', () => {
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      // Verify string was converted to array and new bucket was added
       const calledPolicyDocument = JSON.parse(mockIAMClient.createPolicyVersion.mock.calls[0][1]);
-      expect(calledPolicyDocument.Statement[0].Resource).toContain('arn:aws:s3:::single-bucket/*');
-      expect(calledPolicyDocument.Statement[0].Resource).toContain('arn:aws:s3:::new-bucket/*');
-      expect(calledPolicyDocument.Statement[0].Resource).toContain('arn:aws:s3:::new-bucket');
+      expect(calledPolicyDocument.Statement[0].Resource).toEqual([
+        'arn:aws:s3:::single-bucket/*',
+        'arn:aws:s3:::new-bucket/*',
+      ]);
+    });
+
+    it('should keep a least-privilege policy scoped when adding a bucket to it', async () => {
+      mockQueryClient.fetchQuery.mockResolvedValue(mockExistingPolicy);
+      mockIAMClient.getPolicyVersion.mockResolvedValue({
+        PolicyVersion: { Document: encodeURIComponent(GET_COMMVAULT_POLICY(['old-bucket'], false)) },
+      });
+
+      const { result, waitFor } = renderHook(() => useCreateOrAddBucketToPolicyMutation(), { wrapper: NewWrapper() });
+
+      result.current.mutate({
+        policyName: 'test-policy',
+        bucketsName: ['new-bucket'],
+        isImmutable: false,
+        policyArn: mockPolicyArn,
+        getPolicy: GET_COMMVAULT_POLICY,
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      const calledPolicyDocument = JSON.parse(mockIAMClient.createPolicyVersion.mock.calls[0][1]);
+      expect(calledPolicyDocument).toEqual(JSON.parse(GET_COMMVAULT_POLICY(['old-bucket', 'new-bucket'], false)));
+    });
+
+    it('should give a new bucket object access when adding it to a Rubrik immutable policy of a previous release', async () => {
+      const previousRubrikPolicy = {
+        Version: '2012-10-17',
+        Statement: [
+          { Sid: 'GlobalPermission', Effect: 'Allow', Action: ['s3:ListAllMyBuckets'], Resource: '*' },
+          {
+            Sid: 'BucketLevel',
+            Effect: 'Allow',
+            Action: ['s3:ListBucket', 's3:GetBucketPolicy'],
+            Resource: ['arn:aws:s3:::old-rubrik-0'],
+          },
+          {
+            Sid: 'ObjectLevel',
+            Effect: 'Allow',
+            Action: ['s3:PutObject', 's3:BypassGovernanceRetention'],
+            Resource: ['arn:aws:s3:::old-rubrik-0/*'],
+          },
+        ],
+      };
+      mockQueryClient.fetchQuery.mockResolvedValue(mockExistingPolicy);
+      mockIAMClient.getPolicyVersion.mockResolvedValue({
+        PolicyVersion: { Document: encodeURIComponent(JSON.stringify(previousRubrikPolicy)) },
+      });
+
+      const { result, waitFor } = renderHook(() => useCreateOrAddBucketToPolicyMutation(), { wrapper: NewWrapper() });
+
+      result.current.mutate({
+        policyName: 'test-policy',
+        bucketsName: ['new-rubrik-1'],
+        isImmutable: true,
+        policyArn: mockPolicyArn,
+        getPolicy: GET_RUBRIK_POLICY,
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      const calledPolicyDocument = JSON.parse(mockIAMClient.createPolicyVersion.mock.calls[0][1]);
+      expect(calledPolicyDocument.Statement).toEqual([
+        previousRubrikPolicy.Statement[0],
+        { ...previousRubrikPolicy.Statement[1], Resource: ['arn:aws:s3:::old-rubrik-0', 'arn:aws:s3:::new-rubrik-1'] },
+        {
+          ...previousRubrikPolicy.Statement[2],
+          Resource: ['arn:aws:s3:::old-rubrik-0/*', 'arn:aws:s3:::new-rubrik-1/*'],
+        },
+      ]);
     });
 
     it('should handle policy version limit', async () => {

@@ -1,4 +1,5 @@
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8, VEEAM_VBO_APPLICATION } from '../../constants';
+import { GET_VEEAM_VBO_POLICY } from '../../utils/ISVPolicy';
 import { VeeamVBOPlatform } from '../veeam-vbo';
 
 describe('VeeamVBOPlatform', () => {
@@ -235,22 +236,13 @@ describe('VeeamVBOPlatform', () => {
   });
 
   describe('policy generation', () => {
-    it('should generate valid policy for buckets', () => {
-      const policy = VeeamVBOPlatform.getPolicy(['bucket1', 'bucket2'], false);
-      const parsed = JSON.parse(policy);
-
-      expect(parsed.Version).toBe('2012-10-17');
-      expect(parsed.Statement).toHaveLength(2);
-      expect(parsed.Statement[0].Resource).toContain('arn:aws:s3:::bucket1');
-      expect(parsed.Statement[0].Resource).toContain('arn:aws:s3:::bucket2');
-    });
-
-    it('should include immutable actions when immutable is true', () => {
-      const policy = VeeamVBOPlatform.getPolicy(['bucket1'], true);
-      const parsed = JSON.parse(policy);
-
-      expect(parsed.Statement[0].Action).toContain('s3:PutObjectRetention');
-      expect(parsed.Statement[0].Action).toContain('s3:GetObjectLegalHold');
+    it('should use the Veeam Backup for Microsoft 365 least-privilege policy', () => {
+      expect(VeeamVBOPlatform.getPolicy(['bucket1', 'bucket2'], true)).toBe(
+        GET_VEEAM_VBO_POLICY(['bucket1', 'bucket2'], true),
+      );
+      expect(VeeamVBOPlatform.getPolicy(['bucket1', 'bucket2'], false)).toBe(
+        GET_VEEAM_VBO_POLICY(['bucket1', 'bucket2'], false),
+      );
     });
   });
 });
