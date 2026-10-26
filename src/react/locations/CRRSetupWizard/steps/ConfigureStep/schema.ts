@@ -153,7 +153,13 @@ export const toStartSetupBody = (values: ConfigureFormValues): StartSetupBody =>
       s3Endpoint: endpointUrl(values.selectedEndpoint),
     },
     destinationCertificate: values.certificate,
-    destinationAccount: { mode: values.destinationAccountNameType, name: values.destinationAccountName.trim() },
+    destinationAccount: {
+      mode: values.destinationAccountNameType,
+      name:
+        values.destinationAccountNameType === 'existing'
+          ? values.destinationAccountName
+          : values.destinationAccountName.trim(),
+    },
   };
   if (values.createReplicationRule && values.targetBucketName) {
     body.targetBucket = values.targetBucketName;

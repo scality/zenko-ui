@@ -213,10 +213,10 @@ describe('AccountCreate', () => {
     });
   });
 
-  it('should fall back to the typed name when the API response has no userName', async () => {
+  it('should fall back to the trimmed typed name when the API response has no userName', async () => {
     server.use(rest.post(userUrl, (_req, res, ctx) => res(ctx.status(201), ctx.json({ id: 'acc-1' }))));
 
-    await submitAccount('foo');
+    await submitAccount('  foo  ');
 
     await waitFor(() => {
       expect(screen.getByTestId('location')).toHaveTextContent('/accounts/foo');

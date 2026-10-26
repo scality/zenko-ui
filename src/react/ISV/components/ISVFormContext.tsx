@@ -99,8 +99,9 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
   const accountsStatus = accountsResult.status as AccountsStatus;
 
   const isAccountExist = useMemo(() => {
-    return accounts.some((account) => account.name === accountName);
-  }, [accounts, accountName]);
+    const nameToCompare = accountNameType === 'create' ? accountName?.trim() : accountName;
+    return accounts.some((account) => account.name === nameToCompare);
+  }, [accounts, accountName, accountNameType]);
 
   // IAM User hook
   const { isIAMUserExist, IAMUsers, getIAMUsersMutation, accessKeys, accessKeysStatus } = useIAMUser({

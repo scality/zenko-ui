@@ -73,4 +73,39 @@ describe('buildIAMMutations', () => {
     expect(variables.policyArn).not.toMatch(/\s/);
     expect(variables.policyArn).toContain(':policy/acme-');
   });
+
+  describe('with existing account and IAM user names', () => {
+    const existingForm: FormData = {
+      ...form,
+      accountName: 'acct ',
+      accountNameType: 'existing',
+      IAMUserName: 'svc ',
+      IAMUserNameType: 'existing',
+    };
+    const existingCtx: FullContext = {
+      ...ctx,
+      _existingAccount: { id: 'acc-2', roleArn: 'arn:aws:iam::acc-2:role/test' } as FullContext['_existingAccount'],
+      isNewAccount: false,
+      needsIAMUser: false,
+      needsAccessKey: true,
+    };
+
+    it('should pass the padded IAM user name unchanged to createAccessKey', () => {
+      const variables = findMutation(mutations, 'createAccessKey').variables(existingForm, {}, existingCtx) as {
+        userName: string;
+      };
+
+      expect(variables.userName).toBe('svc ');
+    });
+
+    it('should pass the padded IAM user name unchanged to attachPolicy', () => {
+      const variables = findMutation(mutations, 'attachPolicy').variables(existingForm, {}, existingCtx) as {
+        userName: string;
+        policyArn: string;
+      };
+
+      expect(variables.userName).toBe('svc ');
+      expect(variables.policyArn).toContain(':policy/svc -');
+    });
+  });
 });
