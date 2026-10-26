@@ -113,9 +113,9 @@ export const configureSchema = Joi.object<ConfigureFormValues>({
  * flat, so we assign each field's error at its top-level path.
  */
 export const configureResolver: Resolver<ConfigureFormValues> = (values) => {
-  const { error } = configureSchema.validate(values, { abortEarly: false });
+  const { error, value } = configureSchema.validate(values, { abortEarly: false });
   if (!error) {
-    return { values, errors: {} as Record<string, never> };
+    return { values: value as ConfigureFormValues, errors: {} as Record<string, never> };
   }
   const errors: FieldErrors<ConfigureFormValues> = {};
   for (const detail of error.details) {
@@ -153,7 +153,7 @@ export const toStartSetupBody = (values: ConfigureFormValues): StartSetupBody =>
       s3Endpoint: endpointUrl(values.selectedEndpoint),
     },
     destinationCertificate: values.certificate,
-    destinationAccount: { mode: values.destinationAccountNameType, name: values.destinationAccountName },
+    destinationAccount: { mode: values.destinationAccountNameType, name: values.destinationAccountName.trim() },
   };
   if (values.createReplicationRule && values.targetBucketName) {
     body.targetBucket = values.targetBucketName;

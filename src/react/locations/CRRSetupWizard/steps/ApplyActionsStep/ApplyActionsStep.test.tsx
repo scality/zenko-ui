@@ -411,3 +411,23 @@ describe('ApplyActionsStep — refreshing what the run created', () => {
     await waitFor(() => expect(reads.accounts).toBeGreaterThan(readsBeforeLeaving));
   });
 });
+
+describe('ApplyActionsStep — padded account names', () => {
+  it('creates the source account under its trimmed name', async () => {
+    let created: { userName?: string; email?: string } | undefined;
+    server.use(
+      rest.post('*/config/:uuid/user', async (req, res, ctx) => {
+        created = await req.json();
+        return res(ctx.json({ id: '100000000001' }));
+      }),
+    );
+    render(<ApplyActionsStep {...VALUES} accountName="  crr-src  " destinationAccountName=" crr-dest " />, {
+      wrapper: Wrapper,
+    });
+
+    await waitFor(() => expect(created).toBeDefined());
+    expect(created?.userName).toBe('crr-src');
+    expect(created?.email).toBe('crr-src@artesca.local');
+    expect(screen.getByText('Create Account on Source: crr-src')).toBeInTheDocument();
+  });
+});

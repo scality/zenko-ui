@@ -4,6 +4,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { Wrapper } from '../../../../utils/testUtil';
 import { ConfigureStep } from './ConfigureStep';
+import { type ConfigureFormValues, configureResolver, defaultConfigureValues, toStartSetupBody } from './schema';
 
 const mockNext = jest.fn();
 jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => ({
@@ -159,5 +160,28 @@ describe('ConfigureStep', () => {
     expect(mockNext).toHaveBeenCalledWith(
       expect.objectContaining({ targetBucketNameType: 'existing', targetBucketName: 'x-archive' }),
     );
+  });
+});
+
+describe('ConfigureStep — padded account names', () => {
+  const PADDED: ConfigureFormValues = {
+    ...defaultConfigureValues,
+    accountName: '  crr-src  ',
+    baseDomain: 'crr-dest.artesca.local',
+    username: 'scality',
+    password: 'super-secret',
+    certificate: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
+    selectedEndpoint: 's3.crr-dest.artesca.local',
+    destinationAccountName: '  crr-dest  ',
+  };
+
+  it('starts the setup with the trimmed destination account name', () => {
+    expect(toStartSetupBody(PADDED).destinationAccount).toEqual({ mode: 'create', name: 'crr-dest' });
+  });
+
+  it('hands the trimmed account names on from the form resolver', async () => {
+    const result = await configureResolver(PADDED, undefined, {} as never);
+    expect(result.errors).toEqual({});
+    expect(result.values).toMatchObject({ accountName: 'crr-src', destinationAccountName: 'crr-dest' });
   });
 });

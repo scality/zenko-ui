@@ -85,15 +85,15 @@ export const ApplyActionsStep = (props: Props) => {
 
   const {
     accountNameType,
-    accountName,
     sourceBucketName,
     destinationAccountNameType,
-    destinationAccountName,
     targetBucketNameType,
     sourceBucketNameType,
     createReplicationRule,
     destinationInstanceName,
   } = props;
+  const accountName = props.accountName?.trim();
+  const destinationAccountName = props.destinationAccountName?.trim();
   const isNewSourceAccount = accountNameType === 'create';
   const isNewDestinationAccount = destinationAccountNameType !== 'existing';
   const isNewTargetBucket = targetBucketNameType !== 'existing';
