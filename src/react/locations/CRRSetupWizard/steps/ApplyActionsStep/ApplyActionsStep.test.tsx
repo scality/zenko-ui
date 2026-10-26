@@ -416,8 +416,8 @@ describe('ApplyActionsStep — padded account names', () => {
   it('creates the source account under its trimmed name', async () => {
     let created: { userName?: string; email?: string } | undefined;
     server.use(
-      rest.post('*/config/:uuid/user', async (req, res, ctx) => {
-        created = await req.json();
+      rest.post('*/config/:uuid/user', (req, res, ctx) => {
+        created = req.body as { userName?: string; email?: string };
         return res(ctx.json({ id: '100000000001' }));
       }),
     );
