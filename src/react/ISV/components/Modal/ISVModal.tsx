@@ -1,7 +1,7 @@
-import { Banner, Icon, Link, Stack, spacing, Text, Wrap } from '@scality/core-ui';
+import { Banner, Icon, Link, SearchInput, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useState } from 'react';
+import { type ChangeEvent, useCallback, useState } from 'react';
 import { useLocation } from 'react-router';
 import styled, { useTheme } from 'styled-components';
 import { ISVList } from '../../ISVList';
@@ -54,6 +54,7 @@ const ISVCardWrapper = ({
       name={isv.name}
       logo={isv.logo}
       application={isv.application}
+      assistant={isv.assistant}
       link={isv.documentationLink}
       disabledMessage={DisabledMessage ? <DisabledMessage onDisabledChange={setIsDisabled} /> : null}
       disabled={isDisabled}
@@ -71,12 +72,33 @@ export const ISVModalContent = ({
   setSelectedISV: (value: ISVCardConfig) => void;
 }) => {
   const theme = useTheme();
+  const [search, setSearch] = useState('');
+  const setSearchInputLabel = useCallback((element: HTMLInputElement | null) => {
+    element?.setAttribute('aria-label', 'Search ISV');
+  }, []);
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredISVList = normalizedSearch
+    ? ISVList.filter(
+        (isv) =>
+          isv.name.toLowerCase().includes(normalizedSearch) ||
+          (isv.application ?? '').toLowerCase().includes(normalizedSearch),
+      )
+    : ISVList;
 
   return (
     <Stack direction="vertical" gap="r16">
       <Text isEmphazed variant="Large">
         Which application would you like to configure with your ARTESCA?
       </Text>
+
+      <SearchInput
+        ref={setSearchInputLabel}
+        value={search}
+        placeholder="Search"
+        onChange={(evt: ChangeEvent<HTMLInputElement>) => setSearch(evt.target.value)}
+        onReset={() => setSearch('')}
+      />
 
       <StyledForm>
         <Stack
@@ -89,7 +111,7 @@ export const ISVModalContent = ({
           }}
         >
           {ISV_CATEGORIES.map((category) => {
-            const platforms = ISVList.filter((isv) => isv.category === category.id);
+            const platforms = filteredISVList.filter((isv) => isv.category === category.id);
             if (platforms.length === 0) return null;
             return (
               <Stack key={category.id} direction="vertical" gap="r8">
