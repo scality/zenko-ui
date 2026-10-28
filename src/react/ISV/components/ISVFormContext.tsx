@@ -104,7 +104,7 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
   }, [accounts, accountName, accountNameType]);
 
   // IAM User hook
-  const { isIAMUserExist, IAMUsers, getIAMUsersMutation, accessKeys, accessKeysStatus } = useIAMUser({
+  const { IAMUsers, getIAMUsersMutation, accessKeys, accessKeysStatus } = useIAMUser({
     IAMUserName,
     onShouldGenerateKey: (shouldGenerateKey) => {
       setValue('generateKey', shouldGenerateKey);
@@ -123,7 +123,10 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
   // and would silently drop a manually-set duplicate error.
   const isDuplicateAccountName = !!dirtyFields.accountName && accountNameType === 'create' && isAccountExist;
   const isDuplicateIAMUserName =
-    !!dirtyFields.IAMUserName && accountNameType === 'existing' && IAMUserNameType === 'create' && isIAMUserExist;
+    !!dirtyFields.IAMUserName &&
+    accountNameType === 'existing' &&
+    IAMUserNameType === 'create' &&
+    IAMUsers.some((user) => user.name === IAMUserName?.trim());
 
   // Reset IAM fields
   const resetIAMFields = useCallback(

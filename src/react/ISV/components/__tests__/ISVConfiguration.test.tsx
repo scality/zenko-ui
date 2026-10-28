@@ -406,7 +406,6 @@ describe('ISVConfiguration', () => {
     it('should show error for duplicate IAM User Names', async () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: true,
         IAMUsersStatus: 'success',
         IAMUsers: [{ id: '1', name: 'test-user' }],
         getIAMUsersMutation: { mutate: jest.fn() },
@@ -421,6 +420,7 @@ describe('ISVConfiguration', () => {
       await userEvent.click(screen.getByRole('option', { name: 'test-account' }));
       await userEvent.click(screen.getByText('Advanced settings'));
 
+      await userEvent.clear(screen.getByLabelText(/IAM User Name/i));
       await userEvent.type(screen.getByLabelText(/IAM User Name/i), 'test-user');
 
       expect(screen.getByText('IAM User name already exists')).toBeInTheDocument();
@@ -488,7 +488,6 @@ describe('ISVConfiguration', () => {
     it('should keep Continue button disabled when IAM user name is a duplicate', async () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: true,
         IAMUsersStatus: 'success',
         IAMUsers: [{ id: '1', name: 'test-user' }],
         getIAMUsersMutation: { mutate: jest.fn() },
@@ -504,6 +503,7 @@ describe('ISVConfiguration', () => {
       await userEvent.click(screen.getByText('Advanced settings'));
 
       await userEvent.click(selectors.createUserRadio());
+      await userEvent.clear(screen.getByLabelText(/IAM User Name/i));
       await userEvent.type(screen.getByLabelText(/IAM User Name/i), 'test-user');
 
       expect(screen.getByText('IAM User name already exists')).toBeInTheDocument();

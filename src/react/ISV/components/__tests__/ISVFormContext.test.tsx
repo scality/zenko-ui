@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { MemoryRouter } from 'react-router';
 import { useListAccounts } from '../../../next-architecture/domain/business/accounts';
 import type { FormData, ISVPlatform } from '../../engine/types';
+import { useIAMUser } from '../../hooks/useIAMUser';
 import { ISVFormProvider, useISVFormContext } from '../ISVFormContext';
 
 jest.mock('../../../next-architecture/domain/business/accounts', () => ({
@@ -84,5 +85,77 @@ describe('ISVFormProvider isDuplicateAccountName', () => {
     act(() => setFormValue('accountName', 'foo'));
 
     expect(screen.getByTestId('duplicate')).toHaveTextContent('false');
+  });
+});
+
+describe('ISVFormProvider isDuplicateIAMUserName', () => {
+  let setIAMFormValue: (name: 'IAMUserName', value: string) => void;
+
+  const IAMConsumer = () => {
+    const { isDuplicateIAMUserName } = useISVFormContext();
+    return <div data-testid="duplicate-iam">{String(isDuplicateIAMUserName)}</div>;
+  };
+
+  const IAMHarness = ({ IAMUserNameType }: { IAMUserNameType: FormData['IAMUserNameType'] }) => {
+    const formMethods = useForm<FormData>({
+      defaultValues: {
+        accountName: 'foo',
+        accountNameType: 'existing',
+        IAMUserName: '',
+        IAMUserNameType,
+        enableImmutableBackup: false,
+        buckets: [],
+      },
+    });
+    setIAMFormValue = (name, value) => formMethods.setValue(name, value, { shouldDirty: true });
+    return (
+      <ISVFormProvider platform={platform} formMethods={formMethods}>
+        <IAMConsumer />
+      </ISVFormProvider>
+    );
+  };
+
+  const renderIAMHarness = (IAMUserNameType: FormData['IAMUserNameType']) =>
+    render(
+      <MemoryRouter>
+        <IAMHarness IAMUserNameType={IAMUserNameType} />
+      </MemoryRouter>,
+    );
+
+  beforeEach(() => {
+    (useListAccounts as jest.Mock).mockReturnValue({
+      accounts: { status: 'success', value: [{ name: 'foo', preferredAssumableRoleArn: 'arn' }] },
+    });
+    (useIAMUser as jest.Mock).mockReturnValue({
+      isIAMUserExist: false,
+      IAMUsers: [{ id: 'u1', name: 'svc' }],
+      getIAMUsersMutation: { status: 'success', mutate: jest.fn() },
+      accessKeys: [],
+      accessKeysStatus: 'idle',
+    });
+  });
+
+  it('should flag a padded IAM user name as duplicate in create mode', () => {
+    renderIAMHarness('create');
+
+    act(() => setIAMFormValue('IAMUserName', ' svc '));
+
+    expect(screen.getByTestId('duplicate-iam')).toHaveTextContent('true');
+  });
+
+  it('should not flag a unique IAM user name in create mode', () => {
+    renderIAMHarness('create');
+
+    act(() => setIAMFormValue('IAMUserName', ' other '));
+
+    expect(screen.getByTestId('duplicate-iam')).toHaveTextContent('false');
+  });
+
+  it('should not flag duplicates when using an existing IAM user', () => {
+    renderIAMHarness('existing');
+
+    act(() => setIAMFormValue('IAMUserName', 'svc'));
+
+    expect(screen.getByTestId('duplicate-iam')).toHaveTextContent('false');
   });
 });
