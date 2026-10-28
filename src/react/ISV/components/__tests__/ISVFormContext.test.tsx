@@ -20,7 +20,6 @@ jest.mock('../../../ui-elements/SelectAccountIAMRole', () => ({
 
 jest.mock('../../hooks/useIAMUser', () => ({
   useIAMUser: jest.fn().mockReturnValue({
-    isIAMUserExist: false,
     IAMUsers: [],
     getIAMUsersMutation: { status: 'idle', mutate: jest.fn() },
     accessKeys: [],
@@ -127,7 +126,6 @@ describe('ISVFormProvider isDuplicateIAMUserName', () => {
       accounts: { status: 'success', value: [{ name: 'foo', preferredAssumableRoleArn: 'arn' }] },
     });
     (useIAMUser as jest.Mock).mockReturnValue({
-      isIAMUserExist: false,
       IAMUsers: [{ id: 'u1', name: 'svc' }],
       getIAMUsersMutation: { status: 'success', mutate: jest.fn() },
       accessKeys: [],

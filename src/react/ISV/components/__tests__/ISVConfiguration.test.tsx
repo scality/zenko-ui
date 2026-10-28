@@ -25,7 +25,6 @@ jest.mock('../../../next-architecture/domain/business/accounts', () => ({
 // Mock IAM hook
 jest.mock('../../hooks/useIAMUser', () => {
   const mockUseIAMUser = jest.fn().mockReturnValue({
-    isIAMUserExist: false,
     IAMUsersStatus: 'success',
     IAMUsers: [{ id: '1', name: 'test-user' }],
     getIAMUsersMutation: { mutate: jest.fn() },
@@ -108,7 +107,6 @@ describe('ISVConfiguration', () => {
     (useListAccounts as jest.Mock).mockReturnValue({ accounts: mockAccounts });
     const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
     useIAMUserMock.mockReturnValue({
-      isIAMUserExist: false,
       IAMUsersStatus: 'success',
       IAMUsers: [{ id: '1', name: 'test-user' }],
       getIAMUsersMutation: { mutate: jest.fn() },
@@ -605,7 +603,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [{ id: '1', name: 'iam-user-1' }],
         getIAMUsersMutation: {
@@ -651,7 +648,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [],
         getIAMUsersMutation: {
@@ -691,7 +687,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'loading',
         IAMUsers: [],
         getIAMUsersMutation: {
@@ -719,7 +714,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [{ id: '1', name: 'iam-user-1' }],
         getIAMUsersMutation: {
@@ -755,7 +749,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [
           { id: '1', name: 'test-user' },
@@ -812,7 +805,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [
           { id: '1', name: 'test-user' },
