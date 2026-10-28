@@ -16,7 +16,7 @@ import { useOutsideClick } from '../utils/hooks';
 
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
-  name: Joi.string().label('Name').required().min(2).max(64).regex(regexpName).message('Invalid Name'),
+  name: Joi.string().label('Name').required().trim().min(2).max(64).regex(regexpName).message('Invalid Name'),
 });
 
 const AccountCreateUser = () => {

@@ -28,6 +28,7 @@ let usersDatabase = [
 ];
 
 let createUserCalled = false;
+let createdUserName: string | null = null;
 
 const server = setupServer(
   getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
@@ -37,6 +38,7 @@ const server = setupServer(
 
     if (bodyText.includes('Action=CreateUser')) {
       createUserCalled = true;
+      createdUserName = new URLSearchParams(bodyText).get('UserName');
 
       const newUser = {
         UserId: NEW_USER_ID,
@@ -149,6 +151,7 @@ beforeEach(() => {
     },
   ];
   createUserCalled = false;
+  createdUserName = null;
 });
 
 afterEach(() => {
@@ -171,6 +174,21 @@ describe('AccountCreateUser', () => {
 
     await waitFor(() => {
       expect(createUserCalled).toBe(true);
+    });
+  });
+
+  it('should trim the user name before sending it to the API', async () => {
+    renderWithCustomRoute(<AccountCreateUser />, `/accounts/${ACCOUNT_NAME}/create-user`);
+
+    await waitFor(() => screen.getByText('Create a User'));
+
+    const nameInput = screen.getByRole('textbox', { name: /User name/i });
+    fireEvent.change(nameInput, { target: { value: `  ${NEW_USER_NAME}  ` } });
+
+    fireEvent.click(screen.getByText('Create'));
+
+    await waitFor(() => {
+      expect(createdUserName).toBe(NEW_USER_NAME);
     });
   });
 
