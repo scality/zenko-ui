@@ -25,7 +25,6 @@ jest.mock('../../../next-architecture/domain/business/accounts', () => ({
 // Mock IAM hook
 jest.mock('../../hooks/useIAMUser', () => {
   const mockUseIAMUser = jest.fn().mockReturnValue({
-    isIAMUserExist: false,
     IAMUsersStatus: 'success',
     IAMUsers: [{ id: '1', name: 'test-user' }],
     getIAMUsersMutation: { mutate: jest.fn() },
@@ -108,7 +107,6 @@ describe('ISVConfiguration', () => {
     (useListAccounts as jest.Mock).mockReturnValue({ accounts: mockAccounts });
     const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
     useIAMUserMock.mockReturnValue({
-      isIAMUserExist: false,
       IAMUsersStatus: 'success',
       IAMUsers: [{ id: '1', name: 'test-user' }],
       getIAMUsersMutation: { mutate: jest.fn() },
@@ -406,7 +404,6 @@ describe('ISVConfiguration', () => {
     it('should show error for duplicate IAM User Names', async () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: true,
         IAMUsersStatus: 'success',
         IAMUsers: [{ id: '1', name: 'test-user' }],
         getIAMUsersMutation: { mutate: jest.fn() },
@@ -421,6 +418,7 @@ describe('ISVConfiguration', () => {
       await userEvent.click(screen.getByRole('option', { name: 'test-account' }));
       await userEvent.click(screen.getByText('Advanced settings'));
 
+      await userEvent.clear(screen.getByLabelText(/IAM User Name/i));
       await userEvent.type(screen.getByLabelText(/IAM User Name/i), 'test-user');
 
       expect(screen.getByText('IAM User name already exists')).toBeInTheDocument();
@@ -488,7 +486,6 @@ describe('ISVConfiguration', () => {
     it('should keep Continue button disabled when IAM user name is a duplicate', async () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: true,
         IAMUsersStatus: 'success',
         IAMUsers: [{ id: '1', name: 'test-user' }],
         getIAMUsersMutation: { mutate: jest.fn() },
@@ -504,6 +501,7 @@ describe('ISVConfiguration', () => {
       await userEvent.click(screen.getByText('Advanced settings'));
 
       await userEvent.click(selectors.createUserRadio());
+      await userEvent.clear(screen.getByLabelText(/IAM User Name/i));
       await userEvent.type(screen.getByLabelText(/IAM User Name/i), 'test-user');
 
       expect(screen.getByText('IAM User name already exists')).toBeInTheDocument();
@@ -605,7 +603,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [{ id: '1', name: 'iam-user-1' }],
         getIAMUsersMutation: {
@@ -651,7 +648,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [],
         getIAMUsersMutation: {
@@ -691,7 +687,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'loading',
         IAMUsers: [],
         getIAMUsersMutation: {
@@ -719,7 +714,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [{ id: '1', name: 'iam-user-1' }],
         getIAMUsersMutation: {
@@ -750,12 +744,86 @@ describe('ISVConfiguration', () => {
     });
   });
 
+  describe('Name trimming', () => {
+    const submit = async () => {
+      await userEvent.type(screen.getByRole('textbox', { name: /Bucket name \*/i }), 'my-bucket');
+      await waitFor(() => {
+        expect(selectors.continueButton()).not.toBeDisabled();
+      });
+      await userEvent.click(selectors.continueButton());
+    };
+
+    it('should trim the name of an account to create', async () => {
+      renderComponent(CommvaultPlatform);
+
+      await userEvent.type(screen.getByRole('textbox', { name: /Account \* Account Name \*/i }), '  new-account  ');
+      await submit();
+
+      expect(mockNext).toHaveBeenCalledWith(
+        expect.objectContaining({ accountNameType: 'create', accountName: 'new-account' }),
+      );
+    });
+
+    it('should trim the name of an IAM user to create in an existing account', async () => {
+      renderComponent(CommvaultPlatform);
+
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.click(screen.getByText('Advanced settings'));
+      await userEvent.clear(selectors.createUserInput());
+      await userEvent.type(selectors.createUserInput(), '  new-iam-user  ');
+      await submit();
+
+      expect(mockNext).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accountName: 'test-account',
+          IAMUserNameType: 'create',
+          IAMUserName: 'new-iam-user',
+        }),
+      );
+    });
+
+    it('should keep the stored names of an existing account and IAM user unchanged', async () => {
+      // Vault 8.11 and earlier store names as typed, so existing entities can carry spaces.
+      (useListAccounts as jest.Mock).mockReturnValue({
+        accounts: {
+          status: 'success',
+          value: [{ id: '1', name: 'padded-account ', preferredAssumableRoleArn: 'arn' }],
+        },
+      });
+      const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
+      useIAMUserMock.mockReturnValue({
+        IAMUsersStatus: 'success',
+        IAMUsers: [{ id: '1', name: ' svc ' }],
+        getIAMUsersMutation: {
+          mutate: jest.fn().mockImplementation((_roleArn, options) => {
+            options?.onSuccess?.({ Users: [{ UserName: ' svc ', UserId: 'id1', Arn: 'arn1' }] });
+          }),
+          status: 'success',
+        },
+        accessKeys: null,
+        hasActiveKeys: false,
+      });
+      renderComponent(CommvaultPlatform);
+
+      await userEvent.click(selectors.existingAccountRadio());
+      await submit();
+
+      expect(mockNext).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accountNameType: 'existing',
+          accountName: 'padded-account ',
+          IAMUserNameType: 'existing',
+          IAMUserName: ' svc ',
+        }),
+      );
+    });
+  });
+
   describe('Advanced Settings', () => {
     it('should open and focus select user if selecting account with no user corresponding to account name', async () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [
           { id: '1', name: 'test-user' },
@@ -812,7 +880,6 @@ describe('ISVConfiguration', () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
-        isIAMUserExist: false,
         IAMUsersStatus: 'success',
         IAMUsers: [
           { id: '1', name: 'test-user' },

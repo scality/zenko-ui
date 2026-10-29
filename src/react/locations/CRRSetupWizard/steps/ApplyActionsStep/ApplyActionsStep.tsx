@@ -85,10 +85,8 @@ export const ApplyActionsStep = (props: Props) => {
 
   const {
     accountNameType,
-    accountName,
     sourceBucketName,
     destinationAccountNameType,
-    destinationAccountName,
     targetBucketNameType,
     sourceBucketNameType,
     createReplicationRule,
@@ -96,6 +94,11 @@ export const ApplyActionsStep = (props: Props) => {
   } = props;
   const isNewSourceAccount = accountNameType === 'create';
   const isNewDestinationAccount = destinationAccountNameType !== 'existing';
+  // An existing account is selected by its stored name, which may carry spaces.
+  const accountName = isNewSourceAccount ? props.accountName?.trim() : props.accountName;
+  const destinationAccountName = isNewDestinationAccount
+    ? props.destinationAccountName?.trim()
+    : props.destinationAccountName;
   const isNewTargetBucket = targetBucketNameType !== 'existing';
   const isNewSourceBucket = sourceBucketNameType !== 'existing';
   const withReplicationRule = createReplicationRule === true;

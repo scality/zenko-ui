@@ -19,6 +19,7 @@ const regexpName = /^[\w+=,.@ -]+$/;
 export const accountNameValidationSchema = Joi.string()
   .label('Name')
   .required()
+  .trim()
   .min(2)
   .max(64)
   .regex(regexpName)
@@ -28,6 +29,7 @@ const schema = Joi.object({
   email: Joi.string()
     .label('Root Account Email')
     .required()
+    .trim()
     .max(256)
     .regex(regexpEmailAddress)
     .message('Invalid Root Account Email'),
@@ -78,7 +80,7 @@ function AccountCreate() {
                 roleArn: `arn:aws:iam::${data.id}:role/scality-internal/storage-manager-role`,
               });
               queryClient.invalidateQueries(['WebIdentityRoles']);
-              basenameRelativeNavigate(`/accounts/${name}`);
+              basenameRelativeNavigate(`/accounts/${data.userName ?? name}`);
             },
           });
         },

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useAssumeRoleQuery } from '../../DataServiceRoleProvider';
 import { useIAMClient } from '../../IAMProvider';
@@ -60,13 +59,7 @@ export const useIAMUser = ({ IAMUserName, onIAMUsersLoaded, onShouldGenerateKey 
     },
   });
 
-  const isUserExist = useMemo(
-    () => mutation.status === 'success' && mutation.data?.Users.some((user) => user.UserName === IAMUserName),
-    [IAMUserName, mutation.status, mutation.data],
-  );
-
   return {
-    isIAMUserExist: isUserExist,
     IAMUsers:
       mutation.data?.Users.map(({ UserId: id, UserName: name }) => ({
         id,

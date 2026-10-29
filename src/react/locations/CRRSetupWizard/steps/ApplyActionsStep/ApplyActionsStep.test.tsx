@@ -3,7 +3,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { useMutation } from 'react-query';
 import { mockShellHooks, Wrapper } from '../../../../utils/testUtil';
+import { useAssumeSourceRoleMutation } from '../../hooks/useAssumeSourceRoleMutation';
 import type { ConfigureFormValues } from '../ConfigureStep/schema';
 import { ApplyActionsStep } from './ApplyActionsStep';
 
@@ -15,6 +17,11 @@ const mockPrev = jest.fn();
 jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => ({
   useStepper: () => ({ next: mockNext, prev: mockPrev }),
 }));
+
+jest.mock('../../hooks/useAssumeSourceRoleMutation', () => {
+  const actual = jest.requireActual('../../hooks/useAssumeSourceRoleMutation');
+  return { ...actual, useAssumeSourceRoleMutation: jest.fn(actual.useAssumeSourceRoleMutation) };
+});
 
 // One test plays a whole run end to end: slower CI runners exceed the 5 s default.
 jest.setTimeout(20_000);
@@ -30,7 +37,9 @@ const server = setupServer(
 beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
 const defaultCreateBucket = (useCreateBucket as jest.Mock).getMockImplementation();
 const defaultSetBucketVersioning = (useSetBucketVersioning as jest.Mock).getMockImplementation();
+const defaultAssumeSourceRole = (useAssumeSourceRoleMutation as jest.Mock).getMockImplementation();
 afterEach(() => {
+  (useAssumeSourceRoleMutation as jest.Mock).mockImplementation(defaultAssumeSourceRole);
   (useCreateBucket as jest.Mock).mockImplementation(defaultCreateBucket);
   (useSetBucketVersioning as jest.Mock).mockImplementation(defaultSetBucketVersioning);
   server.resetHandlers();
@@ -409,5 +418,117 @@ describe('ApplyActionsStep — refreshing what the run created', () => {
     await userEvent.click(exit);
 
     await waitFor(() => expect(reads.accounts).toBeGreaterThan(readsBeforeLeaving));
+  });
+});
+
+describe('ApplyActionsStep — padded account names', () => {
+  it('creates the source account under its trimmed name', async () => {
+    let created: { userName?: string; email?: string } | undefined;
+    server.use(
+      rest.post('*/config/:uuid/user', (req, res, ctx) => {
+        created = req.body as { userName?: string; email?: string };
+        return res(ctx.json({ id: '100000000001' }));
+      }),
+    );
+    render(<ApplyActionsStep {...VALUES} accountName="  crr-src  " destinationAccountName=" crr-dest " />, {
+      wrapper: Wrapper,
+    });
+
+    await waitFor(() => expect(created).toBeDefined());
+    expect(created?.userName).toBe('crr-src');
+    expect(created?.email).toBe('crr-src@artesca.local');
+    expect(screen.getByText('Create Account on Source: crr-src')).toBeInTheDocument();
+  });
+});
+
+describe('ApplyActionsStep — existing accounts keep their listed name', () => {
+  it('sends the destination account name of an existing account unchanged', async () => {
+    let body: unknown;
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        body = req.body;
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(
+      <ApplyActionsStep
+        {...VALUES}
+        accountNameType="existing"
+        createReplicationRule={false}
+        destinationAccountNameType="existing"
+        destinationAccountName="finance "
+      />,
+      { wrapper: Wrapper },
+    );
+
+    await waitFor(() => expect(body).toBeDefined());
+    expect(body).toMatchObject({ destinationAccount: { mode: 'existing', name: 'finance ' } });
+  });
+
+  it('sends the destination account name of an account to create trimmed', async () => {
+    let body: unknown;
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        body = req.body;
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(
+      <ApplyActionsStep
+        {...VALUES}
+        accountNameType="existing"
+        createReplicationRule={false}
+        destinationAccountName=" crr-dest "
+      />,
+      { wrapper: Wrapper },
+    );
+
+    await waitFor(() => expect(body).toBeDefined());
+    expect(body).toMatchObject({ destinationAccount: { mode: 'create', name: 'crr-dest' } });
+  });
+
+  it('assumes the role of the listed source account whose name carries a trailing space', async () => {
+    const storageManagerRole = (accountId: string) => ({
+      Name: 'storage-manager-role',
+      Arn: `arn:aws:iam::${accountId}:role/scality-internal/storage-manager-role`,
+    });
+    server.use(
+      rest.post('http://testendpoint', (_req, res, ctx) =>
+        res(
+          ctx.json({
+            IsTruncated: false,
+            Accounts: [
+              { Name: 'src', CreationDate: '2022-03-18T12:51:44Z', Roles: [storageManagerRole('111111111111')] },
+              { Name: 'src ', CreationDate: '2022-03-18T12:51:44Z', Roles: [storageManagerRole('222222222222')] },
+            ],
+          }),
+        ),
+      ),
+      // The locations answer late, so the accounts are listed by the time the run starts.
+      rest.get('*/api/v1/config/overlay/view/:instanceId', (_req, res, ctx) =>
+        res(ctx.delay(300), ctx.json({ locations: {} })),
+      ),
+    );
+    const assumedRoleArns: string[] = [];
+    (useAssumeSourceRoleMutation as jest.Mock).mockImplementation(() =>
+      useMutation({
+        mutationFn: async ({ roleArn }: { roleArn: string }) => {
+          assumedRoleArns.push(roleArn);
+        },
+      }),
+    );
+    render(
+      <ApplyActionsStep
+        {...VALUES}
+        accountName="src "
+        accountNameType="existing"
+        sourceBucketNameType="existing"
+        targetBucketNameType="existing"
+      />,
+      { wrapper: Wrapper },
+    );
+
+    await waitFor(() => expect(assumedRoleArns).toHaveLength(1));
+    expect(assumedRoleArns[0]).toBe('arn:aws:iam::222222222222:role/scality-internal/storage-manager-role');
   });
 });
