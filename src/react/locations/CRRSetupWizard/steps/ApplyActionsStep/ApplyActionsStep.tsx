@@ -107,8 +107,9 @@ export const ApplyActionsStep = (props: Props) => {
   const importCertificate = useImportDestinationCertificateMutation();
   const createSourceAccount = useCreateAccountMutation();
   const assumeSourceRole = useAssumeSourceRoleMutation();
-  const createSourceBucket = useCreateBucket();
-  const enableSourceVersioning = useSetBucketVersioning();
+  // The failed row and its Retry button already report these errors.
+  const createSourceBucket = useCreateBucket({ meta: { suppressGlobalError: true } });
+  const enableSourceVersioning = useSetBucketVersioning({ meta: { suppressGlobalError: true } });
   const setup = useCRRConfigurationSetupMutation();
   const createLocation = useCreateCRRLocationMutation();
   const createReplicationRuleMutation = useCreateReplicationRuleMutation({ bucketName: sourceBucketName ?? '' });

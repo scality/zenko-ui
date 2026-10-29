@@ -60,7 +60,7 @@ export const VeeamCapacityModalInternal = ({
   useEffect(() => {
     reset({ capacity: capacityValue, capacityUnit });
   }, [capacityValue, capacityUnit, reset]);
-  const { mutate } = usePutObject();
+  const { mutate } = usePutObject({ meta: { suppressGlobalError: true } });
   const { showToast } = useToast();
 
   const onSubmit = ({ capacity, capacityUnit }: VeeamCapacityForm) => {

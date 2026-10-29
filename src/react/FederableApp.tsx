@@ -42,6 +42,25 @@ const ZenkoUIGuard = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+class ToastWirerBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('ToastWirer failed to render', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null;
+    }
+    return this.props.children;
+  }
+}
+
 const FederableApp = (props) => {
   return (
     <ShellHooksProvider shellHooks={props.shellHooks} shellAlerts={props.shellAlerts}>

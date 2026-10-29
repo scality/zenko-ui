@@ -28,7 +28,8 @@ export const useCreateReplicationRuleMutation = ({
   intervalMs = RETRY_INTERVAL_MS,
   windowMs = RETRY_WINDOW_MS,
 }: Options) => {
-  const setBucketReplication = useSetBucketReplication();
+  // The failed row and its Retry button already report the error, so skip the global toast.
+  const setBucketReplication = useSetBucketReplication({ meta: { suppressGlobalError: true } });
   // Read when the step runs, as the source account the chain has assumed by then.
   const currentConfiguration = useGetBucketReplication({ Bucket: bucketName }, { enabled: false, retry: false });
   const refetchRef = useRef(currentConfiguration.refetch);

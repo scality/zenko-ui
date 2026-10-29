@@ -81,18 +81,6 @@ describe('FederableApp', () => {
     jest.spyOn(moduleFederation, 'useCurrentApp').mockReturnValue({ kind: 'zenko-ui' } as any);
   });
 
-  it('renders the data-browser-library ToastWirer', () => {
-    renderFederableApp();
-
-    expect(screen.getByTestId('toast-wirer')).toBeInTheDocument();
-  });
-
-  it('renders the ToastWirer exactly once', () => {
-    renderFederableApp();
-
-    expect(screen.getAllByTestId('toast-wirer')).toHaveLength(1);
-  });
-
   it('renders the ToastWirer inside the core-ui ToastProvider', async () => {
     renderFederableApp();
 

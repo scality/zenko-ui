@@ -1,6 +1,8 @@
+import { useToast } from '@scality/core-ui';
 import { usePutObject } from '@scality/data-browser-library';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { NewWrapper } from '../../../utils/testUtil';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 
@@ -174,5 +176,63 @@ describe('VeeamCapacityModal', () => {
         screen.getByText('Failed to update repository capacity: The specified bucket does not exist.'),
       ).toBeInTheDocument();
     });
+  });
+});
+
+describe('VeeamCapacityModal global error toast', () => {
+  let showGlobalToast: ReturnType<typeof useToast>['showToast'];
+
+  const GlobalErrorToastWirer = () => {
+    showGlobalToast = useToast().showToast;
+    return null;
+  };
+
+  const BaseWrapper = NewWrapper();
+  const WrapperWithGlobalErrorToast = ({ children }: { children: ReactNode }) => (
+    <BaseWrapper>
+      <GlobalErrorToastWirer />
+      {children}
+    </BaseWrapper>
+  );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUsePutObject.mockImplementation((options?: { meta?: { suppressGlobalError?: boolean } }) => ({
+      mutate: (_variables: unknown, callbacks?: { onError?: (error: Error) => void }) => {
+        const error = Object.assign(new Error('Access Denied'), { $metadata: { httpStatusCode: 403 } });
+        if (!options?.meta?.suppressGlobalError) {
+          showGlobalToast({ open: true, status: 'error', message: error.message });
+        }
+        callbacks?.onError?.(error);
+      },
+      mutateAsync: jest.fn(),
+      status: 'idle',
+      isIdle: true,
+      isLoading: false,
+      isSuccess: false,
+      isError: false,
+      data: undefined,
+      error: null,
+      reset: jest.fn(),
+    }));
+  });
+
+  it('should display a single error toast when the capacity.xml PUT is rejected with a 403', async () => {
+    render(<VeeamCapacityModal bucketName={bucketName} maxCapacity={114748364800} status={'success'} />, {
+      wrapper: WrapperWithGlobalErrorToast,
+    });
+
+    fireEvent.click(screen.getByLabelText('Edit max capacity'));
+    fireEvent.change(screen.getByRole('spinbutton', { name: /Max Capacity/ }), { target: { value: '200' } });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Update max capacity')).toBeEnabled();
+    });
+    fireEvent.click(screen.getByLabelText('Update max capacity'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to update repository capacity: Access Denied')).toBeInTheDocument();
+    });
+    expect(screen.getAllByText(/Access Denied/)).toHaveLength(1);
   });
 });
