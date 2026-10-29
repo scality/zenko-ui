@@ -3,7 +3,7 @@ import { Box, Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { type ChangeEvent, useCallback, useState } from 'react';
 import { useLocation } from 'react-router';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import { ISVList } from '../../ISVList';
 import { ISV_CATEGORIES, type ISVCardConfig } from '../../types';
 import { ArtescaLogo } from '../ArtescaLogo';
@@ -25,6 +25,10 @@ export const StyledGrid = styled.div`
 const StyledForm = styled.form`
   background-color: ${(props) => props.theme.backgroundLevel2};
   border-radius: ${spacing.f8};
+  overflow: hidden;
+`;
+
+const ScrollContainer = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   height: calc(100vh - 24rem);
@@ -34,6 +38,7 @@ const StickyCategoryTitle = styled.div`
   position: sticky;
   top: 0;
   z-index: 1;
+  padding: ${spacing.r8} 0;
   background-color: ${(props) => props.theme.backgroundLevel2};
 `;
 
@@ -78,7 +83,6 @@ export const ISVModalContent = ({
   selectedISV: ISVCardConfig;
   setSelectedISV: (value: ISVCardConfig) => void;
 }) => {
-  const theme = useTheme();
   const [search, setSearch] = useState('');
   const setSearchInputLabel = useCallback((element: HTMLInputElement | null) => {
     element?.setAttribute('aria-label', 'Search ISV');
@@ -109,35 +113,40 @@ export const ISVModalContent = ({
         />
       </Stack>
 
-      <StyledForm className="scroll-fade">
-        <Stack
-          direction="vertical"
-          gap="r8"
-          style={{
-            backgroundColor: theme.backgroundLevel2,
-            padding: spacing.r16,
-            borderRadius: spacing.f8,
-          }}
-        >
-          {ISV_CATEGORIES.map((category) => {
-            const platforms = filteredISVList.filter((isv) => isv.category === category.id);
-            if (platforms.length === 0) return null;
-            return (
-              <Stack key={category.id} direction="vertical" gap="r8">
-                <StickyCategoryTitle>
-                  <Text isEmphazed color="textPrimary">
-                    {category.label}
-                  </Text>
-                </StickyCategoryTitle>
-                <StyledGrid>
-                  {platforms.map((isv) => (
-                    <ISVCardWrapper key={isv.id} isv={isv} selectedISV={selectedISV} setSelectedISV={setSelectedISV} />
-                  ))}
-                </StyledGrid>
-              </Stack>
-            );
-          })}
-        </Stack>
+      <StyledForm>
+        <ScrollContainer className="scroll-fade">
+          <Stack
+            direction="vertical"
+            gap="r8"
+            style={{
+              padding: spacing.r16,
+            }}
+          >
+            {ISV_CATEGORIES.map((category) => {
+              const platforms = filteredISVList.filter((isv) => isv.category === category.id);
+              if (platforms.length === 0) return null;
+              return (
+                <Stack key={category.id} direction="vertical" gap="r8">
+                  <StickyCategoryTitle>
+                    <Text isEmphazed color="textPrimary">
+                      {category.label}
+                    </Text>
+                  </StickyCategoryTitle>
+                  <StyledGrid>
+                    {platforms.map((isv) => (
+                      <ISVCardWrapper
+                        key={isv.id}
+                        isv={isv}
+                        selectedISV={selectedISV}
+                        setSelectedISV={setSelectedISV}
+                      />
+                    ))}
+                  </StyledGrid>
+                </Stack>
+              );
+            })}
+          </Stack>
+        </ScrollContainer>
       </StyledForm>
 
       <ModalFooter>
