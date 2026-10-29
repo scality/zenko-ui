@@ -76,19 +76,19 @@ export const ISVList: ISVCardConfig[] = [
   },
   {
     id: 'bodo',
-    name: 'Bodo',
+    name: 'Bodo.ai',
     documentationLink: '/artesca/docs/partner_applications/ai_solutions/bodo.html',
     category: 'ai-solutions',
   },
   {
     id: 'dvc',
-    name: 'DVC',
+    name: 'Data Version Control',
     documentationLink: '/artesca/docs/partner_applications/ai_solutions/dvc.html',
     category: 'ai-solutions',
   },
   {
     id: 'jax',
-    name: 'JAX',
+    name: 'Jax',
     documentationLink: '/artesca/docs/partner_applications/ai_solutions/jax.html',
     category: 'ai-solutions',
   },
@@ -100,7 +100,7 @@ export const ISVList: ISVCardConfig[] = [
   },
   {
     id: 'lakefs',
-    name: 'lakeFS',
+    name: 'LakeFS',
     documentationLink: '/artesca/docs/partner_applications/ai_solutions/lakefs.html',
     category: 'ai-solutions',
   },

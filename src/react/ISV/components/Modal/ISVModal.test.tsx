@@ -182,6 +182,6 @@ describe('ISVModal', () => {
       </Wrapper>,
     );
 
-    expect(screen.getByText('Bodo')).toBeVisible();
+    expect(screen.getByText('Bodo.ai')).toBeVisible();
   });
 });
