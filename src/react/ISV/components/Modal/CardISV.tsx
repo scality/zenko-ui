@@ -35,7 +35,11 @@ const CardContent = (props: { logo?: React.JSX.Element; application?: string; na
   );
 };
 
-const CustomLabel = styled.label<{ $selected?: boolean; $disabled?: boolean }>`
+const CustomLabel = styled.label<{
+  $selected?: boolean;
+  $disabled?: boolean;
+  $withBadge?: boolean;
+}>`
   opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
   cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   position: relative;
@@ -43,6 +47,7 @@ const CustomLabel = styled.label<{ $selected?: boolean; $disabled?: boolean }>`
   justify-content: space-between;
   gap: ${spacing.r32};
   padding: ${spacing.r20};
+  padding-top: ${(props) => (props.$withBadge ? spacing.r32 : spacing.r20)};
   align-items: flex-start;
   border-radius: ${spacing.f8};
   background-color: ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel3)};
@@ -105,7 +110,13 @@ export const CardISV = (props: CardProps) => {
   const isDisabled = disabled ?? false;
 
   const labelContent = (
-    <CustomLabel $disabled={isDisabled} htmlFor={`isv-${name}`} $selected={selected} aria-disabled={isDisabled}>
+    <CustomLabel
+      $disabled={isDisabled}
+      $withBadge={assistant}
+      htmlFor={`isv-${name}`}
+      $selected={selected}
+      aria-disabled={isDisabled}
+    >
       <CardContent logo={logo} application={application} name={name} />
 
       <Input

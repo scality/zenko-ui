@@ -18,7 +18,7 @@ export const StyledGrid = styled.div`
      scroll area. Filling by available width drops to two cards, then one. The track floor
      is also never under a third of the row, which caps a wide modal at three per row. */
   grid-template-columns: repeat(auto-fill, minmax(max(12rem, (100% - 2 * ${spacing.r8}) / 3), 1fr));
-  grid-auto-rows: 7rem;
+  grid-auto-rows: 8rem;
   border-radius: ${spacing.f8};
 `;
 
