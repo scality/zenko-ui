@@ -1,4 +1,5 @@
 import { ToastProvider } from '@scality/core-ui';
+import { ToastWirer } from '@scality/data-browser-library';
 import { ShellHooksProvider, useBasenameRelativeNavigate, useCurrentApp } from '@scality/module-federation';
 import type React from 'react';
 import { useEffect } from 'react';
@@ -53,6 +54,7 @@ const FederableApp = (props) => {
                 <AccessibleAccountsAdapterProvider>
                   <MetricsAdapterProvider>
                     <ToastProvider>
+                      <ToastWirer />
                       <ErrorProvider>
                         <AuthLoadingProvider>
                           <ZenkoUI />
