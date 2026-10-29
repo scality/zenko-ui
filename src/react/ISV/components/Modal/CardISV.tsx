@@ -22,7 +22,7 @@ const CardContent = (props: { logo?: React.JSX.Element; application?: string; na
   return (
     <Stack direction="vertical" gap="r8" style={{ minWidth: 0 }}>
       {logo ?? (
-        <Text color="textPrimary" isEmphazed variant="Smaller">
+        <Text color="textPrimary" isEmphazed>
           {name}
         </Text>
       )}
@@ -45,9 +45,9 @@ const CustomLabel = styled.label<{ $selected?: boolean; $disabled?: boolean }>`
   padding: ${spacing.r20};
   align-items: flex-start;
   border-radius: ${spacing.f8};
-  background-color: ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel4)};
+  background-color: ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel3)};
   border: 1px solid
-    ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel4)};
+    ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel3)};
   &:hover {
     border-color: ${(props) => !props.$disabled && props.theme.textPrimary};
   }
@@ -76,8 +76,12 @@ const CustomLink = styled(Link)`
 `;
 const CardBadge = styled(TextBadge)`
   position: absolute;
-  top: ${spacing.r10};
-  right: ${spacing.r24};
+  top: ${spacing.r8};
+  right: ${spacing.r8};
+  font-size: 0.75rem;
+  * {
+    font-size: 0.75rem;
+  }
 `;
 const StyledDiv = styled.div`
   position: relative;
@@ -133,7 +137,7 @@ export const CardISV = (props: CardProps) => {
       ) : (
         labelContent
       )}
-      <CardBadge text={assistant ? 'Auto' : 'Manual'} variant={assistant ? 'statusHealthy' : 'infoSecondary'} />
+      {assistant && <CardBadge text="With assistant" variant="infoPrimary" />}
       {isMetalk8sInstanceDeployed && (
         <CustomLink href={link} target="_blank">
           Learn more <Icon name="External-link"></Icon>

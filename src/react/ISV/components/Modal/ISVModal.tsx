@@ -27,7 +27,14 @@ const StyledForm = styled.form`
   border-radius: ${spacing.f8};
   overflow-y: auto;
   overflow-x: hidden;
-  height: 50vh;
+  height: calc(100vh - 24rem);
+`;
+
+const StickyCategoryTitle = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: ${(props) => props.theme.backgroundLevel2};
 `;
 
 const ModalFooter = styled(Box)`
@@ -88,19 +95,21 @@ export const ISVModalContent = ({
 
   return (
     <Stack direction="vertical" gap="r16">
-      <Text isEmphazed variant="Large">
-        Which application would you like to configure with your ARTESCA?
-      </Text>
+      <Stack direction="horizontal" gap="r16" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text isEmphazed variant="Large">
+          Which application would you like to configure with your ARTESCA?
+        </Text>
 
-      <SearchInput
-        ref={setSearchInputLabel}
-        value={search}
-        placeholder="Search"
-        onChange={(evt: ChangeEvent<HTMLInputElement>) => setSearch(evt.target.value)}
-        onReset={() => setSearch('')}
-      />
+        <SearchInput
+          ref={setSearchInputLabel}
+          value={search}
+          placeholder="Search"
+          onChange={(evt: ChangeEvent<HTMLInputElement>) => setSearch(evt.target.value)}
+          onReset={() => setSearch('')}
+        />
+      </Stack>
 
-      <StyledForm>
+      <StyledForm className="scroll-fade">
         <Stack
           direction="vertical"
           gap="r8"
@@ -115,9 +124,11 @@ export const ISVModalContent = ({
             if (platforms.length === 0) return null;
             return (
               <Stack key={category.id} direction="vertical" gap="r8">
-                <Text isEmphazed color="textPrimary">
-                  {category.label}
-                </Text>
+                <StickyCategoryTitle>
+                  <Text isEmphazed color="textPrimary">
+                    {category.label}
+                  </Text>
+                </StickyCategoryTitle>
                 <StyledGrid>
                   {platforms.map((isv) => (
                     <ISVCardWrapper key={isv.id} isv={isv} selectedISV={selectedISV} setSelectedISV={setSelectedISV} />

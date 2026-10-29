@@ -134,14 +134,15 @@ describe('ISVModal', () => {
 
     const assistantISV = ISVList.find((isv) => isv.assistant);
     const veeamCard = document.getElementById(`isv-${assistantISV.name}`).closest('label').parentElement;
-    expect(within(veeamCard).getByText('Auto')).toBeInTheDocument();
+    expect(within(veeamCard).getByText('With assistant')).toBeInTheDocument();
 
     const mlflowCard = document.getElementById('isv-MLflow').closest('label').parentElement;
-    expect(within(mlflowCard).getByText('Manual')).toBeInTheDocument();
+    expect(within(mlflowCard).queryByText('With assistant')).not.toBeInTheDocument();
 
     const assistantCount = ISVList.filter((isv) => isv.assistant).length;
-    expect(screen.getAllByText('Auto')).toHaveLength(assistantCount);
-    expect(screen.getAllByText('Manual')).toHaveLength(ISVList.length - assistantCount);
+    expect(screen.getAllByText('With assistant')).toHaveLength(assistantCount);
+    expect(screen.queryByText('Manual')).not.toBeInTheDocument();
+    expect(screen.queryByText('Auto')).not.toBeInTheDocument();
   });
   it('should filter the cards with the search input and restore them when cleared', async () => {
     render(
