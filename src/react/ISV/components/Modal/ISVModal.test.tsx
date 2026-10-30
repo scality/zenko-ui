@@ -151,7 +151,7 @@ describe('ISVModal', () => {
       </Wrapper>,
     );
 
-    const searchInput = screen.getByLabelText('Search ISV');
+    const searchInput = screen.getByRole('searchbox');
     await userEvent.type(searchInput, 'mlflow');
 
     await waitFor(

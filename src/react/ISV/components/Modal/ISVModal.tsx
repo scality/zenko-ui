@@ -1,7 +1,7 @@
 import { Banner, Icon, Link, SearchInput, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { type ChangeEvent, useCallback, useState } from 'react';
+import { type ChangeEvent, useState } from 'react';
 import { useLocation } from 'react-router';
 import styled from 'styled-components';
 import { ISVList } from '../../ISVList';
@@ -84,9 +84,6 @@ export const ISVModalContent = ({
   setSelectedISV: (value: ISVCardConfig) => void;
 }) => {
   const [search, setSearch] = useState('');
-  const setSearchInputLabel = useCallback((element: HTMLInputElement | null) => {
-    element?.setAttribute('aria-label', 'Search ISV');
-  }, []);
 
   const normalizedSearch = search.trim().toLowerCase();
   const filteredISVList = normalizedSearch
@@ -105,7 +102,6 @@ export const ISVModalContent = ({
         </Text>
 
         <SearchInput
-          ref={setSearchInputLabel}
           value={search}
           placeholder="Search"
           onChange={(evt: ChangeEvent<HTMLInputElement>) => setSearch(evt.target.value)}
