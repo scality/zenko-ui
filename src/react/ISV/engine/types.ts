@@ -25,9 +25,26 @@ export type ISVId =
   | 'hycu'
   | 'cohesity'
   | 'ctera'
-  | 'veritas';
+  | 'veritas'
+  | 'apache-airflow'
+  | 'apache-arrow'
+  | 'apache-nifi'
+  | 'apache-spark'
+  | 'bodo'
+  | 'dvc'
+  | 'jax'
+  | 'kubeflow'
+  | 'lakefs'
+  | 'metaflow'
+  | 'mlflow'
+  | 'pachyderm'
+  | 'pytorch'
+  | 'ray'
+  | 'snorkel-ai'
+  | 'tensorflow'
+  | 'weaviate';
 
-export type ISVCategory = 'backup-and-archive' | 'big-data-storage' | 'cloud-and-edge-storage';
+export type ISVCategory = 'backup-and-archive' | 'big-data-storage' | 'cloud-and-edge-storage' | 'ai-solutions';
 
 // ============================================================================
 // Form Data Types

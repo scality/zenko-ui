@@ -1,9 +1,9 @@
-import { Banner, Icon, Link, Stack, spacing, Text, Wrap } from '@scality/core-ui';
+import { Banner, Icon, Link, SearchInput, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useState } from 'react';
+import { type ChangeEvent, useState } from 'react';
 import { useLocation } from 'react-router';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import { ISVList } from '../../ISVList';
 import { ISV_CATEGORIES, type ISVCardConfig } from '../../types';
 import { ArtescaLogo } from '../ArtescaLogo';
@@ -18,16 +18,28 @@ export const StyledGrid = styled.div`
      scroll area. Filling by available width drops to two cards, then one. The track floor
      is also never under a third of the row, which caps a wide modal at three per row. */
   grid-template-columns: repeat(auto-fill, minmax(max(12rem, (100% - 2 * ${spacing.r8}) / 3), 1fr));
-  grid-auto-rows: 7rem;
+  grid-auto-rows: 8rem;
   border-radius: ${spacing.f8};
 `;
 
 const StyledForm = styled.form`
   background-color: ${(props) => props.theme.backgroundLevel2};
   border-radius: ${spacing.f8};
+  overflow: hidden;
+`;
+
+const ScrollContainer = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
-  height: 50vh;
+  height: calc(100vh - 24rem);
+`;
+
+const StickyCategoryTitle = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: ${spacing.r8} 0;
+  background-color: ${(props) => props.theme.backgroundLevel2};
 `;
 
 const ModalFooter = styled(Box)`
@@ -54,6 +66,7 @@ const ISVCardWrapper = ({
       name={isv.name}
       logo={isv.logo}
       application={isv.application}
+      assistant={isv.assistant}
       link={isv.documentationLink}
       disabledMessage={DisabledMessage ? <DisabledMessage onDisabledChange={setIsDisabled} /> : null}
       disabled={isDisabled}
@@ -70,41 +83,66 @@ export const ISVModalContent = ({
   selectedISV: ISVCardConfig;
   setSelectedISV: (value: ISVCardConfig) => void;
 }) => {
-  const theme = useTheme();
+  const [search, setSearch] = useState('');
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredISVList = normalizedSearch
+    ? ISVList.filter(
+        (isv) =>
+          isv.name.toLowerCase().includes(normalizedSearch) ||
+          (isv.application ?? '').toLowerCase().includes(normalizedSearch),
+      )
+    : ISVList;
 
   return (
     <Stack direction="vertical" gap="r16">
-      <Text isEmphazed variant="Large">
-        Which application would you like to configure with your ARTESCA?
-      </Text>
+      <Stack direction="horizontal" gap="r16" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text isEmphazed variant="Large">
+          Which application would you like to configure with your ARTESCA?
+        </Text>
+
+        <SearchInput
+          value={search}
+          placeholder="Search"
+          onChange={(evt: ChangeEvent<HTMLInputElement>) => setSearch(evt.target.value)}
+          onReset={() => setSearch('')}
+        />
+      </Stack>
 
       <StyledForm>
-        <Stack
-          direction="vertical"
-          gap="r8"
-          style={{
-            backgroundColor: theme.backgroundLevel2,
-            padding: spacing.r16,
-            borderRadius: spacing.f8,
-          }}
-        >
-          {ISV_CATEGORIES.map((category) => {
-            const platforms = ISVList.filter((isv) => isv.category === category.id);
-            if (platforms.length === 0) return null;
-            return (
-              <Stack key={category.id} direction="vertical" gap="r8">
-                <Text isEmphazed color="textPrimary">
-                  {category.label}
-                </Text>
-                <StyledGrid>
-                  {platforms.map((isv) => (
-                    <ISVCardWrapper key={isv.id} isv={isv} selectedISV={selectedISV} setSelectedISV={setSelectedISV} />
-                  ))}
-                </StyledGrid>
-              </Stack>
-            );
-          })}
-        </Stack>
+        <ScrollContainer className="scroll-fade">
+          <Stack
+            direction="vertical"
+            gap="r8"
+            style={{
+              padding: spacing.r16,
+            }}
+          >
+            {ISV_CATEGORIES.map((category) => {
+              const platforms = filteredISVList.filter((isv) => isv.category === category.id);
+              if (platforms.length === 0) return null;
+              return (
+                <Stack key={category.id} direction="vertical" gap="r8">
+                  <StickyCategoryTitle>
+                    <Text isEmphazed color="textPrimary">
+                      {category.label}
+                    </Text>
+                  </StickyCategoryTitle>
+                  <StyledGrid>
+                    {platforms.map((isv) => (
+                      <ISVCardWrapper
+                        key={isv.id}
+                        isv={isv}
+                        selectedISV={selectedISV}
+                        setSelectedISV={setSelectedISV}
+                      />
+                    ))}
+                  </StyledGrid>
+                </Stack>
+              );
+            })}
+          </Stack>
+        </ScrollContainer>
       </StyledForm>
 
       <ModalFooter>
