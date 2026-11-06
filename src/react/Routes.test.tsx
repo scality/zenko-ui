@@ -91,6 +91,8 @@ describe('Routes component', () => {
   });
 
   describe('sidebar entries', () => {
+    afterEach(() => resetUserGroups());
+
     it('should show Data Services and Locations from sidebar for Storage Manager', async () => {
       // Mock user Data Role to be Storage Manager
 
@@ -152,7 +154,6 @@ describe('Routes component', () => {
         expect(selectors.locationsLink()).toBeInTheDocument();
       });
       expect(selectors.dataServicesLink()).not.toBeInTheDocument();
-      resetUserGroups();
     });
 
     it('should show Truststore in sidebar for Platform Admin when MetalK8s is enabled', async () => {

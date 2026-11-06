@@ -11,6 +11,7 @@ import { _DataServiceRoleContext } from '../../DataServiceRoleProvider';
 import {
   mockOffsetSize,
   mockUserGroups,
+  queryClient,
   renderWithRouterMatch,
   resetUserGroups,
   TEST_API_BASE_URL,
@@ -61,6 +62,7 @@ describe('LocationList', () => {
   });
   afterEach(() => {
     server.resetHandlers();
+    resetUserGroups();
   });
   afterAll(() => {
     server.close();
@@ -112,6 +114,7 @@ describe('LocationList', () => {
 
   it('should show the data used without any management action for a storage usage reporter', async () => {
     //S
+    queryClient.clear();
     mockUserGroups(['StorageUsageReporter']);
     server.use(
       rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/reporting/usage`, (_req, res, ctx) =>
@@ -141,6 +144,5 @@ describe('LocationList', () => {
     expect(
       within(defaultArtescaLocationRow).queryByRole('button', { name: /Delete Location/i }),
     ).not.toBeInTheDocument();
-    resetUserGroups();
   });
 });

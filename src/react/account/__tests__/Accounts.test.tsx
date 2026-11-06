@@ -61,7 +61,10 @@ beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 100);
 });
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  resetUserGroups();
+});
 afterAll(() => server.close());
 
 describe('Accounts', () => {
@@ -257,7 +260,6 @@ describe('Accounts', () => {
     expect(screen.getByRole('columnheader', { name: /Data Used/i })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: TEST_ACCOUNT })).not.toBeInTheDocument();
     expect(selectors.createAccountButton()).not.toBeInTheDocument();
-    resetUserGroups();
   });
 
   it('should hide Create Account Button for Storage Account Owner', async () => {
