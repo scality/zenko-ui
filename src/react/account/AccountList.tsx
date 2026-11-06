@@ -6,9 +6,7 @@ import type { CellProps, CoreUIColumn } from 'react-table';
 
 import { useCurrentAccount, useSetAssumedRole } from '../DataServiceRoleProvider';
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
-import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
 import type { Account } from '../next-architecture/domain/entities/account';
-import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
@@ -26,7 +24,7 @@ function useAutoAssumeRoleUponAccountDeletion({ accounts }: { accounts: Account[
 function AccountList({ accounts }: { accounts: Account[] }) {
   const navigate = useBasenameRelativeNavigate();
 
-  const { isStorageManager } = useAuthGroups();
+  const { isStorageManager, isStorageUsageReporter } = useAuthGroups();
   useAutoAssumeRoleUponAccountDeletion({ accounts });
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
     const navigate = useBasenameRelativeNavigate();
@@ -55,18 +53,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   };
 
   const columns: CoreUIColumn<Account>[] = React.useMemo(() => {
-    const dataUsedColumn = getDataUsedColumn(
-      (account: Account) => {
-        const metricsAdapter = useMetricsAdapter();
-        return useAccountLatestUsedCapacity({
-          metricsAdapter,
-          accountCanonicalId: account.canonicalId,
-        });
-      },
-      { minWidth: '7rem' },
-    );
-    const additionalStorageManagerColumns = [dataUsedColumn];
-
+    const dataUsedColumn = getDataUsedColumn((account: Account) => account, { minWidth: '7rem' });
     return [
       {
         Header: 'Account Name',
@@ -87,9 +74,9 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           <FormattedDateTime format="date-time-second" value={new Date(value)} />
         ),
       },
-      ...(isStorageManager ? additionalStorageManagerColumns : []),
+      ...(isStorageManager || isStorageUsageReporter ? [dataUsedColumn] : []),
     ];
-  }, [nameCell]);
+  }, [nameCell, isStorageManager, isStorageUsageReporter]);
 
   return (
     <div

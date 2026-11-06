@@ -2,7 +2,7 @@ import type { Bucket } from '@scality/data-browser-library';
 import makeMgtClient, { type UiFacingApiWrapper } from '../../../../js/managementClient';
 import { StorageConsumptionMetricItemV1 } from '../../../../js/managementClient/api';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
-import type { LatestUsedCapacity } from '../../domain/entities/metrics';
+import type { LatestUsedCapacity, StorageUsageReport } from '../../domain/entities/metrics';
 import type { IMetricsAdapter } from './IMetricsAdapter';
 
 export class PensieveMetricsAdapter implements IMetricsAdapter {
@@ -38,89 +38,19 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
       {} as Record<string, LatestUsedCapacity>,
     );
   }
-  async listLocationsLatestUsedCapacity(locationIds: string[]): Promise<Record<string, LatestUsedCapacity>> {
+  async getStorageUsageReport(): Promise<StorageUsageReport> {
     this.managementClient.setToken(await this.getToken());
-    const locationsMetrics = await this.managementClient.getStorageConsumptionMetricsForLocations(
-      this.instanceId,
-      locationIds,
-    );
-
-    const resultingLocationIds = Object.keys(locationsMetrics);
-
-    const locationsLatestUsedCapacityList: Record<string, LatestUsedCapacity> = {};
-
-    resultingLocationIds.forEach((id) => {
-      if (locationsMetrics[id].type === StorageConsumptionMetricItemV1.TypeEnum.HasMetrics) {
-        locationsLatestUsedCapacityList[id] = {
-          type: 'hasMetrics',
-          usedCapacity: notFalsyTypeGuard(locationsMetrics[id].usedCapacity),
-          measuredOn: new Date(notFalsyTypeGuard(locationsMetrics[id].measuredOn)),
-        };
-      } else {
-        locationsLatestUsedCapacityList[id] = {
-          type: 'noMetrics',
-        };
-      }
-    });
-
-    return locationsLatestUsedCapacityList;
-  }
-  async listAccountLocationsLatestUsedCapacity(
-    accountCanonicalId: string,
-  ): Promise<Record<string, LatestUsedCapacity>> {
-    this.managementClient.setToken(await this.getToken());
-    const accountLocationsMetrics = await this.managementClient.getStorageConsumptionMetricsForAccount(
-      this.instanceId,
-      accountCanonicalId,
-    );
-
-    const resultingLocationIds = Object.keys(
-      accountLocationsMetrics.locations || {},
-    ) as (keyof typeof accountLocationsMetrics.locations)[];
-
-    const accountLocationsLatestUsedCapacityList: Record<string, LatestUsedCapacity> = {};
-
-    resultingLocationIds.forEach((id) => {
-      if (accountLocationsMetrics.locations?.[id]) {
-        accountLocationsLatestUsedCapacityList[id] = {
-          type: 'hasMetrics',
-          usedCapacity: notFalsyTypeGuard(accountLocationsMetrics.locations[id].usedCapacity),
-          measuredOn: new Date(notFalsyTypeGuard(accountLocationsMetrics.measuredOn)),
-        };
-      } else {
-        accountLocationsLatestUsedCapacityList[id] = {
-          type: 'noMetrics',
-        };
-      }
-    });
-
-    return accountLocationsLatestUsedCapacityList;
-  }
-  async listAccountsLatestUsedCapacity(accountCanonicalIds: string[]): Promise<Record<string, LatestUsedCapacity>> {
-    this.managementClient.setToken(await this.getToken());
-    const accountsMetrics = await this.managementClient.getStorageConsumptionMetricsForAccounts(
-      this.instanceId,
-      accountCanonicalIds,
-    );
-
-    const resultingAccountIds = Object.keys(accountsMetrics);
-
-    const accountsLatestUsedCapacityList: Record<string, LatestUsedCapacity> = {};
-
-    resultingAccountIds.forEach((id) => {
-      if (accountsMetrics[id].type === StorageConsumptionMetricItemV1.TypeEnum.HasMetrics) {
-        accountsLatestUsedCapacityList[id] = {
-          type: 'hasMetrics',
-          usedCapacity: notFalsyTypeGuard(accountsMetrics[id].usedCapacity),
-          measuredOn: new Date(notFalsyTypeGuard(accountsMetrics[id].measuredOn)),
-        };
-      } else {
-        accountsLatestUsedCapacityList[id] = {
-          type: 'noMetrics',
-        };
-      }
-    });
-
-    return accountsLatestUsedCapacityList;
+    const accounts: StorageUsageReport['accounts'] = {};
+    let marker: string | undefined;
+    do {
+      const page = await this.managementClient.getReportingUsage(this.instanceId, marker);
+      Object.entries(page.accounts ?? {}).forEach(([accountName, locations]) => {
+        accounts[accountName] = Object.fromEntries(
+          Object.entries(locations).map(([locationName, usage]) => [locationName, usage.bytesTotal ?? 0]),
+        );
+      });
+      marker = page.isTruncated ? page.marker : undefined;
+    } while (marker);
+    return { accounts, retrievedOn: new Date() };
   }
 }

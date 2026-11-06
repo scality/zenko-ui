@@ -278,7 +278,7 @@ function InternalRoutes(): JSX.Element {
     localStorage.getItem('isSideBarOpen') === null || localStorage.getItem('isSideBarOpen') === 'true',
   );
   const location = useLocation();
-  const { isStorageManager, isPlatformAdmin } = useAuthGroups();
+  const { isStorageManager, isPlatformAdmin, isStorageUsageReporter } = useAuthGroups();
   const config = useConfig();
 
   const metalK8sInstances = useDeployedMetalk8sInstances();
@@ -354,7 +354,7 @@ function InternalRoutes(): JSX.Element {
           doesRouteMatch('/accounts/:accountName/data/buckets/*'),
       },
 
-      isStorageManager && {
+      (isStorageManager || isStorageUsageReporter) && {
         label: 'Locations',
         icon: <Icon name="Location" />,
         onClick: () => {

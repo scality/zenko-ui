@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useQuery } from 'react-query';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
 import { useBucketList } from '../../../queries/instanceStatusQuery';
@@ -10,6 +9,7 @@ import type { Location, LocationStorageInfos, LocationsPromiseResult } from '../
 import type { LatestUsedCapacity } from '../entities/metrics';
 import type { PromiseResult } from '../entities/promise';
 import { useLocationsAndEndpoints } from './accounts';
+import { getAccountLocationUsedCapacity, getLocationUsedCapacity, useStorageUsageReport } from './storageUsageReport';
 
 export const useLocationAndStorageInfos = ({
   locationName,
@@ -75,15 +75,11 @@ export const useListLocations = ({
     locationsEndpointsAdapter,
   });
 
-  const { isStorageManager } = useAuthGroups();
+  const { isStorageManager, isStorageUsageReporter } = useAuthGroups();
 
-  const ids = locationsAndEndpoints?.locations?.map((l) => l.id) ?? [];
-  const { data: metricsData, status: metricsStatus } = useQuery({
-    queryKey: ['locationsMetrics', ids],
-    queryFn: () => {
-      return metricsAdapter.listLocationsLatestUsedCapacity(ids);
-    },
-    enabled: !!locationsAndEndpoints?.locations && ids.length > 0 && isStorageManager,
+  const { data: report, status: reportStatus } = useStorageUsageReport({
+    metricsAdapter,
+    enabled: (locationsAndEndpoints?.locations.length ?? 0) > 0 && (isStorageManager || isStorageUsageReporter),
   });
 
   if (locationStatus === 'loading' || locationStatus === 'idle') {
@@ -110,19 +106,14 @@ export const useListLocations = ({
     let usedCapacity: PromiseResult<LatestUsedCapacity> = {
       status: 'loading',
     };
-    if (metricsStatus === 'loading') {
-      usedCapacity = { status: metricsStatus };
-    }
-
-    if (metricsStatus === 'error') {
+    if (reportStatus === 'error') {
       usedCapacity = {
-        status: metricsStatus,
+        status: reportStatus,
         title: 'Location Metrics Error',
         reason: `Unexpected error while fetching location's metrics`,
       };
-    }
-    if (metricsStatus === 'success') {
-      usedCapacity = { status: metricsStatus, value: metricsData?.[l.id] };
+    } else if (report) {
+      usedCapacity = { status: 'success', value: getLocationUsedCapacity(report, l.name) };
     }
 
     locations[l.name] = {
@@ -163,9 +154,8 @@ export const useListLocationsForCurrentAccount = ({
 
   const accountCannonicalId = account?.CanonicalId || '';
 
-  const { data: accountLocationData, status: accountLocationStatus } = useQuery({
-    queryKey: ['accountLocations', accountCannonicalId],
-    queryFn: () => metricsAdapter.listAccountLocationsLatestUsedCapacity(accountCannonicalId),
+  const { data: report, status: reportStatus } = useStorageUsageReport({
+    metricsAdapter,
     enabled: !!accountCannonicalId,
   });
 
@@ -204,7 +194,7 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  if (accountLocationStatus === 'loading' || accountLocationStatus === 'idle') {
+  if (reportStatus === 'loading' || reportStatus === 'idle') {
     return {
       locations: {
         status: 'loading',
@@ -212,7 +202,7 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  if (accountLocationStatus === 'error') {
+  if (reportStatus === 'error' || !report) {
     return {
       locations: {
         status: 'error',
@@ -234,22 +224,19 @@ export const useListLocationsForCurrentAccount = ({
     return allLocations;
   }
 
-  const metricsByLocationId = accountLocationData ?? {};
   const bucketLocationNameSet = new Set(bucketLocationNames);
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
 
   allLocationsValue.forEach((locationDefinition) => {
-    const hasMetrics = locationDefinition.id in metricsByLocationId;
+    const accountLocationUsedCapacity = getAccountLocationUsedCapacity(report, account.Name, locationDefinition.name);
     const isBackedByBucket = bucketLocationNameSet.has(locationDefinition.name);
 
-    if (!hasMetrics && !isBackedByBucket) {
+    if (!accountLocationUsedCapacity && !isBackedByBucket) {
       return;
     }
 
-    const usedCapacityValue: LatestUsedCapacity = hasMetrics
-      ? metricsByLocationId[locationDefinition.id]
-      : ZERO_USED_CAPACITY;
+    const usedCapacityValue: LatestUsedCapacity = accountLocationUsedCapacity ?? ZERO_USED_CAPACITY;
 
     locations[locationDefinition.id] = {
       ...locationDefinition,

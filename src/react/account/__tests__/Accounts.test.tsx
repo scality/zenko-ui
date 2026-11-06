@@ -13,7 +13,10 @@ import {
   FAKE_TOKEN,
   mockOffsetSize,
   mockShellHooks,
+  mockUserGroups,
+  queryClient,
   renderWithRouterMatch,
+  resetUserGroups,
   TEST_API_BASE_URL,
   testRender,
   WrapperAsStorageManager,
@@ -209,6 +212,52 @@ describe('Accounts', () => {
 
     expect(selectors.createAccountButton()).toBeInTheDocument();
     expect(selectors.startISVConfgurationButton()).toBeInTheDocument();
+  });
+
+  it('should display the Data Used of each account for a Storage Usage Reporter', async () => {
+    //S
+    queryClient.clear();
+    mockUserGroups(['StorageUsageReporter']);
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            IsTruncated: false,
+            Accounts: [
+              {
+                Name: TEST_ACCOUNT,
+                CreationDate: TEST_ACCOUNT_CREATION_DATE,
+                Roles: [
+                  {
+                    Name: 'storage-usage-consumer-role',
+                    Arn: 'arn:aws:iam::064609833007:role/scality-internal/storage-usage-consumer-role',
+                  },
+                ],
+              },
+            ],
+          }),
+        ),
+      ),
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/reporting/usage`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            accounts: { [TEST_ACCOUNT]: { 'us-east-1': { bytesTotal: 3072 } } },
+            isTruncated: false,
+            marker: null,
+          }),
+        ),
+      ),
+    );
+    //E
+    renderWithRouterMatch(<Accounts />);
+    //V
+    await waitFor(() =>
+      expect(screen.getByRole('row', { name: new RegExp(TEST_ACCOUNT) })).toHaveTextContent(/3.00 KiB/),
+    );
+    expect(screen.getByRole('columnheader', { name: /Data Used/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: TEST_ACCOUNT })).not.toBeInTheDocument();
+    expect(selectors.createAccountButton()).not.toBeInTheDocument();
+    resetUserGroups();
   });
 
   it('should hide Create Account Button for Storage Account Owner', async () => {

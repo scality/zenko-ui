@@ -21,6 +21,7 @@ import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { TableHeaderWrapper } from '../ui-elements/Table';
+import { useAuthGroups } from '../utils/hooks';
 import { getLocationType } from '../utils/storageOptions';
 import { useCRRFeature } from './CRRSetupWizard/hooks/useCRRFeature';
 import { PauseAndResume } from './PauseAndResume';
@@ -185,6 +186,7 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
 export function LocationsList() {
   const navigate = useBasenameRelativeNavigate();
   const isCRRWizardEnabled = useCRRFeature();
+  const { isStorageManager } = useAuthGroups();
   const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
   const metricsAdapter = useMetricsAdapter();
   const { locations } = useListLocations({
@@ -261,6 +263,10 @@ export function LocationsList() {
       dataUsedColumn,
     ];
 
+    if (!isStorageManager) {
+      return columns;
+    }
+
     columns.push({
       Header: (
         <>
@@ -306,7 +312,7 @@ export function LocationsList() {
       },
     });
     return columns;
-  }, [locations]);
+  }, [locations, isStorageManager]);
 
   if (locations.status === 'loading' || locations.status === 'unknown') {
     return (
@@ -343,22 +349,24 @@ export function LocationsList() {
         <TableHeaderWrapper
           search={<Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />}
           actions={
-            <Stack gap="r16">
-              {isCRRWizardEnabled && (
+            isStorageManager && (
+              <Stack gap="r16">
+                {isCRRWizardEnabled && (
+                  <Button
+                    label="Start CRR Configuration"
+                    variant="secondary"
+                    onClick={() => navigate('/create-crr-configuration')}
+                  />
+                )}
                 <Button
-                  label="Start CRR Configuration"
-                  variant="secondary"
-                  onClick={() => navigate('/create-crr-configuration')}
+                  icon={<Icon name="Create-add" />}
+                  label="Create Location"
+                  variant="primary"
+                  onClick={() => navigate('/create-location')}
+                  type="submit"
                 />
-              )}
-              <Button
-                icon={<Icon name="Create-add" />}
-                label="Create Location"
-                variant="primary"
-                onClick={() => navigate('/create-location')}
-                type="submit"
-              />
-            </Stack>
+              </Stack>
+            )
           }
         />
 

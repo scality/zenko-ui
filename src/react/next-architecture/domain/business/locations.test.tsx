@@ -11,15 +11,17 @@ import { _ManagementContext } from '../../../ManagementProvider';
 import {
   mockShellAlerts,
   mockShellHooks,
+  mockUserGroups,
+  resetUserGroups,
   TEST_API_BASE_URL,
   TEST_MANAGEMENT_CLIENT,
   WrapperAsStorageManager,
 } from '../../../utils/testUtil';
 import { MockedAccountsLocationsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
 import {
-  ACCOUNT_OWN_METRICS,
   DEFAULT_METRICS,
   DEFAULT_METRICS_MESURED_ON,
+  DEFAULT_STORAGE_USAGE_REPORT,
   MockedMetricsAdapter,
 } from '../../adapters/metrics/MockedMetricsAdapter';
 import type { Location, LocationsPromiseResult } from '../entities/location';
@@ -201,7 +203,7 @@ describe('useListLocations', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockMetricsAdapter.listLocationsLatestUsedCapacity = jest.fn(() => new Promise(() => {}));
+    mockMetricsAdapter.getStorageUsageReport = jest.fn(() => new Promise(() => {}));
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     await flushPromises();
@@ -217,7 +219,7 @@ describe('useListLocations', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockMetricsAdapter.listLocationsLatestUsedCapacity = jest.fn(() => Promise.reject());
+    mockMetricsAdapter.getStorageUsageReport = jest.fn(() => Promise.reject());
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     await flushPromises();
@@ -285,7 +287,12 @@ describe('useListLocationsForCurrentAccount', () => {
     });
 
     // S
-    const { result, waitFor } = setupAndRenderHook();
+    const metricsAdapter = new MockedMetricsAdapter();
+    metricsAdapter.getStorageUsageReport = jest.fn().mockResolvedValue({
+      ...DEFAULT_STORAGE_USAGE_REPORT,
+      accounts: { ...DEFAULT_STORAGE_USAGE_REPORT.accounts, Souris: { 'artesca-s3-location': 135000 } },
+    });
+    const { result, waitFor } = setupAndRenderHook(new MockedAccountsLocationsAdapter(), metricsAdapter);
 
     // E
     await waitFor(() => {
@@ -309,7 +316,11 @@ describe('useListLocationsForCurrentAccount', () => {
             },
             {
               status: 'success',
-              value: ACCOUNT_OWN_METRICS,
+              value: {
+                type: 'hasMetrics',
+                usedCapacity: { current: 135000, nonCurrent: 0 },
+                measuredOn: DEFAULT_METRICS_MESURED_ON,
+              },
             },
           ),
         },
@@ -374,7 +385,7 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockMetricsAdapter.listAccountLocationsLatestUsedCapacity = jest.fn(() => new Promise(() => {}));
+    mockMetricsAdapter.getStorageUsageReport = jest.fn(() => new Promise(() => {}));
     const { result } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     // V
@@ -390,7 +401,7 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockMetricsAdapter.listAccountLocationsLatestUsedCapacity = jest.fn(() => Promise.reject());
+    mockMetricsAdapter.getStorageUsageReport = jest.fn(() => Promise.reject());
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
 
     // E
@@ -507,6 +518,74 @@ describe('useListLocationsForCurrentAccount', () => {
     expect(usEast1.usedCapacity).toMatchObject({
       status: 'success',
       value: { type: 'hasMetrics', usedCapacity: { current: 0, nonCurrent: 0 } },
+    });
+  });
+});
+
+describe('useListLocations depending on the user role', () => {
+  const RETRIEVED_ON = new Date('2026-11-06T10:00:00Z');
+
+  beforeEach(() => {
+    queryClient.clear();
+  });
+  afterEach(() => resetUserGroups());
+
+  it('should not fetch the storage usage report for a user without StorageManager or StorageUsageReporter', async () => {
+    // S
+    mockUserGroups(['PlatformAdmin']);
+    const metricsAdapter = new MockedMetricsAdapter();
+    const { result, waitFor } = renderHook(
+      () => useListLocations({ locationsEndpointsAdapter: new MockedAccountsLocationsAdapter(), metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    // E
+    await waitFor(() => result.current.locations.status === 'success');
+    // V
+    expect(metricsAdapter.getStorageUsageReport).not.toHaveBeenCalled();
+    expect(
+      result.current.locations.status === 'success' && result.current.locations.value['us-east-1'].usedCapacity,
+    ).toStrictEqual({
+      status: 'loading',
+    });
+  });
+
+  it('should sum the usage of every account per location for a storage usage reporter', async () => {
+    // S
+    mockUserGroups(['StorageUsageReporter']);
+    const metricsAdapter = new MockedMetricsAdapter();
+    metricsAdapter.getStorageUsageReport = jest.fn().mockResolvedValue({
+      accounts: {
+        'account-a': { 'us-east-1': 100, 'artesca-s3-location': 5 },
+        'account-b': { 'us-east-1': 20 },
+      },
+      retrievedOn: RETRIEVED_ON,
+    });
+    const { result, waitFor } = renderHook(
+      () => useListLocations({ locationsEndpointsAdapter: new MockedAccountsLocationsAdapter(), metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    await new Promise(setImmediate);
+    // E
+    await waitFor(
+      () =>
+        result.current.locations.status === 'success' &&
+        result.current.locations.value['us-east-1'].usedCapacity.status === 'success',
+      { timeout: 3000 },
+    );
+    // V
+    const usedCapacityOf = (name: string) =>
+      result.current.locations.status === 'success' && result.current.locations.value[name].usedCapacity;
+    expect(usedCapacityOf('us-east-1')).toStrictEqual({
+      status: 'success',
+      value: { type: 'hasMetrics', usedCapacity: { current: 120, nonCurrent: 0 }, measuredOn: RETRIEVED_ON },
+    });
+    expect(usedCapacityOf('artesca-s3-location')).toStrictEqual({
+      status: 'success',
+      value: { type: 'hasMetrics', usedCapacity: { current: 5, nonCurrent: 0 }, measuredOn: RETRIEVED_ON },
+    });
+    expect(usedCapacityOf('artesca-jaguar-location')).toStrictEqual({
+      status: 'success',
+      value: { type: 'noMetrics' },
     });
   });
 });
