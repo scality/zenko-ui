@@ -1,10 +1,11 @@
-import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
+import { spacing, Text } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type FieldErrors, useFieldArray, useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
 import { useXCoreLibrary, XCORE_NOT_AVAILABLE } from '../../next-architecture/ui/XCoreLibraryProvider';
+import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { unitChoices } from '../constants';
 import { CapacityFormSection, CapacityFormWithXcore } from './ISVCapacityFormSection';
 
@@ -89,8 +90,6 @@ const BucketContainer = styled.div`
   padding-bottom: ${spacing.f8};
   border-radius: ${spacing.f4};
   margin-bottom: ${spacing.f4};
-  position: relative;
-  top: -${spacing.f16};
 `;
 
 const BucketNameFormGroup: React.FC<{
@@ -210,7 +209,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
   const renderBucketNameFormSection = useMemo(() => {
     if (fields.length === 1) {
       return (
-        <FormSection forceLabelWidth={280}>
+        <FormSection forceLabelWidth="19rem">
           <BucketNameFormGroup
             index={0}
             errors={errors}
@@ -224,7 +223,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
       );
     } else if (fields.length > 1) {
       return fields.map((field, index) => (
-        <FormSection forceLabelWidth={262} key={field.id}>
+        <FormSection forceLabelWidth="18rem" key={field.id}>
           <BucketContainer>
             <BucketNameFormGroup
               index={index}
@@ -250,7 +249,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
 
   return (
     <>
-      <FormSection forceLabelWidth={280}>
+      <FormSection forceLabelWidth="19rem">
         <FormGroup
           id="bucketNumber"
           label="Number of buckets"

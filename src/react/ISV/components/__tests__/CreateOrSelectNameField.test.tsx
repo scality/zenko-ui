@@ -20,8 +20,8 @@ jest.mock('react-router', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('@scality/core-ui', () => ({
-  ...jest.requireActual('@scality/core-ui'),
+jest.mock('../../../ui-elements/CoreUIForm', () => ({
+  ...jest.requireActual('../../../ui-elements/CoreUIForm'),
   FormGroup: ({ label, content, error }) => (
     <div>
       <div>{label}</div>
@@ -29,6 +29,10 @@ jest.mock('@scality/core-ui', () => ({
       {error && <div>{error}</div>}
     </div>
   ),
+}));
+
+jest.mock('@scality/core-ui', () => ({
+  ...jest.requireActual('@scality/core-ui'),
   Tooltip: ({ children, overlay }) => (
     <>
       {children}

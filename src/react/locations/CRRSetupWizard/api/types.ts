@@ -21,9 +21,24 @@ export type DestinationEndpoint = {
   locationName: string;
 };
 
+export type DestinationAccount = {
+  name: string;
+  id: string;
+};
+
 export type VerifyResponse = {
   ok: true;
   endpoints: DestinationEndpoint[];
+  accounts: DestinationAccount[];
+};
+
+export type ListBucketsRequestBody = {
+  destinationConnection: DestinationConnection;
+  accountName: string;
+};
+
+export type ListBucketsResponse = {
+  buckets: { name: string }[];
 };
 
 export type ResolveRequestBody = {
@@ -40,6 +55,7 @@ export type StartSetupBody = {
   destinationCertificate: string;
   destinationAccount: { mode: 'create' | 'existing'; name: string };
   targetBucket?: string;
+  existingLocation?: boolean;
 };
 
 export type SetupResult = {

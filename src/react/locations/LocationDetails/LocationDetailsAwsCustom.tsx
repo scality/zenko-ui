@@ -128,7 +128,7 @@ export default function LocationDetailsAwsCustom({
         <Box
           // Box to force the width of helper text
           style={{
-            maxWidth: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH}px)`,
+            maxWidth: `calc(20.5rem + 2rem + ${LOCATION_EDITOR_FORCED_LABEL_WIDTH})`,
           }}
         >
           <FormGroup

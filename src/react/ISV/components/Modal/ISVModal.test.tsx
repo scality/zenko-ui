@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Wrapper } from '../../../utils/testUtil';
 import { ISVList } from '../../ISVList';
@@ -107,5 +107,82 @@ describe('ISVModal', () => {
     await waitFor(() => {
       expect(firstCard).toBeChecked();
     });
+  });
+  it('should render the AI category with its cards', () => {
+    render(
+      <Wrapper>
+        <ISVModal isOpen={true} setIsOpen={() => {}} />
+      </Wrapper>,
+    );
+
+    expect(screen.getByText('AI Solutions')).toBeInTheDocument();
+    expect(screen.getByText('MLflow')).toBeInTheDocument();
+    expect(screen.getByText('Weaviate')).toBeInTheDocument();
+
+    const aiISVs = ISVList.filter((isv) => isv.category === 'ai-solutions');
+    expect(aiISVs).toHaveLength(17);
+    aiISVs.forEach((isv) => {
+      expect(document.getElementById(`isv-${isv.name}`)).toHaveAttribute('type', 'radio');
+    });
+  });
+  it('should display an Auto or Manual badge on each card', () => {
+    render(
+      <Wrapper>
+        <ISVModal isOpen={true} setIsOpen={() => {}} />
+      </Wrapper>,
+    );
+
+    const assistantISV = ISVList.find((isv) => isv.assistant);
+    const veeamCard = document.getElementById(`isv-${assistantISV.name}`).closest('label').parentElement;
+    expect(within(veeamCard).getByText('With assistant')).toBeInTheDocument();
+
+    const mlflowCard = document.getElementById('isv-MLflow').closest('label').parentElement;
+    expect(within(mlflowCard).queryByText('With assistant')).not.toBeInTheDocument();
+
+    const assistantCount = ISVList.filter((isv) => isv.assistant).length;
+    expect(screen.getAllByText('With assistant')).toHaveLength(assistantCount);
+    expect(screen.queryByText('Manual')).not.toBeInTheDocument();
+    expect(screen.queryByText('Auto')).not.toBeInTheDocument();
+  });
+  it('should filter the cards with the search input and restore them when cleared', async () => {
+    render(
+      <Wrapper>
+        <ISVModal isOpen={true} setIsOpen={() => {}} />
+      </Wrapper>,
+    );
+
+    const searchInput = screen.getByRole('searchbox');
+    await userEvent.type(searchInput, 'mlflow');
+
+    await waitFor(
+      () => {
+        expect(screen.queryAllByRole('radio')).toHaveLength(1);
+      },
+      { timeout: 5000 },
+    );
+    expect(screen.getByText('MLflow')).toBeInTheDocument();
+    expect(screen.queryByText('Backup and Archive Solutions')).not.toBeInTheDocument();
+    ISVList.filter((isv) => isv.category === 'backup-and-archive').forEach((isv) => {
+      expect(document.getElementById(`isv-${isv.name}`)).not.toBeInTheDocument();
+    });
+
+    await userEvent.clear(searchInput);
+
+    await waitFor(
+      () => {
+        expect(screen.queryAllByRole('radio')).toHaveLength(ISVList.length);
+      },
+      { timeout: 5000 },
+    );
+    expect(screen.getByText('Backup and Archive Solutions')).toBeInTheDocument();
+  });
+  it('should render the name of an ISV without a logo', () => {
+    render(
+      <Wrapper>
+        <ISVModal isOpen={true} setIsOpen={() => {}} />
+      </Wrapper>,
+    );
+
+    expect(screen.getByText('Bodo.ai')).toBeVisible();
   });
 });

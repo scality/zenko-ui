@@ -1,8 +1,6 @@
 import type { ParsedCertificate } from '@scality/certchain';
 import { AppContainer, Banner, ConstrainedText, Icon, Stack, spacing, Text, useToast, Wrap } from '@scality/core-ui';
-import { Box } from '@scality/core-ui/dist/components/box/Box';
-import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Button } from '@scality/core-ui/dist/next';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
 import { type MutationOptions, useQuery, useQueryClient } from 'react-query';
@@ -11,6 +9,7 @@ import { useDeleteCertificateFromZenkoConfigurationMutation } from '../../js/mut
 import type { ApiError } from '../../types/actions';
 import { getZenkoCRQuery } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { ROW_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import CertificateDetails from './CertificateDetails';
 import {
@@ -245,6 +244,7 @@ const Truststore = () => {
               label="View Details"
               variant="outline"
               icon={<Icon name="Eye" />}
+              iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
               onClick={() => {
                 setSelectedCertificate(row.original.certificates);
                 setIsCertificateDetailsModalOpen(true);
@@ -254,6 +254,7 @@ const Truststore = () => {
               label="Delete"
               variant="danger"
               icon={<Icon name="Delete" />}
+              iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
               aria-label="Delete Certificate"
               onClick={() => handleDeleteClick(row.original)}
             />
@@ -303,7 +304,7 @@ const Truststore = () => {
             setSelectedCertificate(null);
           }}
         />
-        <Box width="100%">
+        <Box container width="100%">
           <Table
             columns={columns}
             status={status}

@@ -21,14 +21,14 @@ export const Hint = styled.div`
   }
 `;
 // make my own import due to some imput event target undefined issue
-const Input = styled.input<{ hasError?: boolean }>`
+const Input = styled.input<{ $hasError?: boolean }>`
   display: flex;
 
   background-color: ${(props) => props.theme?.backgroundLevel1};
   color: ${(props) => props.theme?.textPrimary};
   border-width: ${spacing.sp1};
   border-style: solid;
-  border-color: ${(props) => (props.hasError ? props.theme.statusCritical : props.theme?.border)};
+  border-color: ${(props) => (props.$hasError ? props.theme.statusCritical : props.theme?.border)};
   padding: 0px ${spacing.sp8};
   font-size: ${fontSize.base};
   border-radius: ${spacing.sp4};
@@ -51,7 +51,7 @@ const Input = styled.input<{ hasError?: boolean }>`
 cursor: not-allowed;
 opacity: 0.5;
 `}
-  // Removing input background color for Chrome autocomplete
+  /* Removing input background color for Chrome autocomplete */
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus,

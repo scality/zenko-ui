@@ -4,6 +4,7 @@ import { Box, Table } from '@scality/core-ui/dist/next';
 import { type UseComboboxStateChange, useCombobox } from 'downshift';
 import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { ROW_ACTION_ICON_ONLY_BELOW } from '../../ui-elements/responsive';
 import { GentleEmphaseSecondaryText, InlineButton } from '../../ui-elements/Table';
 import { type AWS_PAGINATED_QUERY, useAwsPaginatedEntities } from '../../utils/IAMhooks';
 import {
@@ -32,23 +33,23 @@ export type AttachmentTableProps<
 
 const rowHeight = 'h48';
 const MenuContainer = styled.ul<{
-  width: string;
-  isOpen: boolean;
-  searchInputIsFocused: boolean;
+  $width: string;
+  $isOpen: boolean;
+  $searchInputIsFocused: boolean;
 }>`
   background-color: ${(props) => props.theme.backgroundLevel1};
   background-clip: content-box;
   padding: 0;
   list-style: none;
   position: absolute;
-  width: ${(props) => props.width};
+  width: ${(props) => props.$width};
   z-index: 1;
   margin-top: -1.7rem;
   margin-left: 0;
   margin-bottom: 0;
   margin-right: 0;
   ${(props) =>
-    props.isOpen
+    props.$isOpen
       ? `
       border-top-left-radius: 0;
       border-top-right-radius: 0;
@@ -56,7 +57,7 @@ const MenuContainer = styled.ul<{
       border-bottom-left-radius: 4px;
       border: 1px solid ${props.theme.selectedActive};
   `
-      : props.searchInputIsFocused
+      : props.$searchInputIsFocused
         ? `border-bottom: 1px solid ${props.theme.selectedActive};`
         : ''}
   border-top: 0;
@@ -86,6 +87,8 @@ const StyledSearchInput = styled(SearchInput)`
 `;
 
 const AttachmentTableContainer = styled.div`
+  container-type: inline-size;
+  container-name: responsive;
   height: 80%;
   background: ${(props) => props.theme.backgroundLevel3};
   padding: ${spacing.r24};
@@ -339,7 +342,6 @@ export const AttachmentTable = <
                 onBlur={() => {
                   setSearchInputIsFocused(false);
                 }}
-                disableToggle
                 disabled={firstPageStatus === 'error' || firstPageStatus === 'loading'}
               />
               <Loader />
@@ -360,15 +362,14 @@ export const AttachmentTable = <
             onBlur={() => {
               setSearchInputIsFocused(false);
             }}
-            disableToggle
           />
         )}
       </SearchBoxContainer>
       <MenuContainer
         {...getMenuProps()}
-        width={searchWidth}
-        isOpen={isOpen}
-        searchInputIsFocused={searchInputIsFocused}
+        $width={searchWidth}
+        $isOpen={isOpen}
+        $searchInputIsFocused={searchInputIsFocused}
       >
         {isOpen &&
           filteredEntities.map((item, index) => (
@@ -379,7 +380,7 @@ export const AttachmentTable = <
         {isOpen && filteredEntities.length === 0 && status === 'loading' && <li>Searching...</li>}
         {isOpen && numberOfFilteredEntities > filteredEntities.length && (
           <li>
-            <GentleEmphaseSecondaryText alignRight>
+            <GentleEmphaseSecondaryText $alignRight>
               There {numberOfFilteredEntities - filteredEntities.length === 1 ? 'is' : 'are'}{' '}
               {numberOfFilteredEntities - filteredEntities.length} more{' '}
               {numberOfFilteredEntities - filteredEntities.length === 1 ? 'entity' : 'entities'} matching your search.
@@ -400,7 +401,8 @@ export const AttachmentTable = <
               Header: 'Name',
               accessor: 'name',
               cellStyle: {
-                minWidth: '20rem',
+                flex: 1,
+                minWidth: '10rem',
                 marginLeft: '3rem',
               },
             },
@@ -409,7 +411,8 @@ export const AttachmentTable = <
               //@ts-expect-error fix this when you are working on it
               accessor: 'isPending',
               cellStyle: {
-                flex: 1,
+                flex: '0.3',
+                minWidth: '9rem',
               },
               Cell: ({ value }: { value?: boolean }) => {
                 return <>{value ? 'Pending' : 'Attached'}</>;
@@ -421,7 +424,7 @@ export const AttachmentTable = <
               accessor: 'action',
               cellStyle: {
                 textAlign: 'right',
-                minWidth: '10rem',
+                minWidth: '2.5rem',
                 marginLeft: 'auto',
                 marginRight: '0.5rem',
               },
@@ -439,6 +442,7 @@ export const AttachmentTable = <
                   }}
                   icon={<Icon name="Close" />}
                   label="Remove"
+                  iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
                   variant="danger"
                   disabled={!!entity.disableDetach}
                 />

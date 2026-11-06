@@ -76,9 +76,11 @@ function deriveHostBasePath(
 }
 
 /**
- * Builds the full set of data-browser S3 tools adapted for the Zenkocontext:
+ * Builds the data-browser tools adapted for the Zenko context. Only the
+ * navigation tools are exposed: the S3 operation tools are withheld from the
+ * assistant.
  *
- * - Every S3 operation tool gets `roleArn` added as a required input parameter.
+ * - An S3 operation tool gets `roleArn` added as a required input parameter.
  *   The execute wrapper resolves temporary STS credentials for that role before
  *   forwarding the call to the underlying library tool.
  *
@@ -94,7 +96,9 @@ export function createZenkoS3Tools(
 ): MCPToolDefinition[] {
   const ctx = buildZenkoContext(context);
   const features = (ctx.selfConfiguration.features as string[] | undefined) ?? [];
-  const tools = createS3Tools({ features });
+  const tools = createS3Tools({ features }).filter((tool) =>
+    NO_ROLE_TOOLS.has(tool.name),
+  );
 
   return tools.map((tool): MCPToolDefinition => {
     // Navigation tools: just inject navigate, no STS wrapping needed.

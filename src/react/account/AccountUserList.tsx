@@ -19,6 +19,11 @@ import {
   getUserListGroupsQuery,
 } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import {
+  ROW_ACTION_ICON_ONLY_BELOW,
+  ROW_ACTIONS_RESERVED_WIDTH,
+  TOOLBAR_ACTION_ICON_ONLY_BELOW,
+} from '../ui-elements/responsive';
 import { errorParser } from '../utils';
 import { type AWS_PAGINATED_ENTITIES, useAwsPaginatedEntities } from '../utils/IAMhooks';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
@@ -97,6 +102,7 @@ const EditButton = ({ userName }: { userName: string }) => {
       variant="secondary"
       label="Edit"
       icon={<Icon name="Pen" color="textSecondary" />}
+      iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
       onClick={() => navigate(`/accounts/${currentAccount.account.Name}/users/${userName}/update-user`)}
     />
   );
@@ -110,6 +116,7 @@ const AttachButton = ({ userName, accountName }: { userName: string; accountName
       variant="secondary"
       label="Attach"
       icon={<Icon name="Link" />}
+      iconOnly={ROW_ACTION_ICON_ONLY_BELOW}
       type="button"
       onClick={() => navigate(`/accounts/${accountName}/users/${userName}/attachments`)}
       aria-label={`Attach ${userName}`}
@@ -123,7 +130,7 @@ const ActionButtons = ({ rowValues, accountName }: { rowValues: InternalUser; ac
     <Box gap={spacing.r12} alignSelf="flex-end" display="flex" alignItems="center">
       <AttachButton userName={userName} accountName={accountName || ''} />
       <EditButton userName={userName} />
-      <CopyButton textToCopy={arn} label="ARN" variant="outline" size="inline" />
+      <CopyButton textToCopy={arn} label="ARN" variant="outline" size="inline" iconOnly={ROW_ACTION_ICON_ONLY_BELOW} />
       <DeleteUserAction userName={userName} accountName={accountName} />
     </Box>
   );
@@ -261,6 +268,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     {
       Header: 'Access Keys',
       accessor: 'accessKeys',
+      dropAt: 600,
       cellStyle: {
         width: 'unset',
         textAlign: 'right',
@@ -272,6 +280,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     {
       Header: 'Created On',
       accessor: 'createdOn',
+      dropAt: 760,
       cellStyle: {
         width: 'unset',
         textAlign: 'right',
@@ -287,7 +296,9 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'actions',
       cellStyle: {
         textAlign: 'right',
-        width: '24rem',
+        width: 'unset',
+        flex: 'none',
+        minWidth: ROW_ACTIONS_RESERVED_WIDTH,
         marginRight: spacing.r12,
       },
       disableSortBy: true,
@@ -306,6 +317,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
           icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create User"
           variant="primary"
+          iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
           onClick={() => navigate(`/accounts/${accountName}/create-user`)}
           type="submit"
         />

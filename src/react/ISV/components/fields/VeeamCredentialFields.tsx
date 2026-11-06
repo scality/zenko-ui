@@ -1,6 +1,7 @@
-import { Banner, FormGroup, Icon, Stack, Text, useToast } from '@scality/core-ui';
+import { Banner, Icon, Stack, Text, useToast } from '@scality/core-ui';
 import { Box, Button, Input } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
+import { FormGroup } from '../../../ui-elements/CoreUIForm';
 import { useVeeamCredentialManagement } from '../../contexts/VeeamCredentialContext';
 
 const VeeamCredentialFieldsForm = () => {

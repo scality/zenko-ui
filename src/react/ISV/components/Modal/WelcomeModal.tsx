@@ -20,7 +20,8 @@ import { ISVWideModal } from '../shared/StyledComponents';
 import { ISVModalContent } from './ISVModal';
 import VeeamLogo from './Logos/VeeamLogo';
 
-const SmallModal = styled(Modal)`
+// Use `wide` to let the modal body extend to the custom 40vw instead of the default 480px.
+const VeeamWelcomeModal = styled(Modal).attrs({ wide: true })`
   > div {
     max-width: 40vw;
     width: 40vw;
@@ -102,7 +103,7 @@ const VeeamOnlyModalComponent = () => {
   const veeamISV = ISVList.find((isv) => isv.id === VeeamVBRPlatform.id);
   const { isOpen, handleContinueClick, handleSkipClick } = useWelcomeModal(veeamISV);
   return (
-    <SmallModal
+    <VeeamWelcomeModal
       title={
         <Stack direction="horizontal" gap="r8">
           <Text variant="Large">Welcome to</Text>
@@ -151,7 +152,7 @@ const VeeamOnlyModalComponent = () => {
         Browser page.
         <br /> If the platform doesn't have any accounts, it will also prompt you on your next login.{' '}
       </Text>
-    </SmallModal>
+    </VeeamWelcomeModal>
   );
 };
 

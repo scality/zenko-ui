@@ -18,7 +18,15 @@ import type {
   SingleMutationDef,
 } from '../types';
 
-type AccountResponse = { id: string };
+type AccountResponse = { id: string; userName?: string };
+
+function getAccountName(form: FormData): string {
+  return form.accountName.trim();
+}
+
+function getIAMUserName(form: FormData): string {
+  return form.IAMUserName || getAccountName(form);
+}
 
 function isAccountResponse(data: unknown): data is AccountResponse {
   return typeof data === 'object' && data !== null && 'id' in data && typeof (data as AccountResponse).id === 'string';
@@ -91,8 +99,8 @@ export function buildAccountMutations(config: PlatformConfig): SingleMutationDef
       when: (_form: FormData, ctx: FullContext) => ctx.isNewAccount,
       variables: (form: FormData, _prev: PreviousResults, ctx: FullContext) => ({
         user: {
-          userName: form.accountName,
-          email: `${form.accountName}@artesca.local`,
+          userName: getAccountName(form),
+          email: `${getAccountName(form)}@artesca.local`,
         },
         instanceId: ctx._instanceId,
       }),
@@ -140,7 +148,7 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
       action: 'createIAMUser',
       when: (_form: FormData, ctx: FullContext) => ctx.needsIAMUser,
       variables: (form: FormData) => ({
-        userName: form.IAMUserName || form.accountName,
+        userName: getIAMUserName(form),
       }),
     },
     {
@@ -149,7 +157,7 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
       action: 'createAccessKey',
       when: (_form: FormData, ctx: FullContext) => ctx.needsAccessKey,
       variables: (form: FormData) => ({
-        userName: form.IAMUserName || form.accountName,
+        userName: getIAMUserName(form),
       }),
     },
     {
@@ -158,7 +166,7 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
         ctx.isNewAccount || ctx.needsIAMUser ? 'Create Policy' : 'Update Policy',
       action: 'createPolicy',
       variables: (form: FormData, prev: PreviousResults, ctx: FullContext) => {
-        const policyName = `${form.IAMUserName || form.accountName}-${ctx._platformId}-${
+        const policyName = `${getIAMUserName(form)}-${ctx._platformId}-${
           form.enableImmutableBackup ? 'immutable' : 'non-immutable'
         }`;
         const accountId = getAccountId(prev, ctx);
@@ -176,7 +184,7 @@ export function buildIAMMutations(config: PlatformConfig): SingleMutationDef[] {
       label: 'Attach Policy to User',
       action: 'attachPolicy',
       variables: (form: FormData, prev: PreviousResults, ctx: FullContext) => {
-        const userName = form.IAMUserName || form.accountName;
+        const userName = getIAMUserName(form);
         const accountId = getAccountId(prev, ctx);
         return {
           userName,

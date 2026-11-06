@@ -1,6 +1,7 @@
-import { Form, FormGroup, FormSection, Text } from '@scality/core-ui';
+import { Text } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { Form, FormGroup, FormSection } from '../../../ui-elements/CoreUIForm';
 import { buildCRRLocationName, buildCRRReplicationRuleId } from './ApplyActionsStep/crrLocation';
 import type { ConfigureFormValues } from './ConfigureStep/schema';
 
@@ -37,7 +38,7 @@ export const SummaryStep = ({
           {
             id: 'replication-rule',
             label: 'Replication Rule',
-            value: buildCRRReplicationRuleId(destinationAccountName ?? ''),
+            value: buildCRRReplicationRuleId(locationName, targetBucketName ?? ''),
           },
           { id: 'source-bucket', label: 'Source Bucket', value: sourceBucketName ?? '' },
           { id: 'target-bucket', label: 'Target Bucket', value: targetBucketName ?? '' },
@@ -50,6 +51,7 @@ export const SummaryStep = ({
       layout={{ title: 'Summary', kind: 'page' }}
       requireMode="all"
       rightActions={<Button variant="primary" type="button" label="Finish" onClick={onFinish} />}
+      responsive
     >
       <Text isEmphazed>{intro}</Text>
       <FormSection title={{ name: 'Details' }}>

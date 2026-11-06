@@ -128,7 +128,8 @@ describe('VeeamCapacityOverviewRow', () => {
       expect(screen.getByText('Max repository Capacity')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    const row = screen.getByText('Max repository Capacity').parentElement as HTMLElement;
+    expect(row.querySelector('svg')).toBeInTheDocument();
   });
 
   it('should display error state', async () => {

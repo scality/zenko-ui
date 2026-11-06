@@ -1,8 +1,9 @@
-import { FormGroup, FormSection, Icon, Stack, spacing, Text, Wrap } from '@scality/core-ui';
+import { Icon, Stack, spacing, Text, Wrap } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
 import { CertificateSection } from '../../../../ui-elements/CertificateSection';
+import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
 import type { ConfigureFormValues } from './schema';
 
 const ConnectionBox = styled.div`
@@ -14,6 +15,9 @@ const ConnectionBox = styled.div`
 
 const ConstrainedInput = styled(Input)`
   max-width: 22rem;
+  /* The 100% max-width this replaces also let the input shrink to its 151px size-attribute
+     floor; min-width: 0 keeps that, so it stops it spilling out of the field cell. */
+  min-width: 0;
 `;
 
 type Props = {
@@ -37,7 +41,7 @@ export const DestinationConnectionSection = ({ isConnecting, onConnect, isConnec
   const connectionValid = CONNECTION_FIELDS.every((field) => Boolean(values[field]) && !errors[field]);
 
   return (
-    <FormSection forceLabelWidth={280} title={{ name: 'Destination Connection' }}>
+    <FormSection forceLabelWidth="19rem" title={{ name: 'Destination Connection' }}>
       <ConnectionBox>
         <FormGroup
           id="baseDomain"

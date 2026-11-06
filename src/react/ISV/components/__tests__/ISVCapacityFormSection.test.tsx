@@ -31,8 +31,8 @@ jest.mock('../../hooks/useCapacityUnit', () => ({
   useCapacityUnit: jest.fn(),
 }));
 
-jest.mock('@scality/core-ui', () => ({
-  ...jest.requireActual('@scality/core-ui'),
+jest.mock('../../../ui-elements/CoreUIForm', () => ({
+  ...jest.requireActual('../../../ui-elements/CoreUIForm'),
   FormGroup: ({ id, label, content, error, children, labelHelpTooltip }) => (
     <div data-testid={`form-group-${id}`}>
       <label>{label}</label>

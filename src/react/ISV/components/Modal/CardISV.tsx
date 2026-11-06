@@ -1,4 +1,4 @@
-import { Icon, Link, Stack, spacing, Text, Tooltip } from '@scality/core-ui';
+import { Icon, Link, Stack, spacing, Text, TextBadge, Tooltip } from '@scality/core-ui';
 import type React from 'react';
 
 import styled from 'styled-components';
@@ -7,8 +7,9 @@ import Input from '../../../ui-elements/Input';
 
 type CardProps = {
   application?: string;
-  logo: React.JSX.Element;
+  logo?: React.JSX.Element;
   name: string;
+  assistant?: boolean;
   selected?: boolean;
   onChange?: (value: React.SetStateAction<string>) => void;
   link: string;
@@ -16,11 +17,15 @@ type CardProps = {
   disabled?: boolean;
 };
 
-const CardContent = (props: { logo: React.JSX.Element; application: string }) => {
-  const { logo, application } = props;
+const CardContent = (props: { logo?: React.JSX.Element; application?: string; name: string }) => {
+  const { logo, application, name } = props;
   return (
-    <Stack direction="vertical" gap="r8">
-      {logo}
+    <Stack direction="vertical" gap="r8" style={{ minWidth: 0 }}>
+      {logo ?? (
+        <Text color="textPrimary" isEmphazed>
+          {name}
+        </Text>
+      )}
       {application && (
         <Text color="textPrimary" isEmphazed variant="Smaller">
           {application}
@@ -30,26 +35,42 @@ const CardContent = (props: { logo: React.JSX.Element; application: string }) =>
   );
 };
 
-const CustomLabel = styled.label<{ selected?: boolean; disabled?: boolean }>`
-  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+const CustomLabel = styled.label<{
+  $selected?: boolean;
+  $disabled?: boolean;
+  $withBadge?: boolean;
+}>`
+  opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
+  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   position: relative;
   display: flex;
   justify-content: space-between;
   gap: ${spacing.r32};
   padding: ${spacing.r20};
+  padding-top: ${(props) => (props.$withBadge ? spacing.r32 : spacing.r20)};
   align-items: flex-start;
   border-radius: ${spacing.f8};
-  background-color: ${(props) => (props.selected ? props.theme.highlight : props.theme.backgroundLevel4)};
+  background-color: ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel3)};
   border: 1px solid
-    ${(props) => (props.selected ? props.theme.highlight : props.theme.backgroundLevel4)};
+    ${(props) => (props.$selected ? props.theme.highlight : props.theme.backgroundLevel3)};
   &:hover {
-    border-color: ${(props) => !props.disabled && props.theme.textPrimary};
+    border-color: ${(props) => !props.$disabled && props.theme.textPrimary};
   }
   width: 100%;
   height: 100%;
-  min-width: 12rem;
+  /* The grid track already floors the card at 12rem; a second floor here can only sit above
+     the track and push the card out of it. */
+  min-width: 0;
   box-sizing: border-box;
+
+  /* Each logo carries its own px width, up to 183px, and a percentage max-width alone does
+     not let it shrink: that percentage is ignored while a flex or grid item's automatic
+     minimum size is computed, so the logo keeps holding the card open at its full width. */
+  svg {
+    max-width: 100%;
+    height: auto;
+    min-width: 0;
+  }
 `;
 
 const CustomLink = styled(Link)`
@@ -58,26 +79,45 @@ const CustomLink = styled(Link)`
   right: ${spacing.r24};
   font-size: 0.875rem;
 `;
+const CardBadge = styled(TextBadge)`
+  position: absolute;
+  top: ${spacing.r8};
+  right: ${spacing.r8};
+  font-size: 0.75rem;
+  * {
+    font-size: 0.75rem;
+  }
+`;
 const StyledDiv = styled.div`
   position: relative;
   display: flex;
   width: 100%;
   height: 100%;
+  /* Every box between the grid track and the logo needs its own min-width: 0, or the chain
+     still holds the card open at the logo's width and it spills out of the track. */
+  min-width: 0;
   div {
     display: flex;
     width: 100%;
     height: 100%;
+    min-width: 0;
   }
 `;
 export const CardISV = (props: CardProps) => {
   const metalK8sInstances = useDeployedMetalk8sInstances();
   const isMetalk8sInstanceDeployed = metalK8sInstances.length > 0;
-  const { logo, name, application, onChange, selected, link, disabledMessage, disabled } = props;
+  const { logo, name, application, assistant, onChange, selected, link, disabledMessage, disabled } = props;
   const isDisabled = disabled ?? false;
 
   const labelContent = (
-    <CustomLabel disabled={isDisabled} htmlFor={`isv-${name}`} selected={selected} aria-disabled={isDisabled}>
-      <CardContent logo={logo} application={application} />
+    <CustomLabel
+      $disabled={isDisabled}
+      $withBadge={assistant}
+      htmlFor={`isv-${name}`}
+      $selected={selected}
+      aria-disabled={isDisabled}
+    >
+      <CardContent logo={logo} application={application} name={name} />
 
       <Input
         style={{ width: 0 }}
@@ -108,6 +148,7 @@ export const CardISV = (props: CardProps) => {
       ) : (
         labelContent
       )}
+      {assistant && <CardBadge text="With assistant" variant="infoPrimary" />}
       {isMetalk8sInstanceDeployed && (
         <CustomLink href={link} target="_blank">
           Learn more <Icon name="External-link"></Icon>

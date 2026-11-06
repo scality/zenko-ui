@@ -1,6 +1,7 @@
-import { FormGroup, Toggle } from '@scality/core-ui';
+import { Toggle } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { Controller, type UseFormReturn } from 'react-hook-form';
+import { FormGroup } from '../../ui-elements/CoreUIForm';
 import type {
   AccountSelectorFieldDef,
   BucketArrayFieldDef,

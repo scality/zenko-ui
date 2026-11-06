@@ -24,7 +24,11 @@ export { accountNameValidationSchema, bucketNameValidationSchema };
  * Account fields: accountName, accountNameType
  */
 export const accountValidator = {
-  accountName: accountNameValidationSchema,
+  accountName: Joi.when('accountNameType', {
+    is: 'existing',
+    then: accountNameValidationSchema.trim(false),
+    otherwise: accountNameValidationSchema,
+  }),
   accountNameType: Joi.string().valid('create', 'existing').required(),
 };
 
@@ -39,7 +43,11 @@ export const accountValidator = {
 export const iamValidator = {
   IAMUserName: Joi.when('accountNameType', {
     is: 'existing',
-    then: accountNameValidationSchema,
+    then: Joi.when('IAMUserNameType', {
+      is: 'existing',
+      then: accountNameValidationSchema.trim(false),
+      otherwise: accountNameValidationSchema,
+    }),
     otherwise: Joi.optional(),
   }),
   IAMUserNameType: Joi.when('accountNameType', {

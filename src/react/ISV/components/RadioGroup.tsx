@@ -21,9 +21,9 @@ type RadioGroupProps = {
   disabled?: boolean;
 };
 
-const RadioContainer = styled.div<{ direction: 'horizontal' | 'vertical' }>`
+const RadioContainer = styled.div<{ $direction: 'horizontal' | 'vertical' }>`
   display: flex;
-  flex-direction: ${(props) => (props.direction === 'horizontal' ? 'row' : 'column')};
+  flex-direction: ${(props) => (props.$direction === 'horizontal' ? 'row' : 'column')};
   gap: ${spacing.r8};
 `;
 
@@ -128,7 +128,7 @@ export const RadioGroup = ({
   const groupName = name || groupId;
 
   return (
-    <RadioContainer direction={direction}>
+    <RadioContainer $direction={direction}>
       {options.map((option) => {
         const optionId = `${groupName}-${option.value}`;
 

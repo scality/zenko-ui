@@ -1,5 +1,5 @@
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Banner, Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
+import { Banner, Icon, Stack } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import Joi from 'joi';
@@ -11,11 +11,12 @@ import { useCurrentAccount, useDataServiceRole } from '../DataServiceRoleProvide
 import { useComponentError, useModalError } from '../ErrorProvider';
 import { useIAMClient } from '../IAMProvider';
 import { getListUsersQuery } from '../queries';
+import { Form, FormGroup, FormSection } from '../ui-elements/CoreUIForm';
 import { useOutsideClick } from '../utils/hooks';
 
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
-  name: Joi.string().label('Name').required().min(2).max(64).regex(regexpName).message('Invalid Name'),
+  name: Joi.string().label('Name').required().trim().min(2).max(64).regex(regexpName).message('Invalid Name'),
 });
 
 const AccountCreateUser = () => {
@@ -99,6 +100,7 @@ const AccountCreateUser = () => {
           </Banner>
         )
       }
+      responsive
     >
       <FormSection>
         <FormGroup

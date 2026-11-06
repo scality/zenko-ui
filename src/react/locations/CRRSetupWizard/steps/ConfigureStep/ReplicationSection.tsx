@@ -1,16 +1,25 @@
-import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
+import { Checkbox, InfoMessage, spacing } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import { useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
+import { type AccountBuckets, BucketChoiceFields } from './BucketChoiceFields';
+import { SourceBucketChoiceFields } from './SourceBucketChoiceFields';
 import type { ConfigureFormValues } from './schema';
 
-export const ReplicationSection = () => {
+type Props = {
+  destinationBuckets: AccountBuckets;
+};
+
+export const ReplicationSection = ({ destinationBuckets }: Props) => {
   const {
     register,
     watch,
     formState: { errors, touchedFields },
   } = useFormContext<ConfigureFormValues>();
   const enabled = watch('createReplicationRule');
+  const reusesExistingAccount = watch('accountNameType') === 'existing';
+  const sourceAccountName = watch('accountName');
   const errorIfTouched = (field: keyof ConfigureFormValues) =>
     touchedFields[field] ? errors[field]?.message : undefined;
   const ruleFieldsRef = useRef<HTMLDivElement>(null);
@@ -22,34 +31,34 @@ export const ReplicationSection = () => {
   }, [enabled]);
 
   return (
-    <FormSection forceLabelWidth={280} title={{ name: 'Replication' }}>
+    <FormSection forceLabelWidth="19rem" title={{ name: 'Replication' }}>
       <FormGroup
         id="createReplicationRule"
         direction="horizontal"
         label="Create Replication Rule"
-        help="Optional — creating a rule now is not required, it can also be set up later from the bucket."
+        help="Optional — a rule can also be set up later from the bucket."
         helpErrorPosition="bottom"
         content={<Checkbox id="createReplicationRule" {...register('createReplicationRule')} />}
       />
       {enabled && (
-        <div ref={ruleFieldsRef}>
-          <FormGroup
-            id="sourceBucketName"
-            direction="horizontal"
-            label="Source Bucket name"
-            required
-            helpErrorPosition="bottom"
-            error={errorIfTouched('sourceBucketName')}
-            content={<Input id="sourceBucketName" autoComplete="off" {...register('sourceBucketName')} />}
+        <div ref={ruleFieldsRef} style={{ marginTop: spacing.r24 }}>
+          {reusesExistingAccount && (
+            <div style={{ marginBottom: spacing.r24 }}>
+              <InfoMessage
+                title="Existing replication rules"
+                content="Replication rules the source bucket already has are kept; this one is added next to them."
+              />
+            </div>
+          )}
+          <SourceBucketChoiceFields
+            accountName={reusesExistingAccount && sourceAccountName ? sourceAccountName : null}
           />
-          <FormGroup
-            id="targetBucketName"
-            direction="horizontal"
-            label="Target Bucket name"
-            required
-            helpErrorPosition="bottom"
-            error={errorIfTouched('targetBucketName')}
-            content={<Input id="targetBucketName" autoComplete="off" {...register('targetBucketName')} />}
+          <BucketChoiceFields
+            typeField="targetBucketNameType"
+            nameField="targetBucketName"
+            label="Target Bucket"
+            buckets={destinationBuckets}
+            noBucketReason="This account has no bucket on the destination"
           />
           <FormGroup
             id="prefix"

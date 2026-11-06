@@ -1,8 +1,8 @@
-import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import type React from 'react';
 import { useState } from 'react';
 import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
+import { FormGroup, FormSection } from '../../ui-elements/CoreUIForm';
 import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, SECRET_KEY_PLACEHOLDER } from '../LocationEditor';
 import type { LocationDetailsFormProps } from '.';
 

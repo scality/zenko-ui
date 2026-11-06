@@ -60,7 +60,7 @@ export const VeeamCapacityModalInternal = ({
   useEffect(() => {
     reset({ capacity: capacityValue, capacityUnit });
   }, [capacityValue, capacityUnit, reset]);
-  const { mutate } = usePutObject();
+  const { mutate } = usePutObject({ meta: { suppressGlobalError: true } });
   const { showToast } = useToast();
 
   const onSubmit = ({ capacity, capacityUnit }: VeeamCapacityForm) => {
@@ -133,7 +133,6 @@ export const VeeamCapacityModalInternal = ({
             style={{
               paddingTop: '0.5rem',
               paddingBottom: '0.5rem',
-              width: '40rem',
             }}
           >
             <VeeamCapacityFormSection autoFocusEnabled={isCapacityModalOpen} />

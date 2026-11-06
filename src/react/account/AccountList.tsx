@@ -1,5 +1,5 @@
-import { ConstrainedText, FormattedDateTime, Icon, Link, Stack } from '@scality/core-ui';
-import { Button, Table } from '@scality/core-ui/dist/next';
+import { ConstrainedText, FormattedDateTime, Icon, Link, Stack, spacing } from '@scality/core-ui';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useMemo } from 'react';
 import type { CellProps, CoreUIColumn } from 'react-table';
@@ -8,8 +8,11 @@ import { useCurrentAccount, useSetAssumedRole } from '../DataServiceRoleProvider
 import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 import type { Account } from '../next-architecture/domain/entities/account';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
+import { TOOLBAR_ACTION_ICON_ONLY_BELOW } from '../ui-elements/responsive';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
+
+const ROW_RIGHT_GUTTER = spacing.r16;
 
 function useAutoAssumeRoleUponAccountDeletion({ accounts }: { accounts: Account[] }) {
   const { account } = useCurrentAccount();
@@ -53,22 +56,30 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   };
 
   const columns: CoreUIColumn<Account>[] = React.useMemo(() => {
-    const dataUsedColumn = getDataUsedColumn((account: Account) => account, { minWidth: '7rem' });
+    const dataUsedColumn = getDataUsedColumn((account: Account) => account, {
+      minWidth: '7rem',
+      paddingRight: ROW_RIGHT_GUTTER,
+    });
+
     return [
       {
         Header: 'Account Name',
         accessor: 'name',
         cellStyle: {
-          minWidth: '20rem',
+          flex: 1,
+          minWidth: '10rem',
         },
         Cell: (value: CellProps<Account, string>) => nameCell(value),
       },
       {
         Header: 'Created On',
         accessor: 'creationDate',
+        dropAt: 620,
         cellStyle: {
+          // 10rem fits date-time-second's 19 characters.
+          minWidth: '10rem',
           textAlign: 'right',
-          minWidth: '20ch',
+          paddingRight: ROW_RIGHT_GUTTER,
         },
         Cell: ({ value }: CellProps<Account, Date>) => (
           <FormattedDateTime format="date-time-second" value={new Date(value)} />
@@ -79,17 +90,12 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   }, [nameCell, isStorageManager, isStorageUsageReporter]);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1,
-      }}
-    >
+    <Box container display="flex" flexDirection="column" flex="1">
       <Table
         columns={columns}
         data={accounts}
         defaultSortingKey={'creationDate'}
+        revealDroppedColumns
         entityName={{
           en: {
             singular: 'account',
@@ -108,6 +114,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
                   icon={<Icon name="Create-add" />}
                   label="Create Account"
                   variant="primary"
+                  iconOnly={TOOLBAR_ACTION_ICON_ONLY_BELOW}
                   onClick={() => navigate('/create-account')}
                   type="submit"
                 ></Button>
@@ -117,7 +124,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         />
         <Table.SingleSelectableContent rowHeight="h40" separationLineVariant="backgroundLevel1" />
       </Table>
-    </div>
+    </Box>
   );
 }
 

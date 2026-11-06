@@ -12,7 +12,8 @@ export type StepId =
   | 'attach-role-policy'
   | 'create-bucket'
   | 'create-location'
-  | 'create-replication-rule';
+  | 'create-replication-rule'
+  | 'refresh-configuration';
 
 export type StepState = 'pending' | 'succeeded' | 'failed';
 
@@ -27,11 +28,16 @@ export type StepView = {
 
 export type StepListInput = {
   isNewSourceAccount: boolean;
+  isNewDestinationAccount: boolean;
+  isNewTargetBucket: boolean;
+  isNewSourceBucket: boolean;
+  isNewLocation: boolean;
   createReplicationRule: boolean;
   sourceAccountName: string;
   sourceBucketName: string;
   targetBucketName: string;
   destinationAccountName: string;
+  locationName: string;
 };
 
 export type ChainStepState = 'idle' | 'pending' | 'success' | 'error';
@@ -59,33 +65,43 @@ const STEPS: StepDef[] = [
   {
     id: 'create-source-bucket',
     when: (i) => i.createReplicationRule,
-    label: (i) => `Create Bucket on Source: ${i.sourceBucketName}`,
+    label: (i) => `${i.isNewSourceBucket ? 'Create' : 'Use'} Bucket on Source: ${i.sourceBucketName}`,
   },
   {
     id: 'create-account',
     when: () => true,
-    label: (i) => `Create Account on Destination: ${i.destinationAccountName}`,
+    label: (i) => `${i.isNewDestinationAccount ? 'Create' : 'Use'} Account on Destination: ${i.destinationAccountName}`,
   },
-  { id: 'create-user', when: () => true, label: () => 'Create IAM User' },
-  { id: 'create-access-key', when: () => true, label: () => 'Generate Access Key' },
-  { id: 'create-policy', when: () => true, label: () => 'Create Policy' },
-  { id: 'create-role', when: () => true, label: () => 'Create IAM Role' },
-  { id: 'attach-role-policy', when: () => true, label: () => 'Attach Policy to Role' },
+  { id: 'create-user', when: () => true, label: () => 'Create IAM User on Destination' },
+  { id: 'create-access-key', when: (i) => i.isNewLocation, label: () => 'Generate Access Key on Destination' },
+  { id: 'create-policy', when: () => true, label: () => 'Create Policy on Destination' },
+  { id: 'create-role', when: () => true, label: () => 'Create IAM Role on Destination' },
+  { id: 'attach-role-policy', when: () => true, label: () => 'Attach Policy to Role on Destination' },
   {
     id: 'create-bucket',
     when: (i) => i.createReplicationRule,
-    label: (i) => `Create Target Bucket: ${i.targetBucketName}`,
+    label: (i) => `${i.isNewTargetBucket ? 'Create' : 'Use'} Bucket on Destination: ${i.targetBucketName}`,
   },
   {
     id: 'import-destination-certificate',
     when: () => true,
-    label: () => 'Import Certificate into Truststore',
+    label: () => 'Import Destination Certificate on Source',
   },
-  { id: 'create-location', when: () => true, label: () => 'Create Location' },
+  {
+    id: 'create-location',
+    when: () => true,
+    label: (i) => `${i.isNewLocation ? 'Create' : 'Use'} Location on Source: ${i.locationName}`,
+  },
   {
     id: 'create-replication-rule',
     when: (i) => i.createReplicationRule,
-    label: () => 'Create Replication Rule',
+    label: () => 'Create Replication Rule on Source',
+  },
+  {
+    id: 'refresh-configuration',
+    // Only when the run adds something the Accounts or Locations pages list.
+    when: (i) => i.isNewSourceAccount || i.isNewLocation,
+    label: () => 'Update Configuration on Source',
   },
 ];
 
@@ -116,6 +132,15 @@ const WIZARD_ROW_LINKS: Partial<Record<StepId, string[]>> = {
   'create-source-bucket': ['assume-source-role', 'create-source-bucket', 'create-source-bucket-versioning'],
   'create-location': ['create-location'],
   'create-replication-rule': ['create-replication-rule'],
+};
+
+const wizardRowLinks = (id: StepId, input: StepListInput): string[] => {
+  const links = WIZARD_ROW_LINKS[id] ?? [id];
+  const skipped = new Set<string>([
+    ...(input.isNewSourceBucket ? [] : ['create-source-bucket']),
+    ...(input.isNewLocation ? [] : ['create-location']),
+  ]);
+  return links.filter((linkId) => !skipped.has(linkId));
 };
 
 const configuratorRowState = (
@@ -158,16 +183,22 @@ const wizardRowState = (
  */
 export const buildStepViews = (input: StepListInput, sources: StepStateSources): StepView[] => {
   const active = STEPS.filter((def) => def.when(input));
-  const views: StepView[] = active.map((def, index) => {
+  const views: StepView[] = [];
+  active.forEach((def, index) => {
     const base = { id: def.id, step: index + 1, label: def.label(input) };
-    const {
-      state,
-      active: isActive,
-      errorMessage,
-    } = CONFIGURATOR_STEP_IDS.has(def.id)
-      ? configuratorRowState(sources.configuratorEvents, def.id)
-      : wizardRowState(WIZARD_ROW_LINKS[def.id] ?? [def.id], sources.chainStatusById);
-    return { ...base, state, active: isActive, errorMessage };
+    let resolved: { state: StepState; active: boolean; errorMessage?: string };
+    if (CONFIGURATOR_STEP_IDS.has(def.id)) {
+      resolved = configuratorRowState(sources.configuratorEvents, def.id);
+    } else {
+      const links = wizardRowLinks(def.id, input);
+      // A reused resource runs nothing of its own, so it follows the rows above it
+      // rather than reading as done before them.
+      resolved =
+        links.length === 0
+          ? { state: views.every((row) => row.state === 'succeeded') ? 'succeeded' : 'pending', active: false }
+          : wizardRowState(links, sources.chainStatusById);
+    }
+    views.push({ ...base, ...resolved });
   });
 
   if (sources.configuratorError && !views.some((v) => v.state === 'failed')) {

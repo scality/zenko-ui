@@ -39,6 +39,12 @@ import type {
 } from '../engine/types';
 import { useCreateVeeamRepository } from './useCreateVeeamRepository';
 
+// The Apply Actions table already reports failures inline.
+const SUPPRESS_GLOBAL_ERROR = { meta: { suppressGlobalError: true } };
+const useCreateBucketInChain = () => useCreateBucket(SUPPRESS_GLOBAL_ERROR);
+const useSetBucketTaggingInChain = () => useSetBucketTagging(SUPPRESS_GLOBAL_ERROR);
+const usePutObjectInChain = () => usePutObject(SUPPRESS_GLOBAL_ERROR);
+
 /**
  * Custom hook for refetching accounts/locations/endpoints configuration
  */
@@ -112,9 +118,9 @@ export function useMutationExecutor({
       createAccount: { mutation: createAccountMutation },
       refetchConfig: { mutation: refetchConfigMutation },
       assumeRole: { mutation: assumeRoleMutation },
-      createBucket: { hook: useCreateBucket },
-      tagBucket: { hook: useSetBucketTagging },
-      putObject: { hook: usePutObject },
+      createBucket: { hook: useCreateBucketInChain },
+      tagBucket: { hook: useSetBucketTaggingInChain },
+      putObject: { hook: usePutObjectInChain },
       createIAMUser: { mutation: createIAMUserMutation },
       createAccessKey: { mutation: createUserAccessKeyMutation },
       createPolicy: { mutation: createPolicyMutation },

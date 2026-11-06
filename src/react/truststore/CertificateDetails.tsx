@@ -1,14 +1,13 @@
 import type { ParsedCertificate } from '@scality/certchain';
 import { ConstrainedText, Icon, Modal, Stack, spacing, Text, Wrap } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { Box, CopyButton } from '@scality/core-ui/dist/next';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import type React from 'react';
 import styled from 'styled-components';
 import { ModalBody } from '../ui-elements/Modal';
 import { downloadCertificate, formatExpiryDate } from './utils';
 
 const CertificateViewFieldWrapper = styled.div`
-  width: 12rem;
+  flex: 0 0 12rem;
 `;
 const MAX_CONTENT_WIDTH = '24rem';
 
@@ -80,7 +79,7 @@ const CertificateDetailRow = ({ label, value, copyable = false }: CertificateDet
     }
 
     return (
-      <Stack direction="horizontal" gap="r8" style={{ maxWidth: MAX_CONTENT_WIDTH, flex: 1 }}>
+      <Stack direction="horizontal" gap="r8" style={{ maxWidth: MAX_CONTENT_WIDTH, flex: 1, minWidth: 0 }}>
         <div style={{ flex: 1, minWidth: 0 }}>{content}</div>
         {copyable && <CopyButton textToCopy={displayValue} />}
       </Stack>

@@ -1,4 +1,6 @@
 import type {
+  ListBucketsRequestBody,
+  ListBucketsResponse,
   Problem,
   ProblemCode,
   ResolveRequestBody,
@@ -43,6 +45,20 @@ export async function verify(body: VerifyRequestBody, { token, signal }: ClientO
   });
   if (!response.ok) throw await asServiceError(response);
   return (await response.json()) as VerifyResponse;
+}
+
+export async function listDestinationBuckets(
+  body: ListBucketsRequestBody,
+  { token, signal }: ClientOptions,
+): Promise<ListBucketsResponse> {
+  const response = await fetch(`${BASE}/destination/buckets`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!response.ok) throw await asServiceError(response);
+  return (await response.json()) as ListBucketsResponse;
 }
 
 export async function resolve(body: ResolveRequestBody, { token, signal }: ClientOptions): Promise<ResolveResponse> {

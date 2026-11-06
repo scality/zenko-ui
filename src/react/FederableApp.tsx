@@ -1,7 +1,8 @@
 import { ToastProvider } from '@scality/core-ui';
+import { ToastWirer } from '@scality/data-browser-library';
 import { ShellHooksProvider, useBasenameRelativeNavigate, useCurrentApp } from '@scality/module-federation';
-import type React from 'react';
-import { useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { Component, useEffect } from 'react';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import AuthLoadingProvider from './AuthLoadingProvider';
 import ErrorProvider from './ErrorProvider';
@@ -32,7 +33,7 @@ const HistoryPushEventListener = () => {
 
 // This component prevent the app to be rendered if the current app is not a zenko-ui
 // This happens when the app is in transition to another app
-const ZenkoUIGuard = ({ children }: { children: React.ReactNode }) => {
+const ZenkoUIGuard = ({ children }: { children: ReactNode }) => {
   const { kind } = useCurrentApp();
 
   if (kind !== 'zenko-ui') {
@@ -40,6 +41,25 @@ const ZenkoUIGuard = ({ children }: { children: React.ReactNode }) => {
   }
   return <>{children}</>;
 };
+
+class ToastWirerBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('ToastWirer failed to render', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null;
+    }
+    return this.props.children;
+  }
+}
 
 const FederableApp = (props) => {
   return (
@@ -53,6 +73,9 @@ const FederableApp = (props) => {
                 <AccessibleAccountsAdapterProvider>
                   <MetricsAdapterProvider>
                     <ToastProvider>
+                      <ToastWirerBoundary>
+                        <ToastWirer />
+                      </ToastWirerBoundary>
                       <ErrorProvider>
                         <AuthLoadingProvider>
                           <ZenkoUI />

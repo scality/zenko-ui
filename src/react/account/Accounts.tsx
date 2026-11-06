@@ -44,7 +44,7 @@ const Accounts = () => {
         <>
           <AppContainer.OverallSummary>
             <Header
-              icon={<MultiAccountsIcon />}
+              icon={<MultiAccountsIcon size="2x" />}
               headTitle={'All Accounts'}
               numInstance={accounts.value.length}
             ></Header>

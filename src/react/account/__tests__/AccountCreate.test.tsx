@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { useLocation } from 'react-router';
 import { getConfigOverlay, INSTANCE_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { renderWithRouterMatch, TEST_API_BASE_URL, testRender } from '../../utils/testUtil';
 import AccountCreate from '../AccountCreate';
@@ -17,6 +18,11 @@ const server = setupServer(
     return res(ctx.status(201));
   }),
 );
+
+const LocationDisplay = () => {
+  const location = useLocation();
+  return <div data-testid="location">{location.pathname}</div>;
+};
 
 describe('AccountCreate', () => {
   beforeAll(() => {
@@ -158,6 +164,62 @@ describe('AccountCreate', () => {
           'false',
         );
       }
+    });
+  });
+
+  const userUrl = `${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`;
+
+  const submitAccount = async (name: string) => {
+    renderWithRouterMatch(
+      <>
+        <AccountCreate />
+        <LocationDisplay />
+      </>,
+      { path: '*' },
+    );
+    await userEvent.type(screen.getByRole('textbox', { name: /name/i }), name);
+    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'test@test.com');
+    await userEvent.click(screen.getByRole('button', { name: /create/i }));
+  };
+
+  it('should trim the account name before sending it to the API', async () => {
+    let capturedBody: { userName?: string } | undefined;
+    server.use(
+      rest.post(userUrl, (req, res, ctx) => {
+        capturedBody = req.body as { userName?: string };
+        return res(ctx.status(201), ctx.json({ id: 'acc-1', userName: 'foo' }));
+      }),
+    );
+
+    await submitAccount('  foo  ');
+
+    await waitFor(() => {
+      expect(capturedBody).toBeDefined();
+    });
+    expect(capturedBody?.userName).toBe('foo');
+  });
+
+  it('should navigate to the account name returned by the API', async () => {
+    server.use(
+      rest.post(userUrl, (_req, res, ctx) =>
+        res(ctx.status(201), ctx.json({ id: 'acc-1', userName: 'foo-canonical' })),
+      ),
+    );
+
+    await submitAccount('foo');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location')).toHaveTextContent('/accounts/foo-canonical');
+    });
+  });
+
+  it('should fall back to the trimmed typed name when the API response has no userName', async () => {
+    server.use(rest.post(userUrl, (_req, res, ctx) => res(ctx.status(201), ctx.json({ id: 'acc-1' }))));
+
+    await submitAccount('  foo  ');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location')).toHaveTextContent('/accounts/foo');
     });
   });
 });

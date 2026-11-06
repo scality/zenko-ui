@@ -1,6 +1,15 @@
-export const MultiAccountsIcon = () => {
+export const MultiAccountsIcon = ({ size, ariaLabel }: { size?: string; ariaLabel?: string }) => {
   return (
-    <svg width="44" height="28" viewBox="0 0 44 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      viewBox="7 0 30 28"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`svg-inline--fa ${size ? `fa-${size}` : ''}`}
+      style={{ height: '1.4em' }}
+      role="img"
+      aria-hidden={!ariaLabel}
+      aria-label={ariaLabel}
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"

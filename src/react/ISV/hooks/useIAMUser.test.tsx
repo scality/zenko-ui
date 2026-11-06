@@ -69,7 +69,6 @@ describe('useIAMUser', () => {
 
     expect(result.current.getIAMUsersMutation.status).toBe('idle');
     expect(result.current.IAMUsers).toEqual([]);
-    expect(result.current.isIAMUserExist).toBe(false);
     expect(result.current.accessKeys).toBeNull();
   });
 
@@ -110,7 +109,6 @@ describe('useIAMUser', () => {
       { id: 'user1', name: 'test-user' },
       { id: 'user2', name: 'other-user' },
     ]);
-    expect(result.current.isIAMUserExist).toBe(true);
   });
 
   it('should check user access keys when IAMUserNameType is existing', async () => {

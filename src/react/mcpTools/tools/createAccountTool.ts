@@ -31,8 +31,8 @@ export const createAccountTool = {
     const instanceId = extractInstanceId(token);
     const client = makeMgtClient(ctx.managementEndpoint, token);
     const result = await createAccountCore(client, {
-      userName: params.name,
-      email: params.email,
+      userName: params.name.trim(),
+      email: params.email.trim(),
       instanceId,
     });
     // Refresh chat-side panels: the accounts list is sourced from

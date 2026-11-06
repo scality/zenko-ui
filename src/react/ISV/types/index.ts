@@ -8,6 +8,7 @@ export const ISV_CATEGORIES: { id: ISVCategory; label: string }[] = [
   { id: 'backup-and-archive', label: 'Backup and Archive Solutions' },
   { id: 'big-data-storage', label: 'Big Data Storage Solutions' },
   { id: 'cloud-and-edge-storage', label: 'Cloud and Edge Storage Solutions' },
+  { id: 'ai-solutions', label: 'AI Solutions' },
 ];
 
 /**
@@ -16,7 +17,7 @@ export const ISV_CATEGORIES: { id: ISVCategory; label: string }[] = [
 export type ISVInfo = {
   id: ISVId;
   name: string;
-  logo: React.JSX.Element;
+  logo?: React.JSX.Element;
   disabledMessage?: DisabledMessageComponent;
 };
 

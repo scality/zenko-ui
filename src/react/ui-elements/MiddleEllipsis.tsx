@@ -11,8 +11,8 @@ const MiddleEllipsisContainer = styled.div`
     display: block;
   }
 `;
-const MiddleEllipsisText = styled.span<{ calculationDone?: boolean }>`
-  opacity: ${(props) => (props.calculationDone ? '1' : '0')};
+const MiddleEllipsisText = styled.span<{ $calculationDone?: boolean }>`
+  opacity: ${(props) => (props.$calculationDone ? '1' : '0')};
 `;
 export const ellipseNode = (
   parentNode: HTMLElement,
@@ -110,7 +110,7 @@ const MiddleEllipsis = ({
       }}
     >
       <StyledMiddleEllipsis ref={ref}>
-        <MiddleEllipsisText calculationDone={calculationDone} className="middle-ellipsis-text">
+        <MiddleEllipsisText $calculationDone={calculationDone} className="middle-ellipsis-text">
           {text}
         </MiddleEllipsisText>
       </StyledMiddleEllipsis>

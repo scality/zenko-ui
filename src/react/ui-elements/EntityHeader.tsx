@@ -1,4 +1,5 @@
-import { Icon, Stack } from '@scality/core-ui';
+import { Stack } from '@scality/core-ui';
+import { IconWrapper } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { fontSize } from '@scality/core-ui/dist/style/theme';
 import type { JSX } from 'react';
 import styled from 'styled-components';
@@ -12,14 +13,14 @@ type Props = {
 
 export const HeadTitle = styled.div`
   display: flex;
-  color: ${(props) => props.theme.textSecondary};
+  color: ${(props) => props.theme.textPrimary};
   font-size: ${fontSize.large};
   align-items: center;
 `;
-export default function Header({ headTitle, numInstance }: Props) {
+export default function Header({ icon, headTitle, numInstance }: Props) {
   return (
     <Stack>
-      <Icon name="Account" size="2x" withWrapper />
+      <IconWrapper $size="2x">{icon}</IconWrapper>
       <HeadTitle>
         {headTitle}
         <TextBadge text={numInstance.toString()} variant="infoPrimary" />

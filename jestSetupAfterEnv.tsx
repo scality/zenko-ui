@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import fetch from 'node-fetch';
+import { installContainerQueryShim } from './src/react/utils/containerQueryShim';
 import {
   mockComponent,
   mockShellAlerts,
@@ -8,6 +9,8 @@ import {
 } from './src/react/utils/testUtil';
 
 import 'core-js/stable';
+
+installContainerQueryShim();
 
 window.fetch = (url, ...rest) =>
   //@ts-expect-error fix this when you are working on it
