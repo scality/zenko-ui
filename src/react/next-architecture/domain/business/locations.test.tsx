@@ -226,12 +226,12 @@ describe('useListLocations', () => {
 
     await flushPromises();
     // E
-    await waitFor(() => {
-      return (
+    await waitFor(
+      () =>
         result.current.locations.status === 'success' &&
-        result.current.locations.value['artesca-s3-location'].usedCapacity.status === 'error'
-      );
-    });
+        result.current.locations.value['artesca-s3-location'].usedCapacity.status === 'error',
+      { timeout: 5000 },
+    );
 
     // V
     const expectedRes = genExpectedLocation({
@@ -419,7 +419,7 @@ describe('useListLocationsForCurrentAccount', () => {
     const { result, waitFor } = setupAndRenderHook(new MockedAccountsLocationsAdapter(), mockMetricsAdapter);
 
     // E
-    await waitFor(() => result.current.locations.status === 'success');
+    await waitFor(() => result.current.locations.status === 'success', { timeout: 5000 });
 
     // V
     if (result.current.locations.status !== 'success') {
@@ -655,5 +655,25 @@ describe('storage usage report sharing', () => {
     // V
     expect(queryClient.getQueryState(['storageUsageReport'])?.status).toBe('error');
     expect(result.current).toStrictEqual(genExpectedLocation());
+  });
+
+  it('should retry a failed storage usage report only once', async () => {
+    // S
+    const metricsAdapter = new MockedMetricsAdapter();
+    metricsAdapter.getStorageUsageReport = jest.fn(() => Promise.reject());
+    const { result, waitFor } = renderHook(
+      () => useListLocations({ locationsEndpointsAdapter: new MockedAccountsLocationsAdapter(), metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    await new Promise(setImmediate);
+    // E
+    await waitFor(
+      () =>
+        result.current.locations.status === 'success' &&
+        result.current.locations.value['us-east-1'].usedCapacity.status === 'error',
+      { timeout: 5000 },
+    );
+    // V
+    expect(metricsAdapter.getStorageUsageReport).toHaveBeenCalledTimes(2);
   });
 });
