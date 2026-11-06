@@ -241,6 +241,7 @@ describe('useListAccounts', () => {
       () =>
         result.current.accounts.status === 'success' &&
         result.current.accounts.value[0].usedCapacity.status === 'error',
+      { timeout: 5000 },
     );
     //V
     expect(result.current.accounts).toStrictEqual({

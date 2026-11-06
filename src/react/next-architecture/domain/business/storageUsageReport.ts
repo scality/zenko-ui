@@ -19,6 +19,8 @@ export const useStorageUsageReport = ({
     enabled,
     staleTime: STORAGE_USAGE_REPORT_STALE_TIME_MS,
     refetchOnWindowFocus: false,
+    // Each attempt fetches every page of the report again, so do not use the default 3 retries.
+    retry: 1,
   });
 
 // The report only provides a total per location, which the Data Used cell displays as is.
