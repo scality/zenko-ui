@@ -332,7 +332,7 @@ export function LocationsList() {
     return (
       <EmptyState
         icon="Map-marker"
-        link={`${basePath}/create-location`}
+        link={isStorageManager ? `${basePath}/create-location` : undefined}
         listedResource={{ singular: 'location', plural: 'locations' }}
       />
     );

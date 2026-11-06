@@ -35,14 +35,20 @@ const toLatestUsedCapacity = (bytesUsed: number[], retrievedOn: Date): LatestUse
   };
 };
 
+// Names such as `constructor` are valid account and location names, so never read inherited keys.
+const getOwnValue = <T>(record: Record<string, T>, key: string): T | undefined =>
+  // biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn is not in the es2021 lib this project builds with
+  Object.prototype.hasOwnProperty.call(record, key) ? record[key] : undefined;
+
 export const getAccountUsedCapacity = (report: StorageUsageReport, accountName: string): LatestUsedCapacity =>
-  toLatestUsedCapacity(Object.values(report.accounts[accountName] ?? {}), report.retrievedOn);
+  toLatestUsedCapacity(Object.values(getOwnValue(report.accounts, accountName) ?? {}), report.retrievedOn);
 
 export const getLocationUsedCapacity = (report: StorageUsageReport, locationName: string): LatestUsedCapacity =>
   toLatestUsedCapacity(
-    Object.values(report.accounts).flatMap((locationsUsage) =>
-      locationName in locationsUsage ? [locationsUsage[locationName]] : [],
-    ),
+    Object.values(report.accounts).flatMap((locationsUsage) => {
+      const bytesUsed = getOwnValue(locationsUsage, locationName);
+      return bytesUsed === undefined ? [] : [bytesUsed];
+    }),
     report.retrievedOn,
   );
 
@@ -51,6 +57,6 @@ export const getAccountLocationUsedCapacity = (
   accountName: string,
   locationName: string,
 ): LatestUsedCapacity | undefined => {
-  const bytesUsed = report.accounts[accountName]?.[locationName];
+  const bytesUsed = getOwnValue(getOwnValue(report.accounts, accountName) ?? {}, locationName);
   return bytesUsed === undefined ? undefined : toLatestUsedCapacity([bytesUsed], report.retrievedOn);
 };
