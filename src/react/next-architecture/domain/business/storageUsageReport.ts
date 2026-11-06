@@ -2,6 +2,10 @@ import { useQuery } from 'react-query';
 import type { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import type { LatestUsedCapacity, StorageUsageReport } from '../entities/metrics';
 
+// Building the report costs one Scuba call per account and location, while Scuba writes its
+// latest metrics at most every 15 minutes, so a 5-minute cache rarely hides fresher numbers.
+const STORAGE_USAGE_REPORT_STALE_TIME_MS = 5 * 60 * 1000;
+
 export const useStorageUsageReport = ({
   metricsAdapter,
   enabled,
@@ -13,8 +17,7 @@ export const useStorageUsageReport = ({
     queryKey: ['storageUsageReport'],
     queryFn: () => metricsAdapter.getStorageUsageReport(),
     enabled,
-    // The report is costly to compute (one Scuba call per account and location), fetch it once per session.
-    staleTime: Number.POSITIVE_INFINITY,
+    staleTime: STORAGE_USAGE_REPORT_STALE_TIME_MS,
   });
 
 // The report only provides a total per location, which the Data Used cell displays as is.

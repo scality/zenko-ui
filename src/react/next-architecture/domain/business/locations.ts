@@ -202,16 +202,6 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  if (reportStatus === 'error' || !report) {
-    return {
-      locations: {
-        status: 'error',
-        title: 'Account Location Metrics Error',
-        reason: `Unexpected error while fetching account location's metrics`,
-      },
-    };
-  }
-
   if (bucketListStatus === 'idle' || bucketListStatus === 'loading') {
     return {
       locations: {
@@ -228,22 +218,25 @@ export const useListLocationsForCurrentAccount = ({
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
 
+  // The report covers every account: when it fails, still list the locations this account has buckets on.
   allLocationsValue.forEach((locationDefinition) => {
-    const accountLocationUsedCapacity = getAccountLocationUsedCapacity(report, account.Name, locationDefinition.name);
+    const accountLocationUsedCapacity =
+      report && getAccountLocationUsedCapacity(report, account.Name, locationDefinition.name);
     const isBackedByBucket = bucketLocationNameSet.has(locationDefinition.name);
 
     if (!accountLocationUsedCapacity && !isBackedByBucket) {
       return;
     }
 
-    const usedCapacityValue: LatestUsedCapacity = accountLocationUsedCapacity ?? ZERO_USED_CAPACITY;
-
     locations[locationDefinition.id] = {
       ...locationDefinition,
-      usedCapacity: {
-        status: 'success',
-        value: usedCapacityValue,
-      },
+      usedCapacity: report
+        ? { status: 'success', value: accountLocationUsedCapacity ?? ZERO_USED_CAPACITY }
+        : {
+            status: 'error',
+            title: 'Account Location Metrics Error',
+            reason: `Unexpected error while fetching account location's metrics`,
+          },
     };
   });
 

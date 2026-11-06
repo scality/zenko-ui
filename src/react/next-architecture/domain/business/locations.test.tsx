@@ -399,27 +399,39 @@ describe('useListLocationsForCurrentAccount', () => {
     expect(result.current).toStrictEqual(expectedRes);
   });
 
-  it(`should return error when loading account's locations fail`, async () => {
+  it(`should keep the account's bucket-backed locations, with a Data Used error, when the storage usage report fails`, async () => {
     // S
-    const mockAccountAdapter = new MockedAccountsLocationsAdapter();
+    server.use(
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/:instanceId/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'item-counts': {
+                bucketList: [{ name: 'renard-bucket', location: 'us-east-1', ownerCanonicalId: 'canonical-id-renard' }],
+              },
+            },
+          }),
+        ),
+      ),
+    );
     const mockMetricsAdapter = new MockedMetricsAdapter();
     mockMetricsAdapter.getStorageUsageReport = jest.fn(() => Promise.reject());
-    const { result, waitFor } = setupAndRenderHook(mockAccountAdapter, mockMetricsAdapter);
+    const { result, waitFor } = setupAndRenderHook(new MockedAccountsLocationsAdapter(), mockMetricsAdapter);
 
     // E
-    await waitFor(() => {
-      return result.current.locations.status === 'error';
-    });
+    await waitFor(() => result.current.locations.status === 'success');
 
     // V
-    const expectedRes = {
-      locations: {
-        status: 'error',
-        title: 'Account Location Metrics Error',
-        reason: `Unexpected error while fetching account location's metrics`,
-      },
-    };
-    expect(result.current).toStrictEqual(expectedRes);
+    if (result.current.locations.status !== 'success') {
+      throw new Error('expected locations to be successfully loaded');
+    }
+    const value = result.current.locations.value;
+    expect(Object.keys(value)).toEqual(['95dbedf5-9888-11ec-8565-1ac2af7d1e53']);
+    expect(value['95dbedf5-9888-11ec-8565-1ac2af7d1e53'].usedCapacity).toStrictEqual({
+      status: 'error',
+      title: 'Account Location Metrics Error',
+      reason: `Unexpected error while fetching account location's metrics`,
+    });
   });
 
   it('should return an error when `useListLocations` return one', async () => {
