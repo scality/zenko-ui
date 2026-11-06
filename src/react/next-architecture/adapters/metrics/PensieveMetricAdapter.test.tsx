@@ -123,4 +123,24 @@ describe('PensieveMetricsAdapter - getStorageUsageReport', () => {
     await expect(SUT.getStorageUsageReport()).rejects.toBeDefined();
     expect(pageHandler).toHaveBeenCalledTimes(2);
   });
+
+  it('should reject instead of looping when pensieve api cycles through markers', async () => {
+    //S
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
+    const nextMarkers: Record<string, string> = { '': 'marker-a', 'marker-a': 'marker-b', 'marker-b': 'marker-a' };
+    const pageHandler = jest.fn((req, res, ctx) =>
+      res(
+        ctx.json({
+          accounts: {},
+          isTruncated: true,
+          marker: nextMarkers[req.url.searchParams.get('marker') ?? ''],
+        }),
+      ),
+    );
+    server.use(rest.get(REPORTING_USAGE_URL, pageHandler));
+
+    //E+V
+    await expect(SUT.getStorageUsageReport()).rejects.toBeDefined();
+    expect(pageHandler).toHaveBeenCalledTimes(3);
+  });
 });

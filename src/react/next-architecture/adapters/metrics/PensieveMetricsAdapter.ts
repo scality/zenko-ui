@@ -41,6 +41,7 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
   async getStorageUsageReport(): Promise<StorageUsageReport> {
     this.managementClient.setToken(await this.getToken());
     const accounts: StorageUsageReport['accounts'] = {};
+    const seenMarkers = new Set<string>();
     let marker: string | undefined;
     do {
       const page = await this.managementClient.getReportingUsage(this.instanceId, marker);
@@ -50,8 +51,11 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
         );
       });
       const nextMarker = page.isTruncated ? page.marker : undefined;
-      if (nextMarker && nextMarker === marker) {
-        throw new Error('The storage usage report returned the same page marker twice');
+      if (nextMarker && seenMarkers.has(nextMarker)) {
+        throw new Error('The storage usage report returned a page marker it already returned');
+      }
+      if (nextMarker) {
+        seenMarkers.add(nextMarker);
       }
       marker = nextMarker;
     } while (marker);
