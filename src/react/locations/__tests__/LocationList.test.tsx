@@ -145,4 +145,37 @@ describe('LocationList', () => {
       within(defaultArtescaLocationRow).queryByRole('button', { name: /Delete Location/i }),
     ).not.toBeInTheDocument();
   });
+
+  it('should not offer a storage usage reporter to create the first location', async () => {
+    //S
+    queryClient.clear();
+    mockUserGroups(['StorageUsageReporter']);
+    server.use(
+      rest.get(`${TEST_API_BASE_URL}/api/v1/config/overlay/view/${INSTANCE_ID}`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            browserAccess: { enabled: true },
+            endpoints: [],
+            instanceId: INSTANCE_ID,
+            locations: {},
+            replicationStreams: [],
+            updatedAt: '2022-04-27T13:18:58Z',
+            users: null,
+            version: 12,
+          }),
+        ),
+      ),
+    );
+
+    renderWithRouterMatch(
+      <ReplicationControlProvider>
+        <LocationsList />
+      </ReplicationControlProvider>,
+      {},
+    );
+    //E
+    await screen.findByText(/A list of locations will appear here/i);
+    //V
+    expect(screen.queryByRole('button', { name: /Create Location/i })).not.toBeInTheDocument();
+  });
 });
