@@ -17,6 +17,7 @@ import {
   TEST_MANAGEMENT_CLIENT,
   WrapperAsStorageManager,
 } from '../../../utils/testUtil';
+import { MockedAccessibleAccounts } from '../../adapters/accessible-accounts/MockedAccessibleAccounts';
 import { MockedAccountsLocationsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
 import {
   DEFAULT_METRICS,
@@ -27,6 +28,7 @@ import {
 import type { Location, LocationsPromiseResult } from '../entities/location';
 import type { LatestUsedCapacity } from '../entities/metrics';
 import type { PromiseResult } from '../entities/promise';
+import { useListAccounts } from './accounts';
 import { useListLocations, useListLocationsForCurrentAccount } from './locations';
 
 const defaultUsedCapacity = {
@@ -587,5 +589,37 @@ describe('useListLocations depending on the user role', () => {
       status: 'success',
       value: { type: 'noMetrics' },
     });
+  });
+});
+
+describe('storage usage report sharing', () => {
+  beforeEach(() => queryClient.clear());
+
+  it('should fetch the storage usage report only once across the accounts and locations lists', async () => {
+    // S
+    const metricsAdapter = new MockedMetricsAdapter();
+    const accounts = renderHook(
+      () => useListAccounts({ accessibleAccountsAdapter: new MockedAccessibleAccounts(), metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    await accounts.waitFor(
+      () =>
+        accounts.result.current.accounts.status === 'success' &&
+        accounts.result.current.accounts.value[0].usedCapacity.status === 'success',
+    );
+    accounts.unmount();
+    // E
+    const locations = renderHook(
+      () => useListLocations({ locationsEndpointsAdapter: new MockedAccountsLocationsAdapter(), metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    await locations.waitFor(
+      () =>
+        locations.result.current.locations.status === 'success' &&
+        locations.result.current.locations.value['us-east-1'].usedCapacity.status === 'success',
+    );
+    await new Promise(setImmediate);
+    // V
+    expect(metricsAdapter.getStorageUsageReport).toHaveBeenCalledTimes(1);
   });
 });

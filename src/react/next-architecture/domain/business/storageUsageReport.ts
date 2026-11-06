@@ -13,9 +13,8 @@ export const useStorageUsageReport = ({
     queryKey: ['storageUsageReport'],
     queryFn: () => metricsAdapter.getStorageUsageReport(),
     enabled,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    // The report is costly to compute (one Scuba call per account and location), fetch it once per session.
+    staleTime: Number.POSITIVE_INFINITY,
   });
 
 // The report only provides a total per location, which the Data Used cell displays as is.
