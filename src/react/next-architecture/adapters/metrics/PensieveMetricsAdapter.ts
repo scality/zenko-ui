@@ -49,7 +49,11 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
           Object.entries(locations).map(([locationName, usage]) => [locationName, usage.bytesTotal ?? 0]),
         );
       });
-      marker = page.isTruncated ? page.marker : undefined;
+      const nextMarker = page.isTruncated ? page.marker : undefined;
+      if (nextMarker && nextMarker === marker) {
+        throw new Error('The storage usage report returned the same page marker twice');
+      }
+      marker = nextMarker;
     } while (marker);
     return { accounts, retrievedOn: new Date() };
   }

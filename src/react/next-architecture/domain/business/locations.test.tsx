@@ -634,4 +634,26 @@ describe('storage usage report sharing', () => {
     // V
     expect(metricsAdapter.getStorageUsageReport).toHaveBeenCalledTimes(1);
   });
+
+  it('should keep the used capacity of the last report when refetching it fails', async () => {
+    // S
+    const metricsAdapter = new MockedMetricsAdapter();
+    const { result, waitFor } = renderHook(
+      () => useListLocations({ locationsEndpointsAdapter: new MockedAccountsLocationsAdapter(), metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    await new Promise(setImmediate);
+    await waitFor(
+      () =>
+        result.current.locations.status === 'success' &&
+        result.current.locations.value['us-east-1'].usedCapacity.status === 'success',
+      { timeout: 3000 },
+    );
+    metricsAdapter.getStorageUsageReport = jest.fn(() => Promise.reject());
+    // E
+    await act(() => queryClient.refetchQueries(['storageUsageReport']));
+    // V
+    expect(queryClient.getQueryState(['storageUsageReport'])?.status).toBe('error');
+    expect(result.current).toStrictEqual(genExpectedLocation());
+  });
 });

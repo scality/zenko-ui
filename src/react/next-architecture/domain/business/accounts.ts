@@ -70,6 +70,9 @@ const resolveUsedCapacity = (
   report: StorageUsageReport | undefined,
   accountName: string,
 ): Account['usedCapacity'] => {
+  if (report) {
+    return { status: 'success', value: getAccountUsedCapacity(report, accountName) };
+  }
   if (reportStatus === 'error') {
     return {
       status: 'error',
@@ -77,10 +80,7 @@ const resolveUsedCapacity = (
       reason: 'An error occurred when fetching metrics',
     };
   }
-  if (!report) {
-    return { status: 'loading' };
-  }
-  return { status: 'success', value: getAccountUsedCapacity(report, accountName) };
+  return { status: 'loading' };
 };
 
 export const useListAccounts = ({

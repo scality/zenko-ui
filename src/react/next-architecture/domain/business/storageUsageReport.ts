@@ -18,6 +18,7 @@ export const useStorageUsageReport = ({
     queryFn: () => metricsAdapter.getStorageUsageReport(),
     enabled,
     staleTime: STORAGE_USAGE_REPORT_STALE_TIME_MS,
+    refetchOnWindowFocus: false,
   });
 
 // The report only provides a total per location, which the Data Used cell displays as is.

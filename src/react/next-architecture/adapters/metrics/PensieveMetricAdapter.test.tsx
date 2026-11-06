@@ -110,4 +110,17 @@ describe('PensieveMetricsAdapter - getStorageUsageReport', () => {
     });
     expect(result.retrievedOn).toBeInstanceOf(Date);
   });
+
+  it('should reject instead of looping when pensieve api returns the same marker again', async () => {
+    //S
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
+    const pageHandler = jest.fn((_req, res, ctx) =>
+      res(ctx.json({ accounts: { 'account-a': {} }, isTruncated: true, marker: 'same-marker' })),
+    );
+    server.use(rest.get(REPORTING_USAGE_URL, pageHandler));
+
+    //E+V
+    await expect(SUT.getStorageUsageReport()).rejects.toBeDefined();
+    expect(pageHandler).toHaveBeenCalledTimes(2);
+  });
 });

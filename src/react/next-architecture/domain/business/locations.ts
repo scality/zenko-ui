@@ -106,14 +106,14 @@ export const useListLocations = ({
     let usedCapacity: PromiseResult<LatestUsedCapacity> = {
       status: 'loading',
     };
-    if (reportStatus === 'error') {
+    if (report) {
+      usedCapacity = { status: 'success', value: getLocationUsedCapacity(report, l.name) };
+    } else if (reportStatus === 'error') {
       usedCapacity = {
         status: reportStatus,
         title: 'Location Metrics Error',
         reason: `Unexpected error while fetching location's metrics`,
       };
-    } else if (report) {
-      usedCapacity = { status: 'success', value: getLocationUsedCapacity(report, l.name) };
     }
 
     locations[l.name] = {

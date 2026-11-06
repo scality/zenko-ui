@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import {
   ACCOUNT_METRICS,
   ACCOUNT_NAME,
@@ -291,5 +291,24 @@ describe('useListAccounts', () => {
       status: 'success',
       value: [EXPECTED_ACCOUNTS_WITH_METRICS[0]],
     });
+  });
+
+  it('should keep the used capacity of the last report when refetching it fails', async () => {
+    //S
+    const { accessibleAccountsAdapter, metricsAdapter } = setupAdapters();
+    const { result, waitFor } = renderHook(() => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }), {
+      wrapper: NewWrapper(),
+    });
+    await waitFor(
+      () =>
+        result.current.accounts.status === 'success' &&
+        result.current.accounts.value[0].usedCapacity.status === 'success',
+    );
+    metricsAdapter.getStorageUsageReport = jest.fn().mockRejectedValue(new Error('Forbidden'));
+    //E
+    await act(() => queryClient.refetchQueries(['storageUsageReport']));
+    //V
+    expect(queryClient.getQueryState(['storageUsageReport'])?.status).toBe('error');
+    expect(result.current.accounts).toStrictEqual({ status: 'success', value: EXPECTED_ACCOUNTS_WITH_METRICS });
   });
 });
