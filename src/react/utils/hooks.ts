@@ -261,8 +261,9 @@ export const useAuthGroups = () => {
 
   const isStorageManager = userGroups.includes('StorageManager');
   const isPlatformAdmin = userGroups.includes('PlatformAdmin');
+  const isStorageUsageReporter = userGroups.includes('StorageUsageReporter');
 
-  return { isStorageManager, isPlatformAdmin };
+  return { isStorageManager, isPlatformAdmin, isStorageUsageReporter };
 };
 
 export const usePrevious = <T>(value: T): T | undefined => {

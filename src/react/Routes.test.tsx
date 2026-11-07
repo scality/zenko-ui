@@ -2,7 +2,14 @@ import { screen, waitFor } from '@testing-library/react';
 import { useAuthLoading } from './AuthLoadingProvider';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import InternalRoutes, { PrivateRoutes } from './Routes';
-import { FAKE_TOKEN, mockShellHooks, renderWithRouterMatch, TEST_ROLE_ARN } from './utils/testUtil';
+import {
+  FAKE_TOKEN,
+  mockShellHooks,
+  mockUserGroups,
+  renderWithRouterMatch,
+  resetUserGroups,
+  TEST_ROLE_ARN,
+} from './utils/testUtil';
 import { setRoleArnStored, removeRoleArnStored } from './utils/localStorage';
 import * as hooks from './utils/hooks';
 
@@ -84,6 +91,8 @@ describe('Routes component', () => {
   });
 
   describe('sidebar entries', () => {
+    afterEach(() => resetUserGroups());
+
     it('should show Data Services and Locations from sidebar for Storage Manager', async () => {
       // Mock user Data Role to be Storage Manager
 
@@ -132,6 +141,19 @@ describe('Routes component', () => {
         expect(selectors.dataServicesLink()).not.toBeInTheDocument();
         expect(selectors.locationsLink()).not.toBeInTheDocument();
       });
+    });
+
+    it('should show Locations but not Data Services in sidebar for Storage Usage Reporter', async () => {
+      mockUserGroups(['StorageUsageReporter']);
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/accounts',
+      });
+
+      await waitFor(() => {
+        expect(selectors.locationsLink()).toBeInTheDocument();
+      });
+      expect(selectors.dataServicesLink()).not.toBeInTheDocument();
     });
 
     it('should show Truststore in sidebar for Platform Admin when MetalK8s is enabled', async () => {

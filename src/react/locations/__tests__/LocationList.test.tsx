@@ -10,7 +10,10 @@ import {
 import { _DataServiceRoleContext } from '../../DataServiceRoleProvider';
 import {
   mockOffsetSize,
+  mockUserGroups,
+  queryClient,
   renderWithRouterMatch,
+  resetUserGroups,
   TEST_API_BASE_URL,
   TEST_ROLE_PATH_NAME,
   zenkoUITestConfig,
@@ -59,6 +62,7 @@ describe('LocationList', () => {
   });
   afterEach(() => {
     server.resetHandlers();
+    resetUserGroups();
   });
   afterAll(() => {
     server.close();
@@ -106,5 +110,72 @@ describe('LocationList', () => {
         }),
       ).toBeDisabled();
     });
+  });
+
+  it('should show the data used without any management action for a storage usage reporter', async () => {
+    //S
+    queryClient.clear();
+    mockUserGroups(['StorageUsageReporter']);
+    server.use(
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/reporting/usage`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            accounts: { 'account-a': { 'us-east-1': { bytesTotal: 2048 } } },
+            isTruncated: false,
+            marker: null,
+          }),
+        ),
+      ),
+    );
+
+    renderWithRouterMatch(
+      <ReplicationControlProvider>
+        <LocationsList />
+      </ReplicationControlProvider>,
+      {},
+    );
+    //E
+    const findDefaultLocationRow = () => screen.getByRole('row', { name: /us-east-1 Storage Service for ARTESCA/i });
+    await waitFor(() => expect(findDefaultLocationRow()).toHaveTextContent(/2.00 KiB/i), { timeout: 3000 });
+    //V
+    const defaultArtescaLocationRow = findDefaultLocationRow();
+    expect(screen.queryByRole('button', { name: /Create Location/i })).not.toBeInTheDocument();
+    expect(within(defaultArtescaLocationRow).queryByRole('button', { name: /Edit Location/i })).not.toBeInTheDocument();
+    expect(
+      within(defaultArtescaLocationRow).queryByRole('button', { name: /Delete Location/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should not offer a storage usage reporter to create the first location', async () => {
+    //S
+    queryClient.clear();
+    mockUserGroups(['StorageUsageReporter']);
+    server.use(
+      rest.get(`${TEST_API_BASE_URL}/api/v1/config/overlay/view/${INSTANCE_ID}`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            browserAccess: { enabled: true },
+            endpoints: [],
+            instanceId: INSTANCE_ID,
+            locations: {},
+            replicationStreams: [],
+            updatedAt: '2022-04-27T13:18:58Z',
+            users: null,
+            version: 12,
+          }),
+        ),
+      ),
+    );
+
+    renderWithRouterMatch(
+      <ReplicationControlProvider>
+        <LocationsList />
+      </ReplicationControlProvider>,
+      {},
+    );
+    //E
+    await screen.findByText(/A list of locations will appear here/i);
+    //V
+    expect(screen.queryByRole('button', { name: /Create Location/i })).not.toBeInTheDocument();
   });
 });

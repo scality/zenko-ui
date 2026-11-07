@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useQuery } from 'react-query';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
 import { useBucketList } from '../../../queries/instanceStatusQuery';
@@ -10,6 +9,7 @@ import type { Location, LocationStorageInfos, LocationsPromiseResult } from '../
 import type { LatestUsedCapacity } from '../entities/metrics';
 import type { PromiseResult } from '../entities/promise';
 import { useLocationsAndEndpoints } from './accounts';
+import { getAccountLocationUsedCapacity, getLocationUsedCapacity, useStorageUsageReport } from './storageUsageReport';
 
 export const useLocationAndStorageInfos = ({
   locationName,
@@ -75,15 +75,11 @@ export const useListLocations = ({
     locationsEndpointsAdapter,
   });
 
-  const { isStorageManager } = useAuthGroups();
+  const { isStorageManager, isStorageUsageReporter } = useAuthGroups();
 
-  const ids = locationsAndEndpoints?.locations?.map((l) => l.id) ?? [];
-  const { data: metricsData, status: metricsStatus } = useQuery({
-    queryKey: ['locationsMetrics', ids],
-    queryFn: () => {
-      return metricsAdapter.listLocationsLatestUsedCapacity(ids);
-    },
-    enabled: !!locationsAndEndpoints?.locations && ids.length > 0 && isStorageManager,
+  const { data: report, status: reportStatus } = useStorageUsageReport({
+    metricsAdapter,
+    enabled: (locationsAndEndpoints?.locations.length ?? 0) > 0 && (isStorageManager || isStorageUsageReporter),
   });
 
   if (locationStatus === 'loading' || locationStatus === 'idle') {
@@ -110,19 +106,14 @@ export const useListLocations = ({
     let usedCapacity: PromiseResult<LatestUsedCapacity> = {
       status: 'loading',
     };
-    if (metricsStatus === 'loading') {
-      usedCapacity = { status: metricsStatus };
-    }
-
-    if (metricsStatus === 'error') {
+    if (report) {
+      usedCapacity = { status: 'success', value: getLocationUsedCapacity(report, l.name) };
+    } else if (reportStatus === 'error') {
       usedCapacity = {
-        status: metricsStatus,
+        status: reportStatus,
         title: 'Location Metrics Error',
         reason: `Unexpected error while fetching location's metrics`,
       };
-    }
-    if (metricsStatus === 'success') {
-      usedCapacity = { status: metricsStatus, value: metricsData?.[l.id] };
     }
 
     locations[l.name] = {
@@ -163,9 +154,10 @@ export const useListLocationsForCurrentAccount = ({
 
   const accountCannonicalId = account?.CanonicalId || '';
 
-  const { data: accountLocationData, status: accountLocationStatus } = useQuery({
-    queryKey: ['accountLocations', accountCannonicalId],
-    queryFn: () => metricsAdapter.listAccountLocationsLatestUsedCapacity(accountCannonicalId),
+  // The reporting API has no per-account filter, so this tab reads the instance-wide report it shares with the
+  // Accounts and Locations lists. With a cold cache, its first load is slower than a per-account call: accepted.
+  const { data: report, status: reportStatus } = useStorageUsageReport({
+    metricsAdapter,
     enabled: !!accountCannonicalId,
   });
 
@@ -204,20 +196,10 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  if (accountLocationStatus === 'loading' || accountLocationStatus === 'idle') {
+  if (reportStatus === 'loading' || reportStatus === 'idle') {
     return {
       locations: {
         status: 'loading',
-      },
-    };
-  }
-
-  if (accountLocationStatus === 'error') {
-    return {
-      locations: {
-        status: 'error',
-        title: 'Account Location Metrics Error',
-        reason: `Unexpected error while fetching account location's metrics`,
       },
     };
   }
@@ -234,29 +216,29 @@ export const useListLocationsForCurrentAccount = ({
     return allLocations;
   }
 
-  const metricsByLocationId = accountLocationData ?? {};
   const bucketLocationNameSet = new Set(bucketLocationNames);
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
 
+  // The report covers every account: when it fails, still list the locations this account has buckets on.
   allLocationsValue.forEach((locationDefinition) => {
-    const hasMetrics = locationDefinition.id in metricsByLocationId;
+    const accountLocationUsedCapacity =
+      report && getAccountLocationUsedCapacity(report, account.Name, locationDefinition.name);
     const isBackedByBucket = bucketLocationNameSet.has(locationDefinition.name);
 
-    if (!hasMetrics && !isBackedByBucket) {
+    if (!accountLocationUsedCapacity && !isBackedByBucket) {
       return;
     }
 
-    const usedCapacityValue: LatestUsedCapacity = hasMetrics
-      ? metricsByLocationId[locationDefinition.id]
-      : ZERO_USED_CAPACITY;
-
     locations[locationDefinition.id] = {
       ...locationDefinition,
-      usedCapacity: {
-        status: 'success',
-        value: usedCapacityValue,
-      },
+      usedCapacity: report
+        ? { status: 'success', value: accountLocationUsedCapacity ?? ZERO_USED_CAPACITY }
+        : {
+            status: 'error',
+            title: 'Account Location Metrics Error',
+            reason: `Unexpected error while fetching account location's metrics`,
+          },
     };
   });
 

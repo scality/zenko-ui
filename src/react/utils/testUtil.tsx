@@ -139,27 +139,29 @@ export const zenkoUITestConfig = {
   s3InternalFQDN: '',
 };
 
+const mockUseAuth = (groups: string[] = ['StorageManager']) => ({
+  userData: {
+    token: FAKE_TOKEN,
+    original: {
+      id_token: 'idtoken',
+      session_state: 'session-state-1',
+      access_token: 'accessToken',
+      profile: {
+        sub: 'test-user-sub',
+        instanceIds: ['1abe6d07-9b04-45e4-8c62-bdc5548f1f95'],
+        name: 'Test User',
+        email: 'test@test.com',
+      },
+      expires_at: Date.now() / 1000 + 3600,
+    },
+    groups,
+  },
+  getToken: () => Promise.resolve(FAKE_TOKEN),
+});
+
 export const mockShellHooks = {
   useAuthConfig: jest.fn(),
-  useAuth: jest.fn(() => ({
-    userData: {
-      token: FAKE_TOKEN,
-      original: {
-        id_token: 'idtoken',
-        session_state: 'session-state-1',
-        access_token: 'accessToken',
-        profile: {
-          sub: 'test-user-sub',
-          instanceIds: ['1abe6d07-9b04-45e4-8c62-bdc5548f1f95'],
-          name: 'Test User',
-          email: 'test@test.com',
-        },
-        expires_at: Date.now() / 1000 + 3600,
-      },
-      groups: ['StorageManager'],
-    },
-    getToken: () => Promise.resolve(FAKE_TOKEN),
-  })),
+  useAuth: jest.fn(() => mockUseAuth()),
   useConfigRetriever: jest.fn(() => {
     return {
       retrieveConfiguration: jest.fn(() => {
@@ -197,6 +199,15 @@ export const mockShellHooks = {
   }),
   useNotificationCenter: jest.fn(),
 };
+
+export const mockUserGroups = (groups: string[]) => {
+  mockShellHooks.useAuth.mockImplementation(() => mockUseAuth(groups));
+};
+
+export const resetUserGroups = () => {
+  mockShellHooks.useAuth.mockImplementation(() => mockUseAuth());
+};
+
 export const mockComponent = jest.fn(() => <div>Mocked Component</div>);
 
 export const mockShellAlerts = {

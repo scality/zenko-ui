@@ -12,7 +12,7 @@ import { useIAMClient } from '../IAMProvider';
 import type { IMetricsAdapter } from '../next-architecture/adapters/metrics/IMetricsAdapter';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import type { Account } from '../next-architecture/domain/entities/account';
-import type { LatestUsedCapacity } from '../next-architecture/domain/entities/metrics';
+import type { LatestUsedCapacity, StorageUsageReport } from '../next-architecture/domain/entities/metrics';
 import {
   AccessibleAccountsAdapterProvider,
   useAccessibleAccountsAdapter,
@@ -26,16 +26,8 @@ export class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(buckets: Bucket[]): Promise<Record<string, LatestUsedCapacity>> {
     return {};
   }
-  async listLocationsLatestUsedCapacity(locationIds: string[]): Promise<Record<string, LatestUsedCapacity>> {
-    return {};
-  }
-  async listAccountLocationsLatestUsedCapacity(
-    accountCanonicalId: string,
-  ): Promise<Record<string, LatestUsedCapacity>> {
-    return {};
-  }
-  async listAccountsLatestUsedCapacity(accountCanonicalIds: string[]): Promise<Record<string, LatestUsedCapacity>> {
-    return {};
+  async getStorageUsageReport(): Promise<StorageUsageReport> {
+    return { accounts: {}, retrievedOn: new Date() };
   }
 }
 

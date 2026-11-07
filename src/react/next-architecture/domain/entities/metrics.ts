@@ -13,3 +13,9 @@ export type LatestUsedCapacity =
       };
       measuredOn: Date;
     };
+
+export type StorageUsageReport = {
+  /** Bytes used, keyed by account name then by location name. */
+  accounts: Record<string, Record<string, number>>;
+  retrievedOn: Date;
+};

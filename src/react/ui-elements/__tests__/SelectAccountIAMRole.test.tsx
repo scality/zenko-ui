@@ -400,7 +400,8 @@ describe('SelectAccountIAMRole', () => {
       name: 'no-bucket',
       preferredAssumableRoleArn: `arn:aws:iam::${testAccountId1}:role/scality-internal/storage-manager-role`,
       usedCapacity: {
-        status: 'unknown',
+        status: 'success',
+        value: { type: 'noMetrics' },
       },
     };
     const role = {
@@ -543,7 +544,8 @@ describe('SelectAccountIAMRole', () => {
           name: 'no-bucket',
           preferredAssumableRoleArn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
           usedCapacity: {
-            status: 'unknown',
+            status: 'success',
+            value: { type: 'noMetrics' },
           },
         },
         {
@@ -690,7 +692,8 @@ describe('SelectAccountIAMRole', () => {
           name: 'yanjin',
           preferredAssumableRoleArn: 'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
           usedCapacity: {
-            status: 'unknown',
+            status: 'success',
+            value: { type: 'noMetrics' },
           },
         },
         {
@@ -954,7 +957,8 @@ describe('SelectAccountIAMRole', () => {
         name: 'no-bucket',
         preferredAssumableRoleArn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
         usedCapacity: {
-          status: 'unknown',
+          status: 'success',
+          value: { type: 'noMetrics' },
         },
       },
       {

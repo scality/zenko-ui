@@ -274,8 +274,6 @@ export const NEWLY_CREATED_ACCOUNT: AccountInfo = {
   canonicalId: NEWLY_CREATED_ACCOUNT_CANONICAL_ID,
   creationDate: new Date(NEWLY_CREATED_ACCOUNT_CREATION_DATE),
 };
-export const LOCATION_ID = 'de19517e-c99e-11ed-b9b0-f203387f3181';
-export const NEWLY_CREATED_LOCATION_ID = '536a589c-cefa-11ed-8e79-8ed67c003e17';
 export const TYPE_HAS_METRICS = 'hasMetrics';
 export const TYPE_NO_METRICS = 'noMetrics';
 export const BUCKET_CREATION_DATE = '2023-03-27T12:58:32.184Z';
@@ -302,18 +300,6 @@ export const NEWLY_CREATED_ACCOUNT_METRICS: LatestUsedCapacity = {
   type: TYPE_NO_METRICS,
 };
 
-export const LOCATIONS_METRICS_RESPONSE = {
-  [LOCATION_ID]: {
-    type: TYPE_HAS_METRICS,
-    usedCapacity: {
-      current: USED_CAPACITY_CURRENT,
-      nonCurrent: USED_CAPACITY_NON_CURRENT,
-    },
-    measuredOn: new Date(MEASURED_ON),
-  },
-  [NEWLY_CREATED_LOCATION_ID]: { type: TYPE_NO_METRICS },
-};
-
 export const BUCKET_METRICS_RESPONSE = {
   [BUCKET_NAME]: {
     type: TYPE_HAS_METRICS,
@@ -327,61 +313,16 @@ export const BUCKET_METRICS_RESPONSE = {
 };
 
 export const getStorageConsumptionMetricsHandlers = (baseUrl: string, instanceId: string) => [
-  //GET storage consumption metrics for specified accounts
-  rest.post(`${baseUrl}/api/v1/instance/${instanceId}/account/metrics`, (req, res, ctx) => {
-    const accounts = req.body as string[];
-
-    if (accounts.includes(ACCOUNT_CANONICAL_ID) && accounts.includes(NEWLY_CREATED_ACCOUNT_CANONICAL_ID)) {
-      return res(
-        ctx.json({
-          [ACCOUNT_CANONICAL_ID]: {
-            type: TYPE_HAS_METRICS,
-            usedCapacity: {
-              current: USED_CAPACITY_CURRENT,
-              nonCurrent: USED_CAPACITY_NON_CURRENT,
-            },
-            measuredOn: MEASURED_ON,
-          },
-          [NEWLY_CREATED_ACCOUNT_CANONICAL_ID]: { type: TYPE_NO_METRICS },
-        }),
-      );
-    } else {
-      const storageConsumptionMetrics = {};
-      accounts.forEach((account) => {
-        storageConsumptionMetrics[account] = {
-          type: TYPE_HAS_METRICS,
-          usedCapacity: {
-            current: USED_CAPACITY_CURRENT,
-            nonCurrent: USED_CAPACITY_NON_CURRENT,
-          },
-          measuredOn: MEASURED_ON,
-        };
-      });
-
-      return res(ctx.json(storageConsumptionMetrics));
-    }
-  }),
-
-  //GET storage consumption metrics for a specific account
-  rest.get(`${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_CANONICAL_ID}/metrics`, (req, res, ctx) => {
-    return res(
+  //GET storage usage report
+  rest.get(`${baseUrl}/api/v1/instance/${instanceId}/reporting/usage`, (_req, res, ctx) =>
+    res(
       ctx.json({
-        usedCapacity: {
-          current: USED_CAPACITY_CURRENT,
-          nonCurrent: USED_CAPACITY_NON_CURRENT,
-        },
-        locations: {
-          [LOCATION_ID]: {
-            usedCapacity: {
-              current: USED_CAPACITY_CURRENT,
-              nonCurrent: USED_CAPACITY_NON_CURRENT,
-            },
-          },
-        },
-        measuredOn: MEASURED_ON,
+        accounts: { [ACCOUNT_NAME]: { 'us-east-1': { bytesTotal: USED_CAPACITY_CURRENT } } },
+        isTruncated: false,
+        marker: null,
       }),
-    );
-  }),
+    ),
+  ),
 
   //GET storage consumption metrics for buckets
   rest.post(`${baseUrl}/api/v1/instance/${instanceId}/bucket/metrics`, (req, res, ctx) => {
@@ -414,24 +355,5 @@ export const getStorageConsumptionMetricsHandlers = (baseUrl: string, instanceId
       });
       return res(ctx.json(bucketMetrics));
     }
-  }),
-
-  //GET storage consumption metrics for locations
-  rest.post(`${baseUrl}/api/v1/instance/${instanceId}/location/metrics`, (req, res, ctx) => {
-    const locations = req.body as string[];
-    if (locations.includes(LOCATION_ID) && locations.includes(NEWLY_CREATED_LOCATION_ID))
-      return res(
-        ctx.json({
-          [LOCATION_ID]: {
-            type: TYPE_HAS_METRICS,
-            usedCapacity: {
-              current: USED_CAPACITY_CURRENT,
-              nonCurrent: USED_CAPACITY_NON_CURRENT,
-            },
-            measuredOn: MEASURED_ON,
-          },
-          [NEWLY_CREATED_LOCATION_ID]: { type: TYPE_NO_METRICS },
-        }),
-      );
   }),
 ];
