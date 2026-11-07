@@ -154,6 +154,8 @@ export const useListLocationsForCurrentAccount = ({
 
   const accountCannonicalId = account?.CanonicalId || '';
 
+  // The reporting API has no per-account filter, so this tab reads the instance-wide report it shares with the
+  // Accounts and Locations lists. With a cold cache, its first load is slower than a per-account call: accepted.
   const { data: report, status: reportStatus } = useStorageUsageReport({
     metricsAdapter,
     enabled: !!accountCannonicalId,
