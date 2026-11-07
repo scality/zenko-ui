@@ -51,6 +51,9 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
         );
       });
       const nextMarker = page.isTruncated ? page.marker : undefined;
+      if (page.isTruncated && !nextMarker) {
+        throw new Error('The storage usage report is truncated but returned no page marker');
+      }
       if (nextMarker && seenMarkers.has(nextMarker)) {
         throw new Error('The storage usage report returned a page marker it already returned');
       }
