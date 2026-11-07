@@ -143,4 +143,20 @@ describe('PensieveMetricsAdapter - getStorageUsageReport', () => {
     await expect(SUT.getStorageUsageReport()).rejects.toBeDefined();
     expect(pageHandler).toHaveBeenCalledTimes(3);
   });
+
+  it.each([
+    null,
+    '',
+  ])('should reject instead of returning a partial report when a truncated page has the marker %p', async (marker) => {
+    //S
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
+    server.use(
+      rest.get(REPORTING_USAGE_URL, (_req, res, ctx) =>
+        res(ctx.json({ accounts: { 'account-a': { 'us-east-1': { bytesTotal: 100 } } }, isTruncated: true, marker })),
+      ),
+    );
+
+    //E+V
+    await expect(SUT.getStorageUsageReport()).rejects.toBeDefined();
+  });
 });
