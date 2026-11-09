@@ -1,3 +1,4 @@
+import { spacing } from '@scality/core-ui';
 import { screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -144,6 +145,8 @@ describe('LocationList', () => {
     expect(
       within(defaultArtescaLocationRow).queryByRole('button', { name: /Delete Location/i }),
     ).not.toBeInTheDocument();
+    // Data Used is the last column for a reporter, so it carries the row's right gutter.
+    expect(screen.getByRole('columnheader', { name: /Data Used/i }).style.paddingRight).toBe(spacing.r16);
   });
 
   it('should not show the data used to a user without StorageManager or StorageUsageReporter', async () => {

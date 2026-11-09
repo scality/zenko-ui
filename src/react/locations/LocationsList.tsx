@@ -210,7 +210,8 @@ export function LocationsList() {
       (location: Location) => {
         return location;
       },
-      { flex: '0.4' },
+      // Without the StorageManager columns after it, Data Used is the last column and needs the right gutter.
+      { flex: '0.4', ...(isStorageManager ? {} : { paddingRight: spacing.r16 }) },
     );
     const dataUsedColumnDroppable = { ...dataUsedColumn, dropAt: 780 };
 
