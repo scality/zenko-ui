@@ -14,7 +14,6 @@ import { useCreateAccountMutation } from '../../../../../js/mutations';
 import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useInstanceId } from '../../../../next-architecture/ui/AuthProvider';
-import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import { ErrorText, StatusBox } from '../../../../ui-elements/status';
 import Table, * as T from '../../../../ui-elements/Table';
 import type { SetupResult, StartSetupBody } from '../../api/types';
@@ -100,8 +99,7 @@ export const ApplyActionsStep = (props: Props) => {
   const createReplicationRuleMutation = useSetBucketReplication();
 
   const accountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
-  const { accounts: accountsResult } = useListAccounts({ accessibleAccountsAdapter: accountsAdapter, metricsAdapter });
+  const { accounts: accountsResult } = useListAccounts({ accessibleAccountsAdapter: accountsAdapter });
   const existingSourceRoleArn =
     accountsResult.status === 'success'
       ? (accountsResult.value.find((account) => account.name === accountName)?.preferredAssumableRoleArn ?? '')

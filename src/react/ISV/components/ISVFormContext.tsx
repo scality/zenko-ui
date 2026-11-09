@@ -14,7 +14,6 @@ import { useSearchParams } from 'react-router';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import type { Account } from '../../next-architecture/domain/entities/account';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import type { FormData, ISVPlatform } from '../engine/types';
 import { type IAMUser, useIAMUser } from '../hooks/useIAMUser';
 
@@ -83,11 +82,7 @@ export const ISVFormProvider = ({ platform, formMethods, children }: ISVFormProv
 
   // Fetch accounts
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
-  const { accounts: accountsResult } = useListAccounts({
-    accessibleAccountsAdapter,
-    metricsAdapter,
-  });
+  const { accounts: accountsResult } = useListAccounts({ accessibleAccountsAdapter });
 
   const accounts = useMemo(() => {
     if (accountsResult.status === 'success') {

@@ -146,6 +146,23 @@ describe('LocationList', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('should not show the data used to a user without StorageManager or StorageUsageReporter', async () => {
+    //S
+    queryClient.clear();
+    mockUserGroups(['PlatformAdmin']);
+
+    renderWithRouterMatch(
+      <ReplicationControlProvider>
+        <LocationsList />
+      </ReplicationControlProvider>,
+      {},
+    );
+    //E
+    await screen.findByRole('row', { name: /us-east-1 Storage Service for ARTESCA/i }, { timeout: 3000 });
+    //V
+    expect(screen.queryByRole('columnheader', { name: /Data Used/i })).not.toBeInTheDocument();
+  });
+
   it('should not offer a storage usage reporter to create the first location', async () => {
     //S
     queryClient.clear();

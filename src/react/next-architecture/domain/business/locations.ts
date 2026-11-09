@@ -130,15 +130,6 @@ export const useListLocations = ({
   };
 };
 
-const ZERO_USED_CAPACITY: LatestUsedCapacity = {
-  type: 'hasMetrics',
-  usedCapacity: {
-    current: 0,
-    nonCurrent: 0,
-  },
-  measuredOn: new Date(0),
-};
-
 export const useListLocationsForCurrentAccount = ({
   metricsAdapter,
   locationsEndpointsAdapter,
@@ -233,7 +224,14 @@ export const useListLocationsForCurrentAccount = ({
     locations[locationDefinition.id] = {
       ...locationDefinition,
       usedCapacity: report
-        ? { status: 'success', value: accountLocationUsedCapacity ?? ZERO_USED_CAPACITY }
+        ? {
+            status: 'success',
+            value: accountLocationUsedCapacity ?? {
+              type: 'hasMetrics',
+              usedCapacity: { current: 0, nonCurrent: 0 },
+              measuredOn: report.retrievedOn,
+            },
+          }
         : {
             status: 'error',
             title: 'Account Location Metrics Error',
