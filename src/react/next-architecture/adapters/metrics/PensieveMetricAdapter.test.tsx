@@ -111,6 +111,29 @@ describe('PensieveMetricsAdapter - getStorageUsageReport', () => {
     expect(result.retrievedOn).toBeInstanceOf(Date);
   });
 
+  it('should keep an account named __proto__ as a report entry', async () => {
+    //S
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
+    server.use(
+      rest.get(REPORTING_USAGE_URL, (_req, res, ctx) =>
+        res(
+          ctx.set('Content-Type', 'application/json'),
+          ctx.body(
+            '{"accounts":{"__proto__":{"us-east-1":{"bytesTotal":100}},"account-b":{"us-east-1":{"bytesTotal":1}}},' +
+              '"isTruncated":false,"marker":null}',
+          ),
+        ),
+      ),
+    );
+
+    //E
+    const result = await SUT.getStorageUsageReport();
+
+    //V
+    expect(Object.keys(result.accounts)).toEqual(['__proto__', 'account-b']);
+    expect(Object.getOwnPropertyDescriptor(result.accounts, '__proto__')?.value).toStrictEqual({ 'us-east-1': 100 });
+  });
+
   it('should reject instead of looping when pensieve api returns the same marker again', async () => {
     //S
     const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
