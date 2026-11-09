@@ -10,11 +10,13 @@ import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColum
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { TableHeaderWrapper } from '../ui-elements/Table';
+import { useAuthGroups } from '../utils/hooks';
 import { getLocationType } from '../utils/storageOptions';
 
 export function AccountLocations() {
   const metricsAdapter = useMetricsAdapter();
   const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
+  const { isStorageManager, isStorageUsageReporter } = useAuthGroups();
   const { locations } = useListLocationsForCurrentAccount({
     metricsAdapter,
     locationsEndpointsAdapter,
@@ -82,11 +84,11 @@ export function AccountLocations() {
           flex: '0.5',
         },
       },
-      dataUsedColumnDroppable,
+      ...(isStorageManager || isStorageUsageReporter ? [dataUsedColumnDroppable] : []),
     ];
 
     return columns;
-  }, [locations]);
+  }, [locations, isStorageManager, isStorageUsageReporter]);
 
   if (locations.status === 'unknown') {
     return (
