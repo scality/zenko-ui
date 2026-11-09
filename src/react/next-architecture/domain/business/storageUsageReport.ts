@@ -26,6 +26,9 @@ export const useStorageUsageReport = ({
     refetchOnWindowFocus: false,
     // Each attempt fetches every page of the report again, so do not use the default 3 retries.
     retry: 1,
+    // Structural sharing copies changed objects key by key, which would turn an account or location named
+    // `__proto__` into a prototype and drop it from the report.
+    structuralSharing: false,
   });
 
 // The report only provides a total per location, which the Data Used cell displays as is.

@@ -40,14 +40,17 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
   }
   async getStorageUsageReport(): Promise<StorageUsageReport> {
     this.managementClient.setToken(await this.getToken());
-    const accounts: StorageUsageReport['accounts'] = {};
+    const accounts = new Map<string, StorageUsageReport['accounts'][string]>();
     const seenMarkers = new Set<string>();
     let marker: string | undefined;
     do {
       const page = await this.managementClient.getReportingUsage(this.instanceId, marker);
       Object.entries(page.accounts ?? {}).forEach(([accountName, locations]) => {
-        accounts[accountName] = Object.fromEntries(
-          Object.entries(locations).map(([locationName, usage]) => [locationName, usage.bytesTotal ?? 0]),
+        accounts.set(
+          accountName,
+          Object.fromEntries(
+            Object.entries(locations).map(([locationName, usage]) => [locationName, usage.bytesTotal ?? 0]),
+          ),
         );
       });
       const nextMarker = page.isTruncated ? page.marker : undefined;
@@ -62,6 +65,7 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
       }
       marker = nextMarker;
     } while (marker);
-    return { accounts, retrievedOn: new Date() };
+    // Object.fromEntries defines own keys, so an account named `__proto__` stays an entry, not a prototype.
+    return { accounts: Object.fromEntries(accounts), retrievedOn: new Date() };
   }
 }
