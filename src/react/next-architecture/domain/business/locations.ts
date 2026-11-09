@@ -144,12 +144,14 @@ export const useListLocationsForCurrentAccount = ({
   });
 
   const accountCannonicalId = account?.CanonicalId || '';
+  const { isStorageManager, isStorageUsageReporter } = useAuthGroups();
+  const canReadUsage = isStorageManager || isStorageUsageReporter;
 
   // The reporting API has no per-account filter, so this tab reads the instance-wide report it shares with the
   // Accounts and Locations lists. With a cold cache, its first load is slower than a per-account call: accepted.
   const { data: report, status: reportStatus } = useStorageUsageReport({
     metricsAdapter,
-    enabled: !!accountCannonicalId,
+    enabled: !!accountCannonicalId && canReadUsage,
   });
 
   const { bucketList, status: bucketListStatus } = useBucketList();
@@ -187,7 +189,7 @@ export const useListLocationsForCurrentAccount = ({
     };
   }
 
-  if (reportStatus === 'loading' || reportStatus === 'idle') {
+  if (canReadUsage && (reportStatus === 'loading' || reportStatus === 'idle')) {
     return {
       locations: {
         status: 'loading',
@@ -221,23 +223,27 @@ export const useListLocationsForCurrentAccount = ({
       return;
     }
 
-    locations[locationDefinition.id] = {
-      ...locationDefinition,
-      usedCapacity: report
-        ? {
-            status: 'success',
-            value: accountLocationUsedCapacity ?? {
-              type: 'hasMetrics',
-              usedCapacity: { current: 0, nonCurrent: 0 },
-              measuredOn: report.retrievedOn,
-            },
-          }
-        : {
-            status: 'error',
-            title: 'Account Location Metrics Error',
-            reason: `Unexpected error while fetching account location's metrics`,
-          },
-    };
+    let usedCapacity: PromiseResult<LatestUsedCapacity>;
+    if (!canReadUsage) {
+      usedCapacity = { status: 'unknown' };
+    } else if (report) {
+      usedCapacity = {
+        status: 'success',
+        value: accountLocationUsedCapacity ?? {
+          type: 'hasMetrics',
+          usedCapacity: { current: 0, nonCurrent: 0 },
+          measuredOn: report.retrievedOn,
+        },
+      };
+    } else {
+      usedCapacity = {
+        status: 'error',
+        title: 'Account Location Metrics Error',
+        reason: `Unexpected error while fetching account location's metrics`,
+      };
+    }
+
+    locations[locationDefinition.id] = { ...locationDefinition, usedCapacity };
   });
 
   return {

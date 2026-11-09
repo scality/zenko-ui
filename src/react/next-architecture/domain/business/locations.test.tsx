@@ -276,6 +276,7 @@ describe('useListLocationsForCurrentAccount', () => {
     });
     new MockedAccountsLocationsAdapter();
   });
+  afterEach(() => resetUserGroups());
 
   it('should return only location for current account', async () => {
     jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
@@ -432,6 +433,37 @@ describe('useListLocationsForCurrentAccount', () => {
       title: 'Account Location Metrics Error',
       reason: `Unexpected error while fetching account location's metrics`,
     });
+  });
+
+  it(`should list the account's bucket-backed locations without the storage usage report for a user without a usage role`, async () => {
+    // S
+    mockUserGroups(['PlatformAdmin']);
+    server.use(
+      rest.get(`${TEST_API_BASE_URL}/api/v1/instance/:instanceId/status`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metrics: {
+              'item-counts': {
+                bucketList: [{ name: 'renard-bucket', location: 'us-east-1', ownerCanonicalId: 'canonical-id-renard' }],
+              },
+            },
+          }),
+        ),
+      ),
+    );
+    const { result, waitFor, metricsAdapter } = setupAndRenderHook();
+
+    // E
+    await waitFor(() => result.current.locations.status === 'success');
+
+    // V
+    if (result.current.locations.status !== 'success') {
+      throw new Error('expected locations to be successfully loaded');
+    }
+    const value = result.current.locations.value;
+    expect(Object.keys(value)).toEqual(['95dbedf5-9888-11ec-8565-1ac2af7d1e53']);
+    expect(value['95dbedf5-9888-11ec-8565-1ac2af7d1e53'].usedCapacity).toStrictEqual({ status: 'unknown' });
+    expect(metricsAdapter.getStorageUsageReport).not.toHaveBeenCalled();
   });
 
   it('should return an error when `useListLocations` return one', async () => {
