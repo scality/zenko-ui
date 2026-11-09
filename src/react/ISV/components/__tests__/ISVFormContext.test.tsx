@@ -14,10 +14,6 @@ jest.mock('../../../next-architecture/ui/AccessibleAccountsAdapterProvider', () 
   useAccessibleAccountsAdapter: jest.fn(),
 }));
 
-jest.mock('../../../ui-elements/SelectAccountIAMRole', () => ({
-  NoOpMetricsAdapter: jest.fn(),
-}));
-
 jest.mock('../../hooks/useIAMUser', () => ({
   useIAMUser: jest.fn().mockReturnValue({
     IAMUsers: [],

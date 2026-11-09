@@ -1,6 +1,5 @@
 import { ToastProvider, useToast } from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
-import type { Bucket } from '@scality/data-browser-library';
 import { ShellHooksProvider } from '@scality/module-federation';
 import type { IAM } from 'aws-sdk';
 import { type PropsWithChildren, useEffect, useState } from 'react';
@@ -9,10 +8,8 @@ import { useParams } from 'react-router';
 import type { ShellAlerts, ShellHooks } from 'shell/compiled-types/src/hooks/useShellHooks';
 import DataServiceRoleProvider, { useAssumedRole, useSetAssumedRole } from '../DataServiceRoleProvider';
 import { useIAMClient } from '../IAMProvider';
-import type { IMetricsAdapter } from '../next-architecture/adapters/metrics/IMetricsAdapter';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import type { Account } from '../next-architecture/domain/entities/account';
-import type { LatestUsedCapacity, StorageUsageReport } from '../next-architecture/domain/entities/metrics';
 import {
   AccessibleAccountsAdapterProvider,
   useAccessibleAccountsAdapter,
@@ -21,15 +18,6 @@ import { LocationsEndpointsAdapterProvider } from '../next-architecture/ui/Locat
 import { getListRolesQuery } from '../queries';
 import { regexArn, SCALITY_IAM_ROLES } from '../utils/hooks';
 import { Form, FormGroup, FormSection } from './CoreUIForm';
-
-export class NoOpMetricsAdapter implements IMetricsAdapter {
-  async listBucketsLatestUsedCapacity(buckets: Bucket[]): Promise<Record<string, LatestUsedCapacity>> {
-    return {};
-  }
-  async getStorageUsageReport(): Promise<StorageUsageReport> {
-    return { accounts: {}, retrievedOn: new Date() };
-  }
-}
 
 export const extractAccountIdFromARN = (arn: string) => {
   return regexArn.exec(arn)?.groups?.account_id ?? '';
@@ -54,11 +42,7 @@ const isWebIdentityCompatible = (role: IAM.Role): boolean => {
 
 const AssumeDefaultIAMRole = ({ defaultValue }: Pick<SelectAccountIAMRoleWithAccountProps, 'defaultValue'>) => {
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = new NoOpMetricsAdapter();
-  const accounts = useListAccounts({
-    accessibleAccountsAdapter,
-    metricsAdapter,
-  });
+  const accounts = useListAccounts({ accessibleAccountsAdapter });
   const setAssumeRole = useSetAssumedRole();
 
   if (accounts.accounts.status === 'success' && defaultValue) {
@@ -305,11 +289,7 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
   const { onChange = defaultOnChange, hideAccountRoles = [], defaultValue } = props;
 
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = new NoOpMetricsAdapter();
-  const accounts = useListAccounts({
-    accessibleAccountsAdapter,
-    metricsAdapter,
-  });
+  const accounts = useListAccounts({ accessibleAccountsAdapter });
   const { showToast } = useToast();
   const accountsList = accounts.accounts.status === 'success' ? accounts.accounts.value : [];
   const isLoadingAccounts = accounts.accounts.status === 'loading';

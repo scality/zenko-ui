@@ -52,7 +52,6 @@ export const useLocationsAndEndpoints = ({
   };
 };
 
-
 const resolvePreferredRoleArn = (assumableRoles: { Name: string; Arn: string }[]): string => {
   const roleStorageAccountOwner = assumableRoles.find((role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE);
   if (roleStorageAccountOwner) {
@@ -88,7 +87,11 @@ export const useListAccounts = ({
   metricsAdapter,
 }: {
   accessibleAccountsAdapter: IAccessibleAccounts;
-  metricsAdapter: IMetricsAdapter;
+  /**
+   * Leave it out on screens that do not show Data Used: the storage usage report is then neither fetched nor
+   * read, so these screens cannot fill the report that the Accounts and Locations lists share.
+   */
+  metricsAdapter?: IMetricsAdapter;
 }): AccountsPromiseResult => {
   const { accountInfos } = accessibleAccountsAdapter.useListAccessibleAccounts();
   const { isStorageManager, isStorageUsageReporter } = useAuthGroups();
@@ -130,7 +133,7 @@ export const useListAccounts = ({
 
   const accounts: Account[] = accountInfosWithPreferredAssumableRole.map((accountInfo) => ({
     ...accountInfo,
-    usedCapacity: resolveUsedCapacity(reportStatus, report, accountInfo.name),
+    usedCapacity: metricsAdapter ? resolveUsedCapacity(reportStatus, report, accountInfo.name) : { status: 'unknown' },
   }));
   return { accounts: { status: 'success', value: accounts } };
 };

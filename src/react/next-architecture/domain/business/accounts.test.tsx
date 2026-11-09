@@ -151,6 +151,33 @@ describe('useListAccounts', () => {
     expect(result.current.accounts).toStrictEqual({ status: 'success', value: EXPECTED_ACCOUNTS_WITH_METRICS });
   });
 
+  it('should not let a screen that lists accounts without metrics replace the shared storage usage report', async () => {
+    //S
+    const { accessibleAccountsAdapter, metricsAdapter } = setupAdapters();
+    const withoutMetrics = renderHook(() => useListAccounts({ accessibleAccountsAdapter }), {
+      wrapper: NewWrapper(),
+    });
+    await withoutMetrics.waitFor(() => withoutMetrics.result.current.accounts.status === 'success');
+    await new Promise(setImmediate);
+    expect(withoutMetrics.result.current.accounts).toMatchObject({
+      status: 'success',
+      value: [{ usedCapacity: { status: 'unknown' } }, { usedCapacity: { status: 'unknown' } }],
+    });
+    withoutMetrics.unmount();
+    //E
+    const { result, waitFor } = renderHook(() => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }), {
+      wrapper: NewWrapper(),
+    });
+    await waitFor(
+      () =>
+        result.current.accounts.status === 'success' &&
+        result.current.accounts.value[0].usedCapacity.status === 'success',
+    );
+    //V
+    expect(metricsAdapter.getStorageUsageReport).toHaveBeenCalledTimes(1);
+    expect(result.current.accounts).toStrictEqual({ status: 'success', value: EXPECTED_ACCOUNTS_WITH_METRICS });
+  });
+
   it('should return accounts and their used capacity from the storage usage report when user is storage usage reporter', async () => {
     //S
     mockUserGroups(['StorageUsageReporter']);

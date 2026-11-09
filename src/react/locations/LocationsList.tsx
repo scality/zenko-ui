@@ -186,7 +186,7 @@ const ActionButtons = ({ rowValues }: { rowValues: Location }) => {
 
 export function LocationsList() {
   const navigate = useBasenameRelativeNavigate();
-  const { isStorageManager } = useAuthGroups();
+  const { isStorageManager, isStorageUsageReporter } = useAuthGroups();
   const locationsEndpointsAdapter = useLocationsEndpointsAdapter();
   const metricsAdapter = useMetricsAdapter();
   const { locations } = useListLocations({
@@ -263,7 +263,7 @@ export function LocationsList() {
           width: 'unset',
         },
       },
-      dataUsedColumnDroppable,
+      ...(isStorageManager || isStorageUsageReporter ? [dataUsedColumnDroppable] : []),
     ];
 
     if (!isStorageManager) {
@@ -318,7 +318,7 @@ export function LocationsList() {
       },
     });
     return columns;
-  }, [locations, isStorageManager]);
+  }, [locations, isStorageManager, isStorageUsageReporter]);
 
   if (locations.status === 'loading' || locations.status === 'unknown') {
     return (

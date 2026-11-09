@@ -18,7 +18,6 @@ import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/A
 import { useInstanceId } from '../../../../next-architecture/ui/AuthProvider';
 import { useLocationsEndpointsAdapter } from '../../../../next-architecture/ui/LocationsEndpointsAdapterProvider';
 import { Form } from '../../../../ui-elements/CoreUIForm';
-import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import { ErrorText, StatusBox } from '../../../../ui-elements/status';
 import Table, * as T from '../../../../ui-elements/Table';
 import type { SetupResult, StartSetupBody } from '../../api/types';
@@ -116,8 +115,7 @@ export const ApplyActionsStep = (props: Props) => {
   const refreshConfiguration = useRefreshConfigurationMutation();
 
   const accountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
-  const { accounts: accountsResult } = useListAccounts({ accessibleAccountsAdapter: accountsAdapter, metricsAdapter });
+  const { accounts: accountsResult } = useListAccounts({ accessibleAccountsAdapter: accountsAdapter });
   const existingSourceRoleArn =
     accountsResult.status === 'success'
       ? (accountsResult.value.find((account) => account.name === accountName)?.preferredAssumableRoleArn ?? '')

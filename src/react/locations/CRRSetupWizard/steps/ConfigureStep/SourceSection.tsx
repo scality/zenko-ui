@@ -5,7 +5,6 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { FormGroup, FormSection } from '../../../../ui-elements/CoreUIForm';
-import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import type { ConfigureFormValues } from './schema';
 
 const RADIO_OPTIONS = [
@@ -25,8 +24,7 @@ export const SourceSection = () => {
   const accountNameError = touchedFields.accountName ? errors.accountName?.message : undefined;
 
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
-  const { accounts: accountsResult } = useListAccounts({ accessibleAccountsAdapter, metricsAdapter });
+  const { accounts: accountsResult } = useListAccounts({ accessibleAccountsAdapter });
   const accounts = useMemo(
     () =>
       accountsResult.status === 'success'

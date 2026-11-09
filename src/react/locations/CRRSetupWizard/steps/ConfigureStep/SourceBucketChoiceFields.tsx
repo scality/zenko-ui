@@ -6,7 +6,6 @@ import { useTheme } from 'styled-components';
 import { useAssumeRoleQuery, useS3ConfigFromAssumeRoleResult } from '../../../../DataServiceRoleProvider';
 import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { NoOpMetricsAdapter } from '../../../../ui-elements/SelectAccountIAMRole';
 import { BucketChoiceFields } from './BucketChoiceFields';
 import type { ConfigureFormValues } from './schema';
 
@@ -50,8 +49,7 @@ export const SourceBucketChoiceFields = ({ accountName }: { accountName: string 
   const { getQuery } = useAssumeRoleQuery();
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = useMemo(() => new NoOpMetricsAdapter(), []);
-  const { accounts } = useListAccounts({ accessibleAccountsAdapter, metricsAdapter });
+  const { accounts } = useListAccounts({ accessibleAccountsAdapter });
   const roleArn =
     accounts.status === 'success'
       ? accounts.value.find((account) => account.name === accountName)?.preferredAssumableRoleArn

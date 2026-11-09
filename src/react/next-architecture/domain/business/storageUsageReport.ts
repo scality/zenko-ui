@@ -10,13 +10,18 @@ export const useStorageUsageReport = ({
   metricsAdapter,
   enabled,
 }: {
-  metricsAdapter: IMetricsAdapter;
+  metricsAdapter: IMetricsAdapter | undefined;
   enabled: boolean;
 }) =>
   useQuery({
     queryKey: ['storageUsageReport'],
-    queryFn: () => metricsAdapter.getStorageUsageReport(),
-    enabled,
+    queryFn: () => {
+      if (!metricsAdapter) {
+        throw new Error('A metrics adapter is required to fetch the storage usage report');
+      }
+      return metricsAdapter.getStorageUsageReport();
+    },
+    enabled: enabled && metricsAdapter !== undefined,
     staleTime: STORAGE_USAGE_REPORT_STALE_TIME_MS,
     refetchOnWindowFocus: false,
     // Each attempt fetches every page of the report again, so do not use the default 3 retries.

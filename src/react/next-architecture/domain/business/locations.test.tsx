@@ -531,7 +531,11 @@ describe('useListLocationsForCurrentAccount', () => {
     // A bucket-only location gets synthesized zero-usage capacity.
     expect(usEast1.usedCapacity).toMatchObject({
       status: 'success',
-      value: { type: 'hasMetrics', usedCapacity: { current: 0, nonCurrent: 0 } },
+      value: {
+        type: 'hasMetrics',
+        usedCapacity: { current: 0, nonCurrent: 0 },
+        measuredOn: DEFAULT_METRICS_MESURED_ON,
+      },
     });
   });
 });
