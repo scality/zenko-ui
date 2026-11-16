@@ -522,9 +522,7 @@ describe('ISVConfiguration', () => {
 
       expect(bucketNumberInput).toHaveValue();
 
-      await waitFor(() => {
-        expect(screen.getByText('Bucket #2 name *')).toBeInTheDocument();
-      });
+      expect(await screen.findByRole('textbox', { name: 'Bucket #2 name *' })).toBeInTheDocument();
 
       // Fill in second bucket name
       await userEvent.clear(screen.getByRole('textbox', { name: 'Bucket #2 name *' }));
