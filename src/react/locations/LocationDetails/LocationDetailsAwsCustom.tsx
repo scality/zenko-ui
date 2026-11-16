@@ -18,7 +18,7 @@ import {
 } from '../../../types/config';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { EndpointInfoMessage } from '../../truststore/EndpointInfoMessage';
-import { HelpLocationCreationAsyncNotification } from '../../ui-elements/Help';
+import { LOCATION_CREATION_ASYNC_NOTIFICATION_HELP } from '../../ui-elements/Help';
 import { isIngestSource } from '../../utils/storageOptions';
 import { ACCESS_KEY_PLACEHOLDER, LOCATION_EDITOR_FORCED_LABEL_WIDTH, S3_ENDPOINT_PATH_STYLE_TOOLTIP, SECRET_KEY_PLACEHOLDER, WRITE_OBJECTS_WITHOUT_PREFIX_HELP, WRITE_OBJECTS_WITHOUT_PREFIX_LABEL } from '../LocationEditor';
 import { checkIsRingS3Reseller } from '../utils';
@@ -190,16 +190,8 @@ export default function LocationDetailsAwsCustom({
                 disabled={editingExisting}
                 checked={formState.bucketMatch}
                 onChange={onFormItemChange}
-                //@ts-expect-error fix this when you are working on it
-                label={
-                  isIngest ? (
-                    <>
-                      Async Metadata updates Ready <HelpLocationCreationAsyncNotification />{' '}
-                    </>
-                  ) : (
-                    WRITE_OBJECTS_WITHOUT_PREFIX_LABEL
-                  )
-                }
+                label={isIngest ? 'Async Metadata updates Ready' : WRITE_OBJECTS_WITHOUT_PREFIX_LABEL}
+                labelHelpTooltip={isIngest ? LOCATION_CREATION_ASYNC_NOTIFICATION_HELP : undefined}
               />
             }
             helpErrorPosition="bottom"

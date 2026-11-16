@@ -160,4 +160,14 @@ describe('class <LocationDetailsAwsCustom />', () => {
     useConfigSpy.mockRestore();
     useDeployedMetalk8sSpy.mockRestore();
   });
+  it('should offer async metadata updates for an ingest source', async () => {
+    const useConfigSpy = jest.spyOn(ConfigProvider, 'useConfig').mockReturnValue(zenkoUITestConfig);
+    const component = await testMountAct(
+      // @ts-expect-error
+      <LocationDetailsAwsCustom {...props} capabilities={{ ...props.capabilities, s3cIngestLocation: true }} />,
+    );
+
+    expect(component.getByRole('checkbox', { name: /async metadata updates ready/i })).toBeInTheDocument();
+    useConfigSpy.mockRestore();
+  });
 });
