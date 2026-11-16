@@ -79,10 +79,12 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
         <Table
           //@ts-expect-error fix this when you are working on it
           columns={columns}
+          // Left undefined until the first page answers, so the table shows its loader meanwhile,
+          // including while the query waits for the IAM client.
           //@ts-expect-error fix this when you are working on it
-          data={data}
+          data={queryResult.firstPageStatus === 'success' ? data : undefined}
+          error={queryResult.firstPageStatus === 'error'}
           defaultSortingKey={defaultSortingKey}
-          status={queryResult.firstPageStatus}
           revealDroppedColumns
           entityName={{
             en: {

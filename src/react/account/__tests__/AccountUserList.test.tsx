@@ -1,6 +1,8 @@
-import { fireEvent, getAllByRole, getByText, screen, waitFor } from '@testing-library/react';
+import { fireEvent, getAllByRole, getByText, screen, waitFor, within } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import IAMClient from '../../../js/IAMClient';
+import * as IAMProviderModule from '../../IAMProvider';
 import { mockOffsetSize, TEST_API_BASE_URL, testRender } from '../../utils/testUtil';
 import AccountUserList from '../AccountUserList';
 
@@ -40,7 +42,10 @@ beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 100);
 });
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  jest.restoreAllMocks();
+});
 afterAll(() => server.close());
 
 describe('AccountUserList', () => {
@@ -93,6 +98,13 @@ describe('AccountUserList', () => {
     expect(screen.getByText('User Name')).toBeInTheDocument();
     expect(screen.getByText('Access Keys')).toBeInTheDocument();
     expect(screen.getByText('Created On')).toBeInTheDocument();
+  });
+  it('shows the loader while the IAM client is not logged in yet', () => {
+    jest.spyOn(IAMProviderModule, 'useIAMClient').mockReturnValue(new IAMClient(TEST_API_BASE_URL));
+
+    testRender(<AccountUserList accountName="account" />);
+
+    expect(within(screen.getByRole('grid')).getByText('Loading users...')).toBeInTheDocument();
   });
   it('handles server error', async () => {
     server.use(rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => res(ctx.status(500, 'error'))));

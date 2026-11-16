@@ -149,19 +149,20 @@ const AccountUserAccessKeys = () => {
     (data) => data.AccessKeyMetadata,
   );
 
+  // Left undefined until the keys are listed, so the table shows its loader meanwhile,
+  // including while the query waits for the IAM client.
   const data = useMemo(() => {
-    if (accessKeysStatus === 'success') {
-      return accessKeysResult.map((accesskey) => {
-        return {
-          accessKey: accesskey.AccessKeyId,
-          createdOn: formatSimpleDate(accesskey.CreateDate),
-          status: accesskey.Status,
-          actions: accesskey,
-        };
-      });
-    } else {
-      return [];
+    if (accessKeysStatus !== 'success') {
+      return undefined;
     }
+    return accessKeysResult.map((accesskey) => {
+      return {
+        accessKey: accesskey.AccessKeyId,
+        createdOn: formatSimpleDate(accesskey.CreateDate),
+        status: accesskey.Status,
+        actions: accesskey,
+      };
+    });
   }, [accessKeysStatus, accessKeysResult]);
   const columns = [
     {
@@ -272,8 +273,8 @@ const AccountUserAccessKeys = () => {
           <Table
             columns={columns as unknown as Column[]}
             data={data}
+            error={accessKeysStatus === 'error'}
             defaultSortingKey={'health'}
-            status={accessKeysStatus}
             revealDroppedColumns
             entityName={{
               en: {
