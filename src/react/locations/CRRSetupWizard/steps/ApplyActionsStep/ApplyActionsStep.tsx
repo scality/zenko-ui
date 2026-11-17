@@ -1,7 +1,7 @@
 import { Banner, ConstrainedText, Icon, Loader, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button } from '@scality/core-ui/dist/next';
-import { useCreateBucket, useSetBucketVersioning } from '@scality/data-browser-library';
+import { useCreateBucket } from '@scality/data-browser-library';
 import {
   type MutationConfig,
   type PreviousResults,
@@ -25,6 +25,7 @@ import { sourceStorageManagerRoleArn, useAssumeSourceRoleMutation } from '../../
 import { useCRRConfigurationSetupMutation } from '../../hooks/useCRRConfigurationSetupMutation';
 import { useCreateCRRLocationMutation } from '../../hooks/useCreateCRRLocationMutation';
 import { useCreateReplicationRuleMutation } from '../../hooks/useCreateReplicationRuleMutation';
+import { useEnableSourceVersioningMutation } from '../../hooks/useEnableSourceVersioningMutation';
 import { useImportDestinationCertificateMutation } from '../../hooks/useImportDestinationCertificateMutation';
 import { useRefreshConfigurationMutation } from '../../hooks/useRefreshConfigurationMutation';
 import { type ConfigureFormValues, toStartSetupBody } from '../ConfigureStep/schema';
@@ -108,7 +109,10 @@ export const ApplyActionsStep = (props: Props) => {
   const assumeSourceRole = useAssumeSourceRoleMutation();
   // The failed row and its Retry button already report these errors.
   const createSourceBucket = useCreateBucket({ meta: { suppressGlobalError: true } });
-  const enableSourceVersioning = useSetBucketVersioning({ meta: { suppressGlobalError: true } });
+  const enableSourceVersioning = useEnableSourceVersioningMutation({
+    bucketName: sourceBucketName ?? '',
+    checkFirst: !isNewSourceBucket,
+  });
   const setup = useCRRConfigurationSetupMutation();
   const createLocation = useCreateCRRLocationMutation();
   const createReplicationRuleMutation = useCreateReplicationRuleMutation({ bucketName: sourceBucketName ?? '' });

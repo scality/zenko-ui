@@ -44,6 +44,15 @@ export const useSetBucketVersioning = jest.fn(() => ({
   reset: jest.fn(),
 }));
 
+export const useGetBucketVersioning = jest.fn(() => ({
+  data: undefined,
+  status: 'idle',
+  isLoading: false,
+  isError: false,
+  error: null,
+  refetch: jest.fn().mockResolvedValue({ data: { Status: undefined } }),
+}));
+
 export const useGetBucketReplication = jest.fn(() => ({
   data: undefined,
   status: 'idle',
