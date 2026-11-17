@@ -52,12 +52,51 @@ describe('toStartSetupBody — source Object Lock', () => {
 });
 
 describe('configureResolver — source Object Lock', () => {
-  it.each([true, false, null])('accepts sourceObjectLockEnabled %s', async (sourceObjectLockEnabled) => {
-    const result = await configureResolver({ ...VALUES, sourceObjectLockEnabled }, undefined, {
-      fields: {},
-      shouldUseNativeValidation: false,
+  const resolve = (values: ConfigureFormValues) =>
+    configureResolver(values, undefined, { fields: {}, shouldUseNativeValidation: false });
+
+  it.each([true, false, null])('accepts %s without a replication rule', async (sourceObjectLockEnabled) => {
+    const result = await resolve({ ...VALUES, sourceObjectLockEnabled });
+
+    expect(JSON.stringify(result.errors)).not.toContain('sourceObjectLockEnabled');
+  });
+
+  it.each([true, false, null])('accepts %s for a new source bucket', async (sourceObjectLockEnabled) => {
+    const result = await resolve({
+      ...VALUES,
+      createReplicationRule: true,
+      sourceBucketNameType: 'create',
+      sourceBucketName: 'src',
+      targetBucketName: 'dest',
+      sourceObjectLockEnabled,
     });
 
     expect(JSON.stringify(result.errors)).not.toContain('sourceObjectLockEnabled');
+  });
+
+  it.each([true, false])('accepts %s for an existing source bucket', async (sourceObjectLockEnabled) => {
+    const result = await resolve({
+      ...VALUES,
+      createReplicationRule: true,
+      sourceBucketNameType: 'existing',
+      sourceBucketName: 'src',
+      targetBucketName: 'dest',
+      sourceObjectLockEnabled,
+    });
+
+    expect(JSON.stringify(result.errors)).not.toContain('sourceObjectLockEnabled');
+  });
+
+  it('rejects an unknown sourceObjectLockEnabled for an existing source bucket', async () => {
+    const result = await resolve({
+      ...VALUES,
+      createReplicationRule: true,
+      sourceBucketNameType: 'existing',
+      sourceBucketName: 'src',
+      targetBucketName: 'dest',
+      sourceObjectLockEnabled: null,
+    });
+
+    expect(result.errors).toHaveProperty('sourceObjectLockEnabled');
   });
 });

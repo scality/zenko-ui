@@ -1,4 +1,4 @@
-import { InfoMessage, spacing } from '@scality/core-ui';
+import { InfoMessage, spacing, Text } from '@scality/core-ui';
 import {
   DataBrowserProvider,
   useBuckets,
@@ -22,6 +22,9 @@ const SOURCE_BUCKET = {
   noBucketReason: 'This account has no bucket on the source',
 } as const;
 
+const OBJECT_LOCK_READ_ERROR =
+  "Could not read the source bucket's Object Lock configuration. Check access to this bucket, or choose another one.";
+
 const ListedSourceBuckets = () => {
   const { data, isLoading, isError } = useBuckets(undefined, { retry: false });
   // Stable across renders: the form resets a picked bucket whenever this list changes.
@@ -39,6 +42,7 @@ const ListedSourceBuckets = () => {
     { enabled: reusedBucketName !== '', retry: false },
   );
   const sourceObjectLockEnabled = reusedBucketName === '' ? false : toSourceObjectLockEnabled(objectLock);
+  const objectLockReadFailed = reusedBucketName !== '' && sourceObjectLockEnabled === null && !!objectLock.error;
   useEffect(() => {
     setValue('sourceObjectLockEnabled', sourceObjectLockEnabled);
   }, [sourceObjectLockEnabled, setValue]);
@@ -46,6 +50,11 @@ const ListedSourceBuckets = () => {
   return (
     <>
       <BucketChoiceFields {...SOURCE_BUCKET} buckets={buckets} />
+      {objectLockReadFailed && (
+        <div style={{ marginBottom: spacing.r24 }}>
+          <Text color="statusCritical">{OBJECT_LOCK_READ_ERROR}</Text>
+        </div>
+      )}
       {isEmpty === false && (
         <div style={{ marginBottom: spacing.r24 }}>
           <InfoMessage

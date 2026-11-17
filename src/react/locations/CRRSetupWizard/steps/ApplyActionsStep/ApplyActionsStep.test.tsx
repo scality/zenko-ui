@@ -5,6 +5,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useMutation } from 'react-query';
 import { mockShellHooks, Wrapper } from '../../../../utils/testUtil';
+import { problemMessage } from '../../api/problemCopy';
 import { useAssumeSourceRoleMutation } from '../../hooks/useAssumeSourceRoleMutation';
 import type { ConfigureFormValues } from '../ConfigureStep/schema';
 import { ApplyActionsStep } from './ApplyActionsStep';
@@ -644,6 +645,23 @@ describe('ApplyActionsStep — source bucket with Object Lock', () => {
       expect(screen.queryByText('raw configurator message')).not.toBeInTheDocument();
     },
   );
+
+  it('shows the full copy of a failed step, wrapped instead of truncated', async () => {
+    streamOf([
+      { event: 'step.started', step: 'create-bucket' },
+      {
+        event: 'step.failed',
+        step: 'create-bucket',
+        error: { code: 'TargetBucketObjectLockRequired', message: 'raw configurator message' },
+      },
+    ]);
+    render(<ApplyActionsStep {...VALUES} {...REUSED_SOURCE} sourceObjectLockEnabled />, { wrapper: Wrapper });
+
+    const fullCopy = problemMessage('TargetBucketObjectLockRequired', '', { targetBucketName: 'crr-target-bucket' });
+    const message = await screen.findByText(OBJECT_LOCK_COPY);
+    expect(message).toHaveTextContent(fullCopy);
+    expect(message).toHaveStyle({ whiteSpace: 'normal' });
+  });
 
   it('explains a destination bucket without Object Lock when the whole setup fails', async () => {
     streamOf([

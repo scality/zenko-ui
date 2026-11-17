@@ -475,7 +475,11 @@ export const ApplyActionsStep = (props: Props) => {
                 <T.Cell style={{ flex: 1, minWidth: 0 }}>
                   <Stack direction="vertical" gap="r4">
                     <ConstrainedText text={view.label} lineClamp={1} />
-                    {view.state === 'failed' && view.errorMessage && <ErrorText>{view.errorMessage}</ErrorText>}
+                    {view.state === 'failed' && view.errorMessage && (
+                      <ErrorText style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
+                        {view.errorMessage}
+                      </ErrorText>
+                    )}
                   </Stack>
                 </T.Cell>
                 <T.Cell style={{ width: '200px' }}>
