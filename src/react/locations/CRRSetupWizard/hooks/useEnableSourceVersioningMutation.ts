@@ -16,11 +16,11 @@ export const useEnableSourceVersioningMutation = ({ bucketName, checkFirst }: Op
 
   return useMutation({
     mutationFn: async (input: EnableVersioningInput) => {
-      if (checkFirst) {
-        // An Object Lock bucket is always Enabled and rejects the PUT.
-        const { data } = await refetchRef.current({ throwOnError: true });
-        if (data?.Status === 'Enabled') return undefined;
-      }
+      if (!checkFirst) return setBucketVersioning.mutateAsync(input);
+
+      // An Object Lock bucket is always Enabled and rejects the PUT.
+      const { data } = await refetchRef.current({ throwOnError: true });
+      if (data?.Status === 'Enabled') return undefined;
       return setBucketVersioning.mutateAsync(input);
     },
   });
