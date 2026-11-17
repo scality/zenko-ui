@@ -62,7 +62,18 @@ const pickExistingSourceAccount = async () => {
 const sourceReuseRadio = () => screen.getAllByRole('radio', { name: /Use an existing Bucket/i })[0];
 
 describe('ConfigureStep — source bucket', () => {
+  const defaultLockAnswer = (useGetBucketObjectLockConfiguration as jest.Mock).getMockImplementation();
+
+  afterEach(() => (useGetBucketObjectLockConfiguration as jest.Mock).mockImplementation(defaultLockAnswer));
+
   it("offers the reused source account's buckets, and hands the chosen one on", async () => {
+    (useGetBucketObjectLockConfiguration as jest.Mock).mockReturnValue({
+      data: undefined,
+      error: { name: 'ObjectLockConfigurationNotFoundError' },
+      isLoading: false,
+      isError: true,
+      status: 'error',
+    });
     render(<ConfigureStep />, { wrapper: Wrapper });
     await pickExistingSourceAccount();
 
@@ -88,7 +99,11 @@ describe('ConfigureStep — source bucket', () => {
 
     await waitFor(() => expect(mockNext).toHaveBeenCalled());
     expect(mockNext).toHaveBeenCalledWith(
-      expect.objectContaining({ sourceBucketNameType: 'existing', sourceBucketName: 'finance-src' }),
+      expect.objectContaining({
+        sourceBucketNameType: 'existing',
+        sourceBucketName: 'finance-src',
+        sourceObjectLockEnabled: false,
+      }),
     );
   });
 
