@@ -135,7 +135,10 @@ export const ConfigureStep = () => {
     () =>
       reusedDestinationAccount
         ? {
-            names: destinationBuckets.data ?? [],
+            names: (destinationBuckets.data ?? []).map((bucket) => bucket.name),
+            unlockedNames: (destinationBuckets.data ?? [])
+              .filter((bucket) => bucket.objectLockEnabled === false)
+              .map((bucket) => bucket.name),
             isLoading: destinationBuckets.isLoading,
             isError: destinationBuckets.isError,
           }
