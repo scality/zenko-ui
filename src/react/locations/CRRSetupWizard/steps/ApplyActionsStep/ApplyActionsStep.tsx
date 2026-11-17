@@ -20,6 +20,8 @@ import { useLocationsEndpointsAdapter } from '../../../../next-architecture/ui/L
 import { Form } from '../../../../ui-elements/CoreUIForm';
 import { ErrorText, StatusBox } from '../../../../ui-elements/status';
 import Table, * as T from '../../../../ui-elements/Table';
+import { SetupFailedError } from '../../api/crrConfiguratorClient';
+import { problemMessage } from '../../api/problemCopy';
 import type { SetupResult, StartSetupBody } from '../../api/types';
 import { sourceStorageManagerRoleArn, useAssumeSourceRoleMutation } from '../../hooks/useAssumeSourceRoleMutation';
 import { useCRRConfigurationSetupMutation } from '../../hooks/useCRRConfigurationSetupMutation';
@@ -315,7 +317,9 @@ export const ApplyActionsStep = (props: Props) => {
   const configuratorStatus = steps.find((step) => step.id === CONFIGURATOR_CHAIN_LINK_ID)?.status;
   const configuratorError =
     configuratorStatus === 'error'
-      ? ((setup.error as Error | undefined)?.message ?? 'The destination setup failed.')
+      ? setup.error instanceof SetupFailedError
+        ? problemMessage(setup.error.code, setup.error.message, { targetBucketName: props.targetBucketName })
+        : ((setup.error as Error | undefined)?.message ?? 'The destination setup failed.')
       : undefined;
 
   const stepViews = useMemo(
