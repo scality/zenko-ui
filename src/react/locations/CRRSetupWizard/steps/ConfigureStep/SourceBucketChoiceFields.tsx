@@ -1,11 +1,17 @@
 import { InfoMessage, spacing } from '@scality/core-ui';
-import { DataBrowserProvider, useBuckets, useIsBucketEmpty } from '@scality/data-browser-library';
-import { useMemo } from 'react';
+import {
+  DataBrowserProvider,
+  useBuckets,
+  useGetBucketObjectLockConfiguration,
+  useIsBucketEmpty,
+} from '@scality/data-browser-library';
+import { useEffect, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 import { useAssumeRoleQuery, useS3ConfigFromAssumeRoleResult } from '../../../../DataServiceRoleProvider';
 import { useListAccounts } from '../../../../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { toSourceObjectLockEnabled } from '../../hooks/sourceObjectLock';
 import { BucketChoiceFields } from './BucketChoiceFields';
 import type { ConfigureFormValues } from './schema';
 
@@ -24,10 +30,18 @@ const ListedSourceBuckets = () => {
     [data, isLoading, isError],
   );
 
-  const { watch } = useFormContext<ConfigureFormValues>();
+  const { watch, setValue } = useFormContext<ConfigureFormValues>();
   // An empty name leaves the check idle; a bucket about to be created cannot hold anything.
   const reusedBucketName = watch('sourceBucketNameType') === 'existing' ? (watch('sourceBucketName') ?? '') : '';
   const { isEmpty } = useIsBucketEmpty(reusedBucketName);
+  const objectLock = useGetBucketObjectLockConfiguration(
+    { Bucket: reusedBucketName },
+    { enabled: reusedBucketName !== '', retry: false },
+  );
+  const sourceObjectLockEnabled = reusedBucketName === '' ? false : toSourceObjectLockEnabled(objectLock);
+  useEffect(() => {
+    setValue('sourceObjectLockEnabled', sourceObjectLockEnabled);
+  }, [sourceObjectLockEnabled, setValue]);
 
   return (
     <>
@@ -49,11 +63,16 @@ export const SourceBucketChoiceFields = ({ accountName }: { accountName: string 
   const { getQuery } = useAssumeRoleQuery();
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+  const { setValue } = useFormContext<ConfigureFormValues>();
   const { accounts } = useListAccounts({ accessibleAccountsAdapter });
   const roleArn =
     accounts.status === 'success'
       ? accounts.value.find((account) => account.name === accountName)?.preferredAssumableRoleArn
       : undefined;
+
+  useEffect(() => {
+    if (!roleArn) setValue('sourceObjectLockEnabled', false);
+  }, [roleArn, setValue]);
 
   if (!roleArn) return <BucketChoiceFields {...SOURCE_BUCKET} buckets={null} />;
 
