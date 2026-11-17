@@ -171,6 +171,7 @@ export const ApplyActionsStep = (props: Props) => {
       createReplicationRule,
       sourceBucketName,
       props.targetBucketName,
+      props.sourceObjectLockEnabled,
       isNewLocationForRun,
     ],
   );
