@@ -1,4 +1,4 @@
-import { useCreateBucket, useSetBucketVersioning } from '@scality/data-browser-library';
+import { useCreateBucket, useGetBucketVersioning, useSetBucketVersioning } from '@scality/data-browser-library';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
@@ -37,11 +37,13 @@ const server = setupServer(
 beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
 const defaultCreateBucket = (useCreateBucket as jest.Mock).getMockImplementation();
 const defaultSetBucketVersioning = (useSetBucketVersioning as jest.Mock).getMockImplementation();
+const defaultGetBucketVersioning = (useGetBucketVersioning as jest.Mock).getMockImplementation();
 const defaultAssumeSourceRole = (useAssumeSourceRoleMutation as jest.Mock).getMockImplementation();
 afterEach(() => {
   (useAssumeSourceRoleMutation as jest.Mock).mockImplementation(defaultAssumeSourceRole);
   (useCreateBucket as jest.Mock).mockImplementation(defaultCreateBucket);
   (useSetBucketVersioning as jest.Mock).mockImplementation(defaultSetBucketVersioning);
+  (useGetBucketVersioning as jest.Mock).mockImplementation(defaultGetBucketVersioning);
   server.resetHandlers();
   mockNext.mockReset();
   mockPrev.mockReset();
@@ -299,6 +301,83 @@ describe('ApplyActionsStep', () => {
     expect(screen.getByText('Use Bucket on Destination: crr-target-bucket')).toBeInTheDocument();
     await waitFor(() => expect(enableVersioning.mutateAsync).toHaveBeenCalled());
     expect(createBucket.mutate).not.toHaveBeenCalled();
+  });
+
+  describe('versioning on the source bucket', () => {
+    const mutationMock = (mutateAsync: jest.Mock = jest.fn()) => ({
+      mutate: jest.fn(),
+      mutateAsync,
+      status: 'idle',
+      reset: jest.fn(),
+    });
+    const bucketVersioningIs = (status: string | undefined) =>
+      (useGetBucketVersioning as jest.Mock).mockReturnValue({
+        data: undefined,
+        status: 'idle',
+        isLoading: false,
+        isError: false,
+        error: null,
+        refetch: jest.fn().mockResolvedValue({ data: { Status: status } }),
+      });
+    const objectLockRejection = () =>
+      Object.assign(new Error('The bucket is in an invalid state'), { name: 'InvalidBucketState' });
+
+    it('leaves a reused bucket that is already Enabled alone and carries on with the setup', async () => {
+      const put = jest.fn().mockRejectedValue(objectLockRejection());
+      const enableVersioning = mutationMock(put);
+      enableVersioning.mutate = put;
+      (useSetBucketVersioning as jest.Mock).mockReturnValue(enableVersioning);
+      bucketVersioningIs('Enabled');
+      let setupRequested = false;
+      server.use(
+        rest.post('*/replication-setups', (_req, res, ctx) => {
+          setupRequested = true;
+          return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+        }),
+      );
+
+      render(<ApplyActionsStep {...VALUES} accountNameType="existing" sourceBucketNameType="existing" />, {
+        wrapper: Wrapper,
+      });
+
+      const row = (await screen.findByText('Use Bucket on Source: crr-src-bucket')).closest('tr') as HTMLElement;
+      await waitFor(() => expect(rowStatus(row)).toBe('Success'));
+      await waitFor(() => expect(setupRequested).toBe(true));
+      expect(put).not.toHaveBeenCalled();
+    });
+
+    it('enables versioning on a reused bucket that is not versioned', async () => {
+      const enableVersioning = mutationMock(jest.fn().mockResolvedValue({ $metadata: {} }));
+      (useSetBucketVersioning as jest.Mock).mockReturnValue(enableVersioning);
+      bucketVersioningIs(undefined);
+
+      render(<ApplyActionsStep {...VALUES} accountNameType="existing" sourceBucketNameType="existing" />, {
+        wrapper: Wrapper,
+      });
+
+      await waitFor(() =>
+        expect(enableVersioning.mutateAsync).toHaveBeenCalledWith({
+          Bucket: 'crr-src-bucket',
+          VersioningConfiguration: { Status: 'Enabled' },
+        }),
+      );
+    });
+
+    it('enables versioning on a newly created bucket without reading it first', async () => {
+      const enableVersioning = mutationMock(jest.fn().mockResolvedValue({ $metadata: {} }));
+      (useSetBucketVersioning as jest.Mock).mockReturnValue(enableVersioning);
+      const refetch = jest.fn().mockResolvedValue({ data: { Status: 'Enabled' } });
+      (useGetBucketVersioning as jest.Mock).mockReturnValue({ refetch });
+      (useCreateBucket as jest.Mock).mockReturnValue({
+        ...mutationMock(),
+        mutate: jest.fn((_input, options) => options?.onSuccess?.({})),
+      });
+
+      render(<ApplyActionsStep {...VALUES} accountNameType="existing" />, { wrapper: Wrapper });
+
+      await waitFor(() => expect(enableVersioning.mutateAsync).toHaveBeenCalled());
+      expect(refetch).not.toHaveBeenCalled();
+    });
   });
 
   it('falls back to "ARTESCA" in the title when Verify returned no instance name', () => {
