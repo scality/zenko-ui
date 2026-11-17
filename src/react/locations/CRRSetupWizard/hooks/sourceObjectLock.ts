@@ -8,6 +8,7 @@ type ObjectLockQuery = {
 
 export const toSourceObjectLockEnabled = (query: ObjectLockQuery): boolean | null => {
   if (query.data?.ObjectLockConfiguration?.ObjectLockEnabled === 'Enabled') return true;
+  if (query.data) return false;
   if (query.error?.name === OBJECT_LOCK_NOT_FOUND_ERROR) return false;
   return null;
 };

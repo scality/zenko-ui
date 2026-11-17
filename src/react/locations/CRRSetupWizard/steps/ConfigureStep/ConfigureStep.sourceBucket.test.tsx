@@ -210,6 +210,52 @@ describe('ConfigureStep — source bucket with Object Lock', () => {
     expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
   });
 
+  describe('Continue', () => {
+    const READ_ERROR = /Could not read the source bucket's Object Lock configuration/i;
+    const loading = { data: undefined, error: null, isLoading: true, isError: false, status: 'loading' };
+    const fillUntilContinuable = async () => {
+      openedOnFinanceSrc();
+      set(screen.getByRole('textbox', { name: /Base domain/i }), 'crr-dest.artesca.local');
+      set(screen.getByRole('textbox', { name: /^Username/i }), 'scality');
+      set(screen.getByLabelText(/^Password/i), 'super-secret');
+      set(screen.getByRole('textbox', { name: /^Certificate/i }), PEM);
+      set(document.getElementById('destinationAccountName') as HTMLElement, 'dest-account');
+      const connect = screen.getByRole('button', { name: /Connect/i });
+      await waitFor(() => expect(connect).toBeEnabled());
+      await userEvent.click(connect);
+      await userEvent.click(await screen.findByText('Select an endpoint'));
+      await userEvent.click(await screen.findByText('s3.crr-dest.artesca.local'));
+      set(screen.getByRole('textbox', { name: /Target Bucket name/i }), 'dest-bucket');
+      expect(await screen.findByText('finance-src')).toBeInTheDocument();
+    };
+
+    it('is allowed when the reused source bucket has no Object Lock configuration', async () => {
+      lockAnswer(failed('ObjectLockConfigurationNotFoundError'));
+      await fillUntilContinuable();
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /Continue/i })).toBeEnabled(), { timeout: 5000 });
+      expect(screen.queryByText(READ_ERROR)).not.toBeInTheDocument();
+    });
+
+    it('is blocked while the Object Lock configuration is loading', async () => {
+      lockAnswer(loading);
+      await fillUntilContinuable();
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
+      expect(screen.queryByText(READ_ERROR)).not.toBeInTheDocument();
+    });
+
+    it('is blocked, with a message, when the Object Lock configuration cannot be read', async () => {
+      lockAnswer(failed('AccessDenied'));
+      await fillUntilContinuable();
+
+      expect(await screen.findByText(READ_ERROR)).toBeInTheDocument();
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
+    });
+  });
+
   it('forgets the Object Lock of the reused bucket once the source bucket is to be created', async () => {
     lockAnswer(enabled);
     openedOnFinanceSrc();

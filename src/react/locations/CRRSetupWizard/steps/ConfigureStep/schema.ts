@@ -105,7 +105,15 @@ export const configureSchema = Joi.object<ConfigureFormValues>({
     otherwise: Joi.string().allow(''),
   }),
   prefix: Joi.string().allow(''),
-  sourceObjectLockEnabled: Joi.boolean().allow(null),
+  sourceObjectLockEnabled: Joi.when('createReplicationRule', {
+    is: true,
+    then: Joi.when('sourceBucketNameType', {
+      is: 'existing',
+      then: Joi.boolean().required(),
+      otherwise: Joi.boolean().allow(null),
+    }),
+    otherwise: Joi.boolean().allow(null),
+  }),
 });
 // biome-ignore-end lint/suspicious/noThenProperty: `then` is Joi's conditional schema branch, not a promise-like method
 

@@ -13,6 +13,10 @@ describe('toSourceObjectLockEnabled', () => {
     ).toBe(false);
   });
 
+  it('is false when the configuration is returned without Object Lock enabled', () => {
+    expect(toSourceObjectLockEnabled({ data: { ObjectLockConfiguration: {} }, isLoading: false })).toBe(false);
+  });
+
   it('is unknown when access to the configuration is denied', () => {
     expect(toSourceObjectLockEnabled({ error: { name: 'AccessDenied' }, isLoading: false })).toBeNull();
   });
