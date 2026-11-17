@@ -123,20 +123,16 @@ export const ConfigureStep = () => {
         }
       : null,
   );
-  const destinationBucketChoices = useMemo(
-    () =>
-      reusedDestinationAccount
-        ? {
-            names: (destinationBuckets.data ?? []).map((bucket) => bucket.name),
-            unlockedNames: (destinationBuckets.data ?? [])
-              .filter((bucket) => bucket.objectLockEnabled === false)
-              .map((bucket) => bucket.name),
-            isLoading: destinationBuckets.isLoading,
-            isError: destinationBuckets.isError,
-          }
-        : null,
-    [reusedDestinationAccount, destinationBuckets.data, destinationBuckets.isLoading, destinationBuckets.isError],
-  );
+  const destinationBucketChoices = useMemo(() => {
+    if (!reusedDestinationAccount) return null;
+    const buckets = destinationBuckets.data ?? [];
+    return {
+      names: buckets.map((bucket) => bucket.name),
+      unlockedNames: buckets.filter((bucket) => bucket.objectLockEnabled === false).map((bucket) => bucket.name),
+      isLoading: destinationBuckets.isLoading,
+      isError: destinationBuckets.isError,
+    };
+  }, [reusedDestinationAccount, destinationBuckets.data, destinationBuckets.isLoading, destinationBuckets.isError]);
   const canContinue = isValid && isConnected && resolveStatus === 'resolvable';
 
   return (

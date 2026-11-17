@@ -315,12 +315,13 @@ export const ApplyActionsStep = (props: Props) => {
   }, [steps]);
 
   const configuratorStatus = steps.find((step) => step.id === CONFIGURATOR_CHAIN_LINK_ID)?.status;
-  const configuratorError =
-    configuratorStatus === 'error'
-      ? setup.error instanceof SetupFailedError
+  let configuratorError: string | undefined;
+  if (configuratorStatus === 'error') {
+    configuratorError =
+      setup.error instanceof SetupFailedError
         ? problemMessage(setup.error.code, setup.error.message, { targetBucketName: props.targetBucketName })
-        : ((setup.error as Error | undefined)?.message ?? 'The destination setup failed.')
-      : undefined;
+        : ((setup.error as Error | undefined)?.message ?? 'The destination setup failed.');
+  }
 
   const stepViews = useMemo(
     () =>
