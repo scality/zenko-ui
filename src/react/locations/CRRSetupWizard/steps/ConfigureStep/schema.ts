@@ -27,6 +27,7 @@ export type ConfigureFormValues = {
   targetBucketNameType: NameType;
   targetBucketName: string;
   prefix: string;
+  sourceObjectLockEnabled: boolean | null;
 };
 
 export const defaultConfigureValues: ConfigureFormValues = {
@@ -45,6 +46,7 @@ export const defaultConfigureValues: ConfigureFormValues = {
   targetBucketNameType: 'create',
   targetBucketName: '',
   prefix: '',
+  sourceObjectLockEnabled: false,
 };
 
 export const initialConfigureValues = (searchParams: URLSearchParams): ConfigureFormValues => {
@@ -103,6 +105,7 @@ export const configureSchema = Joi.object<ConfigureFormValues>({
     otherwise: Joi.string().allow(''),
   }),
   prefix: Joi.string().allow(''),
+  sourceObjectLockEnabled: Joi.boolean().allow(null),
 });
 // biome-ignore-end lint/suspicious/noThenProperty: `then` is Joi's conditional schema branch, not a promise-like method
 
@@ -163,6 +166,9 @@ export const toStartSetupBody = (values: ConfigureFormValues): StartSetupBody =>
   };
   if (values.createReplicationRule && values.targetBucketName) {
     body.targetBucket = values.targetBucketName;
+  }
+  if (values.createReplicationRule && values.sourceObjectLockEnabled === true) {
+    body.sourceObjectLockEnabled = true;
   }
   return body;
 };

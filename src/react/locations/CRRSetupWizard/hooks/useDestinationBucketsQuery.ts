@@ -18,7 +18,7 @@ export const useDestinationBucketsQuery = (body: ListBucketsRequestBody | null) 
     queryFn: async ({ signal }) => {
       if (!body) throw new Error('No destination account to list buckets for');
       const { buckets } = await listDestinationBuckets(body, { token: await getToken(), signal });
-      return buckets.map((bucket) => bucket.name);
+      return buckets.map(({ name, objectLockEnabled }) => ({ name, objectLockEnabled }));
     },
     enabled: body !== null,
     staleTime: 30_000,

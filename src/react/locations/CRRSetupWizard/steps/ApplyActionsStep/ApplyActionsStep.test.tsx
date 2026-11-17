@@ -108,6 +108,7 @@ const VALUES: ConfigureFormValues = {
   targetBucketNameType: 'create',
   targetBucketName: 'crr-target-bucket',
   prefix: '',
+  sourceObjectLockEnabled: false,
 };
 
 describe('ApplyActionsStep', () => {
@@ -609,5 +610,79 @@ describe('ApplyActionsStep — existing accounts keep their listed name', () => 
 
     await waitFor(() => expect(assumedRoleArns).toHaveLength(1));
     expect(assumedRoleArns[0]).toBe('arn:aws:iam::222222222222:role/scality-internal/storage-manager-role');
+  });
+});
+
+describe('ApplyActionsStep — source bucket with Object Lock', () => {
+  const streamOf = (events: object[]) =>
+    server.use(
+      rest.post('*/replication-setups', (_req, res, ctx) =>
+        res(
+          ctx.status(200),
+          ctx.set('Content-Type', 'application/x-ndjson'),
+          ctx.body(`${events.map((event) => JSON.stringify(event)).join('\n')}\n`),
+        ),
+      ),
+    );
+  const REUSED_SOURCE = { accountNameType: 'existing', sourceBucketNameType: 'existing' } as const;
+  const OBJECT_LOCK_COPY = /"crr-target-bucket" does not have Object Lock enabled/;
+
+  it.each(['create-user', 'create-bucket'])(
+    'explains a destination bucket without Object Lock when %s fails, instead of the raw message',
+    async (step) => {
+      streamOf([
+        { event: 'step.started', step },
+        {
+          event: 'step.failed',
+          step,
+          error: { code: 'TargetBucketObjectLockRequired', message: 'raw configurator message' },
+        },
+      ]);
+      render(<ApplyActionsStep {...VALUES} {...REUSED_SOURCE} sourceObjectLockEnabled />, { wrapper: Wrapper });
+
+      expect(await screen.findByText(OBJECT_LOCK_COPY)).toBeInTheDocument();
+      expect(screen.queryByText('raw configurator message')).not.toBeInTheDocument();
+    },
+  );
+
+  it('explains a destination bucket without Object Lock when the whole setup fails', async () => {
+    streamOf([
+      {
+        event: 'setup.failed',
+        error: { code: 'TargetBucketObjectLockRequired', message: 'raw configurator message' },
+      },
+    ]);
+    render(<ApplyActionsStep {...VALUES} {...REUSED_SOURCE} sourceObjectLockEnabled />, { wrapper: Wrapper });
+
+    expect(await screen.findByText(OBJECT_LOCK_COPY)).toBeInTheDocument();
+    expect(screen.queryByText('raw configurator message')).not.toBeInTheDocument();
+  });
+
+  it('tells the configurator that the source bucket has Object Lock', async () => {
+    let body: unknown;
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        body = req.body;
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(<ApplyActionsStep {...VALUES} {...REUSED_SOURCE} sourceObjectLockEnabled />, { wrapper: Wrapper });
+
+    await waitFor(() => expect(body).toBeDefined());
+    expect(body).toMatchObject({ sourceObjectLockEnabled: true });
+  });
+
+  it('leaves the flag out when the source bucket has no Object Lock', async () => {
+    let body: unknown;
+    server.use(
+      rest.post('*/replication-setups', (req, res, ctx) => {
+        body = req.body;
+        return res(ctx.status(200), ctx.set('Content-Type', 'application/x-ndjson'), ctx.body(''));
+      }),
+    );
+    render(<ApplyActionsStep {...VALUES} {...REUSED_SOURCE} />, { wrapper: Wrapper });
+
+    await waitFor(() => expect(body).toBeDefined());
+    expect(body).not.toHaveProperty('sourceObjectLockEnabled');
   });
 });

@@ -1,4 +1,4 @@
-import { useBuckets, useIsBucketEmpty } from '@scality/data-browser-library';
+import { useBuckets, useGetBucketObjectLockConfiguration, useIsBucketEmpty } from '@scality/data-browser-library';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
@@ -161,5 +161,108 @@ describe('ConfigureStep — objects already in the reused source bucket', () => 
 
     expect(await screen.findByText('finance-src')).toBeInTheDocument();
     expect(screen.queryByText(WARNING)).not.toBeInTheDocument();
+  });
+});
+
+describe('ConfigureStep — source bucket with Object Lock', () => {
+  const NOTICE = /The destination bucket will be created with Object Lock enabled/i;
+  const lockAnswer = (answer: object) => (useGetBucketObjectLockConfiguration as jest.Mock).mockReturnValue(answer);
+  const enabled = {
+    data: { ObjectLockConfiguration: { ObjectLockEnabled: 'Enabled' } },
+    error: null,
+    isLoading: false,
+    isError: false,
+    status: 'success',
+  };
+  const failed = (name: string) => ({
+    data: undefined,
+    error: { name },
+    isLoading: false,
+    isError: true,
+    status: 'error',
+  });
+  const defaultLockAnswer = (useGetBucketObjectLockConfiguration as jest.Mock).getMockImplementation();
+  const openedOnFinanceSrc = () =>
+    render(<ConfigureStep />, { wrapper: NewWrapper('/create-crr-configuration?account=finance&bucket=finance-src') });
+
+  afterEach(() => (useGetBucketObjectLockConfiguration as jest.Mock).mockImplementation(defaultLockAnswer));
+
+  it('announces that the destination bucket will be created with Object Lock when the reused source has it', async () => {
+    lockAnswer(enabled);
+    openedOnFinanceSrc();
+
+    expect(await screen.findByText(NOTICE)).toBeInTheDocument();
+  });
+
+  it('says nothing when the reused source bucket has no Object Lock', async () => {
+    lockAnswer(failed('ObjectLockConfigurationNotFoundError'));
+    openedOnFinanceSrc();
+
+    expect(await screen.findByText('finance-src')).toBeInTheDocument();
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
+  });
+
+  it('says nothing when Object Lock cannot be read', async () => {
+    lockAnswer(failed('AccessDenied'));
+    openedOnFinanceSrc();
+
+    expect(await screen.findByText('finance-src')).toBeInTheDocument();
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
+  });
+
+  it('forgets the Object Lock of the reused bucket once the source bucket is to be created', async () => {
+    lockAnswer(enabled);
+    openedOnFinanceSrc();
+    expect(await screen.findByText(NOTICE)).toBeInTheDocument();
+
+    await userEvent.click(screen.getAllByRole('radio', { name: /Create a new Bucket/i })[0]);
+
+    await waitFor(() => expect(screen.queryByText(NOTICE)).not.toBeInTheDocument());
+  });
+
+  it('disables the destination buckets without Object Lock', async () => {
+    lockAnswer(enabled);
+    server.use(
+      rest.post('/crr-configurator/api/v1/verify', (_req, res, ctx) =>
+        res(
+          ctx.json({
+            ok: true,
+            endpoints: [{ hostname: 's3.crr-dest.artesca.local', locationName: 'us-east-1' }],
+            accounts: [{ name: 'x', id: '210987654321' }],
+          }),
+        ),
+      ),
+      rest.post('/crr-configurator/api/v1/destination/buckets', (_req, res, ctx) =>
+        res(
+          ctx.json({
+            buckets: [{ name: 'a', objectLockEnabled: true }, { name: 'b', objectLockEnabled: false }, { name: 'c' }],
+          }),
+        ),
+      ),
+    );
+    openedOnFinanceSrc();
+    set(screen.getByRole('textbox', { name: /Base domain/i }), 'crr-dest.artesca.local');
+    set(screen.getByRole('textbox', { name: /^Username/i }), 'scality');
+    set(screen.getByLabelText(/^Password/i), 'super-secret');
+    set(screen.getByRole('textbox', { name: /^Certificate/i }), PEM);
+    const connect = screen.getByRole('button', { name: /Connect/i });
+    await waitFor(() => expect(connect).toBeEnabled());
+    await userEvent.click(connect);
+    await userEvent.click(await screen.findByText('Select an endpoint'));
+    await userEvent.click(await screen.findByText('s3.crr-dest.artesca.local'));
+    const destinationExistingAccount = screen.getAllByRole('radio', { name: /Use an existing Account/i })[1];
+    await waitFor(() => expect(destinationExistingAccount).toBeEnabled());
+    await userEvent.click(destinationExistingAccount);
+    await userEvent.click(await screen.findByText('Select existing account'));
+    await userEvent.click(await screen.findByText('x'));
+
+    const targetReuseRadio = screen.getAllByRole('radio', { name: /Use an existing Bucket/i })[1];
+    await waitFor(() => expect(targetReuseRadio).toBeEnabled());
+    await userEvent.click(targetReuseRadio);
+    await userEvent.click(await screen.findByText('Select existing bucket'));
+
+    expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: 'a' })).not.toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('aria-disabled', 'true');
   });
 });

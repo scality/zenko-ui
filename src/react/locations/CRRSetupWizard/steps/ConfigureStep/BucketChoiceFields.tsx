@@ -3,6 +3,7 @@ import { Input, Select } from '@scality/core-ui/dist/next';
 import { useEffect, useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { FormGroup } from '../../../../ui-elements/CoreUIForm';
+import { isBucketEligible } from './bucketEligibility';
 import type { ConfigureFormValues } from './schema';
 
 const BUCKET_OPTIONS = [
@@ -10,7 +11,15 @@ const BUCKET_OPTIONS = [
   { value: 'existing', label: 'Use an existing Bucket' },
 ];
 
-export type AccountBuckets = { names: string[]; isLoading: boolean; isError: boolean } | null;
+const OBJECT_LOCK_REQUIRED_REASON =
+  'Object Lock is not enabled on this bucket and can only be enabled when a bucket is created';
+
+export type AccountBuckets = {
+  names: string[];
+  unlockedNames?: string[];
+  isLoading: boolean;
+  isError: boolean;
+} | null;
 
 type Props = {
   typeField: 'sourceBucketNameType' | 'targetBucketNameType';
@@ -18,9 +27,17 @@ type Props = {
   label: string;
   buckets: AccountBuckets;
   noBucketReason: string;
+  requireObjectLock?: boolean;
 };
 
-export const BucketChoiceFields = ({ typeField, nameField, label, buckets, noBucketReason }: Props) => {
+export const BucketChoiceFields = ({
+  typeField,
+  nameField,
+  label,
+  buckets,
+  noBucketReason,
+  requireObjectLock = false,
+}: Props) => {
   const {
     control,
     register,
@@ -33,19 +50,33 @@ export const BucketChoiceFields = ({ typeField, nameField, label, buckets, noBuc
   const bucketNames = buckets?.names;
   const isLoading = buckets?.isLoading ?? false;
   const isError = buckets?.isError ?? false;
-  const canPickExistingBucket = isLoading || (bucketNames?.length ?? 0) > 0;
+  const unlockedNames = buckets?.unlockedNames;
+  const hasEligibleBucket = (bucketNames ?? []).some((name) => isBucketEligible(name, unlockedNames, requireObjectLock));
+  const canPickExistingBucket = isLoading || hasEligibleBucket;
+  const noEligibleBucketReason =
+    requireObjectLock && (bucketNames?.length ?? 0) > 0 ? OBJECT_LOCK_REQUIRED_REASON : noBucketReason;
 
   // Otherwise a typed or stale name would be announced as a reused bucket that does not exist.
   useEffect(() => {
     if (getValues(typeField) !== 'existing' || isLoading) return;
     const name = getValues(nameField);
-    if (name && !bucketNames?.includes(name)) {
+    if (name && (!bucketNames?.includes(name) || !isBucketEligible(name, unlockedNames, requireObjectLock))) {
       setValue(nameField, '', { shouldValidate: true });
     }
     if (!canPickExistingBucket) {
       setValue(typeField, 'create', { shouldValidate: true });
     }
-  }, [bucketNames, isLoading, canPickExistingBucket, getValues, setValue, typeField, nameField]);
+  }, [
+    bucketNames,
+    unlockedNames,
+    requireObjectLock,
+    isLoading,
+    canPickExistingBucket,
+    getValues,
+    setValue,
+    typeField,
+    nameField,
+  ]);
 
   const bucketOptions = useMemo(
     () =>
@@ -54,11 +85,11 @@ export const BucketChoiceFields = ({ typeField, nameField, label, buckets, noBuc
           ? {
               ...opt,
               disabled: true,
-              disabledReason: isError ? "Could not list the account's buckets" : noBucketReason,
+              disabledReason: isError ? "Could not list the account's buckets" : noEligibleBucketReason,
             }
           : opt,
       ),
-    [canPickExistingBucket, isError, noBucketReason],
+    [canPickExistingBucket, isError, noEligibleBucketReason],
   );
 
   return (
@@ -121,11 +152,17 @@ export const BucketChoiceFields = ({ typeField, nameField, label, buckets, noBuc
                       Loading...
                     </Select.Option>
                   )}
-                  {(bucketNames ?? []).map((name) => (
-                    <Select.Option key={name} value={name}>
-                      {name}
-                    </Select.Option>
-                  ))}
+                  {(bucketNames ?? []).map((name) =>
+                    isBucketEligible(name, unlockedNames, requireObjectLock) ? (
+                      <Select.Option key={name} value={name}>
+                        {name}
+                      </Select.Option>
+                    ) : (
+                      <Select.Option key={name} value={name} disabled disabledReason={OBJECT_LOCK_REQUIRED_REASON}>
+                        {name}
+                      </Select.Option>
+                    ),
+                  )}
                 </Select>
               )}
             />

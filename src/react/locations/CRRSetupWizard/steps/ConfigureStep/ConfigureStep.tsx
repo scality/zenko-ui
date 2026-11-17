@@ -7,6 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import { Form } from '../../../../ui-elements/CoreUIForm';
 import { ServiceError } from '../../api/crrConfiguratorClient';
+import { problemMessage } from '../../api/problemCopy';
 import type { ProblemCode } from '../../api/types';
 import { useCRRConfigurationVerifyMutation } from '../../hooks/useCRRConfigurationVerifyMutation';
 import { useDestinationBucketsQuery } from '../../hooks/useDestinationBucketsQuery';
@@ -26,19 +27,10 @@ import {
 /** Step index for the wizard's Stepper.next() calls. */
 export const CONFIGURE_STEP_INDEX = 0;
 
-const errorCopy: Partial<Record<ProblemCode, string>> = {
-  DestinationUnreachable: 'Failed to reach the destination. Check the base domain and your network connection.',
-  DestinationCertificateInvalid: 'The destination certificate is invalid.',
-  DestinationAuthFailed: 'Failed to authenticate with the destination. Check your credentials.',
-  AssumeRoleFailed: 'Failed to assume the replication role on the destination.',
-  Unauthorized: 'Your session has expired. Sign in again.',
-  Forbidden: 'You are not authorized to configure replication.',
-};
-
 const errorMessage = (error: unknown): string => {
   if (error instanceof ServiceError) {
     const code = error.problem.code as ProblemCode | undefined;
-    return (code && errorCopy[code]) ?? error.problem.title ?? 'Failed to reach the destination.';
+    return problemMessage(code, error.problem.title ?? 'Failed to reach the destination.');
   }
   return (error as Error)?.message ?? 'Failed to reach the destination.';
 };
@@ -131,17 +123,16 @@ export const ConfigureStep = () => {
         }
       : null,
   );
-  const destinationBucketChoices = useMemo(
-    () =>
-      reusedDestinationAccount
-        ? {
-            names: destinationBuckets.data ?? [],
-            isLoading: destinationBuckets.isLoading,
-            isError: destinationBuckets.isError,
-          }
-        : null,
-    [reusedDestinationAccount, destinationBuckets.data, destinationBuckets.isLoading, destinationBuckets.isError],
-  );
+  const destinationBucketChoices = useMemo(() => {
+    if (!reusedDestinationAccount) return null;
+    const buckets = destinationBuckets.data ?? [];
+    return {
+      names: buckets.map((bucket) => bucket.name),
+      unlockedNames: buckets.filter((bucket) => bucket.objectLockEnabled === false).map((bucket) => bucket.name),
+      isLoading: destinationBuckets.isLoading,
+      isError: destinationBuckets.isError,
+    };
+  }, [reusedDestinationAccount, destinationBuckets.data, destinationBuckets.isLoading, destinationBuckets.isError]);
   const canContinue = isValid && isConnected && resolveStatus === 'resolvable';
 
   return (

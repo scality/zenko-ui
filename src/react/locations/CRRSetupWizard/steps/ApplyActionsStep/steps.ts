@@ -1,3 +1,4 @@
+import { problemMessage } from '../../api/problemCopy';
 import type { SetupEvent } from '../../api/types';
 
 export type StepId =
@@ -146,6 +147,7 @@ const wizardRowLinks = (id: StepId, input: StepListInput): string[] => {
 const configuratorRowState = (
   events: SetupEvent[],
   id: StepId,
+  targetBucketName: string,
 ): { state: StepState; active: boolean; errorMessage?: string } => {
   let state: StepState = 'pending';
   let active = false;
@@ -159,7 +161,7 @@ const configuratorRowState = (
     } else if (event.event === 'step.failed') {
       state = 'failed';
       active = false;
-      errorMessage = event.error.message;
+      errorMessage = problemMessage(event.error.code, event.error.message, { targetBucketName });
     }
   }
   return { state, active, errorMessage };
@@ -188,7 +190,7 @@ export const buildStepViews = (input: StepListInput, sources: StepStateSources):
     const base = { id: def.id, step: index + 1, label: def.label(input) };
     let resolved: { state: StepState; active: boolean; errorMessage?: string };
     if (CONFIGURATOR_STEP_IDS.has(def.id)) {
-      resolved = configuratorRowState(sources.configuratorEvents, def.id);
+      resolved = configuratorRowState(sources.configuratorEvents, def.id, input.targetBucketName);
     } else {
       const links = wizardRowLinks(def.id, input);
       // A reused resource runs nothing of its own, so it follows the rows above it

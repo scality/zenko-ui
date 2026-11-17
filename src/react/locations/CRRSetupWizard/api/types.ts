@@ -38,7 +38,7 @@ export type ListBucketsRequestBody = {
 };
 
 export type ListBucketsResponse = {
-  buckets: { name: string }[];
+  buckets: { name: string; objectLockEnabled?: boolean }[];
 };
 
 export type ResolveRequestBody = {
@@ -56,6 +56,7 @@ export type StartSetupBody = {
   destinationAccount: { mode: 'create' | 'existing'; name: string };
   targetBucket?: string;
   existingLocation?: boolean;
+  sourceObjectLockEnabled?: boolean;
 };
 
 export type SetupResult = {
@@ -108,6 +109,8 @@ export type ProblemCode =
   | 'ReplicationConfigRejected'
   | 'ZenkoCRReconcileTimeout'
   | 'BucketAlreadyExists'
+  | 'TargetBucketObjectLockRequired'
+  | 'DestinationRequestRejected'
   | 'InvalidRequest'
   | 'Unauthorized'
   | 'Forbidden'

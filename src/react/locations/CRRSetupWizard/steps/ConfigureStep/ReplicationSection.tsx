@@ -20,6 +20,8 @@ export const ReplicationSection = ({ destinationBuckets }: Props) => {
   const enabled = watch('createReplicationRule');
   const reusesExistingAccount = watch('accountNameType') === 'existing';
   const sourceAccountName = watch('accountName');
+  const requiresLock = watch('sourceObjectLockEnabled') === true;
+  const targetBucketNameType = watch('targetBucketNameType');
   const errorIfTouched = (field: keyof ConfigureFormValues) =>
     touchedFields[field] ? errors[field]?.message : undefined;
   const ruleFieldsRef = useRef<HTMLDivElement>(null);
@@ -59,7 +61,16 @@ export const ReplicationSection = ({ destinationBuckets }: Props) => {
             label="Target Bucket"
             buckets={destinationBuckets}
             noBucketReason="This account has no bucket on the destination"
+            requireObjectLock={requiresLock}
           />
+          {requiresLock && targetBucketNameType === 'create' && (
+            <div style={{ marginBottom: spacing.r24 }}>
+              <InfoMessage
+                title="Object Lock on the destination"
+                content="The destination bucket will be created with Object Lock enabled because the source bucket has Object Lock."
+              />
+            </div>
+          )}
           <FormGroup
             id="prefix"
             direction="horizontal"
