@@ -297,7 +297,7 @@ describe('ApplyActionsStep', () => {
 
     expect(await screen.findByText('Use Bucket on Source: crr-src-bucket')).toBeInTheDocument();
     expect(screen.getByText('Use Bucket on Destination: crr-target-bucket')).toBeInTheDocument();
-    await waitFor(() => expect(enableVersioning.mutate).toHaveBeenCalled());
+    await waitFor(() => expect(enableVersioning.mutateAsync).toHaveBeenCalled());
     expect(createBucket.mutate).not.toHaveBeenCalled();
   });
 
