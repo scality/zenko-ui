@@ -235,6 +235,26 @@ describe('buildStepViews — crr-configurator rows', () => {
   });
 });
 
+describe('buildStepViews — destination bucket without Object Lock', () => {
+  const failedAt = (step: 'create-user' | 'create-bucket'): SetupEvent[] => [
+    {
+      event: 'step.failed',
+      step,
+      at: 't',
+      error: { code: 'TargetBucketObjectLockRequired', message: 'raw configurator message' },
+    },
+  ];
+
+  it.each(['create-user', 'create-bucket'] as const)('explains the failure on %s and names the target bucket', (step) => {
+    const views = buildStepViews(baseInput, withEvents(failedAt(step)));
+    const message = views.find((v) => v.id === step)?.errorMessage;
+
+    expect(message).toContain('"target-bucket"');
+    expect(message).toMatch(/Object Lock/);
+    expect(message).not.toContain('raw configurator message');
+  });
+});
+
 describe('retryLinkIdForRow', () => {
   it('retries a configurator row by re-running the single configurator link', () => {
     expect(retryLinkIdForRow('create-role', {})).toBe('configurator-setup');
