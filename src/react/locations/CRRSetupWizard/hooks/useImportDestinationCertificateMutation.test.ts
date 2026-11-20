@@ -203,7 +203,7 @@ describe('useImportDestinationCertificateMutation', () => {
 
     await advance(70_000, 1000);
     expect(result.current.isError).toBe(true);
-    expect(String(result.current.error)).toContain('no progress for 5 minutes');
+    expect(String(result.current.error)).toContain('has not progressed for 5 minutes');
   });
 
   it('surfaces a no-progress failure only once the watchdog duration has passed', async () => {
@@ -219,7 +219,7 @@ describe('useImportDestinationCertificateMutation', () => {
 
     await advance(70_000, 1000);
     expect(result.current.isError).toBe(true);
-    expect(String(result.current.error)).toContain('no progress for 5 minutes');
+    expect(String(result.current.error)).toContain('has not progressed for 5 minutes');
   });
 
   it('stops polling once the step is unmounted', async () => {
