@@ -496,7 +496,7 @@ describe('ApplyActionsStep — refreshing what the run created', () => {
     );
     render(<ApplyActionsStep {...VALUES} createReplicationRule={false} />, { wrapper: Wrapper });
 
-    expect(await screen.findByText(/Expect some delay/, undefined, { timeout: 10_000 })).toBeInTheDocument();
+    expect(await screen.findByText(/Applying a change to the platform takes several minutes/, undefined, { timeout: 10_000 })).toBeInTheDocument();
     const importRow = screen.getByText('Import Destination Certificate on Source').closest('tr') as HTMLElement;
     expect(rowStatus(importRow)).not.toBe('Success');
   });

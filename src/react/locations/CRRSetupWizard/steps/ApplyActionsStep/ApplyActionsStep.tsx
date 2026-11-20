@@ -461,7 +461,8 @@ export const ApplyActionsStep = (props: Props) => {
       )}
       {stepViews.some((view) => view.id === 'import-destination-certificate' && view.active) && (
         <Banner variant="warning" icon={<Icon color="statusWarning" name="Exclamation-circle" />}>
-Applying a change to the platform takes several minutes: the assistant waits until it has taken effect. Keep this page open.
+          Applying a change to the platform takes several minutes: the assistant waits until it has taken effect. Keep
+          this page open.
         </Banner>
       )}
       <div style={{ height: '32rem', overflow: 'auto' }}>
