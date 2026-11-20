@@ -452,13 +452,54 @@ describe('ApplyActionsStep — refreshing what the run created', () => {
       rest.post('*/config/:uuid/location', (_req, res, ctx) => res(ctx.json({}))),
       // The destination certificate is already trusted, so importing it does nothing.
       rest.get('*/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data', (_req, res, ctx) =>
-        res(ctx.json({ spec: { egress: { extraCACerts: [{ 'ca.crt': VALUES.certificate }] } } })),
+        res(
+          ctx.json({
+            metadata: { generation: 1 },
+            spec: { egress: { extraCACerts: [{ 'ca.crt': VALUES.certificate }] } },
+            status: {
+              observedGeneration: 1,
+              conditions: [
+                { type: 'Available', status: 'True' },
+                { type: 'DeploymentInProgress', status: 'False' },
+                { type: 'DeploymentFailure', status: 'False' },
+              ],
+            },
+          }),
+        ),
       ),
     );
     (mockShellHooks.useConfigRetriever as jest.Mock).mockReturnValue({
       retrieveConfiguration: () => ({ spec: { selfConfiguration: { url: 'http://testendpoint' } } }),
     });
   };
+
+  it('warns about a delay while the destination certificate import is waiting for the rollout', async () => {
+    watchLists();
+    theDestinationSetupSucceeds();
+    server.use(
+      rest.get('*/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data', (_req, res, ctx) =>
+        res(
+          ctx.json({
+            metadata: { generation: 1 },
+            spec: { egress: { extraCACerts: [{ 'ca.crt': VALUES.certificate }] } },
+            status: {
+              observedGeneration: 1,
+              conditions: [
+                { type: 'Available', status: 'False' },
+                { type: 'DeploymentInProgress', status: 'True' },
+                { type: 'DeploymentFailure', status: 'False' },
+              ],
+            },
+          }),
+        ),
+      ),
+    );
+    render(<ApplyActionsStep {...VALUES} createReplicationRule={false} />, { wrapper: Wrapper });
+
+    expect(await screen.findByText(/Expect some delay/, undefined, { timeout: 10_000 })).toBeInTheDocument();
+    const importRow = screen.getByText('Import Destination Certificate on Source').closest('tr') as HTMLElement;
+    expect(rowStatus(importRow)).not.toBe('Success');
+  });
 
   it('has no Update Configuration step when the run reuses both the account and the location', async () => {
     sourceHasLocation('location-scality-crr-v1');

@@ -454,7 +454,9 @@ export const ApplyActionsStep = (props: Props) => {
       responsive
     >
       {Slots}
-      {stepViews.some((view) => view.id === 'create-location' && view.active) && (
+      {stepViews.some(
+        (view) => (view.id === 'create-location' || view.id === 'import-destination-certificate') && view.active,
+      ) && (
         <Banner variant="warning" icon={<Icon color="statusWarning" name="Exclamation-circle" />}>
           Expect some delay (up to a few minutes)—creating the location takes time.
         </Banner>
