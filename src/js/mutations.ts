@@ -202,17 +202,127 @@ const useCreateUserAccessKeyMutation = () => {
   });
 };
 
-const usePatchZenkoConfigurationMutation = <T>(
-  getJsonPatch: (args: T) => string,
-  options?: MutationOptions<T, ApiError, T>,
-  additionalPollCondition?: () => Promise<boolean>,
-) => {
+const ZENKO_NO_PROGRESS_TIMEOUT_MS = 5 * 60_000;
+const ZENKO_POLL_INTERVAL_MS = 1_000;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const getZenkoProgressFingerprint = (response): string =>
+  JSON.stringify([
+    response.status?.observedGeneration,
+    (response.status?.conditions ?? []).map((cond) => [cond.type, cond.status, cond.lastTransitionTime]),
+    response.status?.readyReplicas,
+  ]);
+
+const describeZenkoState = (response): string => {
+  const conditions = (response.status?.conditions ?? []).map((cond) => `${cond.type}=${cond.status}`).join(', ');
+  return `generation ${response.metadata?.generation}, observed generation ${response.status?.observedGeneration}, ready replicas ${response.status?.readyReplicas ?? 'unknown'}, conditions: ${conditions || 'none'}`;
+};
+
+const waitForZenkoDeploymentComplete = async ({
+  fetchZenkoCR,
+  since,
+  additionalPollCondition,
+  isCancelled,
+}: {
+  fetchZenkoCR: () => Promise<Response>;
+  since?: number;
+  additionalPollCondition?: () => Promise<boolean>;
+  isCancelled?: () => boolean;
+}): Promise<void> => {
+  let lastProgressAt = Date.now();
+  let lastFingerprint: string | undefined;
+  let lastKnownState = 'no state could be read from the platform';
+  let resourceSynchronized = false;
+  let isReady = false;
+  let deploymentStarted = since === undefined;
+  let isFirstPoll = true;
+
+  while (Date.now() - lastProgressAt < ZENKO_NO_PROGRESS_TIMEOUT_MS) {
+    if (since !== undefined || !isFirstPoll) {
+      await delay(ZENKO_POLL_INTERVAL_MS);
+    }
+    isFirstPoll = false;
+    if (isCancelled?.()) {
+      throw new Error('Operation cancelled: the wait for resource synchronization was stopped');
+    }
+
+    const r = await fetchZenkoCR();
+    if (!r.ok) {
+      continue;
+    }
+    const response = await r.json();
+
+    const fingerprint = getZenkoProgressFingerprint(response);
+    if (fingerprint !== lastFingerprint) {
+      lastFingerprint = fingerprint;
+      lastProgressAt = Date.now();
+    }
+    lastKnownState = describeZenkoState(response);
+
+    if (response.metadata.generation === response.status.observedGeneration) {
+      resourceSynchronized = true;
+    }
+
+    if (resourceSynchronized && response.status.conditions) {
+      const availableCondition = response.status.conditions.find((cond) => cond.type === 'Available');
+      const deploymentCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentInProgress');
+      const failureCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentFailure');
+
+      if (failureCondition?.status === 'True') {
+        throw new Error(failureCondition.message || failureCondition.reason || 'Zenko deployment failed');
+      }
+
+      const isDeploymentComplete =
+        availableCondition?.status === 'True' &&
+        deploymentCondition?.status === 'False' &&
+        failureCondition?.status === 'False';
+
+      if (!deploymentStarted) {
+        if (
+          since !== undefined &&
+          deploymentCondition &&
+          new Date(deploymentCondition.lastTransitionTime).getTime() >= since
+        ) {
+          deploymentStarted = true;
+        } else if (isDeploymentComplete) {
+          deploymentStarted = true;
+          isReady = true;
+        }
+      }
+
+      if (deploymentStarted && !isReady) {
+        isReady = isDeploymentComplete;
+      }
+    }
+
+    let additionalConditionPassed = !additionalPollCondition;
+    if (additionalPollCondition && isReady) {
+      try {
+        additionalConditionPassed = await additionalPollCondition();
+      } catch (e) {
+        console.warn('additionalPollCondition check failed:', e);
+        additionalConditionPassed = false;
+      }
+    }
+
+    if (resourceSynchronized && isReady && additionalConditionPassed) {
+      return;
+    }
+  }
+
+  throw new Error(
+    `The platform has not progressed for ${ZENKO_NO_PROGRESS_TIMEOUT_MS / 60_000} minutes: ${lastKnownState}`,
+  );
+};
+
+const useZenkoCRRequest = () => {
   const { useConfigRetriever, useAuth } = useShellHooks();
   const { getToken } = useAuth();
 
   const { retrieveConfiguration } = useConfigRetriever();
   const instances = useDeployedMetalk8sInstances();
-  const getURL = (instances) => {
+  const getURL = () => {
     if (instances.length) {
       const runTimeConfig = retrieveConfiguration({
         configType: 'run',
@@ -222,11 +332,41 @@ const usePatchZenkoConfigurationMutation = <T>(
       return url + '/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data';
     }
   };
+  const fetchZenkoCR = async () =>
+    fetch(getURL(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${await getToken()}`,
+      },
+    });
+
+  return { getURL, getToken, fetchZenkoCR };
+};
+
+const useWaitForZenkoDeployment = () => {
+  const { fetchZenkoCR } = useZenkoCRRequest();
+
+  return ({ isCancelled, since }: { isCancelled?: () => boolean; since?: number }) =>
+    waitForZenkoDeploymentComplete({
+      fetchZenkoCR,
+      since,
+      isCancelled,
+    });
+};
+
+const usePatchZenkoConfigurationMutation = <T>(
+  getJsonPatch: (args: T) => string,
+  options?: MutationOptions<T, ApiError, T>,
+  additionalPollCondition?: () => Promise<boolean>,
+  isCancelled?: () => boolean,
+) => {
+  const { getURL, getToken, fetchZenkoCR } = useZenkoCRRequest();
 
   return useMutation({
     mutationFn: async (args: T) => {
       const patchTimestamp = new Date().getTime();
-      const result = await fetch(getURL(instances), {
+      const result = await fetch(getURL(), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json-patch+json',
@@ -240,79 +380,12 @@ const usePatchZenkoConfigurationMutation = <T>(
         return await res.json();
       });
 
-      let resourceSynchronized = false;
-      let isReady = false;
-      let pollAttempts = 0;
-      const MAX_POLL_ATTEMPTS = 90;
-      let deploymentStarted = false;
-      let additionalConditionPassed = true;
-
-      do {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const r = await fetch(getURL(instances), {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            authorization: `Bearer ${await getToken()}`,
-          },
-        });
-        if (!r.ok) {
-          pollAttempts++;
-          continue;
-        }
-        const response = await r.json();
-        if (response.metadata.generation === response.status.observedGeneration) {
-          resourceSynchronized = true;
-        }
-
-        // Check deployment state from conditions
-        if (resourceSynchronized && response.status.conditions) {
-          const availableCondition = response.status.conditions.find((cond) => cond.type === 'Available');
-          const deploymentCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentInProgress');
-          const failureCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentFailure');
-
-          const isDeploymentComplete =
-            availableCondition?.status === 'True' &&
-            deploymentCondition?.status === 'False' &&
-            failureCondition?.status === 'False';
-
-          // Phase 1: Wait for deployment to START (or already complete)
-          if (!deploymentStarted) {
-            // If a new deployment started after our patch
-            if (deploymentCondition && new Date(deploymentCondition.lastTransitionTime).getTime() >= patchTimestamp) {
-              deploymentStarted = true;
-            }
-            // Or if deployment is already complete (no new deployment needed)
-            else if (isDeploymentComplete) {
-              deploymentStarted = true;
-              isReady = true;
-            }
-          }
-
-          // Phase 2: Wait for deployment to COMPLETE
-          if (deploymentStarted && !isReady) {
-            isReady = isDeploymentComplete;
-          }
-        }
-
-        additionalConditionPassed = !additionalPollCondition;
-        if (additionalPollCondition && isReady) {
-          try {
-            additionalConditionPassed = await additionalPollCondition();
-          } catch (e) {
-            console.warn('additionalPollCondition check failed:', e);
-            additionalConditionPassed = false;
-          }
-        }
-
-        pollAttempts++;
-      } while (!(resourceSynchronized && isReady && additionalConditionPassed) && pollAttempts < MAX_POLL_ATTEMPTS);
-
-      if (!(resourceSynchronized && isReady && additionalConditionPassed)) {
-        throw new Error(
-          'Operation timed out: resource synchronization did not complete within the expected time frame',
-        );
-      }
+      await waitForZenkoDeploymentComplete({
+        fetchZenkoCR,
+        since: patchTimestamp,
+        additionalPollCondition,
+        isCancelled,
+      });
       return result;
     },
     ...(options ?? {}),
@@ -343,37 +416,44 @@ const useEnableSOSAPIMutation = () => {
 const useAddCertificateToZenkoConfigurationMutation = ({
   hasEgress,
   hasExtraCACerts,
+  isCancelled,
 }: {
   hasEgress: boolean;
   hasExtraCACerts: boolean;
+  isCancelled?: () => boolean;
 }) => {
-  return usePatchZenkoConfigurationMutation((args: { certificate: string }) => {
-    const patch = !hasEgress
-      ? [
-          {
-            op: 'add',
-            path: '/spec/egress',
-            value: { extraCACerts: [{ 'ca.crt': args.certificate }] },
-          },
-        ]
-      : hasExtraCACerts
+  return usePatchZenkoConfigurationMutation(
+    (args: { certificate: string }) => {
+      const patch = !hasEgress
         ? [
             {
               op: 'add',
-              path: '/spec/egress/extraCACerts/-',
-              value: { 'ca.crt': args.certificate },
+              path: '/spec/egress',
+              value: { extraCACerts: [{ 'ca.crt': args.certificate }] },
             },
           ]
-        : [
-            {
-              op: 'add',
-              path: '/spec/egress/extraCACerts',
-              value: [{ 'ca.crt': args.certificate }],
-            },
-          ];
+        : hasExtraCACerts
+          ? [
+              {
+                op: 'add',
+                path: '/spec/egress/extraCACerts/-',
+                value: { 'ca.crt': args.certificate },
+              },
+            ]
+          : [
+              {
+                op: 'add',
+                path: '/spec/egress/extraCACerts',
+                value: [{ 'ca.crt': args.certificate }],
+              },
+            ];
 
-    return JSON.stringify(patch);
-  });
+      return JSON.stringify(patch);
+    },
+    undefined,
+    undefined,
+    isCancelled,
+  );
 };
 
 const useToggleTLSVerificationMutation = (
@@ -431,4 +511,6 @@ export {
   useEnableSOSAPIMutation,
   usePatchZenkoConfigurationMutation,
   useToggleTLSVerificationMutation,
+  useWaitForZenkoDeployment,
+  waitForZenkoDeploymentComplete,
 };

@@ -1,5 +1,6 @@
+import { useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { useAddCertificateToZenkoConfigurationMutation } from '../../../../js/mutations';
+import { useAddCertificateToZenkoConfigurationMutation, useWaitForZenkoDeployment } from '../../../../js/mutations';
 import { getZenkoCRQuery } from '../../../queries';
 import type { ZenkoCR } from '../../../truststore/Truststore';
 
@@ -15,21 +16,38 @@ export const isCertificateAlreadyImported = (zenkoCR: ZenkoCR | undefined, certi
  * Imports the destination CA certificate into the source cluster's truststore
  * (Zenko CR `spec.egress.extraCACerts`). Idempotent: if the certificate is
  * already present the step is a no-op, so re-runs and retries do not append
- * duplicate entries.
+ * duplicate entries. Either way the step only completes once the Zenko
+ * rollout has settled, so the destination's certificate is trusted by then.
  */
 export const useImportDestinationCertificateMutation = () => {
   const { data: zenkoCR } = useQuery(getZenkoCRQuery());
   const queryClient = useQueryClient();
   const hasEgress = !!zenkoCR?.spec?.egress;
   const hasExtraCACerts = !!zenkoCR?.spec?.egress?.extraCACerts;
-  const addCertificate = useAddCertificateToZenkoConfigurationMutation({ hasEgress, hasExtraCACerts });
+  // So the wait cannot outlive the step when the user exits or cancels.
+  const cancelledRef = useRef(false);
+  const isCancelled = () => cancelledRef.current;
+  const addCertificate = useAddCertificateToZenkoConfigurationMutation({
+    hasEgress,
+    hasExtraCACerts,
+    isCancelled,
+  });
+  const waitForZenkoDeployment = useWaitForZenkoDeployment();
+  useEffect(() => {
+    cancelledRef.current = false;
+    return () => {
+      cancelledRef.current = true;
+    };
+  }, []);
 
   return useMutation({
     mutationFn: async ({ certificate }: { certificate: string }) => {
+      const retryTimestamp = Date.now();
       const normalized = normalizeCertificate(certificate);
       // Read the latest cached CR at execution time, not the render-time snapshot.
       const currentCR = queryClient.getQueryData<ZenkoCR>(['zenkoCR']) ?? zenkoCR;
       if (isCertificateAlreadyImported(currentCR, normalized)) {
+        await waitForZenkoDeployment({ isCancelled, since: retryTimestamp });
         return;
       }
       await addCertificate.mutateAsync({ certificate: normalized });

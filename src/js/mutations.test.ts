@@ -756,6 +756,45 @@ describe('mutations', () => {
       .mockImplementation(() => [{ name: 'test-instance' }]);
   };
 
+  const flushPromises = async () => {
+    for (let i = 0; i < 20; i++) {
+      await Promise.resolve();
+    }
+  };
+
+  // Advances the fake clock one step at a time until the promise settles, so the
+  // deadline-based wait is crossed in simulated time rather than real time.
+  const advanceFakeTimersUntilSettled = async (promise: Promise<unknown>, stepMs = 1000, maxSteps = 600) => {
+    let settled = false;
+    promise.then(
+      () => {
+        settled = true;
+      },
+      () => {
+        settled = true;
+      },
+    );
+    for (let i = 0; i < maxSteps && !settled; i++) {
+      await act(async () => {
+        jest.advanceTimersByTime(stepMs);
+        await flushPromises();
+      });
+    }
+    return settled;
+  };
+
+  const advanceFakeTimersBy = async (totalMs: number, stepMs = 1000) => {
+    for (let elapsed = 0; elapsed < totalMs; elapsed += stepMs) {
+      await act(async () => {
+        jest.advanceTimersByTime(stepMs);
+        await flushPromises();
+      });
+    }
+  };
+
+  const zenkoGetCalls = (mockFetch: jest.Mock) =>
+    mockFetch.mock.calls.filter(([, options]) => options?.method === 'GET');
+
   describe('usePatchZenkoConfigurationMutation', () => {
     let mockFetch: jest.Mock;
     let originalFetch: typeof global.fetch;
@@ -769,6 +808,7 @@ describe('mutations', () => {
 
     afterEach(() => {
       global.fetch = originalFetch;
+      jest.useRealTimers();
       jest.restoreAllMocks();
     });
 
@@ -863,9 +903,249 @@ describe('mutations', () => {
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle timeout when resource synchronization takes too long', async () => {
-      const originalSetTimeout = global.setTimeout;
-      global.setTimeout = ((fn) => fn()) as unknown as typeof global.setTimeout;
+    it('keeps waiting through a rollout much longer than 90 polls while it keeps progressing', async () => {
+      jest.useFakeTimers();
+      const mocks = createDeploymentLifecycleMocks(5);
+      let gets = 0;
+      mockFetch.mockImplementation((_url: string, options?: { method?: string }) => {
+        if (options?.method === 'PATCH') return Promise.resolve(mocks.patchSuccess);
+        gets += 1;
+        return Promise.resolve(gets <= 160 ? mocks.deploymentInProgress : mocks.deploymentComplete);
+      });
+
+      const { result } = renderHook(
+        () =>
+          useAddCertificateToZenkoConfigurationMutation({
+            hasEgress: true,
+            hasExtraCACerts: true,
+          }),
+        { wrapper: NewWrapper() },
+      );
+
+      let mutationPromise: Promise<unknown>;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync({ certificate: 'cert' });
+      });
+      const settled = await advanceFakeTimersUntilSettled(mutationPromise);
+
+      expect(settled).toBe(true);
+      await expect(mutationPromise).resolves.toBeDefined();
+      expect(gets).toBeGreaterThan(90);
+    });
+
+    it('does not spend the wait on GETs that fail, so a late recovery still succeeds', async () => {
+      jest.useFakeTimers();
+      const mocks = createDeploymentLifecycleMocks(5);
+      let gets = 0;
+      mockFetch.mockImplementation((_url: string, options?: { method?: string }) => {
+        if (options?.method === 'PATCH') return Promise.resolve(mocks.patchSuccess);
+        gets += 1;
+        if (gets <= 100) return Promise.resolve({ ok: false, status: 503, json: () => Promise.resolve({}) });
+        return Promise.resolve(mocks.deploymentComplete);
+      });
+
+      const { result } = renderHook(
+        () => usePatchZenkoConfigurationMutation(() => JSON.stringify([{ op: 'add', path: '/spec/test', value: 'x' }])),
+        { wrapper: NewWrapper() },
+      );
+
+      let mutationPromise: Promise<unknown>;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined);
+      });
+      const settled = await advanceFakeTimersUntilSettled(mutationPromise);
+
+      expect(settled).toBe(true);
+      await expect(mutationPromise).resolves.toBeDefined();
+      expect(gets).toBeGreaterThan(90);
+    });
+
+    it('keeps waiting beyond the old 2 minute window while the rollout keeps progressing', async () => {
+      jest.useFakeTimers();
+      const mocks = createDeploymentLifecycleMocks(5);
+      let gets = 0;
+      mockFetch.mockImplementation((_url: string, options?: { method?: string }) => {
+        if (options?.method === 'PATCH') return Promise.resolve(mocks.patchSuccess);
+        gets += 1;
+        if (gets > 400) return Promise.resolve(mocks.deploymentComplete);
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation: 5 },
+              status: {
+                observedGeneration: 5,
+                readyReplicas: Math.floor(gets / 100),
+                conditions: [
+                  { type: 'Available', status: 'False' },
+                  { type: 'DeploymentInProgress', status: 'True', lastTransitionTime: new Date().toISOString() },
+                  { type: 'DeploymentFailure', status: 'False' },
+                ],
+              },
+            }),
+        });
+      });
+
+      const { result } = renderHook(
+        () => usePatchZenkoConfigurationMutation(() => JSON.stringify([{ op: 'add', path: '/spec/test', value: 'x' }])),
+        { wrapper: NewWrapper() },
+      );
+
+      const startedAt = Date.now();
+      let mutationPromise: Promise<unknown>;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined);
+      });
+      const settled = await advanceFakeTimersUntilSettled(mutationPromise);
+
+      expect(settled).toBe(true);
+      await expect(mutationPromise).resolves.toBeDefined();
+      expect(Date.now() - startedAt).toBeGreaterThan(120_000);
+    });
+
+    it('rejects immediately with the condition message when DeploymentFailure is True', async () => {
+      jest.useFakeTimers();
+      const mocks = createDeploymentLifecycleMocks(5);
+      mockFetch.mockImplementation((_url: string, options?: { method?: string }) => {
+        if (options?.method === 'PATCH') return Promise.resolve(mocks.patchSuccess);
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation: 5 },
+              status: {
+                observedGeneration: 5,
+                conditions: [
+                  { type: 'Available', status: 'False' },
+                  { type: 'DeploymentInProgress', status: 'True', lastTransitionTime: new Date().toISOString() },
+                  { type: 'DeploymentFailure', status: 'True', message: 'invalid CA certificate bundle' },
+                ],
+              },
+            }),
+        });
+      });
+
+      const { result } = renderHook(
+        () => usePatchZenkoConfigurationMutation(() => JSON.stringify([{ op: 'add', path: '/spec/test', value: 'x' }])),
+        { wrapper: NewWrapper() },
+      );
+
+      let error: unknown;
+      let mutationPromise: Promise<unknown>;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined).catch((e) => {
+          error = e;
+        });
+      });
+      const start = Date.now();
+      await advanceFakeTimersUntilSettled(mutationPromise, 1000, 5);
+
+      expect(String(error)).toContain('invalid CA certificate bundle');
+      expect(Date.now() - start).toBeLessThan(10_000);
+      expect(zenkoGetCalls(mockFetch).length).toBeLessThanOrEqual(2);
+    });
+
+    it('rejects with a no-progress message once the CR has stopped changing for the watchdog duration', async () => {
+      jest.useFakeTimers();
+      const mocks = createDeploymentLifecycleMocks(5);
+      const staticInProgress = {
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            metadata: { generation: 5 },
+            status: {
+              observedGeneration: 5,
+              readyReplicas: 1,
+              conditions: [
+                { type: 'Available', status: 'False' },
+                { type: 'DeploymentInProgress', status: 'True', lastTransitionTime: '2999-01-01T00:00:00.000Z' },
+                { type: 'DeploymentFailure', status: 'False' },
+              ],
+            },
+          }),
+      };
+      mockFetch.mockImplementation((_url: string, options?: { method?: string }) =>
+        Promise.resolve(options?.method === 'PATCH' ? mocks.patchSuccess : staticInProgress),
+      );
+
+      const { result } = renderHook(
+        () => usePatchZenkoConfigurationMutation(() => JSON.stringify([{ op: 'add', path: '/spec/test', value: 'x' }])),
+        { wrapper: NewWrapper() },
+      );
+
+      let mutationPromise: Promise<unknown>;
+      let error: unknown;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined).catch((e) => {
+          error = e;
+        });
+      });
+      const start = Date.now();
+      await advanceFakeTimersBy(240_000);
+
+      expect(error).toBeUndefined();
+
+      await advanceFakeTimersUntilSettled(mutationPromise);
+
+      expect(String(error)).toContain('The platform has not progressed for 5 minutes');
+      expect(Date.now() - start).toBeGreaterThanOrEqual(300_000);
+    });
+
+    it('stops polling and rejects when the patch-path wait is cancelled', async () => {
+      jest.useFakeTimers();
+      const mocks = createDeploymentLifecycleMocks(5);
+      const inProgress = {
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            metadata: { generation: 5 },
+            status: {
+              observedGeneration: 5,
+              conditions: [
+                { type: 'Available', status: 'False' },
+                { type: 'DeploymentInProgress', status: 'True', lastTransitionTime: '2999-01-01T00:00:00.000Z' },
+                { type: 'DeploymentFailure', status: 'False' },
+              ],
+            },
+          }),
+      };
+      mockFetch.mockImplementation((_url: string, options?: { method?: string }) =>
+        Promise.resolve(options?.method === 'PATCH' ? mocks.patchSuccess : inProgress),
+      );
+      let cancelled = false;
+
+      const { result } = renderHook(
+        () =>
+          usePatchZenkoConfigurationMutation(
+            () => JSON.stringify([{ op: 'add', path: '/spec/test', value: 'x' }]),
+            undefined,
+            undefined,
+            () => cancelled,
+          ),
+        { wrapper: NewWrapper() },
+      );
+
+      let error: unknown;
+      let mutationPromise: Promise<unknown>;
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync(undefined).catch((e) => {
+          error = e;
+        });
+      });
+      await advanceFakeTimersBy(3000);
+      expect(error).toBeUndefined();
+      const callsBeforeCancel = zenkoGetCalls(mockFetch).length;
+      expect(callsBeforeCancel).toBeGreaterThan(0);
+
+      cancelled = true;
+      await advanceFakeTimersUntilSettled(mutationPromise, 1000, 5);
+
+      expect(String(error)).toContain('cancelled');
+      expect(zenkoGetCalls(mockFetch).length).toBeLessThanOrEqual(callsBeforeCancel + 1);
+    });
+
+    it('should handle no progress when resource synchronization never completes', async () => {
+      jest.useFakeTimers();
 
       mockFetch
         .mockResolvedValueOnce({
@@ -892,20 +1172,19 @@ describe('mutations', () => {
       });
 
       let error;
+      let mutationPromise: Promise<unknown>;
       await act(async () => {
-        try {
-          await result.current.mutateAsync(undefined);
-        } catch (e) {
+        mutationPromise = result.current.mutateAsync(undefined).catch((e) => {
           error = e;
-        }
+        });
       });
+      const start = Date.now();
+      await advanceFakeTimersUntilSettled(mutationPromise);
 
       expect(error).toBeDefined();
       expect(result.current.isError).toBe(true);
-      const errorMessage = String(error);
-      expect(errorMessage).toContain('timed out');
-
-      global.setTimeout = originalSetTimeout;
+      expect(String(error)).toContain('has not progressed');
+      expect(Date.now() - start).toBeGreaterThanOrEqual(300_000);
     });
   });
 
@@ -926,6 +1205,7 @@ describe('mutations', () => {
 
     afterEach(() => {
       global.fetch = originalFetch;
+      jest.useRealTimers();
       jest.restoreAllMocks();
     });
 
@@ -976,8 +1256,7 @@ describe('mutations', () => {
     });
 
     it('should timeout when veeam proxy never appears', async () => {
-      const originalSetTimeout = global.setTimeout;
-      global.setTimeout = ((fn: () => void) => fn()) as unknown as typeof global.setTimeout;
+      jest.useFakeTimers();
 
       const mocks = createDeploymentLifecycleMocks(5);
       mockFetch.mockImplementation((url: string) => {
@@ -995,24 +1274,21 @@ describe('mutations', () => {
       });
 
       let error;
+      let mutationPromise: Promise<unknown>;
       await act(async () => {
-        try {
-          await result.current.mutateAsync(undefined);
-        } catch (e) {
+        mutationPromise = result.current.mutateAsync(undefined).catch((e) => {
           error = e;
-        }
+        });
       });
+      await advanceFakeTimersUntilSettled(mutationPromise);
 
       expect(error).toBeDefined();
       expect(result.current.isError).toBe(true);
-      expect(String(error)).toContain('timed out');
-
-      global.setTimeout = originalSetTimeout;
+      expect(String(error)).toContain('has not progressed');
     });
 
     it('should handle runtime config fetch failure gracefully', async () => {
-      const originalSetTimeout = global.setTimeout;
-      global.setTimeout = ((fn: () => void) => fn()) as unknown as typeof global.setTimeout;
+      jest.useFakeTimers();
 
       const mocks = createDeploymentLifecycleMocks(5);
       mockFetch.mockImplementation((url: string) => {
@@ -1030,19 +1306,17 @@ describe('mutations', () => {
       });
 
       let error;
+      let mutationPromise: Promise<unknown>;
       await act(async () => {
-        try {
-          await result.current.mutateAsync(undefined);
-        } catch (e) {
+        mutationPromise = result.current.mutateAsync(undefined).catch((e) => {
           error = e;
-        }
+        });
       });
+      await advanceFakeTimersUntilSettled(mutationPromise);
 
       expect(error).toBeDefined();
       expect(result.current.isError).toBe(true);
-      expect(String(error)).toContain('timed out');
-
-      global.setTimeout = originalSetTimeout;
+      expect(String(error)).toContain('has not progressed');
     });
 
     it('should only check veeam proxy after deployment is ready', async () => {
