@@ -202,35 +202,39 @@ const useCreateUserAccessKeyMutation = () => {
   });
 };
 
-const DEFAULT_ZENKO_POLL_TIMEOUT_MS = 120_000;
-const DEFAULT_ZENKO_POLL_INTERVAL_MS = 1_000;
+const ZENKO_NO_PROGRESS_TIMEOUT_MS = 5 * 60_000;
+const ZENKO_POLL_INTERVAL_MS = 1_000;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const getZenkoProgressFingerprint = (response): string =>
+  JSON.stringify([
+    response.status?.observedGeneration,
+    (response.status?.conditions ?? []).map((cond) => [cond.type, cond.lastTransitionTime]),
+    response.status?.readyReplicas,
+  ]);
 
 const waitForZenkoDeploymentComplete = async ({
   fetchZenkoCR,
   since,
-  timeoutMs = DEFAULT_ZENKO_POLL_TIMEOUT_MS,
-  intervalMs = DEFAULT_ZENKO_POLL_INTERVAL_MS,
   additionalPollCondition,
   isCancelled,
 }: {
   fetchZenkoCR: () => Promise<Response>;
   since?: number;
-  timeoutMs?: number;
-  intervalMs?: number;
   additionalPollCondition?: () => Promise<boolean>;
   isCancelled?: () => boolean;
 }): Promise<void> => {
-  const deadline = Date.now() + timeoutMs;
+  let lastProgressAt = Date.now();
+  let lastFingerprint: string | undefined;
   let resourceSynchronized = false;
   let isReady = false;
   let deploymentStarted = since === undefined;
   let isFirstPoll = true;
 
-  while (Date.now() < deadline) {
+  while (Date.now() - lastProgressAt < ZENKO_NO_PROGRESS_TIMEOUT_MS) {
     if (since !== undefined || !isFirstPoll) {
-      await delay(intervalMs);
+      await delay(ZENKO_POLL_INTERVAL_MS);
     }
     isFirstPoll = false;
     if (isCancelled?.()) {
@@ -242,6 +246,13 @@ const waitForZenkoDeploymentComplete = async ({
       continue;
     }
     const response = await r.json();
+
+    const fingerprint = getZenkoProgressFingerprint(response);
+    if (fingerprint !== lastFingerprint) {
+      lastFingerprint = fingerprint;
+      lastProgressAt = Date.now();
+    }
+
     if (response.metadata.generation === response.status.observedGeneration) {
       resourceSynchronized = true;
     }
@@ -250,6 +261,12 @@ const waitForZenkoDeploymentComplete = async ({
       const availableCondition = response.status.conditions.find((cond) => cond.type === 'Available');
       const deploymentCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentInProgress');
       const failureCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentFailure');
+
+      if (failureCondition?.status === 'True') {
+        throw new Error(
+          `Zenko deployment failed: ${failureCondition.message || failureCondition.reason || 'unknown error'}`,
+        );
+      }
 
       const isDeploymentComplete =
         availableCondition?.status === 'True' &&
@@ -289,7 +306,7 @@ const waitForZenkoDeploymentComplete = async ({
     }
   }
 
-  throw new Error('Operation timed out: resource synchronization did not complete within the expected time frame');
+  throw new Error(`Zenko deployment made no progress for ${ZENKO_NO_PROGRESS_TIMEOUT_MS / 60_000} minutes`);
 };
 
 const useZenkoCRRequest = () => {
@@ -323,22 +340,19 @@ const useZenkoCRRequest = () => {
 const useWaitForZenkoDeployment = () => {
   const { fetchZenkoCR } = useZenkoCRRequest();
 
-  return ({
-    timeoutMs,
-    intervalMs,
-    isCancelled,
-  }: {
-    timeoutMs?: number;
-    intervalMs?: number;
-    isCancelled?: () => boolean;
-  }) => waitForZenkoDeploymentComplete({ fetchZenkoCR, timeoutMs, intervalMs, isCancelled });
+  return ({ isCancelled, since }: { isCancelled?: () => boolean; since?: number }) =>
+    waitForZenkoDeploymentComplete({
+      fetchZenkoCR,
+      since,
+      isCancelled,
+    });
 };
 
 const usePatchZenkoConfigurationMutation = <T>(
   getJsonPatch: (args: T) => string,
   options?: MutationOptions<T, ApiError, T>,
   additionalPollCondition?: () => Promise<boolean>,
-  pollOptions?: { pollTimeoutMs?: number; pollIntervalMs?: number },
+  isCancelled?: () => boolean,
 ) => {
   const { getURL, getToken, fetchZenkoCR } = useZenkoCRRequest();
 
@@ -362,9 +376,8 @@ const usePatchZenkoConfigurationMutation = <T>(
       await waitForZenkoDeploymentComplete({
         fetchZenkoCR,
         since: patchTimestamp,
-        timeoutMs: pollOptions?.pollTimeoutMs ?? DEFAULT_ZENKO_POLL_TIMEOUT_MS,
-        intervalMs: pollOptions?.pollIntervalMs ?? DEFAULT_ZENKO_POLL_INTERVAL_MS,
         additionalPollCondition,
+        isCancelled,
       });
       return result;
     },
@@ -396,11 +409,11 @@ const useEnableSOSAPIMutation = () => {
 const useAddCertificateToZenkoConfigurationMutation = ({
   hasEgress,
   hasExtraCACerts,
-  pollTimeoutMs,
+  isCancelled,
 }: {
   hasEgress: boolean;
   hasExtraCACerts: boolean;
-  pollTimeoutMs?: number;
+  isCancelled?: () => boolean;
 }) => {
   return usePatchZenkoConfigurationMutation(
     (args: { certificate: string }) => {
@@ -432,7 +445,7 @@ const useAddCertificateToZenkoConfigurationMutation = ({
     },
     undefined,
     undefined,
-    { pollTimeoutMs },
+    isCancelled,
   );
 };
 
