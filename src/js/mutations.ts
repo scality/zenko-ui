@@ -226,7 +226,6 @@ const waitForZenkoDeploymentComplete = async ({
   let resourceSynchronized = false;
   let isReady = false;
   let deploymentStarted = since === undefined;
-  let additionalConditionPassed = !additionalPollCondition;
   let isFirstPoll = true;
 
   while (Date.now() < deadline) {
@@ -275,7 +274,7 @@ const waitForZenkoDeploymentComplete = async ({
       }
     }
 
-    additionalConditionPassed = !additionalPollCondition;
+    let additionalConditionPassed = !additionalPollCondition;
     if (additionalPollCondition && isReady) {
       try {
         additionalConditionPassed = await additionalPollCondition();
