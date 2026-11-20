@@ -452,7 +452,20 @@ describe('ApplyActionsStep — refreshing what the run created', () => {
       rest.post('*/config/:uuid/location', (_req, res, ctx) => res(ctx.json({}))),
       // The destination certificate is already trusted, so importing it does nothing.
       rest.get('*/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data', (_req, res, ctx) =>
-        res(ctx.json({ spec: { egress: { extraCACerts: [{ 'ca.crt': VALUES.certificate }] } } })),
+        res(
+          ctx.json({
+            metadata: { generation: 1 },
+            spec: { egress: { extraCACerts: [{ 'ca.crt': VALUES.certificate }] } },
+            status: {
+              observedGeneration: 1,
+              conditions: [
+                { type: 'Available', status: 'True' },
+                { type: 'DeploymentInProgress', status: 'False' },
+                { type: 'DeploymentFailure', status: 'False' },
+              ],
+            },
+          }),
+        ),
       ),
     );
     (mockShellHooks.useConfigRetriever as jest.Mock).mockReturnValue({
