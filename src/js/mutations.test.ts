@@ -1087,7 +1087,7 @@ describe('mutations', () => {
 
       await advanceFakeTimersUntilSettled(mutationPromise);
 
-      expect(String(error)).toContain('Zenko deployment made no progress for 5 minutes');
+      expect(String(error)).toContain('The platform has not progressed for 5 minutes');
       expect(Date.now() - start).toBeGreaterThanOrEqual(300_000);
     });
 
@@ -1183,7 +1183,7 @@ describe('mutations', () => {
 
       expect(error).toBeDefined();
       expect(result.current.isError).toBe(true);
-      expect(String(error)).toContain('no progress');
+      expect(String(error)).toContain('has not progressed');
       expect(Date.now() - start).toBeGreaterThanOrEqual(300_000);
     });
   });
@@ -1284,7 +1284,7 @@ describe('mutations', () => {
 
       expect(error).toBeDefined();
       expect(result.current.isError).toBe(true);
-      expect(String(error)).toContain('no progress');
+      expect(String(error)).toContain('has not progressed');
     });
 
     it('should handle runtime config fetch failure gracefully', async () => {
@@ -1316,7 +1316,7 @@ describe('mutations', () => {
 
       expect(error).toBeDefined();
       expect(result.current.isError).toBe(true);
-      expect(String(error)).toContain('no progress');
+      expect(String(error)).toContain('has not progressed');
     });
 
     it('should only check veeam proxy after deployment is ready', async () => {

@@ -210,9 +210,14 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const getZenkoProgressFingerprint = (response): string =>
   JSON.stringify([
     response.status?.observedGeneration,
-    (response.status?.conditions ?? []).map((cond) => [cond.type, cond.lastTransitionTime]),
+    (response.status?.conditions ?? []).map((cond) => [cond.type, cond.status, cond.lastTransitionTime]),
     response.status?.readyReplicas,
   ]);
+
+const describeZenkoState = (response): string => {
+  const conditions = (response.status?.conditions ?? []).map((cond) => `${cond.type}=${cond.status}`).join(', ');
+  return `generation ${response.metadata?.generation}, observed generation ${response.status?.observedGeneration}, ready replicas ${response.status?.readyReplicas ?? 'unknown'}, conditions: ${conditions || 'none'}`;
+};
 
 const waitForZenkoDeploymentComplete = async ({
   fetchZenkoCR,
@@ -227,6 +232,7 @@ const waitForZenkoDeploymentComplete = async ({
 }): Promise<void> => {
   let lastProgressAt = Date.now();
   let lastFingerprint: string | undefined;
+  let lastKnownState = 'no state could be read from the platform';
   let resourceSynchronized = false;
   let isReady = false;
   let deploymentStarted = since === undefined;
@@ -252,6 +258,7 @@ const waitForZenkoDeploymentComplete = async ({
       lastFingerprint = fingerprint;
       lastProgressAt = Date.now();
     }
+    lastKnownState = describeZenkoState(response);
 
     if (response.metadata.generation === response.status.observedGeneration) {
       resourceSynchronized = true;
@@ -263,9 +270,7 @@ const waitForZenkoDeploymentComplete = async ({
       const failureCondition = response.status.conditions.find((cond) => cond.type === 'DeploymentFailure');
 
       if (failureCondition?.status === 'True') {
-        throw new Error(
-          `Zenko deployment failed: ${failureCondition.message || failureCondition.reason || 'unknown error'}`,
-        );
+        throw new Error(failureCondition.message || failureCondition.reason || 'Zenko deployment failed');
       }
 
       const isDeploymentComplete =
@@ -306,7 +311,9 @@ const waitForZenkoDeploymentComplete = async ({
     }
   }
 
-  throw new Error(`Zenko deployment made no progress for ${ZENKO_NO_PROGRESS_TIMEOUT_MS / 60_000} minutes`);
+  throw new Error(
+    `The platform has not progressed for ${ZENKO_NO_PROGRESS_TIMEOUT_MS / 60_000} minutes: ${lastKnownState}`,
+  );
 };
 
 const useZenkoCRRequest = () => {
