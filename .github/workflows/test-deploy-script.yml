@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - 'deploy-script.sh'
+      - 'nginx.conf.gotempl'
       - '.github/scripts/test-deploy-script.sh'
       - '.github/workflows/test-deploy-script.yml'
   pull_request:
     paths:
       - 'deploy-script.sh'
+      - 'nginx.conf.gotempl'
       - '.github/scripts/test-deploy-script.sh'
       - '.github/workflows/test-deploy-script.yml'
 
