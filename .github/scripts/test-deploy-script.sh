@@ -91,6 +91,14 @@ else
   exit 1
 fi
 
+bash -n .github/scripts/test-s3-streaming.sh
+if bash .github/scripts/test-s3-streaming.sh; then
+  echo "✅ Behavioral check passed: >1 GiB download through /s3 streams fully"
+else
+  echo "❌ Behavioral check failed: >1 GiB download through /s3 location"
+  exit 1
+fi
+
 echo ""
 
 # Test 1: Simple proxy with basic server block
