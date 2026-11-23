@@ -50,6 +50,49 @@ fi
 
 echo ""
 
+# Extract a location block (including nested braces) from a config file
+extract_location_block() {
+  awk -v loc="$2" '
+    {
+      line = $0
+      sub(/^[ \t]+/, "", line)
+    }
+    !found && line == "location " loc " {" { found = 1 }
+    found {
+      print
+      n = gsub(/\{/, "{")
+      m = gsub(/\}/, "}")
+      depth += n - m
+      if (depth <= 0) exit
+    }
+  ' "$1"
+}
+
+echo "=== Static check: nginx.conf.gotempl /s3 location streams responses ==="
+template_s3_block=$(extract_location_block nginx.conf.gotempl /s3)
+if echo "$template_s3_block" | grep -q "proxy_buffering off"; then
+  echo "✅ Template check passed: location /s3 disables proxy buffering"
+else
+  echo "❌ Template check failed: location /s3 in nginx.conf.gotempl must contain 'proxy_buffering off'"
+  echo "Extracted location /s3 block:"
+  echo "$template_s3_block"
+  exit 1
+fi
+
+echo ""
+echo "=== Static check: every S3 heredoc emitter uses shared streaming directives ==="
+expected_s3_emitters=6
+streaming_refs=$(grep -F -c '${S3_STREAMING_DIRECTIVES}' deploy-script.sh || true)
+if [ "$streaming_refs" -eq "$expected_s3_emitters" ]; then
+  echo "✅ Static check passed: S3_STREAMING_DIRECTIVES referenced $streaming_refs times (once per S3 emitter)"
+else
+  echo "❌ Static check failed: expected $expected_s3_emitters references to \${S3_STREAMING_DIRECTIVES} in deploy-script.sh, found $streaming_refs"
+  grep -n 'S3_STREAMING_DIRECTIVES' deploy-script.sh || echo "No S3_STREAMING_DIRECTIVES references found"
+  exit 1
+fi
+
+echo ""
+
 # Test 1: Simple proxy with basic server block
 echo "=== Test 1: Simple proxy with basic server block ==="
 sudo mkdir -p /usr/share/nginx/html/.well-known/configs
@@ -381,6 +424,16 @@ else
   exit 1
 fi
 
+# Verify S3 responses are streamed (no proxy buffering) for /s3 path with Veeam
+if extract_location_block /etc/nginx/conf.d/default.conf /s3 | grep -q "proxy_buffering off"; then
+  echo "✅ Test 6 passed: proxy_buffering off present in /s3 location with Veeam"
+else
+  echo "❌ Test 6 failed: location /s3 with Veeam should contain 'proxy_buffering off'"
+  echo "Generated config:"
+  cat /etc/nginx/conf.d/default.conf
+  exit 1
+fi
+
 echo ""
 echo "=== Test 7: Veeam configuration with custom basePath ==="
 # Clean up config files before Test 7
@@ -445,6 +498,16 @@ else
   echo "❌ Test 7 failed: Resolver should NOT be added for /custom/s3 path (only for exact /s3)"
   echo "/custom/s3 location context:"
   grep -A10 -B5 "location /custom/s3" /etc/nginx/conf.d/default.conf || echo "Location /custom/s3 not found"
+  exit 1
+fi
+
+# Verify S3 responses are streamed (no proxy buffering) for /custom/s3 path with Veeam
+if extract_location_block /etc/nginx/conf.d/default.conf /custom/s3 | grep -q "proxy_buffering off"; then
+  echo "✅ Test 7 passed: proxy_buffering off present in /custom/s3 location with Veeam"
+else
+  echo "❌ Test 7 failed: location /custom/s3 with Veeam should contain 'proxy_buffering off'"
+  echo "Generated config:"
+  cat /etc/nginx/conf.d/default.conf
   exit 1
 fi
 
@@ -520,6 +583,16 @@ else
   echo "❌ Test 8 failed: Resolver should NOT be added in test mode"
   echo "S3 location context:"
   grep -A10 -B5 "location /s3" /etc/nginx/conf.d/default.conf || echo "Location /s3 not found"
+  exit 1
+fi
+
+# Verify S3 responses are streamed (no proxy buffering) for non-Veeam /s3 path
+if extract_location_block /etc/nginx/conf.d/default.conf /s3 | grep -q "proxy_buffering off"; then
+  echo "✅ Test 8 passed: proxy_buffering off present in /s3 location"
+else
+  echo "❌ Test 8 failed: location /s3 should contain 'proxy_buffering off'"
+  echo "Generated config:"
+  cat /etc/nginx/conf.d/default.conf
   exit 1
 fi
 
