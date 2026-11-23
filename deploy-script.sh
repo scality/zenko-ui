@@ -229,6 +229,8 @@ EOF
   fi
 
   # 4. S3 proxies (with special Veeam handling)
+  S3_STREAMING_DIRECTIVES="        proxy_buffering off;"
+
   if [ ${#S3_PROXY_INDICES[@]} -gt 0 ]; then
     echo "" >> "$PROXY_TEMP"
     echo "    # S3 proxies" >> "$PROXY_TEMP"
@@ -256,6 +258,7 @@ EOF
         }
         # Standard S3 requests
         proxy_pass $target;
+${S3_STREAMING_DIRECTIVES}
     }
 EOF
           else
@@ -264,6 +267,7 @@ EOF
 
     location $source_path {
         resolver coredns.kube-system.svc;
+${S3_STREAMING_DIRECTIVES}
 
         # Veeam SOS API support with S3-compliant bucket name validation
         location ~ "${s3_path}/([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/(system\\.xml|capacity\\.xml).*?" {
@@ -302,6 +306,7 @@ EOF
     location $source_path {
         # Standard S3 requests
         proxy_pass $target;
+${S3_STREAMING_DIRECTIVES}
     }
 EOF
           else
@@ -309,6 +314,7 @@ EOF
             cat >> "$PROXY_TEMP" << EOF
 
     location $source_path {
+${S3_STREAMING_DIRECTIVES}
         # URL encoding handling for plus signs in S3 requests
         set_by_lua_block \$urlencore_proxy_uri {
             local uri = ngx.var.request_uri
@@ -332,6 +338,7 @@ EOF
 
     location $source_path {
         proxy_pass $target;
+${S3_STREAMING_DIRECTIVES}
     }
 EOF
         else
@@ -340,6 +347,7 @@ EOF
 
     location $source_path {
         resolver coredns.kube-system.svc;
+${S3_STREAMING_DIRECTIVES}
         # URL encoding handling for plus signs in S3 requests
         set_by_lua_block \$urlencore_proxy_uri {
             local uri = ngx.var.request_uri
