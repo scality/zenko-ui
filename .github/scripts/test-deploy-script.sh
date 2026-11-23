@@ -70,10 +70,10 @@ extract_location_block() {
 
 echo "=== Static check: nginx.conf.gotempl /s3 location streams responses ==="
 template_s3_block=$(extract_location_block nginx.conf.gotempl /s3)
-if echo "$template_s3_block" | grep -q "proxy_buffering off" && echo "$template_s3_block" | grep -q "proxy_read_timeout 3600s"; then
-  echo "✅ Template check passed: location /s3 disables proxy buffering and sets proxy_read_timeout 3600s"
+if echo "$template_s3_block" | grep -q "proxy_buffering off"; then
+  echo "✅ Template check passed: location /s3 disables proxy buffering"
 else
-  echo "❌ Template check failed: location /s3 in nginx.conf.gotempl must contain 'proxy_buffering off' and 'proxy_read_timeout 3600s'"
+  echo "❌ Template check failed: location /s3 in nginx.conf.gotempl must contain 'proxy_buffering off'"
   echo "Extracted location /s3 block:"
   echo "$template_s3_block"
   exit 1

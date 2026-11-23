@@ -229,8 +229,7 @@ EOF
   fi
 
   # 4. S3 proxies (with special Veeam handling)
-  S3_STREAMING_DIRECTIVES="        proxy_buffering off;
-        proxy_read_timeout 3600s;"
+  S3_STREAMING_DIRECTIVES="        proxy_buffering off;"
 
   if [ ${#S3_PROXY_INDICES[@]} -gt 0 ]; then
     echo "" >> "$PROXY_TEMP"
