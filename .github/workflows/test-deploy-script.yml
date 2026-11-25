@@ -6,12 +6,20 @@ on:
       - 'deploy-script.sh'
       - 'nginx.conf.gotempl'
       - '.github/scripts/test-deploy-script.sh'
+      - '.github/scripts/test-s3-streaming.sh'
+      - 'Dockerfile'
+      - 'startup.sh'
+      - 'conf/scality-cloud-nginx.conf'
       - '.github/workflows/test-deploy-script.yml'
   pull_request:
     paths:
       - 'deploy-script.sh'
       - 'nginx.conf.gotempl'
       - '.github/scripts/test-deploy-script.sh'
+      - '.github/scripts/test-s3-streaming.sh'
+      - 'Dockerfile'
+      - 'startup.sh'
+      - 'conf/scality-cloud-nginx.conf'
       - '.github/workflows/test-deploy-script.yml'
 
 jobs:
