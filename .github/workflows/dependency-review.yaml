@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Repository'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: 'Dependency Review'
-        uses: actions/dependency-review-action@v3
+        uses: actions/dependency-review-action@v4
         with:
           # TODO: Remove once @scality/cloudserverclient upgrades fast-xml-parser to v5.3.8+
           # and aws-sdk v2 is migrated to v3
